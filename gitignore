@@ -11,6 +11,8 @@ frontend/.angular/
 frontend/.sass-cache/
 frontend/coverage/
 frontend/*.js.map
+frontend/.vite/
+frontend/package-lock.json
 
 # ── Backend (Spring Boot) ───────────────────────────────────────────────────────
 backend/target/
