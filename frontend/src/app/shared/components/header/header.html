@@ -1,0 +1,56 @@
+<header class="flex items-center justify-between px-10 h-16 bg-bg-surface border-b border-black/10">
+
+    <div class ="flex items-center gap-2 flex-shrink-0">
+        <img src="assets/logoPreto.svg" alt="My Library Logo" class="h-8 w-auto" />
+        <span class=""font-serif text-1g font-bold - text-ink>My Library</span>
+
+    </div>
+
+    <nav class="flex items-center gap-1 transition-opacity duration-300"
+        [class.opacity-20]="searchOpen"
+        [class.pointer-events-none]="searchOpen">
+        <a routerLink="" class="px-3 py-1.5 text-sm text-muted rounded-1g hover:text-ink hover:bg-bg-surface-2 transition-all">Home</a>
+        <a routerLink="" class="px-3 py-1.5 text-sm text-muted rounded-1g hover:text-ink hover:bg-bg-surface-2 transition-all">Catálogos</a>
+        <a routerLink="" class="px-3 py-1.5 text-sm text-muted rounded-1g hover:text-ink hover:bg-bg-surface-2 transition-all">WishList</a>
+        <a routerLink="" class="px-3 py-1.5 text-sm text-muted rounded-1g hover:text-ink hover:bg-bg-surface-2 transition-all">Explorar</a>
+    </nav>
+
+    <div class="flex gap-2">
+        <div class="flex items-center overflow-hidden transition-all duration-300"
+                [class.w-0]="!searchOpen"
+                [class.w-56]="searchOpen">
+                <input type="text"
+                    placeholder="Buscar livros, autores, ..."
+                    class="w-full bg-bg-surface-2 border border-black/10 rounded-1-1g px-3 py-1.5 text-sm text-ink placeholder-dim outline-none">    
+        </div>
+
+        
+        <button (click)="toggleSearch()" 
+            class="w-9 h-9 rounded-1g text-muted flex items-center justify-center  transition-all  hover:bg-bg-surface-2 hover:text-ink"
+            [class.rounded-1-none]="searchOpen"
+            [class.bg-ink]="searchOpen"
+            [class.text-bg-primary]="searchOpen">Lupa
+        </button>
+
+    </div>
+
+    
+    @if (searchOpen){
+
+        <button
+            (click)="toggleSearch()"
+            class="w-9 h-9 rounded-1g text-muted flex items-center justify-center hover:text-ink transition-all">
+            <i class="ti ti-x text-lg"></i>
+        </button>
+    }
+    
+
+    @if (!searchOpen) {
+        <button (click)="goToLogin()"
+                class="w-9 h-9 rounded-lg text-muted flex items-center justify-center hover:text-ink transition-all">
+            <i class="ti ti-user text-lg">Login</i>
+        </button>
+    }
+    
+
+</header>
