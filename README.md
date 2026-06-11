@@ -6,6 +6,7 @@ Biblioteca digital pessoal para cadastrar, organizar e explorar sua coleção de
 
 My Library é um web app para catalogar livros com informações detalhadas, sistema de ranking multidimensional, resenhas pessoais, wish list e uma visualização de grafo interativo conectando livros por tags — inspirado no estilo do Obsidian.
 
+
 ## Stack
 
 | Camada | Tecnologia |
