@@ -1,1 +1,14 @@
-<app-header />
+<div class="relative">
+  <app-header theme="dark" class="absolute left-0 right-0 z-10"/>
+  <app-hero-section
+    layout="split"
+    title="O Senhor dos Anéis"
+    author="J.R.R. Tolkien"
+    synopsis="Em um mundo chamado Terra-média, o jovem hobbit Frodo Bolseiro herda um anel mágico de seu tio Bilbo — mas este não é um anel comum."
+    series="A Sociedade do Anel"
+    [volume]="1"
+    [genres]="['Fantasia', 'Épico', 'Aventura']"
+    backgroundImage="assets/capas-home/LOTR-Home.jpg"
+    coverImage="assets/capa-book-home/capa-livro01-LOTR.jpg"
+  />
+</div>

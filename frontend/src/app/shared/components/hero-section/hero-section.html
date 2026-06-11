@@ -1,0 +1,45 @@
+<section class="relative w-full min-h-screen bg-cover bg-center flex gap-80 "
+    [style.backgroundImage]="'url(' + backgroundImage + ')'">
+
+
+    <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/70"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent"></div>
+    <div class="absolute inset-0 bg-gradient-to-l from-black via-transparent to-transparent"></div>
+
+
+    <div class="w-2/5 flex flex-col gap-6 p-16 justify-center relative z-10">
+
+        <div class="flex flex-col gap-2">
+            <span class="font-serif text-5xl font-bold text-white">{{ title }}</span>
+            <span class="font-serif text-base text-white">{{ author }}</span>
+        </div>
+        <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-4 min-w-[280px]">
+            <img [src]="coverImage" class="w-16 h-16 object-cover rounded-1g"/>
+
+            <div class="flex flex-col gap-1 py-2">
+                <span class="text-white/80 text-sm font-medium">{{ series }}</span>
+                <span class="text-white/50 text-xs">Vol. {{ volume }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-col flex-1 gap-6 p-16 justify-center relative z-10">
+
+        <div class="sinopse">
+            <span class="font-serif text-base text-white">{{ synopsis}}</span>
+        </div>
+        <div class="flex gap-2 flex-wrap">
+
+            @for (genre of genres; track genre){
+                <span class="px-3 py-1 text-xs font-medium text-white/70 border border-white/20 rounded-full  hover:bg-bg-surface-2">
+                    {{ genre }}
+                </span>
+            }
+            
+        </div>
+    </div>
+
+
+
+
+</section>

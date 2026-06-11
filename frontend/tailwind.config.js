@@ -9,7 +9,7 @@ module.exports = {
         // Paleta Pergaminho
         'bg-primary': '#FAF6EE',
         'bg-surface': '#F0E8D4',
-        'bg-surface-2': '#E8DCC0',
+        'bg-surface-2': '#1b6968',
         'bg-surface-3': '#DDD0AA',
         'ink': '#1C1810',
         'ink-2': '#3A3020',
