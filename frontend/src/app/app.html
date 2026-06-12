@@ -11,4 +11,10 @@
     backgroundImage="assets/capas-home/LOTR-Home.jpg"
     coverImage="assets/capa-book-home/capa-livro01-LOTR.jpg"
   />
+  <app-top-books [books]="[
+    { rank: 2, title: 'Duna', author: 'Frank Herbert', cover: 'assets/capas-home/capa1.jpg', slug: 'duna' },
+    { rank: 1, title: 'O Senhor dos Anéis', author: 'J.R.R. Tolkien', cover: 'assets/capas-home/capa2.jpg', slug: 'senhor-dos-aneis' },
+    { rank: 3, title: 'It', author: 'Stephen King', cover: 'assets/capas-home/capa3.jpg', slug: 'it' }
+  ]" />
+
 </div>
