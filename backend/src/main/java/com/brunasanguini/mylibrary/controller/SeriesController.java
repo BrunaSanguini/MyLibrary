@@ -33,8 +33,7 @@ public class SeriesController {
 
     @PostMapping
     public ResponseEntity<SeriesResponse> create(@Valid @RequestBody SeriesRequest request) {
-        SeriesResponse created = seriesService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        return ResponseEntity.status(HttpStatus.CREATED).body(seriesService.create(request));
     }
 
     @PutMapping("/{id}")

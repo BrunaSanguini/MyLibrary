@@ -33,8 +33,7 @@ public class PublisherController {
 
     @PostMapping
     public ResponseEntity<PublisherResponse> create(@Valid @RequestBody PublisherRequest request) {
-        PublisherResponse created = publisherService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        return ResponseEntity.status(HttpStatus.CREATED).body(publisherService.create(request));
     }
 
     @PutMapping("/{id}")

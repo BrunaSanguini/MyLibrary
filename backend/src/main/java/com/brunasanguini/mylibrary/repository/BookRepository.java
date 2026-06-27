@@ -13,12 +13,14 @@ import java.util.UUID;
 @Repository
 public interface BookRepository extends JpaRepository<Book, UUID> {
 
-    Optional<Book> findByIsbn(String isbn);                    // RN-010
-
+    Optional<Book> findByIsbn(String isbn);
+    boolean existsByIsbn(String isbn);
     List<Book> findByReadingStatus(ReadingStatus status);
 
-    boolean existsByIsbn(String isbn);                         // para validação no service
-
     @Query("SELECT b FROM Book b JOIN b.tags t WHERE t = :tag")
-    List<Book> findByTag(String tag);                          // RN-081: grafo de tags
+    List<Book> findByTag(String tag);
+
+    boolean existsByGenresId(UUID genreId);
+    boolean existsByPublisherId(UUID publisherId);
+    boolean existsBySeriesId(UUID seriesId);
 }

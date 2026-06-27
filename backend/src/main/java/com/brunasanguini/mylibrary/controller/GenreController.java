@@ -33,8 +33,7 @@ public class GenreController {
 
     @PostMapping
     public ResponseEntity<GenreResponse> create(@Valid @RequestBody GenreRequest request) {
-        GenreResponse created = genreService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        return ResponseEntity.status(HttpStatus.CREATED).body(genreService.create(request));
     }
 
     @PutMapping("/{id}")
