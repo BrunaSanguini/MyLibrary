@@ -1,70 +1,78 @@
 package com.brunasanguini.mylibrary.service;
 
-import com.brunasanguini.mylibrary.dto.response.*;
-import com.brunasanguini.mylibrary.dto.request.BookRequest;
+
+import com.brunasanguini.mylibrary.dto.BookRequest;
+import com.brunasanguini.mylibrary.dto.response.AuthorResponse;
 import com.brunasanguini.mylibrary.dto.response.BookResponse;
+import com.brunasanguini.mylibrary.dto.response.GenreResponse;
 import com.brunasanguini.mylibrary.entity.*;
-import com.brunasanguini.mylibrary.exception.ResourceNotFoundException;
 import com.brunasanguini.mylibrary.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class BookService {
 
     private final BookRepository bookRepository;
-    private final UserRepository userRepository;
-    private final PublisherRepository publisherRepository;
-    private final LanguageRepository languageRepository;
-    private final SeriesRepository seriesRepository;
     private final AuthorRepository authorRepository;
     private final GenreRepository genreRepository;
-    private final SubgenreRepository subgenreRepository;
-    private final TagRepository tagRepository;
+    private final PublisherRepository publisherRepository;
+    private final SeriesRepository seriesRepository;
+    private final ReadingSessionService readingSessionService;
 
     public BookService(BookRepository bookRepository,
-                       UserRepository userRepository,
-                       PublisherRepository publisherRepository,
-                       LanguageRepository languageRepository,
-                       SeriesRepository seriesRepository,
                        AuthorRepository authorRepository,
                        GenreRepository genreRepository,
-                       SubgenreRepository subgenreRepository,
-                       TagRepository tagRepository) {
+                       PublisherRepository publisherRepository,
+                       SeriesRepository seriesRepository,
+                       ReadingSessionService readingSessionService) {
         this.bookRepository = bookRepository;
-        this.userRepository = userRepository;
-        this.publisherRepository = publisherRepository;
-        this.languageRepository = languageRepository;
-        this.seriesRepository = seriesRepository;
         this.authorRepository = authorRepository;
         this.genreRepository = genreRepository;
-        this.subgenreRepository = subgenreRepository;
-        this.tagRepository = tagRepository;
+        this.publisherRepository = publisherRepository;
+        this.seriesRepository = seriesRepository;
+        this.readingSessionService = readingSessionService;
     }
 
     public List<BookResponse> findAll() {
-        return bookRepository.findAll().stream().map(this::toResponse).toList();
+        return bookRepository.findAll().stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     public BookResponse findById(UUID id) {
         Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Livro não encontrado"));
+                .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
         return toResponse(book);
     }
 
     public BookResponse create(BookRequest request) {
+        // RN-010: ISBN único
+        if (request.isbn() != null && bookRepository.existsByIsbn(request.isbn())) {
+            throw new IllegalArgumentException("Já existe um livro com esse ISBN");
+        }
+
         Book book = new Book();
-        applyRequest(book, request);
-        book.setRereadCount(0); // novo livro começa com 0 releituras
+        fillBook(book, request);
         return toResponse(bookRepository.save(book));
     }
 
     public BookResponse update(UUID id, BookRequest request) {
         Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Livro não encontrado"));
-        applyRequest(book, request);
+                .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
+
+        // RN-010: ISBN único, mas permite manter o mesmo ISBN do próprio livro
+        if (request.isbn() != null
+                && !request.isbn().equals(book.getIsbn())
+                && bookRepository.existsByIsbn(request.isbn())) {
+            throw new IllegalArgumentException("Já existe um livro com esse ISBN");
+        }
+
+        fillBook(book, request);
         return toResponse(bookRepository.save(book));
     }
 
@@ -72,85 +80,118 @@ public class BookService {
         bookRepository.deleteById(id);
     }
 
-    // Aplica os dados do request à entidade, resolvendo todas as referências
-    private void applyRequest(Book book, BookRequest request) {
-        // O usuário dono será definido pelo contexto de autenticação futuramente.
-        // Por enquanto, buscamos o primeiro usuário como placeholder de desenvolvimento.
-        // (Será substituído quando a autenticação JWT estiver pronta.)
+    public List<BookResponse> findByStatus(ReadingStatus status) {
+        return bookRepository.findByReadingStatus(status).stream()
+                .map(this::toResponse)
+                .toList();
+    }
 
+    // ── Métodos privados ─────────────────────────────────────────────────
+
+    private void fillBook(Book book, BookRequest request) {
         book.setTitle(request.title());
         book.setIsbn(request.isbn());
-        book.setPages(request.pages());
+        book.setPageCount(request.pageCount());
+        book.setLanguage(request.language());
+        book.setSynopsis(request.synopsis());
         book.setCoverUrl(request.coverUrl());
-        book.setStatus(request.status());
-        book.setVolumeNumber(request.volumeNumber());
+        book.setPublicationYear(request.publicationYear());
+        book.setTags(request.tags() != null ? request.tags() : Set.of());
+        book.setWouldReread(request.wouldReread());
+        book.setWouldRecommend(request.wouldRecommend());
+        book.setIsFavorite(request.isFavorite());
+        book.setReview(request.review());
 
-        // Referências únicas (opcionais)
-        book.setPublisher(request.publisherId() == null ? null :
-                publisherRepository.findById(request.publisherId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Editora não encontrada")));
+        // Transição de status com controle de sessões (RN-032, RN-033, RN-035)
+        if (request.readingStatus() != null) {
+            ReadingStatus novoStatus = request.readingStatus();
+            ReadingStatus statusAtual = book.getReadingStatus();
 
-        book.setLanguage(request.languageId() == null ? null :
-                languageRepository.findById(request.languageId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Idioma não encontrado")));
+            book.setReadingStatus(novoStatus);
 
-        book.setSeries(request.seriesId() == null ? null :
-                seriesRepository.findById(request.seriesId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Série não encontrada")));
+            // Abre sessão ao começar a ler ou reler
+            if (novoStatus == ReadingStatus.READING || novoStatus == ReadingStatus.REREADING) {
+                readingSessionService.openSession(book);
+                if (novoStatus == ReadingStatus.REREADING) {
+                    book.setRereadCount(book.getRereadCount() + 1); // RN-033
+                }
+            }
 
-        // Relações N:N — resolve listas inteiras
-        if (request.authorIds() != null) {
-            book.setAuthors(authorRepository.findAllById(request.authorIds()));
+            // Fecha sessão ao marcar como lido
+            if (novoStatus == ReadingStatus.READ) {
+                readingSessionService.closeSession(book);
+            }
         }
-        if (request.genreIds() != null) {
-            book.setGenres(genreRepository.findAllById(request.genreIds()));
+
+        // Autores
+        Set<Author> authors = authorRepository.findAllById(request.authorIds())
+                .stream().collect(Collectors.toSet());
+        book.setAuthors(authors);
+
+        // Gêneros (opcional)
+        if (request.genreIds() != null && !request.genreIds().isEmpty()) {
+            Set<Genre> genres = genreRepository.findAllById(request.genreIds())
+                    .stream().collect(Collectors.toSet());
+            book.setGenres(genres);
         }
-        if (request.subgenreIds() != null) {
-            book.setSubgenres(subgenreRepository.findAllById(request.subgenreIds()));
+
+        // Editora (opcional)
+        if (request.publisherId() != null) {
+            Publisher publisher = publisherRepository.findById(request.publisherId())
+                    .orElseThrow(() -> new RuntimeException("Editora não encontrada"));
+            book.setPublisher(publisher);
         }
-        if (request.tagIds() != null) {
-            book.setTags(tagRepository.findAllById(request.tagIds()));
+
+        // Série (opcional) — RN-021: volumeNumber ≤ totalVolumes é validado aqui
+        if (request.seriesId() != null) {
+            Series series = seriesRepository.findById(request.seriesId())
+                    .orElseThrow(() -> new RuntimeException("Série não encontrada"));
+            if (request.volumeNumber() != null
+                    && series.getTotalVolumes() != null
+                    && request.volumeNumber() > series.getTotalVolumes()) {
+                throw new IllegalArgumentException(
+                        "O número do volume não pode ser maior que o total de volumes da série");
+            }
+            book.setSeries(series);
+            book.setVolumeNumber(request.volumeNumber());
         }
     }
 
     private BookResponse toResponse(Book book) {
-        List<AuthorResponse> authors = book.getAuthors() == null ? List.of() :
-                book.getAuthors().stream()
-                        .map(a -> new AuthorResponse(a.getId(), a.getName(), a.getBio(), a.getBirthDate()))
-                        .toList();
+        Set<AuthorResponse> authors = book.getAuthors().stream()
+                .map(a -> new AuthorResponse(a.getId(), a.getName(), a.getBio(), a.getBirthDate()))
+                .collect(Collectors.toSet());
 
-        List<GenreResponse> genres = book.getGenres() == null ? List.of() :
-                book.getGenres().stream()
-                        .map(g -> new GenreResponse(g.getId(), g.getName()))
-                        .toList();
-
-        List<SubgenreResponse> subgenres = book.getSubgenres() == null ? List.of() :
-                book.getSubgenres().stream()
-                        .map(s -> new SubgenreResponse(s.getId(), s.getName(),
-                                s.getGenre().getId(), s.getGenre().getName()))
-                        .toList();
-
-        List<TagResponse> tags = book.getTags() == null ? List.of() :
-                book.getTags().stream()
-                        .map(t -> new TagResponse(t.getId(), t.getName()))
-                        .toList();
+        Set<GenreResponse> genres = book.getGenres().stream()
+                .map(g -> new GenreResponse(
+                        g.getId(),
+                        g.getName(),
+                        g.getParent() != null ? g.getParent().getId() : null))
+                .collect(Collectors.toSet());
 
         return new BookResponse(
                 book.getId(),
                 book.getTitle(),
                 book.getIsbn(),
-                book.getPages(),
+                book.getPageCount(),
+                book.getLanguage(),
+                book.getSynopsis(),
                 book.getCoverUrl(),
-                book.getStatus(),
-                book.getPublisher() != null ? book.getPublisher().getName() : null,
-                book.getLanguage() != null ? book.getLanguage().getName() : null,
-                book.getSeries() != null ? book.getSeries().getName() : null,
-                book.getVolumeNumber(),
-                book.getRereadCount(),
+                book.getPublicationYear(),
                 authors,
                 genres,
-                subgenres,
-                tags
+                book.getPublisher() != null ? book.getPublisher().getName() : null,
+                book.getSeries() != null ? book.getSeries().getName() : null,
+                book.getVolumeNumber(),
+                book.getTags(),
+                book.getReadingStatus(),
+                book.getRereadCount(),
+                book.getWouldReread(),
+                book.getWouldRecommend(),
+                book.getIsFavorite(),
+                book.getReview(),
+                book.getCreatedAt(),
+                book.getUpdatedAt()
         );
     }
 }

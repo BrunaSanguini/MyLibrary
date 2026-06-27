@@ -54,7 +54,8 @@ public class GenreService {
     public GenreResponse toResponse(Genre genre) {
         return new GenreResponse(
                 genre.getId(),
-                genre.getName()
+                genre.getName(),
+                genre.getParent() != null ? genre.getParent().getId() : null
         );
     }
 

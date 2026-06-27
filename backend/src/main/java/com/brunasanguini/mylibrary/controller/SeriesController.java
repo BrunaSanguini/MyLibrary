@@ -2,7 +2,6 @@ package com.brunasanguini.mylibrary.controller;
 
 import com.brunasanguini.mylibrary.dto.request.SeriesRequest;
 import com.brunasanguini.mylibrary.dto.response.SeriesResponse;
-import com.brunasanguini.mylibrary.service.seriesService;
 import com.brunasanguini.mylibrary.service.SeriesService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

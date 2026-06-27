@@ -1,22 +1,32 @@
 package com.brunasanguini.mylibrary.dto.response;
 
-import java.util.List;
+import com.brunasanguini.mylibrary.entity.ReadingStatus;
+
+import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 public record BookResponse(
         UUID id,
         String title,
         String isbn,
-        Integer pages,
+        Integer pageCount,
+        String language,
+        String synopsis,
         String coverUrl,
-        String status,
+        Integer publicationYear,
+        Set<AuthorResponse> authors,
+        Set<GenreResponse> genres,
         String publisherName,
-        String languageName,
         String seriesName,
         Integer volumeNumber,
+        Set<String> tags,
+        ReadingStatus readingStatus,
         Integer rereadCount,
-        List<AuthorResponse> authors,
-        List<GenreResponse> genres,
-        List<SubgenreResponse> subgenres,
-        List<TagResponse> tags
+        Boolean wouldReread,
+        Boolean wouldRecommend,
+        Boolean isFavorite,
+        String review,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
 ) {}

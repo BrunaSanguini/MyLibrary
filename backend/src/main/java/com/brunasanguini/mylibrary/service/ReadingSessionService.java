@@ -1,75 +1,80 @@
 package com.brunasanguini.mylibrary.service;
 
-import com.brunasanguini.mylibrary.dto.request.ReadingSessionRequest;
-import com.brunasanguini.mylibrary.dto.response.ReadingSessionResponse;
+import com.brunasanguini.mylibrary.dto.ReadingSessionResponse;
 import com.brunasanguini.mylibrary.entity.Book;
 import com.brunasanguini.mylibrary.entity.ReadingSession;
-import com.brunasanguini.mylibrary.exception.ResourceNotFoundException;
+import com.brunasanguini.mylibrary.entity.ReadingStatus;
 import com.brunasanguini.mylibrary.repository.BookRepository;
 import com.brunasanguini.mylibrary.repository.ReadingSessionRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class ReadingSessionService {
 
-    private final ReadingSessionRepository sessionRepository;
+    private final ReadingSessionRepository readingSessionRepository;
     private final BookRepository bookRepository;
 
-    public ReadingSessionService(ReadingSessionRepository sessionRepository,
+    public ReadingSessionService(ReadingSessionRepository readingSessionRepository,
                                  BookRepository bookRepository) {
-        this.sessionRepository = sessionRepository;
+        this.readingSessionRepository = readingSessionRepository;
         this.bookRepository = bookRepository;
     }
 
-    public List<ReadingSessionResponse> findAll() {
-        return sessionRepository.findAll().stream().map(this::toResponse).toList();
-    }
+    // Chamado pelo BookService quando status muda para READING ou REREADING
+    public void openSession(Book book) {
+        // Se já existe uma sessão aberta, não abre outra
+        boolean hasOpenSession = readingSessionRepository
+                .findByBookIdAndIsCompletedFalse(book.getId())
+                .isPresent();
+        if (hasOpenSession) return;
 
-    public ReadingSessionResponse findById(UUID id) {
-        ReadingSession session = sessionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Sessão de leitura não encontrada"));
-        return toResponse(session);
-    }
-
-    public ReadingSessionResponse create(ReadingSessionRequest request) {
-        Book book = bookRepository.findById(request.bookId())
-                .orElseThrow(() -> new ResourceNotFoundException("Livro não encontrado"));
+        int completedSessions = readingSessionRepository
+                .countByBookIdAndIsCompletedTrue(book.getId());
 
         ReadingSession session = new ReadingSession();
         session.setBook(book);
-        session.setStartDate(request.startDate());
-        session.setEndDate(request.endDate());
-        session.setPagesRead(request.pagesRead());
-        return toResponse(sessionRepository.save(session));
+        session.setStartDate(LocalDate.now());
+        session.setRereadNumber(completedSessions); // 0 na 1ª leitura, 1 na 1ª releitura...
+        session.setIsCompleted(false);
+
+        readingSessionRepository.save(session);
     }
 
-    public ReadingSessionResponse update(UUID id, ReadingSessionRequest request) {
-        ReadingSession session = sessionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Sessão de leitura não encontrada"));
-        Book book = bookRepository.findById(request.bookId())
-                .orElseThrow(() -> new ResourceNotFoundException("Livro não encontrado"));
-
-        session.setBook(book);
-        session.setStartDate(request.startDate());
-        session.setEndDate(request.endDate());
-        session.setPagesRead(request.pagesRead());
-        return toResponse(sessionRepository.save(session));
+    // Chamado pelo BookService quando status muda para READ
+    public void closeSession(Book book) {
+        readingSessionRepository
+                .findByBookIdAndIsCompletedFalse(book.getId())
+                .ifPresent(session -> {
+                    session.setEndDate(LocalDate.now());
+                    session.setIsCompleted(true);
+                    readingSessionRepository.save(session);
+                });
     }
 
-    public void delete(UUID id) {
-        sessionRepository.deleteById(id);
+    // Retorna todo o histórico de leituras de um livro
+    public List<ReadingSessionResponse> findByBook(UUID bookId) {
+        return readingSessionRepository
+                .findByBookIdOrderByRereadNumberAsc(bookId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     private ReadingSessionResponse toResponse(ReadingSession session) {
         return new ReadingSessionResponse(
                 session.getId(),
                 session.getBook().getId(),
+                session.getBook().getTitle(),
                 session.getStartDate(),
                 session.getEndDate(),
-                session.getPagesRead()
+                session.getDaysToRead(),
+                session.getRereadNumber(),
+                session.getIsCompleted(),
+                session.getCreatedAt()
         );
     }
 }
