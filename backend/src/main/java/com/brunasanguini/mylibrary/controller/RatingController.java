@@ -1,5 +1,6 @@
 package com.brunasanguini.mylibrary.controller;
 
+import com.brunasanguini.mylibrary.dto.BookRatingsSummary;
 import com.brunasanguini.mylibrary.dto.request.RatingRequest;
 import com.brunasanguini.mylibrary.dto.response.RatingResponse;
 import com.brunasanguini.mylibrary.service.RatingService;
@@ -8,11 +9,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-        import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/ratings")
+@RequestMapping("/api/books/{bookId}/ratings")
 public class RatingController {
 
     private final RatingService ratingService;
@@ -21,30 +21,23 @@ public class RatingController {
         this.ratingService = ratingService;
     }
 
+    // GET /api/books/{bookId}/ratings
     @GetMapping
-    public List<RatingResponse> findAll() {
-        return ratingService.findAll();
+    public BookRatingsSummary getSummary(@PathVariable UUID bookId) {
+        return ratingService.getSummary(bookId);
     }
 
-    @GetMapping("/{id}")
-    public RatingResponse findById(@PathVariable UUID id) {
-        return ratingService.findById(id);
-    }
-
+    // POST /api/books/{bookId}/ratings
     @PostMapping
-    public ResponseEntity<RatingResponse> create(@Valid @RequestBody RatingRequest request) {
-        RatingResponse created = ratingService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    public ResponseEntity<RatingResponse> rate(@PathVariable UUID bookId,
+                                               @Valid @RequestBody RatingRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ratingService.rate(bookId, request));
     }
 
-    @PutMapping("/{id}")
-    public RatingResponse update(@PathVariable UUID id, @Valid @RequestBody RatingRequest request) {
-        return ratingService.update(id, request);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        ratingService.delete(id);
+    // DELETE /api/books/{bookId}/ratings
+    @DeleteMapping
+    public ResponseEntity<Void> deleteAll(@PathVariable UUID bookId) {
+        ratingService.deleteByBook(bookId);
         return ResponseEntity.noContent().build();
     }
 }
