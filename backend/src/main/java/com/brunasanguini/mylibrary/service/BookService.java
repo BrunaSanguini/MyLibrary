@@ -6,6 +6,7 @@ import com.brunasanguini.mylibrary.dto.response.AuthorResponse;
 import com.brunasanguini.mylibrary.dto.response.BookResponse;
 import com.brunasanguini.mylibrary.dto.response.GenreResponse;
 import com.brunasanguini.mylibrary.entity.*;
+import com.brunasanguini.mylibrary.exception.ResourceNotFoundException;
 import com.brunasanguini.mylibrary.repository.*;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +47,8 @@ public class BookService {
 
     public BookResponse findById(UUID id) {
         Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Livro não encontrado"));
+
         return toResponse(book);
     }
 
@@ -63,7 +65,8 @@ public class BookService {
 
     public BookResponse update(UUID id, BookRequest request) {
         Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Livro não encontrado"));
+
 
         // RN-010: ISBN único, mas permite manter o mesmo ISBN do próprio livro
         if (request.isbn() != null

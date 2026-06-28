@@ -6,6 +6,7 @@ import com.brunasanguini.mylibrary.dto.response.RatingResponse;
 import com.brunasanguini.mylibrary.entity.Book;
 import com.brunasanguini.mylibrary.entity.Rating;
 import com.brunasanguini.mylibrary.entity.RatingDimension;
+import com.brunasanguini.mylibrary.exception.ResourceNotFoundException;
 import com.brunasanguini.mylibrary.repository.BookRepository;
 import com.brunasanguini.mylibrary.repository.RatingDimensionRepository;
 import com.brunasanguini.mylibrary.repository.RatingRepository;
@@ -34,7 +35,8 @@ public class RatingService {
     // Salva ou atualiza nota de uma dimensão para um livro (upsert)
     public RatingResponse rate(UUID bookId, RatingRequest request) {
         Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Livro não encontrado"));
+
 
         RatingDimension dimension = dimensionRepository.findById(request.dimensionId())
                 .orElseThrow(() -> new RuntimeException("Dimensão não encontrada"));
