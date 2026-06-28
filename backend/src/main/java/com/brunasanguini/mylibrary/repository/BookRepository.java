@@ -20,6 +20,8 @@ public interface BookRepository extends JpaRepository<Book, UUID> {
     @Query("SELECT b FROM Book b JOIN b.tags t WHERE t = :tag")
     List<Book> findByTag(String tag);
 
+    Long countByReadingStatus(ReadingStatus status);
+
     boolean existsByGenresId(UUID genreId);
     boolean existsByPublisherId(UUID publisherId);
     boolean existsBySeriesId(UUID seriesId);
