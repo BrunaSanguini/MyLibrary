@@ -27,7 +27,7 @@ O detalhamento das tabelas e das regras está em [`docs/modelo-de-dados.md`](../
 4. **Posse como enum único:** `OWNED`, `WISHLIST` ou `NONE`, porque "Tenho" e "Wishlist" se excluem.
 5. **Editora como entidade,** reaproveitada pelo nome normalizado, para permitir o agrupamento em Catálogos.
 6. **Gênero e subgênero na mesma tabela,** com `parent_id` e máximo de dois níveis.
-7. **Série com posição decimal** (aceita 2,5) e total de volumes opcional.
+7. **Série com posição decimal** (aceita 2,5) e total de volumes opcional. Série e posição são sempre preenchidas juntas.
 8. **Leitura:**
    - Status `IN_PROGRESS`, `FINISHED` ou `ABANDONED`, com no máximo uma em andamento por livro.
    - Releitura como flag marcada pelo usuário.
@@ -37,9 +37,10 @@ O detalhamento das tabelas e das regras está em [`docs/modelo-de-dados.md`](../
 11. **Metas:**
     - Tipos `BOOKS` e `PAGES` (por ano ou mês) e `REREADS` (por ano).
     - Releituras contam em `BOOKS`.
+    - Uma meta por tipo e período, garantida no banco.
     - O progresso é calculado e não armazenado.
 12. **Valores derivados não são armazenados:** progresso, estatísticas do Perfil e livros relacionados são calculados por consulta.
-13. **Busca sem acento** por coluna normalizada no livro (título, subtítulo e autores).
+13. **Busca sem acento** por colunas normalizadas: título e subtítulo no livro, nome no autor.
 14. **Convenções de banco:**
     - IDs `BIGINT` identity.
     - snake_case, tabelas no singular e constraints nomeadas.
@@ -50,8 +51,8 @@ O detalhamento das tabelas e das regras está em [`docs/modelo-de-dados.md`](../
 16. **Imagens registradas em tabela própria:**
     - Arquivo imutável com nome UUID.
     - Validação pelo conteúdo.
-    - Exclusão do arquivo só depois do commit.
-    - Reconciliação com o disco no startup.
+    - Nenhum arquivo é apagado na hora: substituídos e órfãos vão para uma lixeira e são removidos após 30 dias.
+    - Reconciliação com o disco no startup, que nunca apaga arquivo e restaura da lixeira o que o banco ainda referencia.
 
 ## Consequências
 
@@ -60,11 +61,12 @@ O detalhamento das tabelas e das regras está em [`docs/modelo-de-dados.md`](../
 - Nenhum valor derivado pode ficar dessincronizado: status, progresso e metas sempre refletem as leituras.
 - A nota e as metas podem evoluir sem quebrar o que existe: critérios de nota entram em tabela própria, e novos tipos de meta entram como novo valor do enum.
 - A busca funciona com ou sem acento, sem depender de recurso específico do banco.
-- Upgrades do H2 e migrations problemáticas têm um caminho de volta pelo backup.
+- Upgrades do H2 e migrations problemáticas têm um caminho de volta pelo backup, sem perda de imagens.
 
 **Negativas / riscos**
 - Status e estatísticas exigem consultas com agregação. Se a estante crescer muito, pode ser preciso uma view ou um cache.
-- A coluna normalizada de busca precisa ser recalculada quando o livro ou o nome de um autor muda.
+- A busca consulta duas tabelas (livro e autor), em vez de uma única coluna.
+- A lixeira de imagens ocupa espaço em disco por até 30 dias.
 - Regras como "soma das páginas não passa do total" ficam no serviço, não no banco.
 
 ## Alternativas consideradas
