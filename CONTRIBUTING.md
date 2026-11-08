@@ -47,7 +47,7 @@ Seguimos o [Conventional Commits 1.0](https://www.conventionalcommits.org/pt-br/
 
 **Escopos**
 
-- Módulo de negócio: `books`, `lists`, `goals`, `profile`, `openlibrary`.
+- Módulo de negócio: `books`, `reading`, `lists`, `goals`, `profile`, `images`, `openlibrary`.
 - Área transversal: `backend`, `frontend`, `build`, `ci`, `deps`, `adr`.
 
 **Descrição**
@@ -86,7 +86,7 @@ docs(adr): registra modelo de domínio
 | Elemento | Padrão | Exemplo |
 |---|---|---|
 | Pacote base | `io.github.brunasanguini.minhalivraria` | |
-| Módulos | um pacote por módulo de negócio | `.books`, `.lists`, `.goals`, `.profile` |
+| Módulos | um pacote por módulo de negócio | `.books`, `.reading`, `.lists`, `.goals`, `.profile`, `.images` |
 | Classes | PascalCase | `Book`, `BookService`, `BookController` |
 | DTOs (records) | sufixo `Request` ou `Response` | `CreateBookRequest`, `BookResponse` |
 | Exceções | sufixo `Exception` | `BookNotFoundException` |
@@ -110,9 +110,13 @@ Segue o [style guide oficial](https://angular.dev/style-guide).
 | Seletores | prefixo `ml-` | `<ml-book-card>` |
 | Pastas | por feature | `features/books/` |
 
-### Banco de dados e API
+### Banco de dados
 
-Serão definidos junto com o modelo de domínio e o contrato da API.
+Convenções de tabelas, colunas, constraints e migrations em [`docs/modelo-de-dados.md`](docs/modelo-de-dados.md#convenções).
+
+### API
+
+Será definida junto com o contrato da API.
 
 ## Versionamento
 

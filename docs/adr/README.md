@@ -8,6 +8,7 @@ Cada ADR (Architecture Decision Record) registra uma decisão de arquitetura: o 
 |---|---|---|---|
 | [0001](0001-arquitetura-macro.md) | Arquitetura macro | Aceito | 2026-11-08 |
 | [0002](0002-stack-tecnologica.md) | Stack tecnológica e ferramentas | Aceito | 2026-11-08 |
+| [0003](0003-modelo-de-dominio-e-banco.md) | Modelo de domínio e banco de dados | Aceito | 2026-11-08 |
 
 ## Como registrar uma decisão
 
