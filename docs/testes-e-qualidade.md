@@ -5,7 +5,15 @@ Estratégia de testes e regras de qualidade da Minha Livraria, com exemplos. As 
 ## Princípios
 
 - **Testar comportamento, não implementação.** O teste descreve o que o sistema faz, não como o código está organizado por dentro.
-- **Mock só nas fronteiras externas:** Open Library, relógio (`Clock`) e, quando necessário, o sistema de arquivos. Repositórios e consultas rodam contra o H2 de verdade, em memória e com as mesmas migrations do Flyway.
+- **Mocks só em três situações:**
+
+  | Situação | Exemplo |
+  |---|---|
+  | Fronteira externa | Open Library, relógio (`Clock`) e, quando necessário, o sistema de arquivos |
+  | Isolar a camada de um teste de slice | o `@WebMvcTest` simula o serviço, porque testa só o contrato HTTP |
+  | API pública de outro módulo, num teste de módulo | o `@ApplicationModuleTest` do `reading` simula o `BookCatalog` de `books` |
+
+- **Fora dessas situações, nada é simulado.** Repositórios e consultas rodam contra o H2 de verdade, em memória e com as mesmas migrations do Flyway. Teste de regra de negócio nunca simula repositório.
 - **Cada regra é protegida pelo tipo de teste mais barato que a cobre.** A mesma regra não é testada em três camadas.
 - **Nomes em inglês, descrevendo comportamento:**
   - Java: `shouldThrowConflictWhenIsbnAlreadyExists`.
@@ -179,7 +187,7 @@ Os testes de resiliência usam WireMock para simular lentidão, erro 5xx e 429. 
 | Componente de UI | `input`/`output`, estados, teclado e ARIA dos componentes de `shared/ui` | Vitest em modo navegador (Chromium via Playwright) + Testing Library |
 | Página | página + `httpResource` com respostas simuladas: carregando, vazio, erro, filtros na URL | Vitest + Testing Library + `HttpTestingController` |
 | E2E | jornadas completas no app real | Playwright no Chromium e no Firefox |
-| Acessibilidade | violações WCAG 2.1 AA em todas as páginas, nos dois temas | `@axe-core/playwright` nos E2E |
+| Acessibilidade | qualquer violação WCAG 2.1 AA (de qualquer gravidade) em todas as páginas, nos dois temas | `@axe-core/playwright` nos E2E |
 
 - **Modo navegador nos componentes de UI:** o jsdom não implementa `<dialog>` nem a Popover API, que esses componentes usam.
 - **Testing Library:** as consultas são por papel e nome (`getByRole('button', { name: 'Wishlist' })`), como o usuário percebe a tela. Um botão sem nome acessível não é encontrado, e o teste falha.
@@ -259,7 +267,7 @@ describe('ShelfPage', () => {
 
 ```ts
 for (const theme of ['light', 'dark'] as const) {
-  test(`shelf page has no serious accessibility violations in ${theme} theme`, async ({ page }) => {
+  test(`shelf page has no WCAG 2.1 AA violations in ${theme} theme`, async ({ page }) => {
     await page.addInitScript((preference) => {
       localStorage.setItem('ml-theme-preference', preference);
     }, theme.toUpperCase());
@@ -269,10 +277,12 @@ for (const theme of ['light', 'dark'] as const) {
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
       .analyze();
 
-    expect(results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')).toEqual([]);
+    expect(results.violations).toEqual([]);
   });
 }
 ```
+
+As tags limitam a análise às regras do WCAG 2.1 A e AA. Dentro delas, qualquer violação falha o teste, seja qual for a gravidade que o axe atribui. As regras de "boas práticas" do axe, que não fazem parte do WCAG, ficam de fora.
 
 ## Dados de exemplo
 
@@ -296,6 +306,8 @@ O carregador fica num componente ativo só nos perfis `dev` e `e2e` (`@Profile({
 
 O front gera relatório de cobertura (Vitest com v8), enviado ao Sonar. O gate do front é o do código novo, no Sonar.
 
+**Vigência:** estas regras automáticas só passam a bloquear PRs quando os pipelines de CI e a integração com o Sonar estiverem configurados (Seção 9 do planejamento). Até lá, ninguém marca o item de CI e Sonar no checklist.
+
 ## Definition of Done
 
 Todo PR que muda código cumpre:
@@ -304,6 +316,6 @@ Todo PR que muda código cumpre:
 - [ ] Código de erro novo registrado em [`erros.md`](erros.md)
 - [ ] `docs/openapi.json` atualizado, se o contrato mudou
 - [ ] Componente novo testado por teclado e com nome acessível
-- [ ] CI verde e quality gate do Sonar aprovado
+- [ ] CI verde e quality gate do Sonar aprovado (enquanto não estiverem configurados, o item fica desmarcado)
 
 A lista também está no template de pull request.

@@ -21,5 +21,9 @@
 - [ ] Sem segredos, dados pessoais ou arquivos gerados no diff
 - [ ] CI verde e quality gate do Sonar aprovado
 
-<!-- Itens que não se aplicam: marque e escreva "(não se aplica)". -->
+<!--
+Itens que não se aplicam: marque e escreva "(não se aplica)".
+Item de CI e Sonar: só marque depois de ver os checks verdes no PR. Enquanto os pipelines não existirem, deixe desmarcado.
+-->
+
 

@@ -13,8 +13,11 @@ Os exemplos estão em [`docs/testes-e-qualidade.md`](../testes-e-qualidade.md).
 
 1. **Princípios:**
    - Testar comportamento, não implementação.
-   - Mock só nas fronteiras externas (Open Library, `Clock`, sistema de arquivos quando necessário).
-   - Repositórios e consultas contra o H2 real em memória, com as migrations do Flyway.
+   - Mocks só em três situações:
+     - fronteiras externas (Open Library, `Clock`, sistema de arquivos quando necessário);
+     - o serviço, num teste de slice da camada web;
+     - a API pública de outro módulo, num teste de módulo.
+   - Fora disso, nada é simulado: repositórios e consultas rodam contra o H2 real em memória, com as migrations do Flyway. Teste de regra de negócio nunca simula repositório.
    - Builders de dados de teste e nomes em inglês.
 2. **Back-end:**
    - Testes de domínio sem Spring.
@@ -38,7 +41,7 @@ Os exemplos estão em [`docs/testes-e-qualidade.md`](../testes-e-qualidade.md).
    - Contra o jar real, no perfil `e2e`.
    - Pasta de dados temporária e Open Library simulada por WireMock.
    - Cinco jornadas no MVP.
-8. **Acessibilidade:** `@axe-core/playwright` em todas as páginas, nos dois temas, contra WCAG 2.1 AA. O teste falha com violação séria ou crítica.
+8. **Acessibilidade:** `@axe-core/playwright` em todas as páginas, nos dois temas, limitado às regras do WCAG 2.1 A e AA. Qualquer violação falha o teste, seja qual for a gravidade.
 9. **Cobertura:** JaCoCo com mínimo de 80% de linhas em `domain` e `application`, quebrando o build.
 10. **SonarQube Cloud** com o quality gate padrão ("Sonar way") em todo PR, incluindo 80% de cobertura no código novo.
 11. **Análise estática:**
@@ -46,6 +49,7 @@ Os exemplos estão em [`docs/testes-e-qualidade.md`](../testes-e-qualidade.md).
     - Front: `tsc` strict, ESLint, Prettier, Stylelint e budgets.
 12. **Dados de exemplo** com livros de domínio público, carregados só nos perfis `dev` e `e2e` e só com o banco vazio.
 13. **Definition of Done** no template de pull request.
+14. **Vigência:** as regras automáticas (JaCoCo, Sonar, Spotless, NullAway, axe) só passam a bloquear PRs quando os pipelines de CI estiverem configurados. Até lá, o item de CI e Sonar do checklist fica desmarcado.
 
 ## Consequências
 
