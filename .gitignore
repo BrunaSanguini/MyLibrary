@@ -1,0 +1,47 @@
+# ── Back-end (Maven / Spring Boot) ──────────────────────────────────────────────
+target/
+.mvn/wrapper/maven-wrapper.jar
+# Node/npm installed by frontend-maven-plugin
+backend/node/
+
+# ── Front-end (Angular / Node) ──────────────────────────────────────────────────
+node_modules/
+dist/
+.angular/
+coverage/
+test-results/
+playwright-report/
+blob-report/
+
+# ── Local data (H2 database and development images) ─────────────────────────────
+*.mv.db
+*.trace.db
+.local-data/
+
+# ── Logs ────────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Environment and secrets ─────────────────────────────────────────────────────
+.env
+.env.*
+*.env
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# ── IDEs ────────────────────────────────────────────────────────────────────────
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+*.code-workspace
+
+# ── Operating system ────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini

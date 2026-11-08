@@ -1,0 +1,37 @@
+name: Bug
+description: Algo não funciona como deveria
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: O que aconteceu
+      description: Descreva o problema e o que você esperava que acontecesse.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Passos para reproduzir
+      placeholder: |
+        1. Abra a página ...
+        2. Clique em ...
+        3. Veja o erro
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Versão
+      placeholder: "0.1.0"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Trecho relevante do log, se houver.
+      render: text
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Capturas de tela
+      description: Arraste as imagens para cá, se ajudarem a entender o problema.
