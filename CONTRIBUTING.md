@@ -99,6 +99,8 @@ docs(adr): registra modelo de domínio
 
 Maven: groupId `io.github.brunasanguini`, artifactId `minha-livraria`.
 
+Organização de módulos e camadas, validação e tratamento de erros em [`docs/arquitetura-back-end.md`](docs/arquitetura-back-end.md).
+
 ### Angular
 
 Segue o [style guide oficial](https://angular.dev/style-guide).
