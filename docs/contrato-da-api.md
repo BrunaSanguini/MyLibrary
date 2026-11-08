@@ -59,7 +59,7 @@ A resposta usa o record próprio `PageResponse<T>`, e não a serialização do `
 
 **`Ownership`**: `OWNED`, `WISHLIST`, `NONE`.
 
-**`BookCard`**: o card de livro usado em todas as listagens.
+**`BookCardResponse`**: o card de livro usado em todas as listagens.
 
 ```json
 {
@@ -97,7 +97,7 @@ Listagem de cards usada pela Estante, pela busca, pelas seções da Home e pelas
 | `authorId`, `publisherId`, `seriesId`, `listId` | número | |
 | `sort` | texto | `title`, `author`, `addedAt` (padrão, `desc`), `rating`, `finishedAt`, `seriesPosition`, `listOrder` (só com `listId`) |
 
-Resposta: `PageResponse<BookCard>`.
+Resposta: `PageResponse<BookCardResponse>`.
 
 **A Home não tem endpoint próprio.** O front faz as chamadas em paralelo: `?favorite=true` (destaques e favoritos), `?status=READING` (lendo agora), `/goals` (metas) e `/lists` (listas).
 
@@ -105,8 +105,8 @@ Resposta: `PageResponse<BookCard>`.
 
 ```json
 {
-  "series": [ /* BookCard, na ordem da série */ ],
-  "similar": [ /* BookCard, até 12, por subgêneros em comum */ ]
+  "series": [ /* BookCardResponse, na ordem da série */ ],
+  "similar": [ /* BookCardResponse, até 12, por subgêneros em comum */ ]
 }
 ```
 
@@ -114,9 +114,9 @@ Resposta: `PageResponse<BookCard>`.
 
 | Método e rota | Corpo | Resposta |
 |---|---|---|
-| `POST /books` | `BookRequest` | `201` `BookDetail` |
-| `GET /books/{id}` | | `200` `BookDetail` |
-| `PUT /books/{id}` | `BookRequest` | `200` `BookDetail` |
+| `POST /books` | `BookRequest` | `201` `BookDetailResponse` |
+| `GET /books/{id}` | | `200` `BookDetailResponse` |
+| `PUT /books/{id}` | `BookRequest` | `200` `BookDetailResponse` |
 | `DELETE /books/{id}` | | `204` |
 | `PUT /books/{id}/favorite` · `DELETE /books/{id}/favorite` | | `204` |
 | `PUT /books/{id}/ownership` | `{ "ownership": "WISHLIST" }` | `204` |
@@ -149,7 +149,7 @@ Os sub-recursos de favorito e posse são atalhos para os cards e as tags da pág
 
 Autores, editora, série e gêneros são referenciados por ID. Quando o usuário digita um nome novo no formulário, o front cria o registro antes (`POST /authors`, por exemplo) e usa o ID devolvido.
 
-**`BookDetail`**
+**`BookDetailResponse`**
 
 ```json
 {
@@ -183,7 +183,7 @@ Autores, editora, série e gêneros são referenciados por ID. Quando o usuário
 }
 ```
 
-O `BookDetail` traz só os dados do livro. A página do livro busca as leituras em `/books/{id}/readings` e a resenha em `/books/{id}/review`.
+O `BookDetailResponse` traz só os dados do livro. A página do livro busca as leituras em `/books/{id}/readings` e a resenha em `/books/{id}/review`.
 
 ### Importação da Open Library
 
@@ -191,9 +191,9 @@ A importação fica em `books` porque só esse módulo sabe o que já está no a
 
 | Método e rota | Uso | Resposta |
 |---|---|---|
-| `GET /books/import/search?q=` | busca por título ou autor | `200` lista de `ImportCandidate` (até 20) |
-| `GET /books/import/preview?isbn=` ou `?editionKey=` | dados completos de uma edição | `200` `ImportPreview` |
-| `POST /books/import` | confirma a importação | `201` `BookDetail` |
+| `GET /books/import/search?q=` | busca por título ou autor | `200` lista de `ImportCandidateResponse` (até 20) |
+| `GET /books/import/preview?isbn=` ou `?editionKey=` | dados completos de uma edição | `200` `ImportPreviewResponse` |
+| `POST /books/import` | confirma a importação | `201` `BookDetailResponse` |
 
 ```json
 {
@@ -208,7 +208,7 @@ A importação fica em `books` porque só esse módulo sabe o que já está no a
 ```
 
 - `libraryBookId` vem preenchido quando a edição já está no acervo.
-- O `ImportPreview` acrescenta subtítulo, editora, páginas, ISBNs, idioma e sinopse.
+- O `ImportPreviewResponse` acrescenta subtítulo, editora, páginas, ISBNs, idioma e sinopse.
 - Na pré-visualização, `coverUrl` aponta para a Open Library. A capa só é baixada para o disco na confirmação.
 
 Corpo da confirmação (classificação opcional, já no momento da importação):
