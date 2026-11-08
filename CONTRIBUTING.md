@@ -107,10 +107,17 @@ Segue o [style guide oficial](https://angular.dev/style-guide).
 
 | Elemento | Padrão | Exemplo |
 |---|---|---|
-| Componentes, diretivas e serviços | arquivo kebab-case sem sufixo de tipo | `book-card.ts` → classe `BookCard` |
+| Componentes, diretivas e serviços | arquivo kebab-case sem sufixo de tipo | `book-card.ts` → classe `BookCard`; `theme-store.ts` → `ThemeStore` |
+| Componentes de rota | nome da tela + `Page` | `shelf-page.ts` → `ShelfPage` |
+| Clientes da API | recurso + `Api`, em `core/api` | `books-api.ts` → `BooksApi` |
+| Tipos da API | gerados do OpenAPI, com o sufixo do back | `BookCardResponse`, `BookRequest` |
 | Guards, interceptors e pipes | tipo no nome do arquivo | `profile-guard.ts`, `reading-time-pipe.ts` |
 | Seletores | prefixo `ml-` | `<ml-book-card>` |
-| Pastas | por feature | `features/books/` |
+| Pastas | por feature, uma pasta por componente | `features/books/book-page/` |
+| Rotas | português, kebab-case | `/livros/:id/editar` |
+| Tokens de CSS | prefixo `--ml-` | `--ml-color-accent`, `--ml-space-16` |
+
+Estrutura, estado, API tipada, estilos e tema em [`docs/arquitetura-front-end.md`](docs/arquitetura-front-end.md).
 
 ### Banco de dados
 
