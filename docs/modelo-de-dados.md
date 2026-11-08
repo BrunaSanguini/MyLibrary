@@ -13,7 +13,9 @@ Modelo de domínio e banco da Minha Livraria. As decisões e as alternativas des
 | `profile` | `profile` | Nome, avatar e tema |
 | `images` | `image` | Registro das imagens salvas em disco |
 
-O módulo `openlibrary` é apenas integração e não tem tabelas.
+Dois módulos não têm tabelas:
+- O `openlibrary` é apenas integração.
+- O `shelf` só lê as tabelas dos outros módulos para montar os cards de livro ([ADR-0005](adr/0005-contrato-da-api.md)).
 
 **Fronteiras:** dentro de um módulo as entidades se relacionam por JPA. Entre módulos, a referência é só pelo ID (ex.: `Long bookId` em `Reading`). O banco mantém as chaves estrangeiras para garantir a integridade.
 

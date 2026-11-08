@@ -10,6 +10,7 @@ Cada ADR (Architecture Decision Record) registra uma decisão de arquitetura: o 
 | [0002](0002-stack-tecnologica.md) | Stack tecnológica e ferramentas | Aceito | 2026-11-08 |
 | [0003](0003-modelo-de-dominio-e-banco.md) | Modelo de domínio e banco de dados | Aceito | 2026-11-08 |
 | [0004](0004-arquitetura-do-back-end.md) | Arquitetura do back-end | Aceito | 2026-11-08 |
+| [0005](0005-contrato-da-api.md) | Contrato da API | Aceito | 2026-11-08 |
 
 ## Como registrar uma decisão
 

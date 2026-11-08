@@ -40,6 +40,7 @@ docs/adr/  Decisões de arquitetura
 - [Decisões de arquitetura (ADRs)](docs/adr/README.md)
 - [Modelo de dados](docs/modelo-de-dados.md)
 - [Arquitetura do back-end](docs/arquitetura-back-end.md)
+- [Contrato da API](docs/contrato-da-api.md) e [catálogo de erros](docs/erros.md)
 - [Convenções do projeto](CONTRIBUTING.md)
 
 ## Licença

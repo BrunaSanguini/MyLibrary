@@ -47,7 +47,7 @@ Seguimos o [Conventional Commits 1.0](https://www.conventionalcommits.org/pt-br/
 
 **Escopos**
 
-- Módulo de negócio: `books`, `reading`, `lists`, `goals`, `profile`, `images`, `openlibrary`.
+- Módulo de negócio: `books`, `reading`, `lists`, `goals`, `profile`, `images`, `openlibrary`, `shelf`.
 - Área transversal: `backend`, `frontend`, `build`, `ci`, `deps`, `adr`.
 
 **Descrição**
@@ -86,7 +86,7 @@ docs(adr): registra modelo de domínio
 | Elemento | Padrão | Exemplo |
 |---|---|---|
 | Pacote base | `io.github.brunasanguini.minhalivraria` | |
-| Módulos | um pacote por módulo de negócio | `.books`, `.reading`, `.lists`, `.goals`, `.profile`, `.images` |
+| Módulos | um pacote por módulo | `.books`, `.reading`, `.lists`, `.goals`, `.profile`, `.images`, `.openlibrary`, `.shelf` |
 | Classes | PascalCase | `Book`, `BookService`, `BookController` |
 | DTOs (records) | sufixo `Request` ou `Response` | `CreateBookRequest`, `BookResponse` |
 | Exceções | sufixo `Exception` | `BookNotFoundException` |
@@ -118,7 +118,7 @@ Convenções de tabelas, colunas, constraints e migrations em [`docs/modelo-de-d
 
 ### API
 
-Será definida junto com o contrato da API.
+Rotas, métodos, JSON, paginação e erros em [`docs/contrato-da-api.md`](docs/contrato-da-api.md). Todo código de erro novo entra em [`docs/erros.md`](docs/erros.md) no mesmo PR.
 
 ## Versionamento
 

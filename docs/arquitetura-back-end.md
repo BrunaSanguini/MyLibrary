@@ -14,7 +14,8 @@ io.github.brunasanguini.minhalivraria
 ├─ goals/
 ├─ profile/
 ├─ images/
-└─ openlibrary/
+├─ openlibrary/
+└─ shelf/         somente leitura: cards, filtros, busca e relacionados
 ```
 
 - O **pacote base** de cada módulo é a API pública dele. Os **subpacotes** são internos: o Spring Modulith falha o build se outro módulo acessar um subpacote.
@@ -24,10 +25,12 @@ io.github.brunasanguini.minhalivraria
 |---|---|
 | `books` | `images`, `openlibrary` |
 | `reading` | `books` |
-| `lists` | `books` |
+| `lists` | `books`, `reading` |
 | `goals` | `reading` |
 | `profile` | `images` |
-| `images`, `openlibrary` | nenhum módulo de negócio |
+| `images`, `openlibrary`, `shelf` | nenhum módulo de negócio |
+
+**Módulo `shelf`:** é o lado de leitura do CQRS leve. Monta os cards de livro, que juntam dados de `books` e `reading`, com consultas SQL via `JdbcClient`. É o único módulo autorizado a ler tabelas de outros módulos. Não grava nada, e nenhum módulo depende dele ([ADR-0005](adr/0005-contrato-da-api.md)).
 
 Um único teste garante as fronteiras e a ausência de ciclos:
 
@@ -291,7 +294,7 @@ HttpStatus status = switch (exception) {
 
 - **`DataIntegrityViolationException`:** o nome da constraint violada (ex.: `uk_book_isbn13`) é traduzido para o `code` correspondente.
 - **Mensagens:** em português, no `messages.properties`, buscadas pelo `code`. As mensagens padrão do Bean Validation já vêm em português.
-- **`type`:** aponta para o catálogo `docs/erros.md`, criado junto com o primeiro código.
+- **`type`:** aponta para a linha do código no [catálogo de erros](erros.md).
 - **Stack trace:** nunca vai na resposta.
 
 ```json
