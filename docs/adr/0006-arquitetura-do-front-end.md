@@ -42,7 +42,11 @@ Os exemplos de código estão em [`docs/arquitetura-front-end.md`](../arquitetur
 11. **Tokens do design system** em custom properties com prefixo `--ml-`.
     - Tema por `data-theme` no `<html>`.
     - O Stylelint barra cor fixa fora do `tokens.css`.
-12. **Tema sem "piscar" ao abrir:** o último tema aplicado fica em `localStorage` e é aplicado por um script mínimo no `index.html`. O valor oficial continua no perfil.
+12. **Tema sem "piscar" ao abrir:**
+    - A preferência (`LIGHT`, `DARK` ou `SYSTEM`) fica em `localStorage`.
+    - Um script mínimo no `index.html` resolve o tema antes da primeira pintura, tratando a primeira visita como `SYSTEM`.
+    - O tema claro também é o padrão em `:root`.
+    - O valor oficial continua no perfil.
 13. **Sem biblioteca de UI nem de ícones:**
     - `<dialog>` e Popover API nativos.
     - `@angular/aria` para os padrões de teclado e ARIA.

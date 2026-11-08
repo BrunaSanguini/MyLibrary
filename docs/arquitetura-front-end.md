@@ -103,19 +103,21 @@ Base de todos os componentes:
 
 ### Página
 
-Os filtros da Estante ficam na URL e chegam como `input()` (via `withComponentInputBinding`). Quando um filtro muda, o `httpResource` busca de novo sozinho:
+Os filtros da Estante ficam na URL e chegam como `input()` (via `withComponentInputBinding`). Quando um filtro muda, o `httpResource` busca de novo sozinho.
+
+A URL é editável por quem usa, então todo parâmetro passa por uma função de conversão que descarta valores inválidos antes de chegar à requisição. O back valida de novo.
 
 ```ts
 @Component({
   selector: 'ml-shelf-page',
-  imports: [BookCard, Paginator, EmptyState, ErrorState],
+  imports: [BookCard, BookGridSkeleton, Paginator, EmptyState, ErrorState],
   templateUrl: './shelf-page.html',
   styleUrl: './shelf-page.css',
 })
-export class ShelfPage {
-  readonly q = input<string>();
-  readonly status = input<ShelfStatus>();
-  readonly page = input(0, { transform: (value: string | undefined) => Number(value ?? 0) });
+export default class ShelfPage {
+  readonly q = input(undefined, { transform: toSearchTerm });
+  readonly status = input(undefined, { transform: toShelfStatus });
+  readonly page = input(0, { transform: toPageIndex });
 
   private readonly router = inject(Router);
   private readonly shelfApi = inject(ShelfApi);
@@ -129,6 +131,30 @@ export class ShelfPage {
   }
 }
 ```
+
+As funções de conversão ficam em `core/api/query-params.ts`:
+
+```ts
+const SHELF_STATUSES = ['WANT_TO_READ', 'READING', 'READ', 'ABANDONED'] as const satisfies readonly ShelfStatus[];
+
+export function toPageIndex(value: string | undefined): number {
+  const page = Number(value);
+  return Number.isInteger(page) && page >= 0 ? page : 0;
+}
+
+export function toShelfStatus(value: string | undefined): ShelfStatus | undefined {
+  return SHELF_STATUSES.find((status) => status === value);
+}
+
+export function toSearchTerm(value: string | undefined): string | undefined {
+  const term = value?.trim().slice(0, 200);
+  return term ? term : undefined;
+}
+```
+
+`?page=abc` vira a página 0, e `?status=XYZ` é ignorado. Nada inválido chega à requisição.
+
+A página da rota usa `export default`, porque é assim que o `loadComponent` das rotas a importa (veja [Rotas](#rotas)). Os demais componentes usam export nomeado.
 
 ```html
 @if (books.hasValue()) {
@@ -331,7 +357,9 @@ Os valores vêm do design system da Minha Livraria. Todos os tokens têm o prefi
   --ml-content-width: 1240px;
 }
 
+:root,
 [data-theme='light'] {
+  color-scheme: light;
   --ml-color-bg: /* valor do design system */;
   --ml-color-surface: /* ... */;
   --ml-color-ink: /* ... */;
@@ -340,9 +368,13 @@ Os valores vêm do design system da Minha Livraria. Todos os tokens têm o prefi
 }
 
 [data-theme='dark'] {
+  color-scheme: dark;
   /* os mesmos tokens com os valores do tema escuro */
 }
 ```
+
+- O tema claro também fica em `:root`. Mesmo sem o atributo `data-theme`, a página sempre tem cores.
+- O `color-scheme` faz o navegador ajustar barras de rolagem e controles nativos ao tema.
 
 - Os componentes **só usam tokens**. O Stylelint, com o plugin `stylelint-declaration-strict-value`, barra cor fixa fora do `tokens.css`.
 - As regras visuais do design system valem no código:
@@ -353,7 +385,9 @@ Os valores vêm do design system da Minha Livraria. Todos os tokens têm o prefi
 
 ### Tema
 
-O `<html>` recebe `data-theme="light"` ou `"dark"`. O `ThemeStore` resolve a preferência do perfil (`LIGHT`, `DARK` ou `SYSTEM`):
+O `<html>` recebe `data-theme="light"` ou `"dark"`. O `ThemeStore` guarda a preferência do perfil (`LIGHT`, `DARK` ou `SYSTEM`) e resolve o tema aplicado.
+
+Como todo estado global, ele expõe só leitura. A preferência muda pelo método `setPreference`:
 
 ```ts
 @Injectable({ providedIn: 'root' })
@@ -361,8 +395,9 @@ export class ThemeStore {
   private readonly document = inject(DOCUMENT);
   private readonly systemQuery = matchMedia('(prefers-color-scheme: dark)');
   private readonly systemDark = signal(this.systemQuery.matches);
+  private readonly preferenceState = signal<ThemePreference>(readCachedPreference());
 
-  readonly preference = signal<ThemePreference>('SYSTEM');
+  readonly preference = this.preferenceState.asReadonly();
   readonly resolved = computed(() => {
     const preference = this.preference();
     if (preference === 'SYSTEM') {
@@ -374,22 +409,35 @@ export class ThemeStore {
   constructor() {
     this.systemQuery.addEventListener('change', (event) => this.systemDark.set(event.matches));
     effect(() => {
-      const theme = this.resolved();
-      this.document.documentElement.dataset['theme'] = theme;
-      saveThemeCache(theme);
+      this.document.documentElement.dataset['theme'] = this.resolved();
     });
+  }
+
+  setPreference(preference: ThemePreference): void {
+    this.preferenceState.set(preference);
+    cachePreference(preference);
   }
 }
 ```
 
-**Sem "piscar" ao abrir:** o último tema aplicado fica no `localStorage`, e um script mínimo no `index.html` o aplica antes de o Angular carregar. O valor oficial continua no perfil.
+Quem muda o tema (o toggle do header e a página de Perfil) salva no perfil com `PUT /profile` e depois chama `setPreference`. Ao carregar o perfil, o app também chama `setPreference` com o valor oficial.
+
+**Sem "piscar" ao abrir:**
+- O `localStorage` guarda a **preferência**, não o tema resolvido. Assim, quem usa `SYSTEM` acompanha o sistema operacional mesmo que ele tenha mudado desde a última visita.
+- Um script mínimo no `<head>` do `index.html` resolve o tema antes da primeira pintura. Na primeira visita, sem nada guardado, ele trata a preferência como `SYSTEM`.
 
 ```html
 <script>
-  try {
-    const theme = localStorage.getItem('ml-theme');
-    if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
-  } catch {}
+  (() => {
+    let preference = 'SYSTEM';
+    try {
+      preference = localStorage.getItem('ml-theme-preference') ?? 'SYSTEM';
+    } catch {}
+    const dark =
+      preference === 'DARK' ||
+      (preference !== 'LIGHT' && matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  })();
 </script>
 ```
 
