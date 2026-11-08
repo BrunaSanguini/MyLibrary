@@ -67,7 +67,7 @@ docs(adr): registra modelo de domínio
 
 ## Pull requests
 
-- O título segue o mesmo formato dos commits, porque vira a mensagem do squash.
+- O título segue o mesmo formato dos commits, porque vira a mensagem do squash. O check `pr-title` valida o formato automaticamente.
 - Preencha o template: o quê, por quê e como testar.
 - Um PR por assunto. PRs pequenos são revisados melhor.
 - Cumpra a [Definition of Done](docs/testes-e-qualidade.md#definition-of-done), que também está no checklist do template.
@@ -83,6 +83,12 @@ Que tipo de teste escrever para cada camada, onde mocks são aceitos e as regras
 | Código e configuração: classes, métodos, variáveis, tabelas, endpoints, JSON, comentários e Javadoc | Inglês |
 | Comunicação: commits, PRs, issues, ADRs, README e este guia | Português |
 | Textos exibidos na interface | Português (pt-BR) |
+
+Exceção: os PRs automáticos do Renovate têm a descrição em inglês.
+
+## CI/CD
+
+Pipelines, release, Renovate e configurações do repositório em [`docs/ci-cd.md`](docs/ci-cd.md).
 
 ## Nomenclatura
 

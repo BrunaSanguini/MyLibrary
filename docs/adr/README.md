@@ -13,6 +13,7 @@ Cada ADR (Architecture Decision Record) registra uma decisão de arquitetura: o 
 | [0005](0005-contrato-da-api.md) | Contrato da API | Aceito | 2026-11-08 |
 | [0006](0006-arquitetura-do-front-end.md) | Arquitetura do front-end | Aceito | 2026-11-08 |
 | [0007](0007-testes-e-qualidade.md) | Testes e qualidade | Aceito | 2026-11-08 |
+| [0008](0008-ci-cd.md) | CI/CD com GitHub Actions | Aceito | 2026-11-08 |
 
 ## Como registrar uma decisão
 

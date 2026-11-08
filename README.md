@@ -43,6 +43,7 @@ docs/adr/  Decisões de arquitetura
 - [Contrato da API](docs/contrato-da-api.md) e [catálogo de erros](docs/erros.md)
 - [Arquitetura do front-end](docs/arquitetura-front-end.md)
 - [Testes e qualidade](docs/testes-e-qualidade.md)
+- [CI/CD](docs/ci-cd.md)
 - [Convenções do projeto](CONTRIBUTING.md)
 
 ## Licença
