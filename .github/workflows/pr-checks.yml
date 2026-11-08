@@ -54,11 +54,11 @@ jobs:
             deps
             adr
           requireScope: false
-          # Lowercase first letter, no trailing period, at most 72 characters.
-          subjectPattern: '^(?![A-ZÀ-Ý])(?!.*\.$).{1,72}$'
+          # Starts with a lowercase letter, no trailing period, at most 72 characters.
+          subjectPattern: '^[a-zà-ÿ](?!.*\.$).{0,71}$'
           subjectPatternError: |
-            A descrição "{subject}" do título "{title}" precisa começar com letra minúscula,
-            não pode terminar com ponto e deve ter no máximo 72 caracteres.
+            A descrição "{subject}" do título "{title}" precisa começar com letra minúscula
+            (não com número ou símbolo), não pode terminar com ponto e deve ter no máximo 72 caracteres.
 
   dependency-review:
     name: dependency-review

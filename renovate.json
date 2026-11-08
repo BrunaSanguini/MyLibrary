@@ -51,17 +51,9 @@
       ]
     },
     {
-      "description": "Automerge de patch e minor em dependências de desenvolvimento, só com CI verde",
-      "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["patch", "minor"],
-      "automerge": true
-    },
-    {
-      "description": "GitHub Actions agrupadas, com automerge de patch, minor e digest, só com CI verde",
+      "description": "GitHub Actions agrupadas. O automerge entra junto com o ci.yml, para nada ser aceito sem build e testes",
       "groupName": "github actions",
-      "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["patch", "minor", "digest", "pinDigest"],
-      "automerge": true
+      "matchManagers": ["github-actions"]
     }
   ],
   "customManagers": [

@@ -20,12 +20,12 @@ O `ci.yml` e o `release.yml` dependem do `pom.xml` e do `package.json`, então e
 Valida o título do PR, que vira o commit na `main` no squash merge. O commitlint local não enxerga esse commit, por isso a validação acontece no PR.
 
 - **Tipos e escopos:** os mesmos do [`CONTRIBUTING.md`](../CONTRIBUTING.md#commits). O escopo é opcional.
-- **Descrição:** começa com letra minúscula, não termina com ponto e tem no máximo 72 caracteres.
+- **Descrição:** começa com letra minúscula (não com número ou símbolo), não termina com ponto e tem no máximo 72 caracteres.
 - **Exceção:** os PRs automáticos do Renovate têm a descrição em inglês (`chore(deps): update angular monorepo to v22.3.0`). O formato continua válido.
 
 ### `dependency-review`
 
-Compara as dependências do PR com as da `main` e falha se o PR introduzir uma dependência com vulnerabilidade **alta ou crítica**.
+Compara as dependências do PR com as da `main` e falha se o PR introduzir uma dependência com vulnerabilidade **alta ou crítica**. Depende do **Dependency graph** ligado nas configurações do repositório.
 
 ## CI
 
@@ -34,9 +34,11 @@ Compara as dependências do PR com as da `main` e falha se o PR introduzir uma d
 | `backend` | Ubuntu | `./mvnw -B verify -Pskip-frontend -Pci`: Spotless check, NullAway, testes `*Test` e `*IT`, JaCoCo com gate de 80% e o snapshot do `openapi.json` |
 | `frontend` | Ubuntu | `npm ci`, geração dos tipos da API, ESLint, Prettier check, Stylelint, build com budgets e Vitest (jsdom e modo navegador no Chromium) |
 | `e2e` | Ubuntu | depois de `backend` e `frontend`: gera o jar completo, sobe o WireMock da Open Library e roda o Playwright no Chromium e no Firefox, com axe. Se falhar, publica relatório e traces como artefato |
-| `sonar` | Ubuntu | depois de `backend` e `frontend`: envia código e cobertura (JaCoCo XML e lcov) ao SonarQube Cloud. O quality gate volta como check no PR |
+| `sonar` | Ubuntu | depois de `backend` e `frontend`, quando algum deles rodou: envia código e cobertura (JaCoCo XML e lcov) ao SonarQube Cloud e espera o resultado do quality gate (`sonar.qualitygate.wait=true`). Gate reprovado falha o job |
+| `ci` | Ubuntu | roda sempre, por último (`if: always()`). Falha se algum job anterior falhou ou foi cancelado; jobs pulados contam como aprovados |
 
-- **Filtro por pasta:** um job `changes` decide o que rodar. Um PR que só altera `docs/` pula back, front e E2E. No GitHub, job pulado conta como aprovado nos checks obrigatórios.
+- **Filtro por pasta:** um job `changes` decide o que rodar. Um PR que só altera `docs/` pula back, front, E2E e Sonar.
+- **Um único check obrigatório para o CI:** a proteção da `main` exige só o job `ci`, que resume os demais. Assim, um PR só de documentação não fica preso esperando um check que nunca roda, como o quality gate do Sonar. O check externo do app do SonarQube Cloud fica informativo; quem bloqueia é o job `sonar`, através do `ci`.
 - **Versões numa fonte só:**
   - Java vem de `.java-version` (`java-version-file` do `setup-java`).
   - Node vem de `.nvmrc` (`node-version-file` do `setup-node`).
@@ -89,7 +91,7 @@ Configuração em [`renovate.json`](../renovate.json):
 | npm | versões exatas, sem `^` ou `~` |
 | Grupos | `angular` (Angular, angular-eslint, TypeScript), `spring boot`, `test libraries`, `github actions` |
 | Actions | fixadas pelo SHA do commit, com a versão em comentário |
-| Automerge | patch e minor de dependências de desenvolvimento, e patch, minor e digest de Actions, só com CI verde |
+| Automerge | **desligado por enquanto.** Entra no mesmo PR do `ci.yml`, para patch e minor de dependências de desenvolvimento e patch, minor e digest de Actions. Antes disso, nenhuma atualização seria testada por build |
 | Node no `pom.xml` | atualizado por um gerenciador customizado |
 
 O Dependabot fica só com os **alertas** de segurança, sem abrir PRs, para não duplicar o trabalho do Renovate.
@@ -112,21 +114,22 @@ Passos feitos no GitHub por quem administra o repositório.
 
 ### Agora
 
-1. **Renovate:** instale o app em <https://github.com/apps/renovate>, escolhendo **Only select repositories** → MyLibrary.
-2. **Settings → Advanced Security:**
+1. **Settings → Advanced Security:**
+   - **Dependency graph:** ligado. Sem ele, o `dependency-review` falha com "Dependency review is not supported on this repository".
    - **Dependabot alerts:** ligado.
    - **Dependabot security updates:** desligado (o Renovate cuida das atualizações).
    - **Secret scanning** e **Push protection:** ligados.
    - **Code scanning → CodeQL analysis → Set up → Default.**
-3. **Settings → General → Pull Requests:** marque **Allow auto-merge**, usado pelo automerge do Renovate.
-4. **Depois que `pr-title` e `dependency-review` rodarem pela primeira vez**, vá em **Settings → Rules → Rulesets → Proteção da main**:
+2. **Depois que `pr-title` e `dependency-review` passarem pela primeira vez**, vá em **Settings → Rules → Rulesets → Proteção da main**:
    - marque **Require status checks to pass**;
    - adicione os dois checks.
 
    O GitHub só oferece checks que já rodaram.
+3. **Renovate**, depois que o `renovate.json` estiver na `main`: instale o app em <https://github.com/apps/renovate>, escolhendo **Only select repositories** → MyLibrary. Instalado antes, ele abriria um PR próprio para criar outro arquivo de configuração.
 
 ### Com o esqueleto do projeto
 
+4. **Settings → General → Pull Requests:** marque **Allow auto-merge**, usado pelo automerge do Renovate, que entra junto com o `ci.yml`.
 5. **SonarQube Cloud:**
    - Entre em <https://sonarcloud.io> com o GitHub e importe o repositório.
    - Em **Analysis Method**, escolha **GitHub Actions** e desligue a **Automatic Analysis**.
@@ -137,4 +140,4 @@ Passos feitos no GitHub por quem administra o repositório.
      - **Permissions:** Contents e Pull requests em *Read and write*.
      - **Expiração:** 1 ano. Anote a data para renovar.
    - Crie o secret `RELEASE_PLEASE_TOKEN` com esse token.
-7. **Checks obrigatórios:** depois da primeira execução, adicione `backend`, `frontend`, `e2e` e o quality gate do SonarQube Cloud.
+7. **Check obrigatório do CI:** depois da primeira execução, adicione **só o `ci`**, o job que resume `backend`, `frontend`, `e2e` e `sonar`. Não adicione os jobs individuais nem o check do app do SonarQube Cloud: eles não rodam em PRs só de documentação e deixariam esses PRs presos.
