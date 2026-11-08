@@ -12,6 +12,8 @@ indent_size = 2
 indent_size = 4
 max_line_length = 120
 
+# quote_type is not a core EditorConfig property (Angular CLI generates it too);
+# single quotes are enforced by Prettier (singleQuote: true) in the front-end setup.
 [*.ts]
 quote_type = single
 
