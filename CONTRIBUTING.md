@@ -70,6 +70,11 @@ docs(adr): registra modelo de domínio
 - O título segue o mesmo formato dos commits, porque vira a mensagem do squash.
 - Preencha o template: o quê, por quê e como testar.
 - Um PR por assunto. PRs pequenos são revisados melhor.
+- Cumpra a [Definition of Done](docs/testes-e-qualidade.md#definition-of-done), que também está no checklist do template.
+
+## Testes
+
+Que tipo de teste escrever para cada camada, onde mocks são aceitos e as regras de cobertura e acessibilidade estão em [`docs/testes-e-qualidade.md`](docs/testes-e-qualidade.md).
 
 ## Idioma
 
