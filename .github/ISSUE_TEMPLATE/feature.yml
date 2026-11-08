@@ -1,0 +1,30 @@
+name: Funcionalidade
+description: Proponha uma nova funcionalidade ou melhoria
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema ou objetivo
+      description: Que necessidade essa funcionalidade resolve?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solução proposta
+      description: Como deveria funcionar?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Critérios de aceite
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+  - type: textarea
+    id: notes
+    attributes:
+      label: Observações
+      description: Telas do protótipo, referências ou alternativas consideradas.
