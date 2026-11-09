@@ -76,6 +76,15 @@ docs(adr): registra modelo de domínio
 
 Que tipo de teste escrever para cada camada, onde mocks são aceitos e as regras de cobertura e acessibilidade estão em [`docs/testes-e-qualidade.md`](docs/testes-e-qualidade.md).
 
+### Hooks de Git
+
+Depois de `npm ci` na raiz (e em `frontend/`), cada commit passa por:
+
+- **pre-commit:** ESLint, Stylelint e Prettier nos arquivos do front-end que estão no commit (lint-staged). Erros que não têm correção automática barram o commit.
+- **commit-msg:** commitlint, com os tipos e escopos acima. Uma mensagem fora do padrão é recusada.
+
+A formatação do Java (Spotless) fica no CI, porque o Maven é lento demais para rodar a cada commit.
+
 ### Comandos do back-end
 
 Rodados dentro de `backend/` (no Windows, `mvnw.cmd` no lugar de `./mvnw`):
@@ -83,8 +92,9 @@ Rodados dentro de `backend/` (no Windows, `mvnw.cmd` no lugar de `./mvnw`):
 | Comando | O que faz |
 |---|---|
 | `./mvnw spotless:apply` | Formata o código Java (palantir-java-format). Rode antes de cada commit. |
-| `./mvnw verify` | Compila, roda os testes `*Test` e `*IT` e confere a cobertura mínima. |
-| `./mvnw verify -Pci` | O mesmo que o CI roda: inclui a checagem de formatação e o NullAway. |
+| `./mvnw verify` | Gera a interface, compila, roda os testes `*Test` e `*IT` e confere a cobertura mínima. |
+| `./mvnw verify -Pskip-frontend` | O mesmo, sem gerar a interface (mais rápido para mexer só no back). |
+| `./mvnw verify -Pci,skip-frontend` | O mesmo que o job `backend` do CI: inclui a checagem de formatação e o NullAway. |
 | `./mvnw test -Dtest=OpenApiContractTest -Dopenapi.update=true` | Atualiza o contrato `docs/openapi.json` depois de mudar a API. A mudança entra no mesmo PR. |
 
 ### Comandos do front-end

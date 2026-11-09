@@ -35,6 +35,11 @@
         <error-prone.version>2.52.0</error-prone.version>
         <nullaway.version>0.14.3</nullaway.version>
         <coverage.minimum-lines>0.80</coverage.minimum-lines>
+
+        <!-- Front-end built into the jar (ADR-0001). Same major as .nvmrc; Renovate updates both. -->
+        <frontend-maven-plugin.version>2.0.2</frontend-maven-plugin.version>
+        <frontend.directory>${project.basedir}/../frontend</frontend.directory>
+        <frontend.skip>false</frontend.skip>
     </properties>
 
     <dependencyManagement>
@@ -112,6 +117,68 @@
                         <goals>
                             <goal>build-info</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>${frontend-maven-plugin.version}</version>
+                <configuration>
+                    <workingDirectory>${frontend.directory}</workingDirectory>
+                    <installDirectory>${project.basedir}</installDirectory>
+                    <skip>${frontend.skip}</skip>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install-node-and-npm</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <configuration>
+                            <nodeVersion>v26.13.0</nodeVersion>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-ci</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>ci --no-audit --no-fund</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-build</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run build</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!-- The Angular build becomes classpath:/static, served by WebConfiguration. -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-frontend</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${frontend.skip}</skip>
+                            <outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${frontend.directory}/dist/minha-livraria/browser</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -194,6 +261,13 @@
     </build>
 
     <profiles>
+        <profile>
+            <!-- Back-end only: CI's backend job and quick local runs. The front-end has its own job. -->
+            <id>skip-frontend</id>
+            <properties>
+                <frontend.skip>true</frontend.skip>
+            </properties>
+        </profile>
         <profile>
             <!-- Checks that run in CI: formatting and null-safety (ADR-0002). -->
             <id>ci</id>

@@ -65,7 +65,7 @@ jobs:
           cache: maven
           cache-dependency-path: backend/pom.xml
       - name: Verify
-        run: ./mvnw -B -ntp verify -Pci
+        run: ./mvnw -B -ntp verify -Pci,skip-frontend
       # On failure, keep what is needed to fix the PR without a local build:
       # the formatting patch, the generated API contract and the test reports.
       - name: Prepare diagnostics
