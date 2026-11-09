@@ -43,7 +43,9 @@ class OpenApiContractTest {
             return;
         }
 
-        assertThat(SNAPSHOT).as("docs/openapi.json não existe. Gere com: " + UPDATE_COMMAND).exists();
+        assertThat(SNAPSHOT)
+                .as("docs/openapi.json não existe. Gere com: " + UPDATE_COMMAND)
+                .exists();
         assertThat(json.readTree(Files.readString(SNAPSHOT)))
                 .as("docs/openapi.json está desatualizado. Atualize com: " + UPDATE_COMMAND)
                 .isEqualTo(generated);
