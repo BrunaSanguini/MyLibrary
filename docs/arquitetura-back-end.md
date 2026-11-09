@@ -459,7 +459,9 @@ logging:
 **Startup**
 
 1. Cria as pastas de dados (`data/`, `images/`, `backups/`, `logs/`).
-2. Se houver migration pendente, faz backup com o comando `BACKUP TO` do H2, que gera uma cópia consistente mesmo com o banco aberto. Mantém as 5 últimas cópias e só então aplica a migration:
+2. Se houver migration pendente, faz dois backups e só então aplica a migration. Mantém as 5 últimas cópias de cada tipo.
+   - `BACKUP TO`: cópia binária e consistente mesmo com o banco aberto, para restaurar rápido.
+   - `SCRIPT TO`: exportação em SQL compactada. Serve para recriar o banco com `RUNSCRIPT` numa versão do H2 com formato de arquivo diferente, que é o risco apontado no ADR-0001.
 
    ```java
    @Bean

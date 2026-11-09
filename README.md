@@ -2,7 +2,7 @@
 
 Biblioteca pessoal para desktop: catálogo do acervo, registro de leitura, resenhas, listas e metas, com dados dos livros importados da [Open Library](https://openlibrary.org/developers/api).
 
-> **Status:** planejamento técnico. O código ainda não foi iniciado.
+> **Status:** planejamento técnico concluído; implementação começando pelo Marco 0. Acompanhe pelo [roadmap](docs/roadmap.md).
 
 ## Sobre
 
@@ -50,6 +50,7 @@ docs/adr/  Decisões de arquitetura
 
 ## Documentação
 
+- [Roadmap](docs/roadmap.md)
 - [Decisões de arquitetura (ADRs)](docs/adr/README.md)
 - [Modelo de dados](docs/modelo-de-dados.md)
 - [Arquitetura do back-end](docs/arquitetura-back-end.md)
