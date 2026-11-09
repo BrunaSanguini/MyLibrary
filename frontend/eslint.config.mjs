@@ -18,7 +18,14 @@ const DEEP_RELATIVE_IMPORT = {
 
 export default defineConfig([
   {
-    ignores: ['dist/', '.angular/', 'coverage/', 'src/app/core/api/schema.d.ts'],
+    ignores: [
+      'dist/',
+      '.angular/',
+      'coverage/',
+      'test-results/',
+      'playwright-report/',
+      'src/app/core/api/schema.d.ts',
+    ],
   },
   {
     files: ['**/*.ts'],
