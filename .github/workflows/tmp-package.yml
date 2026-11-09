@@ -1,0 +1,50 @@
+name: Temporary package check
+
+on:
+  push:
+    branches: [ci/release-windows]
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version-file: .java-version
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+      - working-directory: backend
+        shell: bash
+        run: ./mvnw -B -ntp package -DskipTests
+      - shell: pwsh
+        run: ./scripts/package-windows.ps1 -Version 0.1.0
+      - name: Run the executable without Java on the PATH
+        shell: pwsh
+        run: |
+          Get-Content dist/minha-livraria-0.1.0-windows-x64.zip.sha256
+          Expand-Archive dist/minha-livraria-0.1.0-windows-x64.zip -DestinationPath C:\app
+          Get-ChildItem C:\app\MinhaLivraria | Format-Table Name
+          "{0:N1} MB zip" -f ((Get-Item dist/minha-livraria-0.1.0-windows-x64.zip).Length / 1MB)
+          $env:PATH = ($env:PATH -split ';' | Where-Object { $_ -notmatch 'java|jdk|temurin' }) -join ';'
+          Remove-Item Env:JAVA_HOME -ErrorAction SilentlyContinue
+          try { java -version; "JAVA STILL ON PATH" } catch { "no java on PATH" }
+          $start = Get-Date
+          $p = Start-Process C:\app\MinhaLivraria\MinhaLivraria.exe -ArgumentList "--app.data-dir=$env:RUNNER_TEMP\ml" -PassThru
+          $ok = $false
+          for ($i = 0; $i -lt 90; $i++) {
+            try { $r = Invoke-RestMethod http://127.0.0.1:8471/actuator/health/readiness; if ($r.status -eq 'UP') { $ok = $true; break } } catch {}
+            Start-Sleep -Seconds 1
+          }
+          "ready: $ok after {0:N1}s" -f ((Get-Date) - $start).TotalSeconds
+          (Invoke-WebRequest http://127.0.0.1:8471/ -UseBasicParsing).Content | Select-String '<title>.*</title>' | ForEach-Object { $_.Matches.Value }
+          (Invoke-RestMethod http://127.0.0.1:8471/actuator/info).build | ConvertTo-Json
+          Stop-Process -Id $p.Id -Force
+          if (-not $ok) { Get-ChildItem -Recurse "$env:RUNNER_TEMP\ml\logs" | Get-Content -Tail 60; exit 1 }
