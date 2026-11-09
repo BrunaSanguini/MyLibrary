@@ -2,9 +2,9 @@ name: CI
 
 on:
   pull_request:
-    branches: [main, ci/e2e-sonar-automerge]
+    branches: [main]
   push:
-    branches: [main, ci/e2e-sonar-automerge]
+    branches: [main]
 
 permissions:
   contents: read
