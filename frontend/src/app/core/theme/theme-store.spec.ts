@@ -74,6 +74,28 @@ describe('ThemeStore', () => {
     expect(TestBed.inject(ThemeStore).preference()).toBe('SYSTEM');
   });
 
+  it('still works when the browser blocks storage', () => {
+    simulateSystemTheme(true);
+    const original = Object.getOwnPropertyDescriptor(window, 'localStorage');
+    Object.defineProperty(window, 'localStorage', {
+      configurable: true,
+      get: () => {
+        throw new DOMException('Storage blocked', 'SecurityError');
+      },
+    });
+
+    try {
+      const store = TestBed.inject(ThemeStore);
+      store.setPreference('LIGHT');
+
+      expect(store.resolved()).toBe('light');
+    } finally {
+      if (original) {
+        Object.defineProperty(window, 'localStorage', original);
+      }
+    }
+  });
+
   it('applies and remembers a new preference', () => {
     simulateSystemTheme(false);
     const store = TestBed.inject(ThemeStore);

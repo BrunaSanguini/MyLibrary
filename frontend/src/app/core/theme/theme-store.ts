@@ -11,6 +11,15 @@ export const THEME_STORAGE_KEY = 'ml-theme-preference';
 
 const PREFERENCES: readonly ThemePreference[] = ['LIGHT', 'DARK', 'SYSTEM'];
 
+/** Reading the localStorage property itself throws when the browser blocks storage. */
+function readStorage(document: Document): Storage | undefined {
+  try {
+    return document.defaultView?.localStorage;
+  } catch {
+    return undefined;
+  }
+}
+
 export function resolveTheme(preference: ThemePreference, systemDark: boolean): Theme {
   if (preference === 'SYSTEM') {
     return systemDark ? 'dark' : 'light';
@@ -25,7 +34,7 @@ export function resolveTheme(preference: ThemePreference, systemDark: boolean): 
 @Injectable({ providedIn: 'root' })
 export class ThemeStore {
   private readonly document = inject(DOCUMENT);
-  private readonly storage = this.document.defaultView?.localStorage;
+  private readonly storage = readStorage(this.document);
   private readonly systemQuery = this.document.defaultView?.matchMedia(
     '(prefers-color-scheme: dark)',
   );

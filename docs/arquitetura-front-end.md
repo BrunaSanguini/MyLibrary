@@ -57,7 +57,9 @@ features/books/
 | `core` | `shared` |
 
 - Uma feature nunca importa outra; o que for comum vai para `shared/ui` ou `core/api`.
-- A regra é garantida pelo ESLint (`no-restricted-imports` bloqueia `@features/*`, exceto no `app.routes.ts`).
+- A regra é garantida pelo ESLint (`no-restricted-imports`):
+  - bloqueia `@features/*`, exceto no `app.routes.ts`, e `@core/*` dentro de `shared`;
+  - import relativo sobe no máximo um nível (`../`), para alcançar outro componente da mesma feature. Para sair da pasta, só pelos aliases, e assim a regra acima também vale para caminhos relativos.
 - Aliases no `tsconfig.json`: `@core/*`, `@shared/*` e `@features/*`.
 
 **Clientes da API ficam em `core/api`**, e não dentro de cada feature, porque várias telas usam os mesmos recursos. A Home, por exemplo, consulta estante, metas e listas.

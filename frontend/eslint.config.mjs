@@ -9,6 +9,13 @@ const FEATURE_IMPORT = {
   message: 'Uma feature não importa outra. Mova o código comum para @shared ou @core.',
 };
 
+// Relative imports stay inside the component folder or one level up (a sibling in the same
+// feature). Leaving that requires an alias, so the rules above also see relative paths.
+const DEEP_RELATIVE_IMPORT = {
+  group: ['../../*'],
+  message: 'Para sair da pasta, use os aliases @core, @shared ou @features.',
+};
+
 export default defineConfig([
   {
     ignores: ['dist/', '.angular/', 'coverage/', 'src/app/core/api/schema.d.ts'],
@@ -32,7 +39,7 @@ export default defineConfig([
         { type: 'attribute', prefix: 'ml', style: 'camelCase' },
       ],
       // Folder boundaries (docs/arquitetura-front-end.md): features never import each other.
-      'no-restricted-imports': ['error', { patterns: [FEATURE_IMPORT] }],
+      'no-restricted-imports': ['error', { patterns: [FEATURE_IMPORT, DEEP_RELATIVE_IMPORT] }],
     },
   },
   {
@@ -44,6 +51,7 @@ export default defineConfig([
         {
           patterns: [
             FEATURE_IMPORT,
+            DEEP_RELATIVE_IMPORT,
             {
               group: ['@core/*'],
               message: 'shared/ui só recebe dados por input(); não use @core.',
