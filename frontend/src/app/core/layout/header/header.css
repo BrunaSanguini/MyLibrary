@@ -1,0 +1,99 @@
+:host {
+  display: block;
+  padding: var(--ml-space-24) var(--ml-space-32) 0;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ml-space-24);
+  max-width: var(--ml-content-width);
+  margin: 0 auto;
+  padding: 10px 12px 10px 24px;
+  border: 1px solid var(--ml-color-line);
+  border-radius: var(--ml-radius-pill);
+  background: var(--ml-color-glass);
+  box-shadow: var(--ml-shadow-soft);
+  backdrop-filter: blur(14px) saturate(1.2);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  text-decoration: none;
+}
+
+.logo-mark .ornament {
+  stroke: var(--ml-color-gold);
+}
+
+.logo-mark .book {
+  stroke: var(--ml-color-accent);
+}
+
+.wordmark {
+  font-family: var(--ml-font-display);
+  font-size: 25px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.wordmark-first {
+  font-style: italic;
+  font-weight: 500;
+}
+
+.menu {
+  display: flex;
+  gap: 28px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 22px;
+    text-decoration: none;
+    opacity: 0.8;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  .active {
+    color: var(--ml-color-accent);
+    text-decoration: underline 1.5px;
+    text-underline-offset: 6px;
+    opacity: 1;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ml-radius-pill);
+  background: transparent;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--ml-color-raised);
+  }
+}

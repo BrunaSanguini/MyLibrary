@@ -1,0 +1,34 @@
+{
+  "extends": ["stylelint-config-standard"],
+  "rules": {
+    "import-notation": "string",
+    "color-no-hex": [
+      true,
+      {
+        "message": "Use um token de cor (var(--ml-color-...)). Cores fixas ficam só em src/styles/tokens.css."
+      }
+    ],
+    "color-named": [
+      "never",
+      {
+        "message": "Use um token de cor (var(--ml-color-...)). Cores fixas ficam só em src/styles/tokens.css."
+      }
+    ],
+    "function-disallowed-list": [
+      ["rgb", "rgba", "hsl", "hsla", "hwb", "lab", "lch", "oklab", "oklch", "color"],
+      {
+        "message": "Use um token de cor (var(--ml-color-...)). Cores fixas ficam só em src/styles/tokens.css."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["src/styles/tokens.css"],
+      "rules": {
+        "color-no-hex": null,
+        "color-named": null,
+        "function-disallowed-list": null
+      }
+    }
+  ]
+}

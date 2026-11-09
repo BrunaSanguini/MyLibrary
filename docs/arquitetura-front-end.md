@@ -132,24 +132,33 @@ export default class ShelfPage {
 }
 ```
 
-As funções de conversão ficam em `core/api/query-params.ts`:
+As funções de conversão ficam em `core/api/query-params.ts`. Recebem `unknown`, porque um parâmetro repetido na URL (`?page=1&page=2`) chega como lista:
+
+```ts
+const PAGE_INDEX = /^\d{1,9}$/;
+
+export function toPageIndex(value: unknown): number {
+  return typeof value === 'string' && PAGE_INDEX.test(value) ? Number(value) : 0;
+}
+
+export function toSearchTerm(value: unknown): string | undefined {
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+  const term = value.trim().slice(0, 200);
+  return term === '' ? undefined : term;
+}
+
+export function toOneOf<T extends string>(allowed: readonly T[]): (value: unknown) => T | undefined {
+  return (value) => allowed.find((option) => option === value);
+}
+```
+
+Cada enum ganha sua conversão a partir de `toOneOf`:
 
 ```ts
 const SHELF_STATUSES = ['WANT_TO_READ', 'READING', 'READ', 'ABANDONED'] as const satisfies readonly ShelfStatus[];
-
-export function toPageIndex(value: string | undefined): number {
-  const page = Number(value);
-  return Number.isInteger(page) && page >= 0 ? page : 0;
-}
-
-export function toShelfStatus(value: string | undefined): ShelfStatus | undefined {
-  return SHELF_STATUSES.find((status) => status === value);
-}
-
-export function toSearchTerm(value: string | undefined): string | undefined {
-  const term = value?.trim().slice(0, 200);
-  return term ? term : undefined;
-}
+const toShelfStatus = toOneOf(SHELF_STATUSES);
 ```
 
 `?page=abc` vira a página 0, e `?status=XYZ` é ignorado. Nada inválido chega à requisição.
@@ -268,6 +277,13 @@ export const problemDetailsInterceptor: HttpInterceptorFn = (request, next) =>
 
 O `ApiError` expõe `status`, `code`, `detail` e `fieldErrors`. Cada tela trata os códigos que conhece, por exemplo `review.not-found` vira "sem resenha". O componente `ml-error-state` exibe o `detail` dos demais.
 
+Quando a resposta não é Problem Details, o próprio front cria o código:
+
+| Código | Quando |
+|---|---|
+| `network.unavailable` | a requisição não chegou ao back (status 0), por exemplo com o aplicativo fechado |
+| `response.unexpected` | o back respondeu com erro, mas sem Problem Details |
+
 **Desenvolvimento.** O `ng serve` encaminha a API para o back-end:
 
 ```json
@@ -304,7 +320,7 @@ export const routes: Routes = [
   { path: 'estante', loadComponent: () => import('@features/shelf/shelf-page/shelf-page'), title: 'Minha Estante' },
   { path: 'livros', loadChildren: () => import('@features/books/books.routes') },
   // ...
-  { path: '**', loadComponent: () => import('@features/not-found/not-found-page'), title: 'Página não encontrada' },
+  { path: '**', loadComponent: () => import('@features/not-found/not-found-page/not-found-page'), title: 'Página não encontrada' },
 ];
 ```
 
@@ -376,7 +392,7 @@ Os valores vêm do design system da Minha Livraria. Todos os tokens têm o prefi
 - O tema claro também fica em `:root`. Mesmo sem o atributo `data-theme`, a página sempre tem cores.
 - O `color-scheme` faz o navegador ajustar barras de rolagem e controles nativos ao tema.
 
-- Os componentes **só usam tokens**. O Stylelint, com o plugin `stylelint-declaration-strict-value`, barra cor fixa fora do `tokens.css`.
+- Os componentes **só usam tokens**. O Stylelint barra cor fixa fora do `tokens.css` com as regras `color-no-hex`, `color-named` e `function-disallowed-list` (`rgb()`, `hsl()` e afins). As regras valem também nos atalhos, como `border: 1px solid var(--ml-color-line)`.
 - As regras visuais do design system valem no código:
   - um único `accent` por área;
   - `gold` só em ornamentos;

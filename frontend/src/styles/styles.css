@@ -1,0 +1,6 @@
+/* Global styles: fonts (bundled, no CDN), design tokens and base rules. */
+@import '@fontsource-variable/cormorant-garamond/wght.css';
+@import '@fontsource-variable/cormorant-garamond/wght-italic.css';
+@import '@fontsource-variable/mulish/wght.css';
+@import './tokens.css';
+@import './base.css';

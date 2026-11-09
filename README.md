@@ -38,7 +38,13 @@ A API sobe em `http://127.0.0.1:8471/api/v1`. No perfil `dev`, os dados ficam em
 
 ### Front-end
 
-Será documentado junto com o primeiro código do front-end.
+```bash
+cd frontend
+npm ci
+npm start
+```
+
+A interface abre em `http://localhost:4200`. As chamadas para `/api` vão para o back-end em `127.0.0.1:8471`, que precisa estar rodando.
 
 ## Estrutura
 

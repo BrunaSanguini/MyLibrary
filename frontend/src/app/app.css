@@ -1,0 +1,31 @@
+:host {
+  display: block;
+}
+
+.skip-link {
+  position: absolute;
+  top: var(--ml-space-8);
+  left: var(--ml-space-8);
+  z-index: 10;
+  padding: var(--ml-space-12) var(--ml-space-24);
+  border-radius: var(--ml-radius-pill);
+  background: var(--ml-color-accent);
+  color: var(--ml-color-accent-ink);
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus-visible {
+  transform: none;
+}
+
+.content {
+  max-width: var(--ml-content-width);
+  margin: 0 auto;
+  padding: var(--ml-space-56) var(--ml-space-32) var(--ml-space-72);
+}
+
+.content:focus {
+  outline: none;
+}

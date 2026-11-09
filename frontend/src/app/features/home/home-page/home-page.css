@@ -1,0 +1,16 @@
+.welcome {
+  display: grid;
+  gap: var(--ml-space-16);
+  max-width: 720px;
+  padding: var(--ml-space-40);
+  border: 1px solid var(--ml-color-line);
+  border-radius: var(--ml-radius-lg);
+  background: var(--ml-color-surface);
+  box-shadow: var(--ml-shadow-soft);
+}
+
+.intro {
+  color: var(--ml-color-muted);
+  font-size: 16px;
+  line-height: 1.65;
+}

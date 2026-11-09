@@ -1,0 +1,84 @@
+/*
+ * Design tokens of the Minha Livraria design system.
+ * This is the only file with fixed colors: components use the tokens (enforced by Stylelint).
+ */
+
+:root {
+  /* Typography: display (Cormorant Garamond) for book content, body (Mulish) for the interface. */
+  --ml-font-display: 'Cormorant Garamond Variable', 'Georgia', serif;
+  --ml-font-body: 'Mulish Variable', system-ui, sans-serif;
+
+  /* Spacing: steps of 4 up to 16, then 24 / 32 / 40 / 56 / 72. */
+  --ml-space-4: 4px;
+  --ml-space-8: 8px;
+  --ml-space-12: 12px;
+  --ml-space-16: 16px;
+  --ml-space-24: 24px;
+  --ml-space-32: 32px;
+  --ml-space-40: 40px;
+  --ml-space-56: 56px;
+  --ml-space-72: 72px;
+
+  /* Radius: everything small and clickable is a pill. Covers: 3px on the left, radius-book on the right. */
+  --ml-radius-book: 10px;
+  --ml-radius-sm: 12px;
+  --ml-radius-md: 16px;
+  --ml-radius-lg: 24px;
+  --ml-radius-pill: 999px;
+
+  /* Layout: desktop only, 1240px content on a 1440px reference page. */
+  --ml-content-width: 1240px;
+
+  /* Same in both themes: text and buttons over the hero art. */
+  --ml-color-hero-night: #1e3a4c;
+  --ml-color-hero-gold: #f4d27a;
+  --ml-color-hero-ink: #f7ead4;
+
+  /* Placeholder covers, when the Open Library has no cover. */
+  --ml-color-book-emerald: #2e6b4f;
+  --ml-color-book-red: #b0332a;
+  --ml-color-book-navy: #1f466e;
+  --ml-color-book-rust: #a0561e;
+  --ml-color-book-plum: #7a2d5c;
+  --ml-color-book-moss: #3f5a3a;
+  --ml-color-book-sand: #eecb8a;
+
+  /* Covers: inner spine plus shadow. */
+  --ml-shadow-book: inset 9px 0 0 rgb(0 0 0 / 20%), 0 10px 22px rgb(30 18 10 / 22%);
+}
+
+/* The light theme is also the default, so the page has colors even without data-theme. */
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+
+  /* Light theme: parchment and burgundy. */
+  --ml-color-bg: #f6e4c6;
+  --ml-color-surface: #fff7ea;
+  --ml-color-raised: #f4ddb6;
+  --ml-color-ink: #2a1912;
+  --ml-color-muted: #6b4630;
+  --ml-color-line: #e2bc82;
+  --ml-color-accent: #a62b22;
+  --ml-color-accent-ink: #fff7ea;
+  --ml-color-gold: #c48a1a;
+  --ml-color-glass: rgb(255 247 234 / 74%);
+  --ml-shadow-soft: 0 14px 36px rgb(140 70 20 / 12%);
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* Dark theme: coffee and terracotta. */
+  --ml-color-bg: #1b120e;
+  --ml-color-surface: #2a1b14;
+  --ml-color-raised: #3a261c;
+  --ml-color-ink: #f7ead4;
+  --ml-color-muted: #d6b892;
+  --ml-color-line: #5e3e2a;
+  --ml-color-accent: #ee7a5c;
+  --ml-color-accent-ink: #1b120e;
+  --ml-color-gold: #ebb94c;
+  --ml-color-glass: rgb(42 27 20 / 62%);
+  --ml-shadow-soft: 0 14px 36px rgb(0 0 0 / 35%);
+}
