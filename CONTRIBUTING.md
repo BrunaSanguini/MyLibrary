@@ -76,6 +76,17 @@ docs(adr): registra modelo de domínio
 
 Que tipo de teste escrever para cada camada, onde mocks são aceitos e as regras de cobertura e acessibilidade estão em [`docs/testes-e-qualidade.md`](docs/testes-e-qualidade.md).
 
+### Comandos do back-end
+
+Rodados dentro de `backend/` (no Windows, `mvnw.cmd` no lugar de `./mvnw`):
+
+| Comando | O que faz |
+|---|---|
+| `./mvnw spotless:apply` | Formata o código Java (palantir-java-format). Rode antes de cada commit. |
+| `./mvnw verify` | Compila, roda os testes `*Test` e `*IT` e confere a cobertura mínima. |
+| `./mvnw verify -Pci` | O mesmo que o CI roda: inclui a checagem de formatação e o NullAway. |
+| `./mvnw test -Dtest=OpenApiContractTest -Dopenapi.update=true` | Atualiza o contrato `docs/openapi.json` depois de mudar a API. A mudança entra no mesmo PR. |
+
 ## Idioma
 
 | Onde | Idioma |

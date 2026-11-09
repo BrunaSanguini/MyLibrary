@@ -15,9 +15,13 @@ Este catálogo cresce junto com o código: todo `code` novo entra aqui no mesmo 
 | <a id="validation"></a>`validation` | 400 | Um ou mais campos não passaram na validação de formato. A resposta traz `errors: [{ field, message }]`. |
 | <a id="request-malformed"></a>`request.malformed` | 400 | JSON inválido ou parâmetro com tipo errado. |
 | <a id="request-invalid-sort"></a>`request.invalid-sort` | 400 | Campo de ordenação fora da lista permitida pelo endpoint. |
+| <a id="request-invalid"></a>`request.invalid` | 400 | Outra requisição inválida que não se encaixa nos códigos acima (ex.: parâmetro obrigatório ausente). |
 | <a id="request-missing-header"></a>`request.missing-header` | 403 | Requisição de alteração sem o header `X-Requested-By`. |
 | <a id="request-invalid-host"></a>`request.invalid-host` | 403 | Header `Host` diferente de `127.0.0.1` ou `localhost`. |
-| <a id="resource-not-found"></a>`resource.not-found` | 404 | Rota inexistente. |
+| <a id="request-invalid-token"></a>`request.invalid-token` | 403 | Pedido de encerramento sem o header `X-MyCollection-Token` ou com token errado. |
+| <a id="resource-not-found"></a>`resource.not-found` | 404 | Rota inexistente, ou encerramento pedido sem token configurado. |
+| <a id="request-method-not-allowed"></a>`request.method-not-allowed` | 405 | Método HTTP não suportado pela rota. |
+| <a id="request-unsupported-media-type"></a>`request.unsupported-media-type` | 415 | `Content-Type` não aceito pela rota (a API recebe `application/json`). |
 
 ## Livros e catálogo
 

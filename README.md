@@ -25,7 +25,20 @@ Biblioteca pessoal para desktop: catálogo do acervo, registro de leitura, resen
 
 ## Como rodar
 
-Será documentado junto com o primeiro código do back-end e do front-end.
+### Back-end
+
+```bash
+cd backend
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+No Windows (cmd ou PowerShell), use `mvnw.cmd` no lugar de `./mvnw`.
+
+A API sobe em `http://127.0.0.1:8471/api/v1`. No perfil `dev`, os dados ficam em `backend/.local-data/` e a documentação interativa da API fica em `http://127.0.0.1:8471/swagger-ui.html`.
+
+### Front-end
+
+Será documentado junto com o primeiro código do front-end.
 
 ## Estrutura
 
