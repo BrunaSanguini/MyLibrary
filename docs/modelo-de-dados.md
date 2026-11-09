@@ -263,6 +263,8 @@ Um novo tipo (por gênero, por série) entra como novo valor do enum, mais as co
 - **Reconciliação no startup:**
   - Arquivo sem registro vai para a lixeira.
   - Registro sem arquivo é restaurado da lixeira, se o arquivo estiver lá. Se não estiver, o app registra no log e exibe a imagem padrão.
+  - Arquivos gravados depois do início da reconciliação ficam de fora: podem ser de um upload cuja transação ainda não terminou.
+  - A lixeira guarda a pasta do tipo (`images/.trash/{kind}/`), e a data de entrada é a data de modificação do arquivo.
 - Assim, restaurar um backup do banco não apaga imagens: os arquivos mais novos ficam na lixeira por 30 dias, e os antigos voltam para o lugar.
 
 ## Regras calculadas

@@ -4,14 +4,17 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.nio.file.Path;
+import java.time.Duration;
 import org.jspecify.annotations.Nullable;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.util.unit.DataSize;
 import org.springframework.validation.annotation.Validated;
 
 /**
  * Typed application settings under the {@code app} prefix.
  *
  * @param dataDir folder that holds the database, images, backups and logs
+ * @param images image storage settings
  * @param backup database backup settings
  * @param shutdownToken token the My Collection hub must send to shut the app down; blank disables shutdown
  */
@@ -19,8 +22,15 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties(prefix = "app")
 public record AppProperties(
         @NotNull Path dataDir,
+        @NotNull @Valid Images images,
         @NotNull @Valid Backup backup,
         @Nullable String shutdownToken) {
+
+    /**
+     * @param maxSize largest accepted image
+     * @param trashRetention how long discarded images stay in the trash before being deleted
+     */
+    public record Images(@NotNull DataSize maxSize, @NotNull Duration trashRetention) {}
 
     /** @param keep how many copies of each backup type are kept */
     public record Backup(@Positive int keep) {}

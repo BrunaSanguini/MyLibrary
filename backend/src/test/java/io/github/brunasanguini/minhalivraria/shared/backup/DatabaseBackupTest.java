@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -20,6 +21,7 @@ import javax.sql.DataSource;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.springframework.util.unit.DataSize;
 
 class DatabaseBackupTest {
 
@@ -80,7 +82,11 @@ class DatabaseBackupTest {
     }
 
     private DatabaseBackup backupAt(DataSource database, String instant, int keep) {
-        AppProperties properties = new AppProperties(dataDir, new AppProperties.Backup(keep), null);
+        AppProperties properties = new AppProperties(
+                dataDir,
+                new AppProperties.Images(DataSize.ofMegabytes(5), Duration.ofDays(30)),
+                new AppProperties.Backup(keep),
+                null);
         Clock clock = Clock.fixed(Instant.parse(instant), ZoneOffset.UTC);
         return new DatabaseBackup(database, properties, clock);
     }

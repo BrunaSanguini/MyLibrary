@@ -10,6 +10,11 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: validate
+  servlet:
+    multipart:
+      # Above app.images.max-size, so the service answers with image.too-large and its message.
+      max-file-size: 10MB
+      max-request-size: 11MB
 
 server:
   address: 127.0.0.1
@@ -38,6 +43,9 @@ springdoc:
 app:
   data-dir: ${user.home}/.minha-livraria
   shutdown-token: ${MINHA_LIVRARIA_SHUTDOWN_TOKEN:}
+  images:
+    max-size: 5MB
+    trash-retention: 30d
   backup:
     keep: 5
 
