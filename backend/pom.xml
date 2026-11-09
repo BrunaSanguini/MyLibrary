@@ -13,7 +13,7 @@
 
     <groupId>io.github.brunasanguini</groupId>
     <artifactId>minha-livraria</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version><!-- x-release-please-version -->
     <name>Minha Livraria</name>
     <description>Biblioteca pessoal para desktop</description>
     <url>https://github.com/BrunaSanguini/MyLibrary</url>

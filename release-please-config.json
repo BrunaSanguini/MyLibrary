@@ -1,0 +1,77 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "simple",
+  "include-component-in-tag": false,
+  "bump-minor-pre-major": true,
+  "pull-request-title-pattern": "chore: release ${version}",
+  "pull-request-header": "Release gerada pelo release-please. Ao fazer o merge, a tag e o GitHub Release são criados e o pacote para Windows é anexado.",
+  "changelog-sections": [
+    {
+      "type": "feat",
+      "section": "Funcionalidades"
+    },
+    {
+      "type": "fix",
+      "section": "Correções"
+    },
+    {
+      "type": "perf",
+      "section": "Desempenho"
+    },
+    {
+      "type": "docs",
+      "section": "Documentação"
+    },
+    {
+      "type": "refactor",
+      "section": "Refatoração",
+      "hidden": true
+    },
+    {
+      "type": "test",
+      "section": "Testes",
+      "hidden": true
+    },
+    {
+      "type": "build",
+      "section": "Build",
+      "hidden": true
+    },
+    {
+      "type": "ci",
+      "section": "CI",
+      "hidden": true
+    },
+    {
+      "type": "style",
+      "section": "Estilo",
+      "hidden": true
+    },
+    {
+      "type": "chore",
+      "section": "Manutenção",
+      "hidden": true
+    },
+    {
+      "type": "revert",
+      "section": "Reversões",
+      "hidden": true
+    }
+  ],
+  "packages": {
+    ".": {
+      "release-as": "0.1.0",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "backend/pom.xml"
+        },
+        {
+          "type": "json",
+          "path": "frontend/package.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    }
+  }
+}
