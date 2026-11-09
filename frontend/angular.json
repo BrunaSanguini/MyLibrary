@@ -74,7 +74,8 @@
           "builder": "@angular/build:unit-test",
           "options": {
             "setupFiles": ["src/test-setup.ts"],
-            "exclude": ["app/shared/ui/**"]
+            "exclude": ["app/shared/ui/**"],
+            "coverageReporters": ["lcovonly", "text-summary"]
           },
           "configurations": {
             "browser": {

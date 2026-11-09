@@ -5,3 +5,5 @@ coverage/
 node_modules/
 package-lock.json
 src/app/core/api/schema.d.ts
+test-results/
+playwright-report/

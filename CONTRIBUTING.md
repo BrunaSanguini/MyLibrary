@@ -108,9 +108,10 @@ Rodados dentro de `frontend/`:
 | `npm run lint` | ESLint (inclui as fronteiras entre pastas), Stylelint e checagem do Prettier, como no CI. |
 | `npm test` | Testes em jsdom e, para `shared/ui`, no Chromium. |
 | `npm run build` | Build de produção, com os budgets de tamanho. |
+| `npm run e2e` | Testes E2E (Playwright, Chromium e Firefox, com axe) contra o jar. Gere antes com `./mvnw package -DskipTests` em `backend/`. |
 | `npm run api:types` | Gera os tipos da API a partir de `docs/openapi.json`. Roda sozinho antes de `start`, `test` e `build`. |
 
-Para o modo navegador dos testes, instale o Chromium do Playwright uma vez: `npx playwright install chromium`.
+Para o modo navegador dos testes e para os E2E, instale os navegadores do Playwright uma vez: `npx playwright install chromium firefox`.
 
 ## Idioma
 
