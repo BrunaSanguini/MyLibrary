@@ -113,9 +113,8 @@ class ApiExceptionHandlerTest {
     void shouldHideDetailsOfUnexpectedErrors() {
         assertThat(mvc.get().uri(BASE + "/unexpected"))
                 .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                .satisfies(result -> assertThat(result).bodyJson()
-                        .extractingPath("$.code")
-                        .isEqualTo("internal.error"))
+                .satisfies(result ->
+                        assertThat(result).bodyJson().extractingPath("$.code").isEqualTo("internal.error"))
                 .bodyText()
                 .doesNotContain("segredo interno");
     }

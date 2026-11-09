@@ -17,7 +17,10 @@ import org.springframework.validation.annotation.Validated;
  */
 @Validated
 @ConfigurationProperties(prefix = "app")
-public record AppProperties(@NotNull Path dataDir, @NotNull @Valid Backup backup, @Nullable String shutdownToken) {
+public record AppProperties(
+        @NotNull Path dataDir,
+        @NotNull @Valid Backup backup,
+        @Nullable String shutdownToken) {
 
     /** @param keep how many copies of each backup type are kept */
     public record Backup(@Positive int keep) {}

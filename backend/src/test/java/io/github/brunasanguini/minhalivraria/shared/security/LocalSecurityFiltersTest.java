@@ -25,7 +25,11 @@ class LocalSecurityFiltersTest {
 
     @Test
     void shouldAcceptRequestsAddressedTo127001() {
-        int status = mvc.get().uri("http://127.0.0.1/estante").exchange().getResponse().getStatus();
+        int status = mvc.get()
+                .uri("http://127.0.0.1/estante")
+                .exchange()
+                .getResponse()
+                .getStatus();
 
         assertThat(status).isNotEqualTo(HttpStatus.FORBIDDEN.value());
     }

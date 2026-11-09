@@ -40,7 +40,8 @@ class MinhaLivrariaApplicationIT {
 
     @Test
     void shouldApplyTheMigrations() {
-        Integer profiles = jdbc.sql("SELECT COUNT(*) FROM profile").query(Integer.class).single();
+        Integer profiles =
+                jdbc.sql("SELECT COUNT(*) FROM profile").query(Integer.class).single();
 
         assertThat(profiles).isEqualTo(1);
     }

@@ -36,12 +36,11 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(DomainException.class)
     ResponseEntity<Object> handleDomain(DomainException exception, WebRequest request) {
-        HttpStatus status =
-                switch (exception) {
-                    case NotFoundException ignored -> HttpStatus.NOT_FOUND;
-                    case ConflictException ignored -> HttpStatus.CONFLICT;
-                    case BusinessRuleException ignored -> HttpStatus.UNPROCESSABLE_CONTENT;
-                };
+        HttpStatus status = switch (exception) {
+            case NotFoundException ignored -> HttpStatus.NOT_FOUND;
+            case ConflictException ignored -> HttpStatus.CONFLICT;
+            case BusinessRuleException ignored -> HttpStatus.UNPROCESSABLE_CONTENT;
+        };
         ProblemDetail problem = problem(status, exception.code(), exception.args(), request);
         return ResponseEntity.status(status).body(problem);
     }
@@ -88,8 +87,8 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static List<FieldViolation> fieldErrors(MethodArgumentNotValidException exception) {
         return exception.getBindingResult().getFieldErrors().stream()
-                .map(error -> new FieldViolation(
-                        error.getField(), Objects.requireNonNullElse(error.getDefaultMessage(), "")))
+                .map(error ->
+                        new FieldViolation(error.getField(), Objects.requireNonNullElse(error.getDefaultMessage(), "")))
                 .toList();
     }
 

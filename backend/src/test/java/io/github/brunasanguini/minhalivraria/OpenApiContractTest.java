@@ -24,6 +24,7 @@ class OpenApiContractTest {
 
     private static final Path SNAPSHOT = Path.of("..", "docs", "openapi.json");
     private static final Path GENERATED = Path.of("target", "openapi.json");
+    private static final String UPDATE_COMMAND = "./mvnw test -Dtest=OpenApiContractTest -Dopenapi.update=true";
 
     private final JsonMapper json = JsonMapper.builder().build();
 
@@ -42,12 +43,9 @@ class OpenApiContractTest {
             return;
         }
 
-        assertThat(SNAPSHOT)
-                .as("docs/openapi.json não existe. Gere com: ./mvnw test -Dtest=OpenApiContractTest -Dopenapi.update=true")
-                .exists();
+        assertThat(SNAPSHOT).as("docs/openapi.json não existe. Gere com: " + UPDATE_COMMAND).exists();
         assertThat(json.readTree(Files.readString(SNAPSHOT)))
-                .as("docs/openapi.json está desatualizado. Atualize com: ./mvnw test -Dtest=OpenApiContractTest"
-                        + " -Dopenapi.update=true")
+                .as("docs/openapi.json está desatualizado. Atualize com: " + UPDATE_COMMAND)
                 .isEqualTo(generated);
     }
 }

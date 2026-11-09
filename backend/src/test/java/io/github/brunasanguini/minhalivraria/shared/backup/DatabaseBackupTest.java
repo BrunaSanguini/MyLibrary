@@ -33,7 +33,8 @@ class DatabaseBackupTest {
 
         backupAt(database, "2026-11-09T10:00:00Z", 5).create();
 
-        assertThat(dataDir.resolve("backups/minha-livraria-20261109-100000.zip")).isRegularFile();
+        assertThat(dataDir.resolve("backups/minha-livraria-20261109-100000.zip"))
+                .isRegularFile();
         assertThat(dataDir.resolve("backups/minha-livraria-20261109-100000.sql.zip"))
                 .isRegularFile();
     }
