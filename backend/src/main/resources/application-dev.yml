@@ -1,0 +1,13 @@
+app:
+  # Development data stays inside the project folder (ignored by Git).
+  data-dir: ./.local-data
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+logging:
+  level:
+    io.github.brunasanguini.minhalivraria: DEBUG

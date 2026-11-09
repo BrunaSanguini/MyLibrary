@@ -26,9 +26,9 @@ Estratégia de testes e regras de qualidade da Minha Livraria, com exemplos. As 
 | Tipo | O que protege | Ferramenta | Sufixo |
 |---|---|---|---|
 | Domínio | invariantes das entidades e validadores (ISBN, meio ponto da nota) | JUnit 6 + AssertJ, sem Spring | `Test` |
-| Web | contrato HTTP: status, JSON, validação, Problem Details, `Location` | `@WebMvcTest` + `MockMvcTester`, serviço com `@MockitoBean` | `Test` |
+| Web | contrato HTTP: status, JSON, validação, Problem Details, `Location` | `@WebSliceTest` (o `@WebMvcTest` do projeto) + `MockMvcTester`, serviço com `@MockitoBean` | `Test` |
 | Persistência e consultas | JPQL, SQL do `JdbcClient` (`shelf`, estatísticas) e constraints do banco | `@DataJpaTest` / `@JdbcTest` com Flyway no H2 em memória | `Test` |
-| Segurança local | filtro de `Host`, `X-Requested-By` e token do shutdown | `@WebMvcTest` com os filtros | `Test` |
+| Segurança local | filtro de `Host`, `X-Requested-By` e token do shutdown | `@WebSliceTest` com os filtros | `Test` |
 | Open Library | conversão das respostas reais, incluindo as inconsistências da API | `MockRestServiceServer` com JSONs reais gravados como fixture | `Test` |
 | Estrutura | fronteiras entre módulos e regras de camada | Spring Modulith (`verify()`) + ArchUnit | `Test` |
 | Contrato | `docs/openapi.json` igual ao gerado pelo código | teste de snapshot (ADR-0005) | `Test` |
@@ -70,8 +70,10 @@ class ReadingTest {
 
 ### Web
 
+Testes de controller usam `@WebSliceTest`, que é o `@WebMvcTest` com as propriedades da aplicação registradas. Os filtros de segurança local sempre entram no slice e dependem delas.
+
 ```java
-@WebMvcTest(BookController.class)
+@WebSliceTest(controllers = BookController.class)
 class BookControllerTest {
 
     @Autowired

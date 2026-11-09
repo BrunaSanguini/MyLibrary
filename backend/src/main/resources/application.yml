@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: minha-livraria
+  config:
+    # Personal settings (such as the Open Library contact) live outside the repository.
+    import: optional:file:${user.home}/.minha-livraria/config.yml
+  datasource:
+    url: jdbc:h2:file:${app.data-dir}/data/minha-livraria;DB_CLOSE_ON_EXIT=FALSE
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+
+server:
+  address: 127.0.0.1
+  port: 8471
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, shutdown
+  endpoint:
+    health:
+      probes:
+        enabled: true
+    shutdown:
+      # Guarded by ShutdownTokenFilter: without app.shutdown-token the endpoint answers 404.
+      access: unrestricted
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+app:
+  data-dir: ${user.home}/.minha-livraria
+  shutdown-token: ${MINHA_LIVRARIA_SHUTDOWN_TOKEN:}
+  backup:
+    keep: 5
+
+logging:
+  file:
+    name: ${app.data-dir}/logs/minha-livraria.log
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 7

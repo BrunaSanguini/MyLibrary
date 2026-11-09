@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:minha-livraria;DB_CLOSE_DELAY=-1
+
+springdoc:
+  api-docs:
+    enabled: true
+
+app:
+  data-dir: ${java.io.tmpdir}/minha-livraria-test

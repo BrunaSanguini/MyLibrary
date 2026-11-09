@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        with:
+          # docs/openapi.json is the API contract snapshot checked by the back-end tests.
+          filters: |
+            backend:
+              - 'backend/**'
+              - '.java-version'
+              - 'docs/openapi.json'
+              - '.github/workflows/ci.yml'
+
+  backend:
+    name: backend
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version-file: .java-version
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+      - name: Verify
+        run: ./mvnw -B -ntp verify -Pci
+      # On failure, keep what is needed to fix the PR without a local build:
+      # the formatting patch, the generated API contract and the test reports.
+      - name: Prepare diagnostics
+        if: failure()
+        run: |
+          ./mvnw -B -ntp -q spotless:apply || true
+          mkdir -p target
+          git diff --output=target/spotless.patch -- . || true
+          # Also printed in the log, which can be read without downloading the artifact.
+          for file in target/spotless.patch target/openapi.json; do
+            if [ -s "$file" ]; then
+              echo "::group::$file"
+              cat "$file"
+              echo "::endgroup::"
+            fi
+          done
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: failure()
+        with:
+          name: backend-diagnostics
+          path: |
+            backend/target/spotless.patch
+            backend/target/openapi.json
+            backend/target/surefire-reports/
+            backend/target/failsafe-reports/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # Single required check for the main branch: it summarizes the jobs above,
+  # so a PR that skips a job (e.g. docs only) is not left waiting for it.
+  ci:
+    name: ci
+    if: always()
+    needs: [changes, backend]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check job results
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          failed=$(jq -r 'to_entries[] | select(.value.result != "success" and .value.result != "skipped") | "\(.key): \(.value.result)"' <<< "$RESULTS")
+          if [ -n "$failed" ]; then
+            echo "::error::Jobs que falharam ou foram cancelados:"
+            echo "$failed"
+            exit 1
+          fi
+          echo "Todos os jobs passaram ou foram pulados."
