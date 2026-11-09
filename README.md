@@ -25,6 +25,31 @@ Biblioteca pessoal para desktop: catálogo do acervo, registro de leitura, resen
 
 ## Como rodar
 
+### Primeira vez
+
+Na raiz do repositório, instale as ferramentas de Git (hooks de pre-commit e de mensagem de commit):
+
+```bash
+npm ci
+```
+
+E no front-end, as dependências usadas pelos hooks e pela interface:
+
+```bash
+cd frontend
+npm ci
+```
+
+### Executável (jar)
+
+```bash
+cd backend
+./mvnw package -DskipTests
+java -jar target/minha-livraria-0.1.0-SNAPSHOT.jar
+```
+
+O build baixa o próprio Node e gera a interface junto. O app abre em `http://127.0.0.1:8471/`, com a API em `/api/v1`.
+
 ### Back-end
 
 ```bash
@@ -32,7 +57,7 @@ cd backend
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-No Windows (cmd ou PowerShell), use `mvnw.cmd` no lugar de `./mvnw`.
+No Windows (cmd ou PowerShell), use `mvnw.cmd` no lugar de `./mvnw`. Para subir só a API, sem gerar a interface, acrescente `-Pskip-frontend`.
 
 A API sobe em `http://127.0.0.1:8471/api/v1`. No perfil `dev`, os dados ficam em `backend/.local-data/` e a documentação interativa da API fica em `http://127.0.0.1:8471/swagger-ui.html`.
 
