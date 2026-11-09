@@ -7,17 +7,25 @@
     "helpers:pinGitHubActionDigests",
     ":timezone(America/Sao_Paulo)"
   ],
-  "schedule": ["* 0-8 * * 1"],
-  "labels": ["dependencies"],
+  "schedule": [
+    "* 0-8 * * 1"
+  ],
+  "labels": [
+    "dependencies"
+  ],
   "minimumReleaseAge": "3 days",
   "lockFileMaintenance": {
     "enabled": true,
-    "schedule": ["* 0-8 1 * *"]
+    "schedule": [
+      "* 0-8 1 * *"
+    ]
   },
   "packageRules": [
     {
       "description": "Versões exatas no npm, sem ^ ou ~",
-      "matchManagers": ["npm"],
+      "matchManagers": [
+        "npm"
+      ],
       "rangeStrategy": "pin"
     },
     {
@@ -35,7 +43,9 @@
     {
       "description": "Spring Boot: parent e plugins",
       "groupName": "spring boot",
-      "matchPackageNames": ["org.springframework.boot:**"]
+      "matchPackageNames": [
+        "org.springframework.boot:**"
+      ]
     },
     {
       "description": "Bibliotecas de teste do front",
@@ -51,17 +61,46 @@
       ]
     },
     {
-      "description": "GitHub Actions agrupadas. O automerge entra junto com o ci.yml, para nada ser aceito sem build e testes",
+      "description": "GitHub Actions agrupadas",
       "groupName": "github actions",
-      "matchManagers": ["github-actions"]
+      "matchManagers": [
+        "github-actions"
+      ]
+    },
+    {
+      "description": "Automerge de patch e minor nas dependências de desenvolvimento, depois do CI verde",
+      "matchDepTypes": [
+        "devDependencies"
+      ],
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ],
+      "automerge": true
+    },
+    {
+      "description": "Automerge de patch, minor e digest das Actions, depois do CI verde",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchUpdateTypes": [
+        "patch",
+        "minor",
+        "digest"
+      ],
+      "automerge": true
     }
   ],
   "customManagers": [
     {
       "description": "Versão do Node usada pelo frontend-maven-plugin no pom.xml",
       "customType": "regex",
-      "managerFilePatterns": ["/^backend/pom\\.xml$/"],
-      "matchStrings": ["<nodeVersion>v(?<currentValue>[^<]+)</nodeVersion>"],
+      "managerFilePatterns": [
+        "/^backend/pom\\.xml$/"
+      ],
+      "matchStrings": [
+        "<nodeVersion>v(?<currentValue>[^<]+)</nodeVersion>"
+      ],
       "depNameTemplate": "node",
       "datasourceTemplate": "node-version"
     }

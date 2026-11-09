@@ -108,6 +108,8 @@
     </dependencies>
 
     <build>
+        <!-- Fixed name, without the version: E2E, jpackage and docs point to target/minha-livraria.jar. -->
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

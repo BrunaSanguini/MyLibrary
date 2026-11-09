@@ -45,7 +45,7 @@ npm ci
 ```bash
 cd backend
 ./mvnw package -DskipTests
-java -jar target/minha-livraria-0.1.0-SNAPSHOT.jar
+java -jar target/minha-livraria.jar
 ```
 
 O build baixa o próprio Node e gera a interface junto. O app abre em `http://127.0.0.1:8471/`, com a API em `/api/v1`.

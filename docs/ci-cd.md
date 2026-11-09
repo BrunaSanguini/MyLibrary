@@ -91,7 +91,7 @@ Configuração em [`renovate.json`](../renovate.json):
 | npm | versões exatas, sem `^` ou `~` |
 | Grupos | `angular` (Angular, angular-eslint, TypeScript), `spring boot`, `test libraries`, `github actions` |
 | Actions | fixadas pelo SHA do commit, com a versão em comentário |
-| Automerge | **desligado por enquanto.** Entra no mesmo PR do `ci.yml`, para patch e minor de dependências de desenvolvimento e patch, minor e digest de Actions. Antes disso, nenhuma atualização seria testada por build |
+| Automerge | patch e minor de dependências de desenvolvimento e patch, minor e digest de Actions, só depois do check `ci` verde (auto-merge do GitHub). O resto, incluindo grupos que misturam dependências de produção, espera revisão |
 | Node no `pom.xml` | atualizado por um gerenciador customizado |
 
 O Dependabot fica só com os **alertas** de segurança, sem abrir PRs, para não duplicar o trabalho do Renovate.

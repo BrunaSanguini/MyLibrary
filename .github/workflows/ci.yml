@@ -66,6 +66,11 @@ jobs:
           cache-dependency-path: backend/pom.xml
       - name: Verify
         run: ./mvnw -B -ntp verify -Pci,skip-frontend
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: coverage-backend
+          path: backend/target/site/jacoco/jacoco.xml
+          retention-days: 3
       # On failure, keep what is needed to fix the PR without a local build:
       # the formatting patch, the generated API contract and the test reports.
       - name: Prepare diagnostics
@@ -119,17 +124,111 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Lint
         run: npm run lint
+      # Coverage of both test modes, for SonarQube Cloud. The paths in lcov are relative to
+      # frontend/, and Sonar resolves them from the repository root.
       - name: Test
-        run: npm test
+        run: |
+          npm run api:types
+          npm run test:unit -- --coverage
+          sed 's#^SF:#SF:frontend/#' coverage/minha-livraria/lcov.info > coverage/lcov-unit.info
+          npm run test:browser -- --coverage
+          sed 's#^SF:#SF:frontend/#' coverage/minha-livraria/lcov.info > coverage/lcov-browser.info
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: coverage-frontend
+          path: frontend/coverage/lcov-*.info
+          retention-days: 3
+      - name: Type-check E2E tests
+        run: npm run e2e:typecheck
       - name: Build
         run: npm run build
+
+  # Runs when the back-end or the front-end changed and neither of them failed.
+  e2e:
+    name: e2e
+    needs: [changes, backend, frontend]
+    if: >-
+      !cancelled()
+      && (needs.changes.outputs.backend == 'true' || needs.changes.outputs.frontend == 'true')
+      && needs.backend.result != 'failure' && needs.frontend.result != 'failure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version-file: .java-version
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      # The full jar: the Maven build also installs the front-end dependencies and builds it.
+      - name: Build the jar
+        working-directory: backend
+        run: ./mvnw -B -ntp package -DskipTests
+      - name: Install Chromium and Firefox
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium firefox
+      - name: Run E2E tests
+        working-directory: frontend
+        run: npm run e2e
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: failure()
+        with:
+          name: e2e-report
+          path: |
+            frontend/playwright-report/
+            frontend/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # Fails when the quality gate fails (sonar.qualitygate.wait in sonar-project.properties).
+  sonar:
+    name: sonar
+    needs: [changes, backend, frontend]
+    if: >-
+      !cancelled()
+      && (needs.changes.outputs.backend == 'true' || needs.changes.outputs.frontend == 'true')
+      && needs.backend.result != 'failure' && needs.frontend.result != 'failure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Full history: Sonar uses blame to tell new code from old.
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version-file: .java-version
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+      # The Java analysis reads the bytecode, also when only the front-end changed.
+      - name: Compile the back-end
+        working-directory: backend
+        run: ./mvnw -B -ntp compile -Pskip-frontend
+      # Coverage of the jobs that ran; a skipped job leaves no report.
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: coverage-*
+          path: coverage-reports
+      - uses: SonarSource/sonarqube-scan-action@e805d875275f728fac1885b413934be6d7c63f65 # v8.4.1
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   # Single required check for the main branch: it summarizes the jobs above,
   # so a PR that skips a job (e.g. docs only) is not left waiting for it.
   ci:
     name: ci
     if: always()
-    needs: [changes, backend, frontend]
+    needs: [changes, backend, frontend, e2e, sonar]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
