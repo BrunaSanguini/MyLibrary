@@ -40,6 +40,8 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
             case NotFoundException ignored -> HttpStatus.NOT_FOUND;
             case ConflictException ignored -> HttpStatus.CONFLICT;
             case BusinessRuleException ignored -> HttpStatus.UNPROCESSABLE_CONTENT;
+            case PayloadTooLargeException ignored -> HttpStatus.CONTENT_TOO_LARGE;
+            case UnsupportedMediaTypeException ignored -> HttpStatus.UNSUPPORTED_MEDIA_TYPE;
         };
         ProblemDetail problem = problem(status, exception.code(), exception.args(), request);
         return ResponseEntity.status(status).body(problem);
