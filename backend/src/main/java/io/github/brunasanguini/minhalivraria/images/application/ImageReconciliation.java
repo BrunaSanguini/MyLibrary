@@ -69,8 +69,7 @@ class ImageReconciliation {
 
     Result reconcile(Instant startedAt) {
         Map<ImageKind, Set<String>> known = images.findAll().stream()
-                .collect(Collectors.groupingBy(
-                        Image::kind, Collectors.mapping(Image::fileName, Collectors.toSet())));
+                .collect(Collectors.groupingBy(Image::kind, Collectors.mapping(Image::fileName, Collectors.toSet())));
 
         int trashed = 0;
         int restored = 0;

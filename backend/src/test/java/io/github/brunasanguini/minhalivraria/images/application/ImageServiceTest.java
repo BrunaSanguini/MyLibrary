@@ -149,6 +149,9 @@ class ImageServiceTest {
     }
 
     private List<String> fileNames(ImageKind kind) {
-        return files.list(kind).stream().map(ImageFiles.StoredFile::fileName).sorted().toList();
+        return files.list(kind).stream()
+                .map(ImageFiles.StoredFile::fileName)
+                .sorted()
+                .toList();
     }
 }

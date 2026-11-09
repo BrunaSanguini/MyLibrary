@@ -32,8 +32,7 @@ public class ImageService implements ImageStore {
     private final ApplicationEventPublisher events;
     private final long maxSizeBytes;
 
-    ImageService(
-            ImageRepository images, ImageFiles files, ApplicationEventPublisher events, AppProperties properties) {
+    ImageService(ImageRepository images, ImageFiles files, ApplicationEventPublisher events, AppProperties properties) {
         this.images = images;
         this.files = files;
         this.events = events;
@@ -46,8 +45,8 @@ public class ImageService implements ImageStore {
         if (content.length > maxSizeBytes) {
             throw new PayloadTooLargeException("image.too-large");
         }
-        ImageFormat format = ImageFormat.detect(content)
-                .orElseThrow(() -> new UnsupportedMediaTypeException("image.invalid-type"));
+        ImageFormat format =
+                ImageFormat.detect(content).orElseThrow(() -> new UnsupportedMediaTypeException("image.invalid-type"));
 
         // The file is written before the row exists, so it must go away if the transaction fails.
         String fileName = UUID.randomUUID() + "." + format.extension();
