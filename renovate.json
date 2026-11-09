@@ -1,0 +1,69 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":semanticCommitScope(deps)",
+    "helpers:pinGitHubActionDigests",
+    ":timezone(America/Sao_Paulo)"
+  ],
+  "schedule": ["* 0-8 * * 1"],
+  "labels": ["dependencies"],
+  "minimumReleaseAge": "3 days",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["* 0-8 1 * *"]
+  },
+  "packageRules": [
+    {
+      "description": "Versões exatas no npm, sem ^ ou ~",
+      "matchManagers": ["npm"],
+      "rangeStrategy": "pin"
+    },
+    {
+      "description": "Angular, angular-eslint e TypeScript precisam andar juntos",
+      "groupName": "angular",
+      "matchPackageNames": [
+        "@angular/**",
+        "@angular-devkit/**",
+        "@schematics/angular",
+        "angular-eslint",
+        "@angular-eslint/**",
+        "typescript"
+      ]
+    },
+    {
+      "description": "Spring Boot: parent e plugins",
+      "groupName": "spring boot",
+      "matchPackageNames": ["org.springframework.boot:**"]
+    },
+    {
+      "description": "Bibliotecas de teste do front",
+      "groupName": "test libraries",
+      "matchPackageNames": [
+        "vitest",
+        "@vitest/**",
+        "jsdom",
+        "@testing-library/**",
+        "@playwright/test",
+        "playwright",
+        "@axe-core/**"
+      ]
+    },
+    {
+      "description": "GitHub Actions agrupadas. O automerge entra junto com o ci.yml, para nada ser aceito sem build e testes",
+      "groupName": "github actions",
+      "matchManagers": ["github-actions"]
+    }
+  ],
+  "customManagers": [
+    {
+      "description": "Versão do Node usada pelo frontend-maven-plugin no pom.xml",
+      "customType": "regex",
+      "managerFilePatterns": ["/^backend/pom\\.xml$/"],
+      "matchStrings": ["<nodeVersion>v(?<currentValue>[^<]+)</nodeVersion>"],
+      "depNameTemplate": "node",
+      "datasourceTemplate": "node-version"
+    }
+  ]
+}
