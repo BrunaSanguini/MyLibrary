@@ -87,6 +87,21 @@ Rodados dentro de `backend/` (no Windows, `mvnw.cmd` no lugar de `./mvnw`):
 | `./mvnw verify -Pci` | O mesmo que o CI roda: inclui a checagem de formatação e o NullAway. |
 | `./mvnw test -Dtest=OpenApiContractTest -Dopenapi.update=true` | Atualiza o contrato `docs/openapi.json` depois de mudar a API. A mudança entra no mesmo PR. |
 
+### Comandos do front-end
+
+Rodados dentro de `frontend/`:
+
+| Comando | O que faz |
+|---|---|
+| `npm start` | Sobe a interface em `http://localhost:4200`, encaminhando `/api` para o back-end. |
+| `npm run format` | Formata o código com o Prettier. Rode antes de cada commit. |
+| `npm run lint` | ESLint (inclui as fronteiras entre pastas), Stylelint e checagem do Prettier, como no CI. |
+| `npm test` | Testes em jsdom e, para `shared/ui`, no Chromium. |
+| `npm run build` | Build de produção, com os budgets de tamanho. |
+| `npm run api:types` | Gera os tipos da API a partir de `docs/openapi.json`. Roda sozinho antes de `start`, `test` e `build`. |
+
+Para o modo navegador dos testes, instale o Chromium do Playwright uma vez: `npx playwright install chromium`.
+
 ## Idioma
 
 | Onde | Idioma |

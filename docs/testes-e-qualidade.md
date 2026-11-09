@@ -192,6 +192,9 @@ Os testes de resiliência usam WireMock para simular lentidão, erro 5xx e 429. 
 | Acessibilidade | qualquer violação WCAG 2.1 AA (de qualquer gravidade) em todas as páginas, nos dois temas | `@axe-core/playwright` nos E2E |
 
 - **Modo navegador nos componentes de UI:** o jsdom não implementa `<dialog>` nem a Popover API, que esses componentes usam.
+  - `npm run test:unit` roda tudo em jsdom, menos `src/app/shared/ui/`.
+  - `npm run test:browser` roda só `src/app/shared/ui/` no Chromium (configuração `browser` do `ng test`).
+  - `npm test` roda os dois.
 - **Testing Library:** as consultas são por papel e nome (`getByRole('button', { name: 'Wishlist' })`), como o usuário percebe a tela. Um botão sem nome acessível não é encontrado, e o teste falha.
 - **`@testing-library/jest-dom`** adiciona matchers como `toHaveAttribute` e `toBeInTheDocument`.
 

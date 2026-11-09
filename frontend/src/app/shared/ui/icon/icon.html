@@ -1,0 +1,16 @@
+<svg
+  [attr.width]="size()"
+  [attr.height]="size()"
+  [attr.viewBox]="icon().viewBox"
+  [attr.stroke-width]="icon().strokeWidth"
+  fill="none"
+  stroke="currentColor"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+>
+  @for (path of icon().paths; track $index) {
+    <path [attr.d]="path" />
+  }
+</svg>

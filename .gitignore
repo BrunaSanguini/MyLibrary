@@ -12,6 +12,10 @@ coverage/
 test-results/
 playwright-report/
 blob-report/
+# Vitest browser mode screenshots of failed tests
+__screenshots__/
+# API types generated from docs/openapi.json (npm run api:types)
+frontend/src/app/core/api/schema.d.ts
 
 # ── Local data (H2 database and development images) ─────────────────────────────
 *.mv.db

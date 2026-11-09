@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>Minha Livraria</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <!--
+      Applies the theme before the first paint, so the page never flashes the wrong theme.
+      Keep in sync with ThemeStore (core/theme/theme-store.ts): same key and same rules.
+    -->
+    <script>
+      (() => {
+        let preference = 'SYSTEM';
+        try {
+          preference = localStorage.getItem('ml-theme-preference') ?? 'SYSTEM';
+        } catch {}
+        const dark =
+          preference === 'DARK' ||
+          (preference !== 'LIGHT' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+      })();
+    </script>
+  </head>
+  <body>
+    <ml-root></ml-root>
+  </body>
+</html>
