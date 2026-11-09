@@ -2,11 +2,11 @@ package io.github.brunasanguini.minhalivraria.shared.error;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.github.brunasanguini.minhalivraria.WebSliceTest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@WebMvcTest
+@WebSliceTest
 @Import(ApiExceptionHandlerTest.FailingController.class)
 class ApiExceptionHandlerTest {
 
