@@ -85,7 +85,7 @@ Os passos 3 e 4 ficam em `scripts/package-windows.ps1`, que também roda localme
 ./scripts/package-windows.ps1 -Version 0.1.0
 ```
 
-**Primeira versão.** Os commits até aqui são de `build`, `ci` e `docs`, que sozinhos gerariam a 0.0.1. Por isso, o `release-please-config.json` fixa a primeira release em 0.1.0 (`release-as`). Essa linha sai logo depois da publicação da v0.1.0, para as versões seguintes voltarem a seguir os commits.
+**Primeira versão.** A v0.1.0 foi fixada com `release-as`, porque os commits até ela eram só de `build`, `ci` e `docs`. A partir dela, as versões seguem os commits.
 
 ## Renovate
 
