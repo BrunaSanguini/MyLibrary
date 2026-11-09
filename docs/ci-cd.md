@@ -79,6 +79,14 @@ Quando o PR de release é aceito, o release-please cria a tag `vX.Y.Z` e o GitHu
 
 O executável não é assinado digitalmente. O Windows pode mostrar um aviso do SmartScreen na primeira execução.
 
+Os passos 3 e 4 ficam em `scripts/package-windows.ps1`, que também roda localmente (no PowerShell, depois de `./mvnw package` em `backend/`):
+
+```powershell
+./scripts/package-windows.ps1 -Version 0.1.0
+```
+
+**Primeira versão.** Os commits até aqui são de `build`, `ci` e `docs`, que sozinhos gerariam a 0.0.1. Por isso, o `release-please-config.json` fixa a primeira release em 0.1.0 (`release-as`). Essa linha sai logo depois da publicação da v0.1.0, para as versões seguintes voltarem a seguir os commits.
+
 ## Renovate
 
 Configuração em [`renovate.json`](../renovate.json):
