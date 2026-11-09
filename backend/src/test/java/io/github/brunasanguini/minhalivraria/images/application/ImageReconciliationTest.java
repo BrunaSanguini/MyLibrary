@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.time.Duration;
 import java.time.Instant;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,6 +38,12 @@ class ImageReconciliationTest {
 
     @Autowired
     private ImageFiles files;
+
+    @BeforeEach
+    void startEmpty() throws IOException {
+        images.deleteAll();
+        ImageTestDataDir.clear(DATA_DIR.resolve("images"));
+    }
 
     @Test
     void shouldPutTheDiskBackInLineWithTheDatabase() throws IOException {

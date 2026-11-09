@@ -22,11 +22,20 @@ import org.springframework.core.annotation.AliasFor;
 @EnableConfigurationProperties(AppProperties.class)
 public @interface WebSliceTest {
 
-    /** Controllers to test; all of them when empty. */
+    /**
+     * Controllers to test. Always set it: when empty, every controller of the application enters the slice and needs
+     * its services mocked. Tests of filters and global configuration use {@link NoControllers}.
+     */
     @AliasFor(annotation = WebMvcTest.class, attribute = "controllers")
     Class<?>[] controllers() default {};
 
     /** Extra properties in {@code key=value} form. */
     @AliasFor(annotation = WebMvcTest.class, attribute = "properties")
     String[] properties() default {};
+
+    /** For slices that test filters, error handling or resource handling and need no controller. */
+    final class NoControllers {
+
+        private NoControllers() {}
+    }
 }

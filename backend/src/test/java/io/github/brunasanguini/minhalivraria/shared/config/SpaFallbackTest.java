@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 /** Uses src/test/resources/static/index.html in place of the Angular build. */
-@WebSliceTest
+@WebSliceTest(controllers = WebSliceTest.NoControllers.class)
 class SpaFallbackTest {
 
     @Autowired

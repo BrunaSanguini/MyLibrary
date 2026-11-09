@@ -72,6 +72,8 @@ class ReadingTest {
 
 Testes de controller usam `@WebSliceTest`, que é o `@WebMvcTest` com as propriedades da aplicação registradas. Os filtros de segurança local sempre entram no slice e dependem delas.
 
+Informe sempre `controllers`: sem ele, todos os controllers da aplicação entram no slice e exigem os serviços simulados. Testes de filtros e de configuração global usam `WebSliceTest.NoControllers.class`.
+
 ```java
 @WebSliceTest(controllers = BookController.class)
 class BookControllerTest {

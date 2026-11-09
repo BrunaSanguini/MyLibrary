@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
-@WebSliceTest(properties = "app.shutdown-token=token-do-hub")
+@WebSliceTest(controllers = WebSliceTest.NoControllers.class, properties = "app.shutdown-token=token-do-hub")
 class LocalSecurityFiltersTest {
 
     @Autowired
