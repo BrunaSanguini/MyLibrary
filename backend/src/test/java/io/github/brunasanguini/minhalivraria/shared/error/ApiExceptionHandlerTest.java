@@ -173,7 +173,7 @@ class ApiExceptionHandlerTest {
 
         @GetMapping("/upload-limit")
         void uploadLimit() {
-            throw new MaxUploadSizeExceededException(10 * 1024 * 1024);
+            throw new MaxUploadSizeExceededException(6 * 1024 * 1024);
         }
 
         @GetMapping("/unsupported")
