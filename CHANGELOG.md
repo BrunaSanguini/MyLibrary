@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/BrunaSanguini/MyLibrary/compare/v0.2.0...v0.3.0) (2026-11-10)
+
+
+### Funcionalidades
+
+* **books:** adiciona autores, editoras, séries e gêneros ([#50](https://github.com/BrunaSanguini/MyLibrary/issues/50)) ([728900f](https://github.com/BrunaSanguini/MyLibrary/commit/728900f859c66f74626cecf64fc286353bff1985))
+
 ## [0.2.0](https://github.com/BrunaSanguini/MyLibrary/compare/v0.1.0...v0.2.0) (2026-11-10)
 
 
