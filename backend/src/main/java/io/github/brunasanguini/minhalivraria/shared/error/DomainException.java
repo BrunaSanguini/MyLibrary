@@ -7,7 +7,8 @@ package io.github.brunasanguini.minhalivraria.shared.error;
  * <p>The hierarchy is sealed so the HTTP status mapping in {@link ApiExceptionHandler} is checked by the compiler.
  */
 public abstract sealed class DomainException extends RuntimeException
-        permits NotFoundException,
+        permits BadRequestException,
+                NotFoundException,
                 ConflictException,
                 BusinessRuleException,
                 PayloadTooLargeException,
