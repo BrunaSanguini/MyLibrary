@@ -1,5 +1,7 @@
 package io.github.brunasanguini.minhalivraria.books.application;
 
+import io.github.brunasanguini.minhalivraria.books.domain.Book;
+import io.github.brunasanguini.minhalivraria.books.domain.BookRepository;
 import io.github.brunasanguini.minhalivraria.books.domain.Series;
 import io.github.brunasanguini.minhalivraria.books.domain.SeriesRepository;
 import io.github.brunasanguini.minhalivraria.shared.error.ConflictException;
@@ -17,9 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class SeriesService {
 
     private final SeriesRepository series;
+    private final BookRepository books;
 
-    SeriesService(SeriesRepository series) {
+    SeriesService(SeriesRepository series, BookRepository books) {
         this.series = series;
+        this.books = books;
     }
 
     public PageResponse<SeriesResponse> search(@Nullable String q, Pageable pageable) {
@@ -51,10 +55,13 @@ public class SeriesService {
         return toResponse(found);
     }
 
-    // With the books table, deleting a series also clears series and position of its books.
+    /** Clears series and position of every book of the series, so no book is left with a position and no series. */
     @Transactional
     public void delete(long id) {
-        series.delete(find(id));
+        Series found = find(id);
+        books.findBySeriesId(id).forEach(Book::leaveSeries);
+        books.flush();
+        series.delete(found);
     }
 
     private Series find(long id) {

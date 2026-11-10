@@ -18,6 +18,9 @@
     "name" : "images",
     "description" : "Covers, banners and avatar saved on disk"
   }, {
+    "name" : "books",
+    "description" : "Books of the collection, registered by hand or imported"
+  }, {
     "name" : "genres",
     "description" : "Genres and subgenres, at most two levels"
   }, {
@@ -225,6 +228,284 @@
         "tags" : [ "genres" ],
         "summary" : "A genre with subgenres cannot be deleted (409)",
         "operationId" : "deleteGenre",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/books/{id}" : {
+      "get" : {
+        "tags" : [ "books" ],
+        "summary" : "The book page, without readings and review",
+        "operationId" : "getBook",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BookDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "books" ],
+        "summary" : "Replaces the book's data",
+        "operationId" : "updateBook",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BookRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BookDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "books" ],
+        "summary" : "Deletes the book and sends its images to the trash",
+        "operationId" : "deleteBook",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/books/{id}/ownership" : {
+      "put" : {
+        "tags" : [ "books" ],
+        "summary" : "OWNED, WISHLIST or NONE",
+        "operationId" : "changeBookOwnership",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/OwnershipRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/books/{id}/favorite" : {
+      "put" : {
+        "tags" : [ "books" ],
+        "summary" : "Marks the book as a favorite",
+        "operationId" : "favoriteBook",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "books" ],
+        "operationId" : "unfavoriteBook",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/books/{id}/cover" : {
+      "put" : {
+        "tags" : [ "books" ],
+        "summary" : "Sends the cover",
+        "description" : "JPEG, PNG or WebP up to 5 MB. The previous cover goes to the trash.",
+        "operationId" : "replaceBookCover",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "file" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "file" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CoverResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "books" ],
+        "operationId" : "removeBookCover",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/books/{id}/banner" : {
+      "put" : {
+        "tags" : [ "books" ],
+        "summary" : "Sends the banner of the book page",
+        "operationId" : "replaceBookBanner",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "file" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "file" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BannerResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "books" ],
+        "operationId" : "removeBookBanner",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -532,6 +813,36 @@
         }
       }
     },
+    "/api/v1/books" : {
+      "post" : {
+        "tags" : [ "books" ],
+        "summary" : "Registers a book",
+        "description" : "Duplicated ISBN-13: 409 book.isbn-duplicated, with bookId pointing to the book that already has it.",
+        "operationId" : "createBook",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BookRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BookDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/authors" : {
       "get" : {
         "tags" : [ "authors" ],
@@ -729,6 +1040,258 @@
           "parentId" : {
             "type" : "integer",
             "format" : "int64"
+          }
+        }
+      },
+      "BookRequest" : {
+        "type" : "object",
+        "properties" : {
+          "title" : {
+            "type" : "string",
+            "maxLength" : 500,
+            "minLength" : 0
+          },
+          "subtitle" : {
+            "type" : "string",
+            "maxLength" : 500,
+            "minLength" : 0
+          },
+          "isbn13" : {
+            "type" : "string"
+          },
+          "isbn10" : {
+            "type" : "string"
+          },
+          "pageCount" : {
+            "type" : "integer",
+            "format" : "int32",
+            "exclusiveMinimum" : 0
+          },
+          "publishedYear" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 2999,
+            "minimum" : 1
+          },
+          "languageCode" : {
+            "type" : "string",
+            "pattern" : "[a-z]{3}"
+          },
+          "synopsis" : {
+            "type" : "string",
+            "maxLength" : 10000,
+            "minLength" : 0
+          },
+          "authorIds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "integer",
+              "format" : "int64"
+            },
+            "minItems" : 1
+          },
+          "publisherId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "genreIds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "integer",
+              "format" : "int64"
+            }
+          },
+          "seriesId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "seriesPosition" : {
+            "type" : "number",
+            "minimum" : 0.1
+          },
+          "ownership" : {
+            "type" : "string",
+            "enum" : [ "OWNED", "WISHLIST", "NONE" ]
+          },
+          "favorite" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "authorIds", "title" ]
+      },
+      "BookAuthorResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        }
+      },
+      "BookDetailResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "subtitle" : {
+            "type" : "string"
+          },
+          "authors" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BookAuthorResponse"
+            }
+          },
+          "publisher" : {
+            "$ref" : "#/components/schemas/BookPublisherResponse"
+          },
+          "series" : {
+            "$ref" : "#/components/schemas/BookSeriesResponse"
+          },
+          "genres" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BookGenreResponse"
+            }
+          },
+          "isbn13" : {
+            "type" : "string"
+          },
+          "isbn10" : {
+            "type" : "string"
+          },
+          "pageCount" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "publishedYear" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "languageCode" : {
+            "type" : "string"
+          },
+          "synopsis" : {
+            "type" : "string"
+          },
+          "ownership" : {
+            "type" : "string",
+            "enum" : [ "OWNED", "WISHLIST", "NONE" ]
+          },
+          "favorite" : {
+            "type" : "boolean"
+          },
+          "coverUrl" : {
+            "type" : "string"
+          },
+          "bannerUrl" : {
+            "type" : "string"
+          },
+          "openLibrary" : {
+            "$ref" : "#/components/schemas/OpenLibraryResponse"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "BookGenreResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "parentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      },
+      "BookPublisherResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        }
+      },
+      "BookSeriesResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "position" : {
+            "type" : "number"
+          },
+          "totalVolumes" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "OpenLibraryResponse" : {
+        "type" : "object",
+        "properties" : {
+          "workKey" : {
+            "type" : "string"
+          },
+          "editionKey" : {
+            "type" : "string"
+          },
+          "url" : {
+            "type" : "string"
+          }
+        }
+      },
+      "OwnershipRequest" : {
+        "type" : "object",
+        "properties" : {
+          "ownership" : {
+            "type" : "string",
+            "enum" : [ "OWNED", "WISHLIST", "NONE" ]
+          }
+        },
+        "required" : [ "ownership" ]
+      },
+      "CoverResponse" : {
+        "type" : "object",
+        "properties" : {
+          "coverUrl" : {
+            "type" : "string"
+          }
+        }
+      },
+      "BannerResponse" : {
+        "type" : "object",
+        "properties" : {
+          "bannerUrl" : {
+            "type" : "string"
           }
         }
       },

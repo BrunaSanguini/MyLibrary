@@ -2,6 +2,8 @@ package io.github.brunasanguini.minhalivraria.books.application;
 
 import io.github.brunasanguini.minhalivraria.books.domain.Author;
 import io.github.brunasanguini.minhalivraria.books.domain.AuthorRepository;
+import io.github.brunasanguini.minhalivraria.books.domain.BookRepository;
+import io.github.brunasanguini.minhalivraria.shared.error.ConflictException;
 import io.github.brunasanguini.minhalivraria.shared.error.NotFoundException;
 import io.github.brunasanguini.minhalivraria.shared.text.TextNormalizer;
 import io.github.brunasanguini.minhalivraria.shared.web.PageResponse;
@@ -17,9 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthorService {
 
     private final AuthorRepository authors;
+    private final BookRepository books;
 
-    AuthorService(AuthorRepository authors) {
+    AuthorService(AuthorRepository authors, BookRepository books) {
         this.authors = authors;
+        this.books = books;
     }
 
     public PageResponse<AuthorResponse> search(@Nullable String q, Pageable pageable) {
@@ -45,10 +49,16 @@ public class AuthorService {
         return toResponse(author);
     }
 
-    // Authors with books cannot be deleted (author.has-books); the check arrives with the books table.
+    /**
+     * @throws ConflictException {@code author.has-books}, when the author still has books in the collection
+     */
     @Transactional
     public void delete(long id) {
-        authors.delete(find(id));
+        Author author = find(id);
+        if (books.existsByAuthorsId(id)) {
+            throw new ConflictException("author.has-books");
+        }
+        authors.delete(author);
     }
 
     private Author find(long id) {
