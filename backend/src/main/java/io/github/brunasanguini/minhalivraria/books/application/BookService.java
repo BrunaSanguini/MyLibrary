@@ -126,7 +126,7 @@ public class BookService {
     }
 
     private void applyCatalog(Book book, BookRequest request) {
-        book.assignAuthors(authorsOf(request.authorIdsOrEmpty()));
+        book.assignAuthors(authorsOf(request.authorIds()));
         book.assignPublisher(publisherOf(request.publisherId()));
         book.assignGenres(genresOf(request.genreIdsOrEmpty()));
         book.assignSeries(seriesOf(request.seriesId()), request.seriesPosition());

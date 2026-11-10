@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
@@ -19,7 +21,8 @@ import org.jspecify.annotations.Nullable;
  * The book as the form sends it. The catalog is referenced by id: when the user types a new name, the front-end
  * creates the author, publisher, series or genre first and sends the id that came back.
  *
- * <p>Series and position travel together; one without the other is {@code book.series-position-required}.
+ * <p>A book has at least one author. Series and position travel together; one without the other is {@code
+ * book.series-position-required}.
  */
 public record BookRequest(
         @NotBlank @Size(max = 500) String title,
@@ -36,9 +39,9 @@ public record BookRequest(
         String languageCode,
 
         @Size(max = 10_000) @Nullable String synopsis,
-        @Nullable List<Long> authorIds,
+        @NotEmpty List<@NotNull Long> authorIds,
         @Nullable Long publisherId,
-        @Nullable List<Long> genreIds,
+        @Nullable List<@NotNull Long> genreIds,
         @Nullable Long seriesId,
 
         @DecimalMin(value = "0.1") @Digits(integer = 3, fraction = 1) @Nullable
@@ -53,10 +56,6 @@ public record BookRequest(
 
     public boolean favoriteOrDefault() {
         return favorite != null && favorite;
-    }
-
-    public List<Long> authorIdsOrEmpty() {
-        return authorIds == null ? List.of() : authorIds;
     }
 
     public List<Long> genreIdsOrEmpty() {

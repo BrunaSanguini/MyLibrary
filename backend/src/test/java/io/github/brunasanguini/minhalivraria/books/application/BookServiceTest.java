@@ -137,7 +137,7 @@ class BookServiceTest {
                         null,
                         null,
                         null,
-                        null,
+                        List.of(anAuthor()),
                         null,
                         null,
                         lotr,
@@ -261,7 +261,7 @@ class BookServiceTest {
                         null,
                         null,
                         null,
-                        null,
+                        List.of(anAuthor()),
                         null,
                         null,
                         lotr,
@@ -276,14 +276,21 @@ class BookServiceTest {
         assertThat(service.get(id).series()).isNull();
     }
 
-    private static BookRequest request(String title) {
+    private BookRequest request(String title) {
         return new BookRequest(
-                title, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+                title, null, null, null, null, null, null, null, List.of(anAuthor()), null, null, null, null, null,
+                null);
     }
 
-    private static BookRequest withIsbn(String title, String isbn13) {
+    private BookRequest withIsbn(String title, String isbn13) {
         return new BookRequest(
-                title, null, isbn13, null, null, null, null, null, null, null, null, null, null, null, null);
+                title, null, isbn13, null, null, null, null, null, List.of(anAuthor()), null, null, null, null, null,
+                null);
+    }
+
+    /** A book needs at least one author, and these tests do not care which. */
+    private long anAuthor() {
+        return authors.create(new AuthorRequest("Autor de Teste")).id();
     }
 
     private static Path tempDataDir() {

@@ -149,6 +149,8 @@ Os sub-recursos de favorito e posse são atalhos para os cards e as tags da pág
 
 Autores, editora, série e gêneros são referenciados por ID. Quando o usuário digita um nome novo no formulário, o front cria o registro antes (`POST /authors`, por exemplo) e usa o ID devolvido.
 
+Todo livro tem pelo menos um autor (`authorIds` não pode vir vazio). Editora, série e gêneros são opcionais.
+
 **`BookDetailResponse`**
 
 ```json

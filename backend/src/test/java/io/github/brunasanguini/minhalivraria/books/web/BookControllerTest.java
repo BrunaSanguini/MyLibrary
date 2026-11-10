@@ -50,7 +50,11 @@ class BookControllerTest {
                         .header(REQUESTED_BY, MINHA_LIVRARIA)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                { "title": "A Sociedade do Anel", "isbn13": "9788595084742" }
+                                {
+                                  "title": "A Sociedade do Anel",
+                                  "isbn13": "9788595084742",
+                                  "authorIds": [7]
+                                }
                                 """))
                 .hasStatus(HttpStatus.CREATED)
                 .hasHeader(HttpHeaders.LOCATION, "/api/v1/books/42")
@@ -96,12 +100,27 @@ class BookControllerTest {
                         .header(REQUESTED_BY, MINHA_LIVRARIA)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                { "title": "   " }
+                                { "title": "   ", "authorIds": [7] }
                                 """))
                 .hasStatus(HttpStatus.BAD_REQUEST)
                 .bodyJson()
                 .extractingPath("$.errors[0].field")
                 .isEqualTo("title");
+    }
+
+    @Test
+    void shouldRefuseABookWithoutAnAuthor() {
+        assertThat(mvc.post()
+                        .uri("/api/v1/books")
+                        .header(REQUESTED_BY, MINHA_LIVRARIA)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                { "title": "Duna", "authorIds": [] }
+                                """))
+                .hasStatus(HttpStatus.BAD_REQUEST)
+                .bodyJson()
+                .extractingPath("$.errors[0].field")
+                .isEqualTo("authorIds");
     }
 
     @Test
@@ -111,7 +130,7 @@ class BookControllerTest {
                         .header(REQUESTED_BY, MINHA_LIVRARIA)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                { "title": "Duna", "isbn13": "9788595084743" }
+                                { "title": "Duna", "isbn13": "9788595084743", "authorIds": [7] }
                                 """))
                 .hasStatus(HttpStatus.BAD_REQUEST)
                 .bodyJson()
