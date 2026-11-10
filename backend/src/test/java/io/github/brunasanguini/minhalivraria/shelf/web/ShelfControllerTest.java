@@ -35,14 +35,12 @@ class ShelfControllerTest {
 
     @Test
     void shouldAnswerThePageInTheApiFormat() {
-        given(service.search(any(), any()))
-                .willReturn(new PageImpl<>(List.of(card()), PageRequest.of(0, 24), 1));
+        given(service.search(any(), any())).willReturn(new PageImpl<>(List.of(card()), PageRequest.of(0, 24), 1));
 
         assertThat(mvc.get().uri("/api/v1/shelf/books"))
                 .hasStatusOk()
                 .bodyJson()
-                .isLenientlyEqualTo(
-                        """
+                .isLenientlyEqualTo("""
                         {
                           "page": 0,
                           "size": 24,
@@ -75,8 +73,7 @@ class ShelfControllerTest {
 
         ArgumentCaptor<ShelfFilter> filter = ArgumentCaptor.forClass(ShelfFilter.class);
         then(service).should().search(filter.capture(), any());
-        assertThat(filter.getValue())
-                .isEqualTo(new ShelfFilter("aneis", Ownership.OWNED, true, 1L, 2L, 3L, 4L));
+        assertThat(filter.getValue()).isEqualTo(new ShelfFilter("aneis", Ownership.OWNED, true, 1L, 2L, 3L, 4L));
     }
 
     @Test
@@ -87,8 +84,7 @@ class ShelfControllerTest {
 
         ArgumentCaptor<ShelfFilter> filter = ArgumentCaptor.forClass(ShelfFilter.class);
         then(service).should().search(filter.capture(), any());
-        assertThat(filter.getValue())
-                .isEqualTo(new ShelfFilter(null, null, null, null, null, null, null));
+        assertThat(filter.getValue()).isEqualTo(new ShelfFilter(null, null, null, null, null, null, null));
     }
 
     @Test
@@ -106,8 +102,7 @@ class ShelfControllerTest {
 
     @Test
     void shouldRefuseAnUnknownOwnership() {
-        assertThat(mvc.get().uri("/api/v1/shelf/books?ownership=EMPRESTADO"))
-                .hasStatus(HttpStatus.BAD_REQUEST);
+        assertThat(mvc.get().uri("/api/v1/shelf/books?ownership=EMPRESTADO")).hasStatus(HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -121,8 +116,7 @@ class ShelfControllerTest {
 
     @Test
     void shouldRefuseATermLongerThanTheLimit() {
-        assertThat(mvc.get().uri("/api/v1/shelf/books?q=" + "a".repeat(201)))
-                .hasStatus(HttpStatus.BAD_REQUEST);
+        assertThat(mvc.get().uri("/api/v1/shelf/books?q=" + "a".repeat(201))).hasStatus(HttpStatus.BAD_REQUEST);
     }
 
     @Test

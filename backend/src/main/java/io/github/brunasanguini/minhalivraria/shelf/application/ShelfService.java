@@ -29,8 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class ShelfService {
 
-    private static final String FROM_BOOK =
-            """
+    private static final String FROM_BOOK = """
             from book b
             left join series s on s.id = b.series_id
             left join book_author ba0 on ba0.book_id = b.id and ba0.author_order = 0
@@ -98,22 +97,18 @@ public class ShelfService {
     /** Fills authors and genres of the page in one query each, keeping the order of each list. */
     private List<BookCardResponse> withCollections(List<Card> cards) {
         List<Long> ids = cards.stream().map(Card::id).toList();
-        Map<Long, List<String>> authors = namesByBook(
-                """
+        Map<Long, List<String>> authors = namesByBook("""
                 select ba.book_id, a.name from book_author ba
                 join author a on a.id = ba.author_id
                 where ba.book_id in (:ids)
                 order by ba.book_id, ba.author_order
-                """,
-                ids);
-        Map<Long, List<String>> genres = namesByBook(
-                """
+                """, ids);
+        Map<Long, List<String>> genres = namesByBook("""
                 select bg.book_id, g.name from book_genre bg
                 join genre g on g.id = bg.genre_id
                 where bg.book_id in (:ids)
                 order by bg.book_id, g.normalized_name
-                """,
-                ids);
+                """, ids);
         return cards.stream()
                 .map(card -> new BookCardResponse(
                         card.id(),
@@ -129,15 +124,14 @@ public class ShelfService {
 
     /** The SQL already sorts the rows, and groupingBy keeps that order inside each list. */
     private Map<Long, List<String>> namesByBook(String sql, List<Long> ids) {
-        return jdbc.sql(sql)
+        return jdbc
+                .sql(sql)
                 .param("ids", ids)
                 .query((rs, row) -> new BookName(rs.getLong("book_id"), rs.getString("name")))
                 .list()
                 .stream()
                 .collect(Collectors.groupingBy(
-                        BookName::bookId,
-                        LinkedHashMap::new,
-                        Collectors.mapping(BookName::name, Collectors.toList())));
+                        BookName::bookId, LinkedHashMap::new, Collectors.mapping(BookName::name, Collectors.toList())));
     }
 
     private static Conditions conditionsOf(ShelfFilter filter) {
@@ -167,8 +161,8 @@ public class ShelfService {
             params.put("genreId", filter.genreId());
         }
         if (filter.authorId() != null) {
-            clauses.add("exists (select 1 from book_author ba"
-                    + " where ba.book_id = b.id and ba.author_id = :authorId)");
+            clauses.add(
+                    "exists (select 1 from book_author ba" + " where ba.book_id = b.id and ba.author_id = :authorId)");
             params.put("authorId", filter.authorId());
         }
         if (filter.publisherId() != null) {

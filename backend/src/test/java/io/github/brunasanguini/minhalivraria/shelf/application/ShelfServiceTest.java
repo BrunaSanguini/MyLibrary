@@ -105,12 +105,38 @@ class ShelfServiceTest {
                         true))
                 .id();
         hobbit = books.create(new BookRequest(
-                        "O Hobbit", null, null, null, null, null, null, null,
-                        List.of(tolkien), harper, List.of(fantasy), null, null, Ownership.OWNED, false))
+                        "O Hobbit",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        List.of(tolkien),
+                        harper,
+                        List.of(fantasy),
+                        null,
+                        null,
+                        Ownership.OWNED,
+                        false))
                 .id();
         dune = books.create(new BookRequest(
-                        "Duna", null, null, null, null, null, null, null,
-                        List.of(herbert), null, List.of(sciFi), null, null, Ownership.WISHLIST, false))
+                        "Duna",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        List.of(herbert),
+                        null,
+                        List.of(sciFi),
+                        null,
+                        null,
+                        Ownership.WISHLIST,
+                        false))
                 .id();
 
         // The shelf reads the tables with SQL, so the pending inserts have to reach the database first.
@@ -234,8 +260,7 @@ class ShelfServiceTest {
 
     @Test
     void shouldAnswerAnEmptyPagePastTheEnd() {
-        var page = shelf.search(
-                new ShelfFilter(null, null, null, null, null, null, null), new PageQuery(5, 2, null));
+        var page = shelf.search(new ShelfFilter(null, null, null, null, null, null, null), new PageQuery(5, 2, null));
 
         assertThat(page.getContent()).isEmpty();
         assertThat(page.getTotalElements()).isEqualTo(3);
@@ -272,8 +297,21 @@ class ShelfServiceTest {
     void shouldKeepTheOrderTheAuthorsWerePrintedIn() {
         long adams = authors.create(new AuthorRequest("Douglas Adams")).id();
         books.create(new BookRequest(
-                "Guia do Mochileiro", null, null, null, null, null, null, null,
-                List.of(adams, tolkien), null, null, null, null, null, null));
+                "Guia do Mochileiro",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                List.of(adams, tolkien),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null));
         entityManager.flush();
 
         var card = shelf.search(filterByTerm("mochileiro"), FIRST_PAGE)

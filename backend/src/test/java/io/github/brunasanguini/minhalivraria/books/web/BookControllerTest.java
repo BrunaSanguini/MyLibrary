@@ -9,13 +9,13 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willThrow;
 
 import io.github.brunasanguini.minhalivraria.WebSliceTest;
+import io.github.brunasanguini.minhalivraria.books.Ownership;
 import io.github.brunasanguini.minhalivraria.books.application.BannerResponse;
 import io.github.brunasanguini.minhalivraria.books.application.BookDetailResponse;
 import io.github.brunasanguini.minhalivraria.books.application.BookDetailResponse.BookAuthorResponse;
 import io.github.brunasanguini.minhalivraria.books.application.BookRequest;
 import io.github.brunasanguini.minhalivraria.books.application.BookService;
 import io.github.brunasanguini.minhalivraria.books.application.CoverResponse;
-import io.github.brunasanguini.minhalivraria.books.Ownership;
 import io.github.brunasanguini.minhalivraria.shared.error.NotFoundException;
 import java.time.Instant;
 import java.util.List;
