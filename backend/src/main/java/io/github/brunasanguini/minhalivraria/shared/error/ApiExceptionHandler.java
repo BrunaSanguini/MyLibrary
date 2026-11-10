@@ -37,6 +37,7 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(DomainException.class)
     ResponseEntity<Object> handleDomain(DomainException exception, WebRequest request) {
         HttpStatus status = switch (exception) {
+            case BadRequestException ignored -> HttpStatus.BAD_REQUEST;
             case NotFoundException ignored -> HttpStatus.NOT_FOUND;
             case ConflictException ignored -> HttpStatus.CONFLICT;
             case BusinessRuleException ignored -> HttpStatus.UNPROCESSABLE_CONTENT;
