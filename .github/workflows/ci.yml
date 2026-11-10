@@ -2,9 +2,9 @@ name: CI
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, feat/consulta-da-estante]
   push:
-    branches: [main]
+    branches: [main, feat/consulta-da-estante]
 
 permissions:
   contents: read
