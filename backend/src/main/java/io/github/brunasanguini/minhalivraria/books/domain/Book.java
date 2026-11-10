@@ -24,6 +24,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -45,8 +47,13 @@ public class Book extends AuditedEntity {
     @Column(length = 500)
     private @Nullable String subtitle;
 
+    /** Fixed-width column, like every other CHAR of the schema. */
+    @JdbcTypeCode(SqlTypes.CHAR)
+    @Column(length = 13)
     private @Nullable String isbn13;
 
+    @JdbcTypeCode(SqlTypes.CHAR)
+    @Column(length = 10)
     private @Nullable String isbn10;
 
     @Column(name = "page_count")
