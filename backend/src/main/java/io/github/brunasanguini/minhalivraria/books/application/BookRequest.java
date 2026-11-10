@@ -28,14 +28,22 @@ public record BookRequest(
         @Isbn10 @Nullable String isbn10,
         @Positive @Nullable Integer pageCount,
         @Min(1) @Max(2999) @Nullable Short publishedYear,
-        @Pattern(regexp = "[a-z]{3}", message = "{io.github.brunasanguini.minhalivraria.validation.languageCode.message}")
-                @Nullable String languageCode,
+
+        @Pattern(
+                regexp = "[a-z]{3}",
+                message = "{io.github.brunasanguini.minhalivraria.validation.languageCode.message}")
+        @Nullable
+        String languageCode,
+
         @Size(max = 10_000) @Nullable String synopsis,
         @Nullable List<Long> authorIds,
         @Nullable Long publisherId,
         @Nullable List<Long> genreIds,
         @Nullable Long seriesId,
-        @DecimalMin(value = "0.1") @Digits(integer = 3, fraction = 1) @Nullable BigDecimal seriesPosition,
+
+        @DecimalMin(value = "0.1") @Digits(integer = 3, fraction = 1) @Nullable
+        BigDecimal seriesPosition,
+
         @Nullable Ownership ownership,
         @Nullable Boolean favorite) {
 

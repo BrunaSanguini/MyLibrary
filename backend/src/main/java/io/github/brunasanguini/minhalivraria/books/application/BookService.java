@@ -151,11 +151,9 @@ public class BookService {
         if (isbn13 == null) {
             return;
         }
-        books.findByIsbn13(isbn13)
-                .filter(other -> other.id() != currentId)
-                .ifPresent(other -> {
-                    throw new DuplicatedBookException("book.isbn-duplicated", other.id());
-                });
+        books.findByIsbn13(isbn13).filter(other -> other.id() != currentId).ifPresent(other -> {
+            throw new DuplicatedBookException("book.isbn-duplicated", other.id());
+        });
     }
 
     private List<Author> authorsOf(List<Long> ids) {
@@ -227,8 +225,7 @@ public class BookService {
         return publisher == null ? null : new BookPublisherResponse(publisher.id(), publisher.name());
     }
 
-    private static @Nullable BookSeriesResponse seriesResponse(
-            @Nullable Series found, @Nullable BigDecimal position) {
+    private static @Nullable BookSeriesResponse seriesResponse(@Nullable Series found, @Nullable BigDecimal position) {
         if (found == null || position == null) {
             return null;
         }

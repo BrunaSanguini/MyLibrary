@@ -38,11 +38,19 @@ public record BookDetailResponse(
     public record BookPublisherResponse(long id, String name) {}
 
     /** The series and where the book sits in it; {@code totalVolumes} feeds the "2 de 3" bar. */
-    public record BookSeriesResponse(long id, String name, BigDecimal position, @Nullable Integer totalVolumes) {}
+    public record BookSeriesResponse(
+            long id,
+            String name,
+            BigDecimal position,
+            @Nullable Integer totalVolumes) {}
 
     /** {@code parentId} is null for a genre and points to the genre for a subgenre. */
-    public record BookGenreResponse(long id, String name, @Nullable Long parentId) {}
+    public record BookGenreResponse(
+            long id, String name, @Nullable Long parentId) {}
 
     /** Where the book came from, when it was imported. */
-    public record OpenLibraryResponse(@Nullable String workKey, @Nullable String editionKey, @Nullable String url) {}
+    public record OpenLibraryResponse(
+            @Nullable String workKey,
+            @Nullable String editionKey,
+            @Nullable String url) {}
 }

@@ -127,8 +127,7 @@ class BookControllerTest {
                         .uri("/api/v1/books/42")
                         .header(REQUESTED_BY, MINHA_LIVRARIA)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(
-                                """
+                        .content("""
                                 {
                                   "title": "A Sociedade do Anel",
                                   "authorIds": [7],

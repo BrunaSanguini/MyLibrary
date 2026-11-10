@@ -55,7 +55,8 @@ class BookServiceTest {
     @Test
     void shouldRegisterABookWithItsWholeCatalog() {
         long tolkien = authors.create(new AuthorRequest("J. R. R. Tolkien")).id();
-        long harper = publishers.create(new PublisherRequest("HarperCollins Brasil")).id();
+        long harper =
+                publishers.create(new PublisherRequest("HarperCollins Brasil")).id();
         long lotr = series.create(new SeriesRequest("O Senhor dos Anéis", 3)).id();
         long fantasy = genres.create(new GenreRequest("Fantasia", null)).id();
 
@@ -79,7 +80,9 @@ class BookServiceTest {
         assertThat(created.title()).isEqualTo("A Sociedade do Anel");
         assertThat(created.authors()).singleElement().extracting("name").isEqualTo("J. R. R. Tolkien");
         assertThat(created.publisher()).isNotNull().extracting("name").isEqualTo("HarperCollins Brasil");
-        assertThat(created.series()).isNotNull().extracting("name", "totalVolumes")
+        assertThat(created.series())
+                .isNotNull()
+                .extracting("name", "totalVolumes")
                 .containsExactly("O Senhor dos Anéis", 3);
         assertThat(created.genres()).singleElement().extracting("name").isEqualTo("Fantasia");
         assertThat(created.ownership()).isEqualTo(Ownership.OWNED);
@@ -106,7 +109,8 @@ class BookServiceTest {
                 .isEqualTo("book.isbn-duplicated");
 
         assertThatThrownBy(() -> service.create(withIsbn("Duna, outra edição", "9788595084742")))
-                .extracting(thrown -> ((DuplicatedBookException) thrown).extensions().get("bookId"))
+                .extracting(thrown ->
+                        ((DuplicatedBookException) thrown).extensions().get("bookId"))
                 .isEqualTo(existing);
     }
 
@@ -125,8 +129,21 @@ class BookServiceTest {
         long lotr = series.create(new SeriesRequest("O Senhor dos Anéis", 3)).id();
 
         assertThatThrownBy(() -> service.create(new BookRequest(
-                        "As Duas Torres", null, null, null, null, null, null, null,
-                        null, null, null, lotr, null, null, null)))
+                        "As Duas Torres",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        lotr,
+                        null,
+                        null,
+                        null)))
                 .isInstanceOf(BusinessRuleException.class)
                 .extracting("code")
                 .isEqualTo("book.series-position-required");
@@ -135,8 +152,21 @@ class BookServiceTest {
     @Test
     void shouldReportAnUnknownCatalogIdAsNotFound() {
         assertThatThrownBy(() -> service.create(new BookRequest(
-                        "Duna", null, null, null, null, null, null, null,
-                        List.of(404L), null, null, null, null, null, null)))
+                        "Duna",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        List.of(404L),
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null)))
                 .isInstanceOf(NotFoundException.class)
                 .extracting("code")
                 .isEqualTo("author.not-found");
@@ -196,8 +226,21 @@ class BookServiceTest {
     void shouldRefuseDeletingAnAuthorThatStillHasBooks() {
         long tolkien = authors.create(new AuthorRequest("J. R. R. Tolkien")).id();
         service.create(new BookRequest(
-                "O Hobbit", null, null, null, null, null, null, null,
-                List.of(tolkien), null, null, null, null, null, null));
+                "O Hobbit",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                List.of(tolkien),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null));
         books.flush();
 
         assertThatThrownBy(() -> authors.delete(tolkien))
@@ -210,8 +253,21 @@ class BookServiceTest {
     void shouldClearSeriesAndPositionOfTheBooksWhenTheSeriesIsDeleted() {
         long lotr = series.create(new SeriesRequest("O Senhor dos Anéis", 3)).id();
         long id = service.create(new BookRequest(
-                        "A Sociedade do Anel", null, null, null, null, null, null, null,
-                        null, null, null, lotr, new BigDecimal("1.0"), null, null))
+                        "A Sociedade do Anel",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        lotr,
+                        new BigDecimal("1.0"),
+                        null,
+                        null))
                 .id();
         books.flush();
 
