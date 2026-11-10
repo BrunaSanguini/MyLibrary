@@ -24,9 +24,8 @@ public class AuthorService {
 
     public PageResponse<AuthorResponse> search(@Nullable String q, Pageable pageable) {
         String term = q == null ? "" : TextNormalizer.normalize(q);
-        Page<Author> page = term.isEmpty()
-                ? authors.findAll(pageable)
-                : authors.findByNormalizedNameContaining(term, pageable);
+        Page<Author> page =
+                term.isEmpty() ? authors.findAll(pageable) : authors.findByNormalizedNameContaining(term, pageable);
         return PageResponse.of(page, AuthorService::toResponse);
     }
 

@@ -40,7 +40,8 @@ class GenreController {
     @PostMapping
     ResponseEntity<GenreResponse> create(@Valid @RequestBody GenreRequest request) {
         GenreResponse created = service.create(request);
-        return ResponseEntity.created(URI.create("/api/v1/genres/" + created.id())).body(created);
+        return ResponseEntity.created(URI.create("/api/v1/genres/" + created.id()))
+                .body(created);
     }
 
     @Operation(operationId = "updateGenre")

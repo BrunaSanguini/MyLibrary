@@ -54,7 +54,8 @@ class AuthorControllerTest {
     void shouldPassThePageAndTheSortToTheService() {
         given(service.search(any(), any())).willReturn(new PageResponse<>(List.of(), 2, 10, 0, 0));
 
-        assertThat(mvc.get().uri("/api/v1/authors?page=2&size=10&sort=name,desc")).hasStatusOk();
+        assertThat(mvc.get().uri("/api/v1/authors?page=2&size=10&sort=name,desc"))
+                .hasStatusOk();
 
         ArgumentCaptor<Pageable> pageable = ArgumentCaptor.forClass(Pageable.class);
         then(service).should().search(eq(null), pageable.capture());

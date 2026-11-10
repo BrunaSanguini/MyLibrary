@@ -47,14 +47,17 @@ class AuthorServiceTest {
 
         PageResponse<AuthorResponse> all = service.search("  ", BY_NAME);
 
-        assertThat(all.content()).extracting(AuthorResponse::name).containsExactly("Clarice Lispector", "Machado de Assis");
+        assertThat(all.content())
+                .extracting(AuthorResponse::name)
+                .containsExactly("Clarice Lispector", "Machado de Assis");
     }
 
     @Test
     void shouldRenameAndDeleteAnAuthor() {
         long id = service.create(new AuthorRequest("Tolkien")).id();
 
-        assertThat(service.update(id, new AuthorRequest("J. R. R. Tolkien")).name()).isEqualTo("J. R. R. Tolkien");
+        assertThat(service.update(id, new AuthorRequest("J. R. R. Tolkien")).name())
+                .isEqualTo("J. R. R. Tolkien");
         assertThat(service.get(id).name()).isEqualTo("J. R. R. Tolkien");
 
         service.delete(id);

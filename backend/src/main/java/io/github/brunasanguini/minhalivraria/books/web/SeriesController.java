@@ -52,7 +52,8 @@ class SeriesController {
     @PostMapping
     ResponseEntity<SeriesResponse> create(@Valid @RequestBody SeriesRequest request) {
         SeriesResponse created = service.create(request);
-        return ResponseEntity.created(URI.create("/api/v1/series/" + created.id())).body(created);
+        return ResponseEntity.created(URI.create("/api/v1/series/" + created.id()))
+                .body(created);
     }
 
     @Operation(operationId = "updateSeries")

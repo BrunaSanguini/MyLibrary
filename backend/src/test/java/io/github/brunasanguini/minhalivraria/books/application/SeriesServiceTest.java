@@ -24,7 +24,8 @@ class SeriesServiceTest {
         SeriesResponse created = service.create(new SeriesRequest("O Senhor dos Anéis", 3));
 
         assertThat(created.totalVolumes()).isEqualTo(3);
-        assertThat(service.update(created.id(), new SeriesRequest("O Senhor dos Anéis", null)).totalVolumes())
+        assertThat(service.update(created.id(), new SeriesRequest("O Senhor dos Anéis", null))
+                        .totalVolumes())
                 .isNull();
     }
 
@@ -51,7 +52,8 @@ class SeriesServiceTest {
     void shouldSearchGetAndDeleteSeries() {
         long id = service.create(new SeriesRequest("Crônicas de Nárnia", 7)).id();
 
-        assertThat(service.search("narnia", PageRequest.of(0, 24, Sort.by("normalizedName"))).totalElements())
+        assertThat(service.search("narnia", PageRequest.of(0, 24, Sort.by("normalizedName")))
+                        .totalElements())
                 .isEqualTo(1);
         assertThat(service.get(id).name()).isEqualTo("Crônicas de Nárnia");
 

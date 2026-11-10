@@ -35,17 +35,15 @@ class GenreControllerTest {
                 .willReturn(List.of(new GenreTreeResponse(
                         1, "Fantasia", List.of(new GenreTreeResponse.Subgenre(4, "Alta fantasia")))));
 
-        assertThat(mvc.get().uri("/api/v1/genres"))
-                .hasStatusOk()
-                .bodyJson()
-                .isLenientlyEqualTo("""
+        assertThat(mvc.get().uri("/api/v1/genres")).hasStatusOk().bodyJson().isLenientlyEqualTo("""
                         [{ "id": 1, "name": "Fantasia", "subgenres": [{ "id": 4, "name": "Alta fantasia" }] }]
                         """);
     }
 
     @Test
     void shouldCreateASubgenre() {
-        given(service.create(new GenreRequest("Alta fantasia", 1L))).willReturn(new GenreResponse(4, "Alta fantasia", 1L));
+        given(service.create(new GenreRequest("Alta fantasia", 1L)))
+                .willReturn(new GenreResponse(4, "Alta fantasia", 1L));
 
         assertThat(post("/api/v1/genres", """
                         { "name": "Alta fantasia", "parentId": 1 }

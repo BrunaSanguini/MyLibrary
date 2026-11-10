@@ -16,8 +16,8 @@ public final class TextNormalizer {
     private TextNormalizer() {}
 
     public static String normalize(String text) {
-        String withoutMarks = MARKS.matcher(Normalizer.normalize(text, Normalizer.Form.NFD))
-                .replaceAll("");
+        String withoutMarks =
+                MARKS.matcher(Normalizer.normalize(text, Normalizer.Form.NFD)).replaceAll("");
         return SPACES.matcher(withoutMarks.strip()).replaceAll(" ").toLowerCase(Locale.ROOT);
     }
 }

@@ -42,7 +42,8 @@ class PublisherServiceTest {
     void shouldAcceptRenamingAPublisherToItsOwnName() {
         long id = service.create(new PublisherRequest("Intrinseca")).id();
 
-        assertThat(service.update(id, new PublisherRequest("Intrínseca")).name()).isEqualTo("Intrínseca");
+        assertThat(service.update(id, new PublisherRequest("Intrínseca")).name())
+                .isEqualTo("Intrínseca");
     }
 
     @Test
@@ -50,7 +51,8 @@ class PublisherServiceTest {
         long id = service.create(new PublisherRequest("Editora Aleph")).id();
         service.create(new PublisherRequest("Darkside"));
 
-        assertThat(service.search("aleph", PageRequest.of(0, 24, Sort.by("normalizedName"))).content())
+        assertThat(service.search("aleph", PageRequest.of(0, 24, Sort.by("normalizedName")))
+                        .content())
                 .extracting(PublisherResponse::name)
                 .containsExactly("Editora Aleph");
 

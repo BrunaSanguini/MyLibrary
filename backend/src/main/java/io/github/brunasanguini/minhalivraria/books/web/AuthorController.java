@@ -52,7 +52,8 @@ class AuthorController {
     @PostMapping
     ResponseEntity<AuthorResponse> create(@Valid @RequestBody AuthorRequest request) {
         AuthorResponse created = service.create(request);
-        return ResponseEntity.created(URI.create("/api/v1/authors/" + created.id())).body(created);
+        return ResponseEntity.created(URI.create("/api/v1/authors/" + created.id()))
+                .body(created);
     }
 
     @Operation(operationId = "updateAuthor")

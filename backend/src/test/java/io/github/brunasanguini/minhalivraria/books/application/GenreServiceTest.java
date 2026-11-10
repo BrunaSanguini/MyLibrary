@@ -22,7 +22,8 @@ class GenreServiceTest {
     @Test
     void shouldListGenresWithTheirSubgenresInNameOrder() {
         long fantasy = service.create(new GenreRequest("Fantasia", null)).id();
-        long fiction = service.create(new GenreRequest("Ficção científica", null)).id();
+        long fiction =
+                service.create(new GenreRequest("Ficção científica", null)).id();
         service.create(new GenreRequest("Fantasia urbana", fantasy));
         service.create(new GenreRequest("Alta fantasia", fantasy));
         service.create(new GenreRequest("Distopia", fiction));
@@ -41,7 +42,8 @@ class GenreServiceTest {
     @Test
     void shouldRefuseAParentThatIsAlreadyASubgenre() {
         long fantasy = service.create(new GenreRequest("Fantasia", null)).id();
-        long highFantasy = service.create(new GenreRequest("Alta fantasia", fantasy)).id();
+        long highFantasy =
+                service.create(new GenreRequest("Alta fantasia", fantasy)).id();
 
         assertThatThrownBy(() -> service.create(new GenreRequest("Fantasia épica", highFantasy)))
                 .isInstanceOf(BusinessRuleException.class)
@@ -76,7 +78,8 @@ class GenreServiceTest {
     @Test
     void shouldRefuseDeletingAGenreWithSubgenres() {
         long fantasy = service.create(new GenreRequest("Fantasia", null)).id();
-        long highFantasy = service.create(new GenreRequest("Alta fantasia", fantasy)).id();
+        long highFantasy =
+                service.create(new GenreRequest("Alta fantasia", fantasy)).id();
 
         assertThatThrownBy(() -> service.delete(fantasy))
                 .isInstanceOf(ConflictException.class)
