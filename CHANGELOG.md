@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/BrunaSanguini/MyLibrary/compare/v0.3.0...v0.4.0) (2026-11-10)
+
+
+### Funcionalidades
+
+* adiciona entidades book e ownership e repositório de book ([#52](https://github.com/BrunaSanguini/MyLibrary/issues/52)) ([a575db5](https://github.com/BrunaSanguini/MyLibrary/commit/a575db50e71c8efc666f9288e759f6018a75fa7d))
+
 ## [0.3.0](https://github.com/BrunaSanguini/MyLibrary/compare/v0.2.0...v0.3.0) (2026-11-10)
 
 
