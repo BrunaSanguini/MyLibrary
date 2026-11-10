@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/BrunaSanguini/MyLibrary/compare/v0.1.0...v0.2.0) (2026-11-10)
+
+
+### Funcionalidades
+
+* **images:** adiciona armazenamento de imagens ([#48](https://github.com/BrunaSanguini/MyLibrary/issues/48)) ([45f5093](https://github.com/BrunaSanguini/MyLibrary/commit/45f5093f333f5769db76c9582dd757c1ce849013))
+
 ## 0.1.0 (2026-11-09)
 
 
