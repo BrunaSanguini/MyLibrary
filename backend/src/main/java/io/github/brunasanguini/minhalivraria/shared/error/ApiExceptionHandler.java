@@ -45,6 +45,7 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
             case UnsupportedMediaTypeException ignored -> HttpStatus.UNSUPPORTED_MEDIA_TYPE;
         };
         ProblemDetail problem = problem(status, exception.code(), exception.args(), request);
+        exception.extensions().forEach(problem::setProperty);
         return ResponseEntity.status(status).body(problem);
     }
 
