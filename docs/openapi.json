@@ -8,6 +8,41 @@
   "servers" : [ {
     "url" : "/"
   } ],
-  "paths" : { },
+  "tags" : [ {
+    "name" : "images",
+    "description" : "Covers, banners and avatar saved on disk"
+  } ],
+  "paths" : {
+    "/api/v1/images/{id}" : {
+      "get" : {
+        "tags" : [ "images" ],
+        "summary" : "Image file",
+        "description" : "Served with a permanent cache and the content hash as ETag. Unknown images: 404 image.not-found.",
+        "operationId" : "getImage",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "components" : { }
 }

@@ -16,8 +16,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
-@WebSliceTest
+@WebSliceTest(controllers = ApiExceptionHandlerTest.FailingController.class)
 @Import(ApiExceptionHandlerTest.FailingController.class)
 class ApiExceptionHandlerTest {
 
@@ -68,6 +69,33 @@ class ApiExceptionHandlerTest {
                 .bodyJson()
                 .extractingPath("$.code")
                 .isEqualTo("reading.end-before-start");
+    }
+
+    @Test
+    void shouldAnswerContentTooLargeExceptionsWith413() {
+        assertThat(mvc.get().uri(BASE + "/too-large"))
+                .hasStatus(HttpStatus.CONTENT_TOO_LARGE)
+                .bodyJson()
+                .extractingPath("$.code")
+                .isEqualTo("image.too-large");
+    }
+
+    @Test
+    void shouldAnswerUploadsAboveTheMultipartLimitAsTooLargeImages() {
+        assertThat(mvc.get().uri(BASE + "/upload-limit"))
+                .hasStatus(HttpStatus.CONTENT_TOO_LARGE)
+                .bodyJson()
+                .extractingPath("$.code")
+                .isEqualTo("image.too-large");
+    }
+
+    @Test
+    void shouldAnswerUnsupportedMediaTypeExceptionsWith415() {
+        assertThat(mvc.get().uri(BASE + "/unsupported"))
+                .hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                .bodyJson()
+                .extractingPath("$.code")
+                .isEqualTo("image.invalid-type");
     }
 
     @Test
@@ -136,6 +164,21 @@ class ApiExceptionHandlerTest {
         @GetMapping("/business-rule")
         void businessRule() {
             throw new BusinessRuleException("reading.end-before-start");
+        }
+
+        @GetMapping("/too-large")
+        void tooLarge() {
+            throw new PayloadTooLargeException("image.too-large");
+        }
+
+        @GetMapping("/upload-limit")
+        void uploadLimit() {
+            throw new MaxUploadSizeExceededException(6 * 1024 * 1024);
+        }
+
+        @GetMapping("/unsupported")
+        void unsupported() {
+            throw new UnsupportedMediaTypeException("image.invalid-type");
         }
 
         @GetMapping("/unexpected")

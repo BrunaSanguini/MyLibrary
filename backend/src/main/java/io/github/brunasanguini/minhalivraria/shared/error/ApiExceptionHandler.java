@@ -40,6 +40,8 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
             case NotFoundException ignored -> HttpStatus.NOT_FOUND;
             case ConflictException ignored -> HttpStatus.CONFLICT;
             case BusinessRuleException ignored -> HttpStatus.UNPROCESSABLE_CONTENT;
+            case PayloadTooLargeException ignored -> HttpStatus.CONTENT_TOO_LARGE;
+            case UnsupportedMediaTypeException ignored -> HttpStatus.UNSUPPORTED_MEDIA_TYPE;
         };
         ProblemDetail problem = problem(status, exception.code(), exception.args(), request);
         return ResponseEntity.status(status).body(problem);
@@ -80,6 +82,8 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
             case 400 -> "request.malformed";
             case 404 -> "resource.not-found";
             case 405 -> "request.method-not-allowed";
+            // Only image uploads are multipart, so a request over the multipart limit is an image.
+            case 413 -> "image.too-large";
             case 415 -> "request.unsupported-media-type";
             default -> status.is5xxServerError() ? "internal.error" : "request.invalid";
         };
