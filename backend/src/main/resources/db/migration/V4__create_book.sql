@@ -46,9 +46,9 @@ CREATE INDEX ix_book_series ON book (series_id, series_position);
 
 -- author_order keeps the order printed on the cover.
 CREATE TABLE book_author (
-    book_id      BIGINT   NOT NULL,
-    author_id    BIGINT   NOT NULL,
-    author_order SMALLINT NOT NULL,
+    book_id      BIGINT NOT NULL,
+    author_id    BIGINT NOT NULL,
+    author_order INT    NOT NULL,
     CONSTRAINT pk_book_author PRIMARY KEY (book_id, author_id),
     CONSTRAINT fk_book_author_book FOREIGN KEY (book_id) REFERENCES book (id) ON DELETE CASCADE,
     CONSTRAINT fk_book_author_author FOREIGN KEY (author_id) REFERENCES author (id),
