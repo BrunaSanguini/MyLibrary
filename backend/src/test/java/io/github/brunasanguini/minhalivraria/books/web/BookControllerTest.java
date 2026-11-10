@@ -15,7 +15,7 @@ import io.github.brunasanguini.minhalivraria.books.application.BookDetailRespons
 import io.github.brunasanguini.minhalivraria.books.application.BookRequest;
 import io.github.brunasanguini.minhalivraria.books.application.BookService;
 import io.github.brunasanguini.minhalivraria.books.application.CoverResponse;
-import io.github.brunasanguini.minhalivraria.books.domain.Ownership;
+import io.github.brunasanguini.minhalivraria.books.Ownership;
 import io.github.brunasanguini.minhalivraria.shared.error.NotFoundException;
 import java.time.Instant;
 import java.util.List;

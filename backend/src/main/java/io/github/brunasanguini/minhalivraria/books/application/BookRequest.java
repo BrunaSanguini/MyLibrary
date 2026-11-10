@@ -1,6 +1,6 @@
 package io.github.brunasanguini.minhalivraria.books.application;
 
-import io.github.brunasanguini.minhalivraria.books.domain.Ownership;
+import io.github.brunasanguini.minhalivraria.books.Ownership;
 import io.github.brunasanguini.minhalivraria.shared.validation.Isbn10;
 import io.github.brunasanguini.minhalivraria.shared.validation.Isbn13;
 import jakarta.validation.constraints.DecimalMin;

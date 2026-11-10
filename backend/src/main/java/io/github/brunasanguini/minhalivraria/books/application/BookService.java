@@ -13,7 +13,7 @@ import io.github.brunasanguini.minhalivraria.books.domain.BookRepository;
 import io.github.brunasanguini.minhalivraria.books.domain.DuplicatedBookException;
 import io.github.brunasanguini.minhalivraria.books.domain.Genre;
 import io.github.brunasanguini.minhalivraria.books.domain.GenreRepository;
-import io.github.brunasanguini.minhalivraria.books.domain.Ownership;
+import io.github.brunasanguini.minhalivraria.books.Ownership;
 import io.github.brunasanguini.minhalivraria.books.domain.Publisher;
 import io.github.brunasanguini.minhalivraria.books.domain.PublisherRepository;
 import io.github.brunasanguini.minhalivraria.books.domain.Series;

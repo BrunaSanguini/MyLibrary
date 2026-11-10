@@ -1,6 +1,6 @@
 package io.github.brunasanguini.minhalivraria.books.application;
 
-import io.github.brunasanguini.minhalivraria.books.domain.Ownership;
+import io.github.brunasanguini.minhalivraria.books.Ownership;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
