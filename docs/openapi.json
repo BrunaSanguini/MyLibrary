@@ -1087,7 +1087,8 @@
             "items" : {
               "type" : "integer",
               "format" : "int64"
-            }
+            },
+            "minItems" : 1
           },
           "publisherId" : {
             "type" : "integer",
@@ -1116,7 +1117,7 @@
             "type" : "boolean"
           }
         },
-        "required" : [ "title" ]
+        "required" : [ "authorIds", "title" ]
       },
       "BookAuthorResponse" : {
         "type" : "object",

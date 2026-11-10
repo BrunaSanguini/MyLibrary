@@ -278,13 +278,39 @@ class BookServiceTest {
 
     private BookRequest request(String title) {
         return new BookRequest(
-                title, null, null, null, null, null, null, null, List.of(anAuthor()), null, null, null, null, null,
+                title,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                List.of(anAuthor()),
+                null,
+                null,
+                null,
+                null,
+                null,
                 null);
     }
 
     private BookRequest withIsbn(String title, String isbn13) {
         return new BookRequest(
-                title, null, isbn13, null, null, null, null, null, List.of(anAuthor()), null, null, null, null, null,
+                title,
+                null,
+                isbn13,
+                null,
+                null,
+                null,
+                null,
+                null,
+                List.of(anAuthor()),
+                null,
+                null,
+                null,
+                null,
+                null,
                 null);
     }
 
