@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -126,12 +127,17 @@ public class ShelfService {
                 .toList();
     }
 
+    /** The SQL already sorts the rows, and groupingBy keeps that order inside each list. */
     private Map<Long, List<String>> namesByBook(String sql, List<Long> ids) {
-        Map<Long, List<String>> byBook = new LinkedHashMap<>();
-        jdbc.sql(sql).param("ids", ids).query(rs -> byBook.computeIfAbsent(
-                        rs.getLong("book_id"), key -> new ArrayList<>())
-                .add(rs.getString("name")));
-        return byBook;
+        return jdbc.sql(sql)
+                .param("ids", ids)
+                .query((rs, row) -> new BookName(rs.getLong("book_id"), rs.getString("name")))
+                .list()
+                .stream()
+                .collect(Collectors.groupingBy(
+                        BookName::bookId,
+                        LinkedHashMap::new,
+                        Collectors.mapping(BookName::name, Collectors.toList())));
     }
 
     private static Conditions conditionsOf(ShelfFilter filter) {
@@ -196,6 +202,9 @@ public class ShelfService {
 
     /** The WHERE built from the filters, with its parameters. Only values reach the SQL as parameters. */
     private record Conditions(String where, Map<String, Object> params) {}
+
+    /** One row of the authors or genres query. */
+    private record BookName(long bookId, String name) {}
 
     private record Card(
             long id,
