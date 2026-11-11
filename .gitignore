@@ -10,6 +10,7 @@ dist/
 .angular/
 coverage/
 test-results/
+.vitest/
 playwright-report/
 blob-report/
 # Vitest browser mode screenshots of failed tests
