@@ -3,6 +3,7 @@ package io.github.brunasanguini.minhalivraria.books.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.github.brunasanguini.minhalivraria.books.Ownership;
 import io.github.brunasanguini.minhalivraria.shared.error.BusinessRuleException;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
