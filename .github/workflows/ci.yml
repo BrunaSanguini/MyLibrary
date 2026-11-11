@@ -2,9 +2,9 @@ name: CI
 
 on:
   pull_request:
-    branches: [main, feat/shared-ui]
+    branches: [main]
   push:
-    branches: [main, feat/shared-ui]
+    branches: [main]
 
 permissions:
   contents: read
