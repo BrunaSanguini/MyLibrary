@@ -28,9 +28,12 @@ io.github.brunasanguini.minhalivraria
 | `lists` | `books`, `reading` |
 | `goals` | `reading` |
 | `profile` | `images` |
-| `images`, `openlibrary`, `shelf` | nenhum módulo de negócio |
+| `shelf` | `books`, só o enum `Ownership` |
+| `images`, `openlibrary` | nenhum módulo de negócio |
 
 **Módulo `shelf`:** é o lado de leitura do CQRS leve. Monta os cards de livro, que juntam dados de `books` e `reading`, com consultas SQL via `JdbcClient`. É o único módulo autorizado a ler tabelas de outros módulos. Não grava nada, e nenhum módulo depende dele ([ADR-0005](adr/0005-contrato-da-api.md)).
+
+De código, `shelf` só importa o enum `Ownership`, que é da API pública de `books`. O enum aparece tanto no filtro da Estante quanto no cadastro, e dois tipos iguais no contrato deixariam o front com dois enums para o mesmo valor. Regra de negócio nenhuma atravessa essa fronteira: o resto o `shelf` lê das tabelas.
 
 Um único teste garante as fronteiras e a ausência de ciclos:
 

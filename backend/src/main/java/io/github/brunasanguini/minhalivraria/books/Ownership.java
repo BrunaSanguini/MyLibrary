@@ -1,4 +1,4 @@
-package io.github.brunasanguini.minhalivraria.books.domain;
+package io.github.brunasanguini.minhalivraria.books;
 
 /** Whether the book is on the shelf, on the wish list, or only registered (docs/modelo-de-dados.md). */
 public enum Ownership {

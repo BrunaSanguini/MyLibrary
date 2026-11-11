@@ -1,5 +1,6 @@
 package io.github.brunasanguini.minhalivraria.books.domain;
 
+import io.github.brunasanguini.minhalivraria.books.Ownership;
 import io.github.brunasanguini.minhalivraria.shared.error.BusinessRuleException;
 import io.github.brunasanguini.minhalivraria.shared.persistence.AuditedEntity;
 import io.github.brunasanguini.minhalivraria.shared.text.TextNormalizer;

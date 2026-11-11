@@ -1,5 +1,6 @@
 package io.github.brunasanguini.minhalivraria.books.domain;
 
+import io.github.brunasanguini.minhalivraria.books.Ownership;
 import org.jspecify.annotations.Nullable;
 
 /**
