@@ -2,9 +2,9 @@ name: CI
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, feat/componentes-base]
   push:
-    branches: [main]
+    branches: [main, feat/componentes-base]
 
 permissions:
   contents: read
