@@ -13,4 +13,7 @@
   @for (path of icon().paths; track $index) {
     <path [attr.d]="path" />
   }
+  @for (shape of icon().fills ?? []; track $index) {
+    <path [attr.d]="shape" fill="currentColor" stroke="none" />
+  }
 </svg>

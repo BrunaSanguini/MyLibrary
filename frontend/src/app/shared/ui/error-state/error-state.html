@@ -1,0 +1,6 @@
+<ml-icon class="mark" name="warning" [size]="40" />
+<h2 class="title">{{ title() }}</h2>
+@if (message()) {
+  <p class="message">{{ message() }}</p>
+}
+<button mlButton="secondary" type="button" (click)="retry.emit()">Tentar de novo</button>

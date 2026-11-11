@@ -1,0 +1,39 @@
+<a class="card" [routerLink]="['/livros', book().id]" [attr.aria-label]="label()">
+  <ml-book-cover
+    class="cover"
+    [title]="book().title"
+    [coverUrl]="book().coverUrl"
+    [size]="compact() ? 'xs' : 'sm'"
+  />
+
+  <span class="info">
+    <span class="title">{{ book().title }}</span>
+    <span class="authors">{{ authors() }}</span>
+
+    <span class="meta">
+      @if (book().rating !== undefined) {
+        <ml-rating-stars [value]="book().rating" />
+      }
+      @if (book().pageCount) {
+        <span class="pages">{{ book().pageCount }} páginas</span>
+      }
+    </span>
+
+    @if (series()) {
+      <span mlTag="subgenre" class="series">
+        <ml-icon name="series" [size]="14" />
+        {{ series() }}
+      </span>
+    }
+
+    @if (reading()) {
+      <span class="progress">
+        <span class="progress-row">
+          <span>{{ book().progress }}%</span>
+          <span class="muted">Lendo</span>
+        </span>
+        <ml-progress-bar [value]="book().progress!" [size]="compact() ? 'sm' : 'md'" />
+      </span>
+    }
+  </span>
+</a>

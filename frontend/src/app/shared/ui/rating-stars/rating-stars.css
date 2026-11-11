@@ -1,0 +1,27 @@
+/* Rating stars: gold ornament over a muted row, clipped to the percentage. */
+
+:host {
+  display: inline-block;
+  position: relative;
+  font-size: 15px;
+  letter-spacing: 2px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+:host([data-size='md']) {
+  font-size: 20px;
+}
+
+.empty {
+  color: var(--ml-color-line);
+}
+
+.filled {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  color: var(--ml-color-gold);
+}
