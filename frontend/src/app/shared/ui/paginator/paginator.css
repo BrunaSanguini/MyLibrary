@@ -1,0 +1,20 @@
+/* Pagination: numbers in the display font, as the design system asks. */
+
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ml-space-16);
+}
+
+.count {
+  margin: 0;
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-display);
+  font-size: 20px;
+}
+
+.count strong {
+  color: var(--ml-color-ink);
+  font-weight: 600;
+}

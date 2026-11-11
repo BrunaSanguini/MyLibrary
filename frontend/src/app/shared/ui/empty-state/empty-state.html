@@ -1,0 +1,6 @@
+<ml-icon class="mark" [name]="icon()" [size]="40" />
+<h2 class="title">{{ title() }}</h2>
+@if (message()) {
+  <p class="message">{{ message() }}</p>
+}
+<ng-content />

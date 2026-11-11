@@ -1,0 +1,109 @@
+/*
+ * Buttons of the design system, applied by the mlButton directive.
+ * Global on purpose: a directive has no view of its own, so these styles cannot be scoped.
+ */
+
+.ml-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-sizing: border-box;
+  font-family: var(--ml-font-body);
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.ml-button:focus-visible {
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 2px;
+}
+
+.ml-button:disabled,
+.ml-button[aria-disabled='true'] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Everything small and clickable is a pill, and the target is at least 44px. */
+.ml-button[data-variant='primary'],
+.ml-button[data-variant='secondary'],
+.ml-button[data-variant='hero'],
+.ml-button[data-variant='hero-secondary'] {
+  min-height: 48px;
+  padding: 0 var(--ml-space-24);
+  border: 0;
+  border-radius: var(--ml-radius-pill);
+}
+
+.ml-button[data-variant='primary'] {
+  background: var(--ml-color-accent);
+  color: var(--ml-color-accent-ink);
+}
+
+.ml-button[data-variant='secondary'] {
+  border: 1.5px solid var(--ml-color-line);
+  background: transparent;
+  color: var(--ml-color-ink);
+}
+
+.ml-button[data-variant='secondary']:hover {
+  border-color: var(--ml-color-accent);
+  color: var(--ml-color-accent);
+}
+
+/* Over the hero art the colors are fixed in both themes, so they stay readable on the image. */
+.ml-button[data-variant='hero'] {
+  background: var(--ml-color-hero-gold);
+  color: var(--ml-color-hero-night);
+}
+
+.ml-button[data-variant='hero-secondary'] {
+  border: 1.5px solid var(--ml-color-hero-ink);
+  background: transparent;
+  color: var(--ml-color-hero-ink);
+}
+
+.ml-button[data-variant='hero']:focus-visible,
+.ml-button[data-variant='hero-secondary']:focus-visible {
+  outline-color: var(--ml-color-hero-gold);
+}
+
+.ml-button[data-variant='icon'] {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1.5px solid var(--ml-color-line);
+  border-radius: var(--ml-radius-pill);
+  background: transparent;
+  color: var(--ml-color-accent);
+}
+
+.ml-button[data-variant='icon']:hover {
+  border-color: var(--ml-color-accent);
+}
+
+.ml-button[data-variant='link'] {
+  gap: var(--ml-space-8);
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ml-color-accent);
+}
+
+.ml-button[data-variant='link']:hover {
+  text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ml-button {
+    transition: none;
+  }
+}

@@ -1,0 +1,33 @@
+/* Error state: same shape as the empty state, with the warning mark in accent. */
+
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ml-space-12);
+  padding: var(--ml-space-56) var(--ml-space-32);
+  border: 1px solid var(--ml-color-line);
+  border-radius: var(--ml-radius-lg);
+  background: var(--ml-color-surface);
+  text-align: center;
+}
+
+.mark {
+  color: var(--ml-color-accent);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--ml-font-display);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.message {
+  max-width: 44ch;
+  margin: 0;
+  color: var(--ml-color-muted);
+  font-size: 16px;
+  line-height: 1.65;
+}
