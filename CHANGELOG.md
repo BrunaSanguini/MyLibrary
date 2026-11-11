@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.0](https://github.com/BrunaSanguini/MyLibrary/compare/v0.4.0...v0.5.0) (2026-11-11)
+
+
+### Funcionalidades
+
+* **frontend:** adiciona componentes base da interface ([#55](https://github.com/BrunaSanguini/MyLibrary/issues/55)) ([399b403](https://github.com/BrunaSanguini/MyLibrary/commit/399b4038104d892a162ce8d93576baf2f868788d))
+* **shelf:** adiciona consulta da estante ([#54](https://github.com/BrunaSanguini/MyLibrary/issues/54)) ([395128c](https://github.com/BrunaSanguini/MyLibrary/commit/395128c56a43b1763fe97b3abf027044d274de80))
+
 ## [0.4.0](https://github.com/BrunaSanguini/MyLibrary/compare/v0.3.0...v0.4.0) (2026-11-10)
 
 
