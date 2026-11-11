@@ -1,0 +1,17 @@
+@if (coverUrl()) {
+  <img class="image" [src]="coverUrl()" alt="" />
+} @else {
+  <span
+    class="placeholder"
+    [style.background]="placeholderColor()"
+    [style.color]="placeholderInk()"
+  >
+    <span class="frame">
+      <span class="title">{{ title() }}</span>
+      @if (author()) {
+        <span class="rule"></span>
+        <span class="author">{{ author() }}</span>
+      }
+    </span>
+  </span>
+}

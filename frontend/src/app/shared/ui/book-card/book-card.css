@@ -1,0 +1,110 @@
+/* Horizontal book card: cover on the left, data on the right, the whole thing one link. */
+
+:host {
+  display: block;
+}
+
+.card {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: var(--ml-space-24);
+  align-items: center;
+  padding: var(--ml-space-16) var(--ml-space-24) var(--ml-space-16) var(--ml-space-16);
+  border: 1px solid var(--ml-color-line);
+  border-radius: var(--ml-radius-lg);
+  background: var(--ml-color-surface);
+  box-shadow: var(--ml-shadow-soft);
+  color: var(--ml-color-ink);
+  text-decoration: none;
+  transition:
+    border-color 0.2s,
+    transform 0.2s;
+}
+
+.card:hover {
+  border-color: var(--ml-color-accent);
+  transform: translateY(-2px);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 3px;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.title {
+  font-family: var(--ml-font-display);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.authors {
+  color: var(--ml-color-accent);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--ml-space-12);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.pages {
+  color: var(--ml-color-muted);
+  font-weight: 400;
+}
+
+.series {
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ml-space-8);
+  margin-top: var(--ml-space-8);
+}
+
+.progress-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.muted {
+  color: var(--ml-color-muted);
+  font-weight: 400;
+}
+
+/* Compact version used by the search results. */
+:host([data-compact]) .card {
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: var(--ml-space-16);
+  padding: var(--ml-space-12);
+}
+
+:host([data-compact]) .title {
+  font-size: 19px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+
+  .card:hover {
+    transform: none;
+  }
+}

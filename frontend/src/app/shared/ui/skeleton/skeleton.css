@@ -1,0 +1,53 @@
+/*
+ * Loading placeholder. The shimmer is a moving gradient over the raised colour, which keeps it
+ * visible in both themes without a second colour token.
+ */
+
+:host {
+  display: block;
+  background: var(--ml-color-raised);
+  background-image: linear-gradient(
+    90deg,
+    var(--ml-color-raised) 0%,
+    var(--ml-color-shimmer) 50%,
+    var(--ml-color-raised) 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 180px 100%;
+  animation: ml-skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+:host([data-variant='text']) {
+  width: 100%;
+  height: 15px;
+  border-radius: var(--ml-radius-pill);
+}
+
+:host([data-variant='cover']) {
+  width: 176px;
+  aspect-ratio: 2 / 3;
+  border-radius: 3px var(--ml-radius-book) var(--ml-radius-book) 3px;
+}
+
+:host([data-variant='card']) {
+  width: 100%;
+  height: 176px;
+  border-radius: var(--ml-radius-lg);
+}
+
+@keyframes ml-skeleton-shimmer {
+  from {
+    background-position: -180px 0;
+  }
+
+  to {
+    background-position: calc(100% + 180px) 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host {
+    background-image: none;
+    animation: none;
+  }
+}

@@ -1,0 +1,23 @@
+<button
+  mlButton="icon"
+  type="button"
+  aria-label="Página anterior"
+  [disabled]="first()"
+  (click)="go(page() - 1)"
+>
+  <ml-icon name="chevron-left" [size]="18" />
+</button>
+
+<p class="count" aria-live="polite">
+  Página <strong>{{ current() }}</strong> de <strong>{{ totalPages() }}</strong>
+</p>
+
+<button
+  mlButton="icon"
+  type="button"
+  aria-label="Próxima página"
+  [disabled]="last()"
+  (click)="go(page() + 1)"
+>
+  <ml-icon name="chevron-right" [size]="18" />
+</button>

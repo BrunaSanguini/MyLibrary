@@ -4,3 +4,7 @@
 @import '@fontsource-variable/mulish/wght.css';
 @import './tokens.css';
 @import './base.css';
+
+/* Stylesheets of the shared/ui directives, which have no view of their own to scope styles to. */
+@import '../app/shared/ui/button/button.css';
+@import '../app/shared/ui/tag/tag.css';

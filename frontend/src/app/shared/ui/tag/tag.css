@@ -1,0 +1,93 @@
+/*
+ * Tags and chips of the design system, applied by the mlTag directive.
+ * Global for the same reason as button.css: a directive has no view to scope styles to.
+ */
+
+.ml-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ml-space-8);
+  box-sizing: border-box;
+  border-radius: var(--ml-radius-pill);
+  font-family: var(--ml-font-body);
+  font-size: 13px;
+  text-decoration: none;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s,
+    transform 0.2s;
+}
+
+.ml-tag:focus-visible {
+  outline: 2px solid currentcolor;
+  outline-offset: 2px;
+}
+
+/* State: a toggle, so it is a real target of at least 36px and reads as pressed or not. */
+.ml-tag[data-variant='state'] {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1.5px solid var(--ml-color-line);
+  background: transparent;
+  color: var(--ml-color-muted);
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.ml-tag[data-variant='state'][data-pressed] {
+  border-color: var(--ml-color-accent);
+  background: var(--ml-color-accent);
+  color: var(--ml-color-accent-ink);
+}
+
+.ml-tag[data-variant='genre'] {
+  padding: 6px 14px;
+  background: var(--ml-color-accent);
+  color: var(--ml-color-accent-ink);
+  font-weight: 700;
+}
+
+.ml-tag[data-variant='genre']:hover,
+.ml-tag[data-variant='genre']:focus-visible {
+  background: var(--ml-color-gold);
+  color: var(--ml-color-gold-ink);
+  transform: translateY(-2px);
+}
+
+.ml-tag[data-variant='subgenre'] {
+  padding: 6px 14px;
+  border: 1px solid var(--ml-color-line);
+  background: var(--ml-color-raised);
+  color: var(--ml-color-ink);
+  font-weight: 600;
+}
+
+.ml-tag[data-variant='subgenre']:hover,
+.ml-tag[data-variant='subgenre']:focus-visible {
+  border-color: var(--ml-color-accent);
+  background: var(--ml-color-accent-tint);
+  color: var(--ml-color-accent);
+  transform: translateY(-2px);
+}
+
+.ml-tag[data-variant='seal'] {
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--ml-color-accent);
+  color: var(--ml-color-accent-ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ml-tag {
+    transition: none;
+  }
+
+  .ml-tag:hover {
+    transform: none;
+  }
+}
