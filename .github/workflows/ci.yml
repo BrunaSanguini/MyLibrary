@@ -214,11 +214,14 @@ jobs:
       - name: Compile the back-end
         working-directory: backend
         run: ./mvnw -B -ntp compile -Pskip-frontend
-      # Coverage of the jobs that ran; a skipped job leaves no report.
+      # Coverage of the jobs that ran; a skipped job leaves no report. merge-multiple keeps every
+      # report straight in coverage-reports/: without it a single artifact is extracted there
+      # anyway, while two get a folder each, and the paths below would only match the second case.
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: coverage-*
           path: coverage-reports
+          merge-multiple: true
       - uses: SonarSource/sonarqube-scan-action@e805d875275f728fac1885b413934be6d7c63f65 # v8.4.1
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
