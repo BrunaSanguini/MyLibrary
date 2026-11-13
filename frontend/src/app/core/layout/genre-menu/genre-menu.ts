@@ -1,5 +1,15 @@
 import { httpResource } from '@angular/common/http';
-import { Component, computed, effect, ElementRef, inject, signal, viewChild } from '@angular/core';
+import {
+  afterRenderEffect,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  signal,
+  untracked,
+  viewChild,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { GenresApi, GenreTreeResponse } from '@core/api/genres-api';
 import { Icon } from '@shared/ui/icon/icon';
@@ -30,6 +40,8 @@ export class GenreMenu {
   protected readonly open = signal(false);
   /** Stays true after the first opening, so closing the menu does not throw the tree away. */
   private readonly everOpened = signal(false);
+  /** Set when the menu was opened by the keyboard, which also has to step into the first genre. */
+  private readonly enterOnOpen = signal(false);
 
   protected readonly genres = httpResource<GenreTreeResponse[]>(() =>
     this.everOpened() ? this.genresApi.treeRequest() : undefined,
@@ -42,6 +54,16 @@ export class GenreMenu {
     effect(() => {
       if (this.open()) {
         this.everOpened.set(true);
+      }
+    });
+
+    // After the render, so the first genre exists: it only shows up once the tree arrives.
+    afterRenderEffect(() => {
+      const ready = this.open() && this.enterOnOpen() && this.tree().length > 0;
+      const first = this.panel()?.nativeElement.querySelector('a');
+      if (ready && first) {
+        untracked(() => this.enterOnOpen.set(false));
+        first.focus();
       }
     });
   }
@@ -60,8 +82,8 @@ export class GenreMenu {
   /** From the trigger, the arrow down opens the menu and steps into the first genre. */
   protected openAndEnter(event: Event): void {
     event.preventDefault();
+    this.enterOnOpen.set(true);
     this.open.set(true);
-    queueMicrotask(() => this.panel()?.nativeElement.querySelector('a')?.focus());
   }
 
   protected closeOnOutsideClick(event: Event): void {
