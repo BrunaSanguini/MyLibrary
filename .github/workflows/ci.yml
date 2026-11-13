@@ -2,9 +2,9 @@ name: CI
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, feat/estante-busca-generos]
   push:
-    branches: [main]
+    branches: [main, feat/estante-busca-generos]
 
 permissions:
   contents: read
