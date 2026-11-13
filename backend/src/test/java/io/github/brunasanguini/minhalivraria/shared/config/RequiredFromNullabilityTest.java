@@ -53,7 +53,11 @@ class RequiredFromNullabilityTest {
 
     private List<String> requiredOf(String schema) throws IOException {
         String body = mvc.get().uri("/v3/api-docs").exchange().getResponse().getContentAsString(StandardCharsets.UTF_8);
-        JsonNode required = json.readTree(body).path("components").path("schemas").path(schema).path("required");
+        JsonNode required = json.readTree(body)
+                .path("components")
+                .path("schemas")
+                .path(schema)
+                .path("required");
         List<String> names = new ArrayList<>();
         required.forEach(name -> names.add(name.asString()));
         return names;
