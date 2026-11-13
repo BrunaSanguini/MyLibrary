@@ -2,6 +2,7 @@ package io.github.brunasanguini.minhalivraria.shared.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,33 +25,33 @@ class RequiredFromNullabilityTest {
     private MockMvcTester mvc;
 
     @Test
-    void shouldRequireTheFieldsAResponseAlwaysCarries() {
+    void shouldRequireTheFieldsAResponseAlwaysCarries() throws IOException {
         assertThat(requiredOf("BookCardResponse"))
                 .contains("id", "title", "authors", "genres", "ownership", "favorite");
     }
 
     @Test
-    void shouldLeaveNullableFieldsOptional() {
+    void shouldLeaveNullableFieldsOptional() throws IOException {
         assertThat(requiredOf("BookCardResponse")).doesNotContain("coverUrl", "series");
     }
 
     @Test
-    void shouldApplyToNestedRecordsToo() {
+    void shouldApplyToNestedRecordsToo() throws IOException {
         assertThat(requiredOf("CardSeriesResponse")).contains("id", "name", "position");
     }
 
     @Test
-    void shouldKeepTreatingAnOptionalRequestFieldAsOptional() {
+    void shouldKeepTreatingAnOptionalRequestFieldAsOptional() throws IOException {
         assertThat(requiredOf("BookRequest")).contains("title", "authorIds").doesNotContain("subtitle", "isbn13");
     }
 
     @Test
-    void shouldRequireTheFieldsOfAPage() {
+    void shouldRequireTheFieldsOfAPage() throws IOException {
         assertThat(requiredOf("PageResponseBookCardResponse"))
                 .contains("content", "page", "size", "totalElements", "totalPages");
     }
 
-    private List<String> requiredOf(String schema) {
+    private List<String> requiredOf(String schema) throws IOException {
         String body = mvc.get().uri("/v3/api-docs").exchange().getResponse().getContentAsString(StandardCharsets.UTF_8);
         JsonNode required = json.readTree(body).path("components").path("schemas").path(schema).path("required");
         List<String> names = new ArrayList<>();
