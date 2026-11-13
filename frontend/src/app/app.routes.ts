@@ -8,6 +8,11 @@ export const routes: Routes = [
     title: 'Início',
   },
   {
+    path: 'estante',
+    loadComponent: () => import('@features/shelf/shelf-page/shelf-page'),
+    title: 'Minha Estante',
+  },
+  {
     path: '**',
     loadComponent: () => import('@features/not-found/not-found-page/not-found-page'),
     title: 'Página não encontrada',

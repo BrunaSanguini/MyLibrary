@@ -1,0 +1,89 @@
+<header class="head">
+  <p class="eyebrow">Meu acervo</p>
+  <h1>Minha Estante</h1>
+  @if (books.hasValue()) {
+    <p class="count">
+      {{ books.value().totalElements }}
+      {{ books.value().totalElements === 1 ? 'livro' : 'livros' }}
+    </p>
+  }
+</header>
+
+<div class="filters">
+  <fieldset>
+    <legend>Mostrar</legend>
+    <button
+      mlTag="state"
+      type="button"
+      [pressed]="ownership() === 'OWNED'"
+      [attr.aria-pressed]="ownership() === 'OWNED'"
+      (click)="toggleOwnership('OWNED')"
+    >
+      Tenho
+    </button>
+    <button
+      mlTag="state"
+      type="button"
+      [pressed]="ownership() === 'WISHLIST'"
+      [attr.aria-pressed]="ownership() === 'WISHLIST'"
+      (click)="toggleOwnership('WISHLIST')"
+    >
+      Wishlist
+    </button>
+    <button
+      mlTag="state"
+      type="button"
+      [pressed]="favorite() === true"
+      [attr.aria-pressed]="favorite() === true"
+      (click)="toggleFavorite()"
+    >
+      Favoritos
+    </button>
+  </fieldset>
+
+  <label class="sort">
+    <span>Ordenar por</span>
+    <select [value]="sort() ?? 'addedAt'" (change)="changeSort($event)">
+      @for (option of sortOptions; track option.value) {
+        <option [value]="option.value">{{ option.label }}</option>
+      }
+    </select>
+  </label>
+</div>
+
+@if (books.hasValue()) {
+  @if (cards().length > 0) {
+    <ul class="grid">
+      @for (card of cards(); track card.id) {
+        <li><ml-book-card [book]="card" /></li>
+      }
+    </ul>
+
+    @if (books.value().totalPages > 1) {
+      <ml-paginator
+        [page]="books.value().page"
+        [totalPages]="books.value().totalPages"
+        (pageChange)="changePage($event)"
+      />
+    }
+  } @else if (filtered()) {
+    <ml-empty-state
+      icon="search"
+      title="Nenhum livro com esses filtros"
+      message="Tente outra combinação ou limpe os filtros para ver a estante inteira."
+    >
+      <button mlButton="secondary" type="button" (click)="clearFilters()">Limpar filtros</button>
+    </ml-empty-state>
+  } @else {
+    <ml-empty-state
+      title="Sua estante está vazia"
+      message="Cadastre o primeiro livro e ele aparece aqui."
+    >
+      <a mlButton="primary" routerLink="/livros/novo">Adicionar livro</a>
+    </ml-empty-state>
+  }
+} @else if (books.error()) {
+  <ml-error-state [message]="errorMessage()" (retry)="books.reload()" />
+} @else {
+  <ml-book-grid-skeleton />
+}
