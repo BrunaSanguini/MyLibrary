@@ -1,0 +1,54 @@
+<button
+  #trigger
+  type="button"
+  class="trigger"
+  aria-haspopup="true"
+  [attr.aria-expanded]="open()"
+  aria-controls="menu-de-generos"
+  (click)="toggle()"
+  (keydown.arrowdown)="openAndEnter($event)"
+>
+  Gêneros
+  <ml-icon class="chevron" name="chevron-down" [size]="12" />
+</button>
+
+@if (open()) {
+  <div #panel id="menu-de-generos" class="panel">
+    @if (genres.isLoading()) {
+      <p class="hint" role="status">Carregando gêneros…</p>
+    } @else if (genres.error()) {
+      <p class="hint" role="status">Não foi possível carregar os gêneros.</p>
+    } @else if (empty()) {
+      <p class="hint">Nenhum gênero cadastrado ainda.</p>
+    } @else {
+      <ul class="columns">
+        @for (genre of tree(); track genre.id) {
+          <li class="column">
+            <a
+              class="genre"
+              [routerLink]="['/estante']"
+              [queryParams]="{ genreId: genre.id }"
+              (click)="close()"
+              >{{ genre.name }}</a
+            >
+            @if (genre.subgenres.length > 0) {
+              <ul class="subgenres">
+                @for (subgenre of genre.subgenres; track subgenre.id) {
+                  <li>
+                    <a
+                      class="subgenre"
+                      [routerLink]="['/estante']"
+                      [queryParams]="{ genreId: subgenre.id }"
+                      (click)="close()"
+                      >{{ subgenre.name }}</a
+                    >
+                  </li>
+                }
+              </ul>
+            }
+          </li>
+        }
+      </ul>
+    }
+  </div>
+}
