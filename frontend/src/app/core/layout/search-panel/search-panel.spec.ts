@@ -75,6 +75,16 @@ describe('SearchPanel', () => {
     expect(screen.getByRole('searchbox')).toHaveFocus();
   });
 
+  it('names the field for a screen reader, which does not read placeholders reliably', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    await renderPanel();
+    await user.click(screen.getByRole('button', { name: 'Pesquisar no acervo' }));
+
+    expect(
+      screen.getByRole('searchbox', { name: 'Buscar por título ou autor' }),
+    ).toBeInTheDocument();
+  });
+
   it('asks nothing for a term shorter than two letters', async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     const { http } = await renderPanel();
