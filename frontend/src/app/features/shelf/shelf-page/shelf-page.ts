@@ -11,11 +11,12 @@ import {
   ShelfPage as ShelfPageResponse,
   ShelfSort,
 } from '@core/api/shelf-api';
-import { toOneOf, toPageIndex, toSearchTerm } from '@core/api/query-params';
+import { toFlag, toId, toOneOf, toPageIndex, toSearchTerm } from '@core/api/query-params';
 import { BookCard, BookCardData } from '@shared/ui/book-card/book-card';
 import { Button } from '@shared/ui/button/button';
 import { EmptyState } from '@shared/ui/empty-state/empty-state';
 import { ErrorState } from '@shared/ui/error-state/error-state';
+import { Icon } from '@shared/ui/icon/icon';
 import { Paginator } from '@shared/ui/paginator/paginator';
 import { Tag } from '@shared/ui/tag/tag';
 
@@ -23,17 +24,6 @@ import { BookGridSkeleton } from '../book-grid-skeleton/book-grid-skeleton';
 
 const toOwnership = toOneOf(OWNERSHIPS);
 const toSort = toOneOf(SHELF_SORTS);
-
-/** Positive integer id from the URL, or undefined; the catalog pages link here with one. */
-function toId(value: unknown): number | undefined {
-  const page = toPageIndex(value);
-  return typeof value === 'string' && page > 0 ? page : undefined;
-}
-
-/** Only "true" and "false" count; anything else leaves the filter off. */
-function toFlag(value: unknown): boolean | undefined {
-  return value === 'true' ? true : value === 'false' ? false : undefined;
-}
 
 /**
  * Minha Estante: the whole collection, filtered, sorted and paginated.
@@ -44,7 +34,17 @@ function toFlag(value: unknown): boolean | undefined {
  */
 @Component({
   selector: 'ml-shelf-page',
-  imports: [BookCard, BookGridSkeleton, Button, EmptyState, ErrorState, Paginator, RouterLink, Tag],
+  imports: [
+    BookCard,
+    BookGridSkeleton,
+    Button,
+    EmptyState,
+    ErrorState,
+    Icon,
+    Paginator,
+    RouterLink,
+    Tag,
+  ],
   templateUrl: './shelf-page.html',
   styleUrl: './shelf-page.css',
 })

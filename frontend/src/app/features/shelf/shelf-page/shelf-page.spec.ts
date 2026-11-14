@@ -145,11 +145,13 @@ describe('ShelfPage', () => {
   it('offers to add a book when the shelf is empty', async () => {
     await openShelf('/estante', page([]));
 
+    // The header always offers it too, so both links lead to the same form.
     expect(screen.getByRole('heading', { name: 'Sua estante está vazia' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Adicionar livro' })).toHaveAttribute(
-      'href',
-      '/livros/novo',
-    );
+    const links = screen.getAllByRole('link', { name: 'Adicionar livro' });
+    expect(links).toHaveLength(2);
+    for (const link of links) {
+      expect(link).toHaveAttribute('href', '/livros/novo');
+    }
   });
 
   it('offers to clear the filters when they are what emptied the shelf', async () => {

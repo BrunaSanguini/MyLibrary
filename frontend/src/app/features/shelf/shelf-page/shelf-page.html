@@ -7,6 +7,10 @@
       {{ books.value().totalElements === 1 ? 'livro' : 'livros' }}
     </p>
   }
+  <a class="add" mlButton="primary" routerLink="/livros/novo">
+    <ml-icon name="plus" [size]="16" />
+    Adicionar livro
+  </a>
 </header>
 
 <div class="filters">

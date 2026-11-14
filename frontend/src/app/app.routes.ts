@@ -12,6 +12,7 @@ export const routes: Routes = [
     loadComponent: () => import('@features/shelf/shelf-page/shelf-page'),
     title: 'Minha Estante',
   },
+  { path: 'livros', loadChildren: () => import('@features/books/books.routes') },
   {
     path: '**',
     loadComponent: () => import('@features/not-found/not-found-page/not-found-page'),

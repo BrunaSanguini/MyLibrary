@@ -1,0 +1,175 @@
+/* Book page: the cover first, the data beside it. */
+
+:host {
+  display: block;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: var(--ml-space-40) var(--ml-space-32) var(--ml-space-56);
+}
+
+.banner {
+  display: block;
+  width: 100%;
+  height: 260px;
+  margin-bottom: var(--ml-space-40);
+  border-radius: var(--ml-radius-lg);
+  object-fit: cover;
+}
+
+.book {
+  display: grid;
+  grid-template-columns: 372px minmax(0, 1fr);
+  gap: var(--ml-space-56);
+  align-items: start;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ml-space-24);
+  min-width: 0;
+}
+
+h1 {
+  margin: 0;
+  font-family: var(--ml-font-display);
+  font-size: 54px;
+  font-weight: 600;
+  line-height: 1.02;
+}
+
+.subtitle {
+  margin: var(--ml-space-8) 0 0;
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-display);
+  font-size: 22px;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.authors {
+  margin: var(--ml-space-12) 0 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.failure {
+  margin: 0;
+  padding: var(--ml-space-12) var(--ml-space-16);
+  border: 1.5px solid var(--ml-color-accent);
+  border-radius: var(--ml-radius-md);
+  background: var(--ml-color-accent-tint);
+  font-weight: 600;
+}
+
+.states,
+.genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-self: flex-start;
+  min-width: 280px;
+  padding: 18px 20px;
+  border: 1px solid var(--ml-color-line);
+  border-radius: var(--ml-radius-md);
+  background: var(--ml-color-raised);
+}
+
+.block-label {
+  display: flex;
+  align-items: center;
+  gap: var(--ml-space-8);
+  margin: 0;
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-body);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+}
+
+.block-value {
+  font-family: var(--ml-font-display);
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.block-detail {
+  margin: 0;
+  color: var(--ml-color-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.section-title {
+  margin: 0 0 var(--ml-space-12);
+  font-family: var(--ml-font-display);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.synopsis {
+  max-width: 70ch;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.65;
+  white-space: pre-line;
+}
+
+.details {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--ml-space-16);
+  margin: 0 0 var(--ml-space-8);
+}
+
+dt {
+  color: var(--ml-color-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+}
+
+dd {
+  margin: 4px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ml-space-12);
+}
+
+/* Links inside the text share one look. */
+.authors a,
+.details a,
+.block-value {
+  color: var(--ml-color-accent);
+  text-decoration: none;
+}
+
+.authors a:hover,
+.details a:hover,
+.block-value:hover {
+  text-decoration: underline;
+}
+
+.authors a:focus-visible,
+.details a:focus-visible,
+.block-value:focus-visible {
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 2px;
+}
