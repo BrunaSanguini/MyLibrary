@@ -7,6 +7,8 @@ import io.github.brunasanguini.minhalivraria.shared.error.ConflictException;
 import io.github.brunasanguini.minhalivraria.shared.error.NotFoundException;
 import io.github.brunasanguini.minhalivraria.shared.text.TextNormalizer;
 import io.github.brunasanguini.minhalivraria.shared.web.PageResponse;
+import java.util.List;
+import java.util.Map;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,21 +22,25 @@ public class AuthorService {
 
     private final AuthorRepository authors;
     private final BookRepository books;
+    private final CatalogStats stats;
 
-    AuthorService(AuthorRepository authors, BookRepository books) {
+    AuthorService(AuthorRepository authors, BookRepository books, CatalogStats stats) {
         this.authors = authors;
         this.books = books;
+        this.stats = stats;
     }
 
     public PageResponse<AuthorResponse> search(@Nullable String q, Pageable pageable) {
         String term = q == null ? "" : TextNormalizer.normalize(q);
         Page<Author> page =
                 term.isEmpty() ? authors.findAll(pageable) : authors.findByNormalizedNameContaining(term, pageable);
-        return PageResponse.of(page, AuthorService::toResponse);
+        Map<Long, CatalogStats.Stats> byAuthor =
+                stats.ofAuthors(page.map(Author::id).getContent());
+        return PageResponse.of(page, author -> toResponse(author, byAuthor));
     }
 
     public AuthorResponse get(long id) {
-        return toResponse(find(id));
+        return toResponse(find(id), stats.ofAuthors(List.of(id)));
     }
 
     @Transactional
@@ -67,5 +73,10 @@ public class AuthorService {
 
     private static AuthorResponse toResponse(Author author) {
         return new AuthorResponse(author.id(), author.name());
+    }
+
+    private static AuthorResponse toResponse(Author author, Map<Long, CatalogStats.Stats> stats) {
+        CatalogStats.Stats found = stats.getOrDefault(author.id(), CatalogStats.Stats.NONE);
+        return new AuthorResponse(author.id(), author.name(), found.bookCount(), found.coverUrls());
     }
 }
