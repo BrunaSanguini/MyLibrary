@@ -60,11 +60,11 @@
 }
 
 :host([data-size='xs']) .title {
-  font-size: 11px;
+  font-size: 9px;
 }
 
 :host([data-size='sm']) .title {
-  font-size: 15px;
+  font-size: 13px;
 }
 
 :host([data-size='lg']) .title {
@@ -86,4 +86,28 @@
 
 :host([data-size='lg']) .author {
   font-size: 13px;
+}
+
+/* The small covers have no room for the full frame: tighter inset, and the title clipped to fit. */
+:host([data-size='xs']) .frame,
+:host([data-size='sm']) .frame {
+  inset: 6px 6px 6px 12px;
+  gap: 4px;
+  padding: 4px;
+}
+
+:host([data-size='xs']) .title,
+:host([data-size='sm']) .title {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  overflow-wrap: anywhere;
+}
+
+:host([data-size='xs']) .rule,
+:host([data-size='xs']) .author,
+:host([data-size='sm']) .rule,
+:host([data-size='sm']) .author {
+  display: none;
 }

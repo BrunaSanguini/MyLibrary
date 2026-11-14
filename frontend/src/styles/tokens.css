@@ -65,6 +65,7 @@
   --ml-color-gold-ink: #2a1912;
   --ml-color-accent-tint: #f6dccf;
   --ml-color-shimmer: rgb(255 255 255 / 70%);
+  --ml-color-backdrop: rgb(42 25 18 / 55%);
   --ml-color-glass: rgb(255 247 234 / 74%);
   --ml-shadow-soft: 0 14px 36px rgb(140 70 20 / 12%);
 }
@@ -85,6 +86,7 @@
   --ml-color-gold-ink: #1b120e;
   --ml-color-accent-tint: #3e211a;
   --ml-color-shimmer: rgb(255 255 255 / 10%);
+  --ml-color-backdrop: rgb(0 0 0 / 65%);
   --ml-color-glass: rgb(42 27 20 / 62%);
   --ml-shadow-soft: 0 14px 36px rgb(0 0 0 / 35%);
 }
