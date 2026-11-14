@@ -272,6 +272,7 @@ describe('ShelfPage', () => {
 - O `webServer` do Playwright sobe o app e espera a readiness (`/actuator/health/readiness`).
 - **Nenhum teste toca em `%USERPROFILE%\.minha-livraria`.** O `playwright.config.ts` passa uma pasta temporária nova a cada execução.
 - O WireMock da Open Library e os dados de exemplo entram no perfil `e2e` junto com as funcionalidades deles (#21 e #20).
+- **Exceção medida, só no Firefox:** nos testes de painel aberto do header (busca com resultados e menu de gêneros), o axe analisa o painel, não a página inteira. O Firefox do CI derruba a página quando uma regra de página inteira roda com resultados na tela. O Chromium analisa a página toda nos mesmos testes, e a Home já passa inteira pelo axe no Firefox no teste de fumaça. O motivo e as medições estão em `e2e/accessibility.ts` (`panelScope`).
 - `npm run e2e` (em `frontend/`) roda contra o jar em `backend/target/minha-livraria.jar`. Com `E2E_BASE_URL=http://localhost:4200`, roda contra o `npm start`, sem precisar do jar.
 
 ```ts

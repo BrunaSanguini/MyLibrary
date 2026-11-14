@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { expectNoAccessibilityViolations, THEMES, useTheme } from './accessibility';
+import { expectNoAccessibilityViolations, panelScope, THEMES, useTheme } from './accessibility';
 
 /**
  * Journey 1: register a book and find it again (docs/testes-e-qualidade.md).
@@ -159,15 +159,18 @@ for (const theme of THEMES) {
       await expectNoAccessibilityViolations(page);
     });
 
-    test('genre menu, open, has no WCAG 2.1 AA violations', async ({ page }) => {
+    test('genre menu, open, has no WCAG 2.1 AA violations', async ({ page, browserName }) => {
       await page.goto('/');
       await page.getByRole('button', { name: /Gêneros/ }).click();
       await expect(page.getByRole('link', { name: 'Realismo' })).toBeVisible();
 
-      await expectNoAccessibilityViolations(page);
+      await expectNoAccessibilityViolations(page, panelScope(browserName, '#menu-de-generos'));
     });
 
-    test('search panel, with results, has no WCAG 2.1 AA violations', async ({ page }) => {
+    test('search panel, with results, has no WCAG 2.1 AA violations', async ({
+      page,
+      browserName,
+    }) => {
       await page.goto('/');
       await page.getByRole('button', { name: 'Pesquisar no acervo' }).click();
       await page.getByRole('searchbox', { name: 'Buscar por título ou autor' }).fill('dom');
@@ -175,7 +178,7 @@ for (const theme of THEMES) {
         page.getByRole('dialog').getByRole('link', { name: /Dom Casmurro/ }),
       ).toBeVisible();
 
-      await expectNoAccessibilityViolations(page);
+      await expectNoAccessibilityViolations(page, panelScope(browserName, '#painel-de-busca'));
     });
   });
 }
