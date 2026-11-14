@@ -190,7 +190,7 @@ Os testes de resiliência usam WireMock para simular lentidão, erro 5xx e 429. 
 | Unitário | funções puras (`query-params`, ISBN, rótulos, resolução do tema), stores e interceptors | Vitest (jsdom) + `HttpTestingController` |
 | Componente de UI | `input`/`output`, estados, teclado e ARIA dos componentes de `shared/ui` | Vitest em modo navegador (Chromium via Playwright) + Testing Library |
 | Página | página + `httpResource` com respostas simuladas: carregando, vazio, erro, filtros na URL | Vitest + Testing Library + `HttpTestingController` |
-| E2E | jornadas completas no app real | Playwright no Chromium e no Firefox |
+| E2E | jornadas completas no app real | Playwright no Chromium |
 | Acessibilidade | qualquer violação WCAG 2.1 AA (de qualquer gravidade) em todas as páginas, nos dois temas | `@axe-core/playwright` nos E2E |
 
 - **Modo navegador nos componentes de UI:** o jsdom não implementa `<dialog>` nem a Popover API, que esses componentes usam.
@@ -272,7 +272,6 @@ describe('ShelfPage', () => {
 - O `webServer` do Playwright sobe o app e espera a readiness (`/actuator/health/readiness`).
 - **Nenhum teste toca em `%USERPROFILE%\.minha-livraria`.** O `playwright.config.ts` passa uma pasta temporária nova a cada execução.
 - O WireMock da Open Library e os dados de exemplo entram no perfil `e2e` junto com as funcionalidades deles (#21 e #20).
-- **Exceção medida, só no Firefox:** nos testes de painel aberto do header (busca com resultados e menu de gêneros), o axe analisa o painel, não a página inteira. O Firefox do CI derruba a página quando uma regra de página inteira roda com resultados na tela. O Chromium analisa a página toda nos mesmos testes, e a Home já passa inteira pelo axe no Firefox no teste de fumaça. O motivo e as medições estão em `e2e/accessibility.ts` (`panelScope`).
 - `npm run e2e` (em `frontend/`) roda contra o jar em `backend/target/minha-livraria.jar`. Com `E2E_BASE_URL=http://localhost:4200`, roda contra o `npm start`, sem precisar do jar.
 
 ```ts

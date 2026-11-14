@@ -1,12 +1,12 @@
 import { expect, test } from '@playwright/test';
 
-import { expectNoAccessibilityViolations, panelScope, THEMES, useTheme } from './accessibility';
+import { expectNoAccessibilityViolations, THEMES, useTheme } from './accessibility';
 
 /**
  * Journey 1: register a book and find it again (docs/testes-e-qualidade.md).
  *
- * Runs against the sample collection of the e2e profile. Both browsers share one server, so each
- * run registers a book with a title of its own instead of counting on an empty shelf.
+ * Runs against the sample collection of the e2e profile. A retry reuses the same server, so
+ * each run registers a book with a title of its own instead of counting on an empty shelf.
  */
 test('registers a book by hand and finds it again', async ({ page }, testInfo) => {
   const title = `O Alienista (${testInfo.project.name}, ${testInfo.retry})`;
@@ -159,18 +159,15 @@ for (const theme of THEMES) {
       await expectNoAccessibilityViolations(page);
     });
 
-    test('genre menu, open, has no WCAG 2.1 AA violations', async ({ page, browserName }) => {
+    test('genre menu, open, has no WCAG 2.1 AA violations', async ({ page }) => {
       await page.goto('/');
       await page.getByRole('button', { name: /Gêneros/ }).click();
       await expect(page.getByRole('link', { name: 'Realismo' })).toBeVisible();
 
-      await expectNoAccessibilityViolations(page, panelScope(browserName, '#menu-de-generos'));
+      await expectNoAccessibilityViolations(page);
     });
 
-    test('search panel, with results, has no WCAG 2.1 AA violations', async ({
-      page,
-      browserName,
-    }) => {
+    test('search panel, with results, has no WCAG 2.1 AA violations', async ({ page }) => {
       await page.goto('/');
       await page.getByRole('button', { name: 'Pesquisar no acervo' }).click();
       await page.getByRole('searchbox', { name: 'Buscar por título ou autor' }).fill('dom');
@@ -178,7 +175,7 @@ for (const theme of THEMES) {
         page.getByRole('dialog').getByRole('link', { name: /Dom Casmurro/ }),
       ).toBeVisible();
 
-      await expectNoAccessibilityViolations(page, panelScope(browserName, '#painel-de-busca'));
+      await expectNoAccessibilityViolations(page);
     });
   });
 }

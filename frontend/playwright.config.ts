@@ -26,14 +26,11 @@ export default defineConfig({
     locale: 'pt-BR',
     trace: 'retain-on-failure',
   },
+  // Chromium only: the app is used on Chrome, and its engine is the one the E2E has to prove.
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } },
-    },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'], viewport: { width: 1440, height: 900 } },
     },
   ],
   webServer: externalApp

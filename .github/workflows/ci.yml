@@ -172,9 +172,9 @@ jobs:
       - name: Build the jar
         working-directory: backend
         run: ./mvnw -B -ntp package -DskipTests
-      - name: Install Chromium and Firefox
+      - name: Install Chromium
         working-directory: frontend
-        run: npx playwright install --with-deps chromium firefox
+        run: npx playwright install --with-deps chromium
       - name: Run E2E tests
         working-directory: frontend
         run: npm run e2e
