@@ -25,8 +25,10 @@ export interface BookCardData {
 /**
  * Horizontal book card of every listing: cover, title, authors, rating and pages.
  *
- * <p>The whole card is one link to the book page, so there is a single target and a single
- * accessible name. The progress bar only shows for a book being read, as the design system says.
+ * <p>The whole card is one link to the book page, named by what it shows: an `aria-label` reworded
+ * from the visible text fails WCAG 2.5.3 (Label in Name), which is what lets someone say the title
+ * they see to a voice control. The cover is decorative here and hidden, so the title is not read
+ * twice. The progress bar only shows for a book being read, as the design system says.
  */
 @Component({
   selector: 'ml-book-card',
@@ -50,15 +52,5 @@ export class BookCard {
     return seriesName && seriesPosition !== undefined
       ? `${seriesName} · Livro ${seriesPosition.toLocaleString('pt-BR')}`
       : undefined;
-  });
-
-  /** One name for the link, so the reader hears the book once instead of each piece of it. */
-  protected readonly label = computed(() => {
-    const { title, rating } = this.book();
-    const parts = [title, this.authors()];
-    if (rating !== undefined) {
-      parts.push(`nota ${rating.toLocaleString('pt-BR')}`);
-    }
-    return parts.filter(Boolean).join(', ');
   });
 }

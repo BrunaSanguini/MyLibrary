@@ -1,6 +1,7 @@
-<a class="card" [routerLink]="['/livros', book().id]" [attr.aria-label]="label()">
+<a class="card" [routerLink]="['/livros', book().id]">
   <ml-book-cover
     class="cover"
+    aria-hidden="true"
     [title]="book().title"
     [coverUrl]="book().coverUrl"
     [size]="compact() ? 'xs' : 'sm'"

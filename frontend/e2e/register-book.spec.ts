@@ -159,18 +159,22 @@ for (const theme of THEMES) {
       await expectNoAccessibilityViolations(page);
     });
 
-    test('search and genre menu, open, have no WCAG 2.1 AA violations', async ({ page }) => {
+    test('genre menu, open, has no WCAG 2.1 AA violations', async ({ page }) => {
       await page.goto('/');
       await page.getByRole('button', { name: /Gêneros/ }).click();
       await expect(page.getByRole('link', { name: 'Realismo' })).toBeVisible();
-      await expectNoAccessibilityViolations(page);
-      await page.keyboard.press('Escape');
 
+      await expectNoAccessibilityViolations(page);
+    });
+
+    test('search panel, with results, has no WCAG 2.1 AA violations', async ({ page }) => {
+      await page.goto('/');
       await page.getByRole('button', { name: 'Pesquisar no acervo' }).click();
       await page.getByRole('searchbox', { name: 'Buscar por título ou autor' }).fill('dom');
       await expect(
         page.getByRole('dialog').getByRole('link', { name: /Dom Casmurro/ }),
       ).toBeVisible();
+
       await expectNoAccessibilityViolations(page);
     });
   });
