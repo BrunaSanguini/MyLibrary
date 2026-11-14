@@ -91,7 +91,10 @@ class CatalogStatsTest {
 
     @Test
     void shouldBringTheCountsWhenReadingOneRecord() {
-        long machado = authors.search("machado", PageRequest.of(0, 1)).content().getFirst().id();
+        long machado = authors.search("machado", PageRequest.of(0, 1))
+                .content()
+                .getFirst()
+                .id();
 
         assertThat(authors.get(machado).bookCount()).isEqualTo(3);
     }
@@ -108,9 +111,7 @@ class CatalogStatsTest {
         assertThat(romance.subgenres())
                 .extracting(GenreTreeResponse.Subgenre::name, GenreTreeResponse.Subgenre::bookCount)
                 .containsExactly(
-                        Tuple.tuple("Indianismo", 2L),
-                        Tuple.tuple("Naturalismo", 1L),
-                        Tuple.tuple("Realismo", 3L));
+                        Tuple.tuple("Indianismo", 2L), Tuple.tuple("Naturalismo", 1L), Tuple.tuple("Realismo", 3L));
     }
 
     @Test
@@ -126,9 +127,7 @@ class CatalogStatsTest {
     @Test
     void shouldShowTheCoverOfABookOnItsAuthorCard() {
         long book = books.findAll().getFirst().id();
-        String cover = bookService
-                .replaceCover(book, ImageSamples.PNG)
-                .coverUrl();
+        String cover = bookService.replaceCover(book, ImageSamples.PNG).coverUrl();
         entityManager.flush();
 
         assertThat(authors.search(null, PageRequest.of(0, 10)).content())

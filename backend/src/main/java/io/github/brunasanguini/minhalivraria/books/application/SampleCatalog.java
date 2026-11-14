@@ -64,20 +64,42 @@ class SampleCatalog implements ApplicationRunner {
 
         long romance = genres.create(new GenreRequest("Romance", null)).id();
         long realism = genres.create(new GenreRequest("Realismo", romance)).id();
-        long naturalism = genres.create(new GenreRequest("Naturalismo", romance)).id();
+        long naturalism =
+                genres.create(new GenreRequest("Naturalismo", romance)).id();
         long indianism = genres.create(new GenreRequest("Indianismo", romance)).id();
-        long classic = genres.create(new GenreRequest("Clássico brasileiro", null)).id();
+        long classic =
+                genres.create(new GenreRequest("Clássico brasileiro", null)).id();
         long satire = genres.create(new GenreRequest("Sátira", null)).id();
 
         long trilogy = series.create(new SeriesRequest("Trilogia Realista", 3)).id();
 
-        book("Memórias Póstumas de Brás Cubas", 1881, machado, null, trilogy, 1, Ownership.OWNED, true, realism, classic);
+        book(
+                "Memórias Póstumas de Brás Cubas",
+                1881,
+                machado,
+                null,
+                trilogy,
+                1,
+                Ownership.OWNED,
+                true,
+                realism,
+                classic);
         book("Quincas Borba", 1891, machado, garnier, trilogy, 2, Ownership.OWNED, false, realism, classic);
         book("Dom Casmurro", 1899, machado, garnier, trilogy, 3, Ownership.OWNED, true, realism, classic);
         book("O Cortiço", 1890, azevedo, garnier, null, null, Ownership.OWNED, false, naturalism, classic);
         book("Iracema", 1865, alencar, null, null, null, Ownership.WISHLIST, false, indianism, classic);
         book("O Guarani", 1857, alencar, null, null, null, Ownership.NONE, false, indianism, classic);
-        book("Triste Fim de Policarpo Quaresma", 1915, barreto, null, null, null, Ownership.WISHLIST, false, satire, classic);
+        book(
+                "Triste Fim de Policarpo Quaresma",
+                1915,
+                barreto,
+                null,
+                null,
+                null,
+                Ownership.WISHLIST,
+                false,
+                satire,
+                classic);
         log.info("Sample collection loaded: 7 books");
     }
 

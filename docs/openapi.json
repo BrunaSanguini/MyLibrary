@@ -1092,9 +1092,19 @@
           "totalVolumes" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "bookCount" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "coverUrls" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           }
         },
-        "required" : [ "id", "name" ]
+        "required" : [ "bookCount", "coverUrls", "id", "name" ]
       },
       "PublisherRequest" : {
         "type" : "object",
@@ -1116,9 +1126,19 @@
           },
           "name" : {
             "type" : "string"
+          },
+          "bookCount" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "coverUrls" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           }
         },
-        "required" : [ "id", "name" ]
+        "required" : [ "bookCount", "coverUrls", "id", "name" ]
       },
       "GenreRequest" : {
         "type" : "object",
@@ -1431,9 +1451,19 @@
           },
           "name" : {
             "type" : "string"
+          },
+          "bookCount" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "coverUrls" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           }
         },
-        "required" : [ "id", "name" ]
+        "required" : [ "bookCount", "coverUrls", "id", "name" ]
       },
       "BookCardResponse" : {
         "type" : "object",
@@ -1583,6 +1613,10 @@
           "name" : {
             "type" : "string"
           },
+          "bookCount" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
           "subgenres" : {
             "type" : "array",
             "items" : {
@@ -1590,7 +1624,7 @@
             }
           }
         },
-        "required" : [ "id", "name", "subgenres" ]
+        "required" : [ "bookCount", "id", "name", "subgenres" ]
       },
       "Subgenre" : {
         "type" : "object",
@@ -1601,9 +1635,13 @@
           },
           "name" : {
             "type" : "string"
+          },
+          "bookCount" : {
+            "type" : "integer",
+            "format" : "int64"
           }
         },
-        "required" : [ "id", "name" ]
+        "required" : [ "bookCount", "id", "name" ]
       },
       "PageResponseAuthorResponse" : {
         "type" : "object",

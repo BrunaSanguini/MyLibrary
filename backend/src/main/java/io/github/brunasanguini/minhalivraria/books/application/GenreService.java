@@ -51,8 +51,8 @@ public class GenreService {
             }
         }
         return roots.values().stream()
-                .map(root -> new GenreTreeResponse(
-                        root.id(), root.name(), root.bookCount(), List.copyOf(root.subgenres())))
+                .map(root ->
+                        new GenreTreeResponse(root.id(), root.name(), root.bookCount(), List.copyOf(root.subgenres())))
                 .toList();
     }
 
