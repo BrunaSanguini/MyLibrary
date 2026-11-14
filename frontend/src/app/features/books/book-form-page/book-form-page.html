@@ -1,0 +1,325 @@
+@if (editing() && loadError()) {
+  <ml-error-state [message]="loadError()" (retry)="book.reload()" />
+} @else if (editing() && !book.hasValue()) {
+  <ml-skeleton variant="card" />
+} @else {
+  <header class="head">
+    <p class="eyebrow">{{ editing() ? 'Editar livro' : 'Novo livro' }}</p>
+    <h1>{{ editing() ? book.value()?.title : 'Cadastrar livro' }}</h1>
+  </header>
+
+  <form class="form" novalidate (submit)="save($event)">
+    @if (topError()) {
+      <p class="top-error" role="alert">{{ topError() }}</p>
+    }
+
+    <section class="card" aria-labelledby="secao-dados">
+      <h2 id="secao-dados">Dados principais</h2>
+
+      <div class="field">
+        <label for="titulo">Título</label>
+        <input
+          id="titulo"
+          type="text"
+          [formField]="bookForm.title"
+          [attr.aria-describedby]="errorOf(bookForm.title) ? 'erro-titulo' : null"
+        />
+        @if (errorOf(bookForm.title); as message) {
+          <p id="erro-titulo" class="error">{{ message }}</p>
+        }
+      </div>
+
+      <div class="field">
+        <label for="subtitulo">Subtítulo</label>
+        <input
+          id="subtitulo"
+          type="text"
+          [formField]="bookForm.subtitle"
+          [attr.aria-describedby]="errorOf(bookForm.subtitle) ? 'erro-subtitulo' : null"
+        />
+        @if (errorOf(bookForm.subtitle); as message) {
+          <p id="erro-subtitulo" class="error">{{ message }}</p>
+        }
+      </div>
+
+      <div class="field">
+        <ml-entity-picker
+          source="authors"
+          label="Autores"
+          placeholder="Busque ou crie um autor"
+          [exclude]="authorIds()"
+          [invalid]="!!errorOf(bookForm.authors)"
+          [describedBy]="errorOf(bookForm.authors) ? 'erro-autores' : undefined"
+          (picked)="addAuthor($event)"
+        />
+        @if (model().authors.length > 0) {
+          <ul class="chips" aria-label="Autores escolhidos">
+            @for (author of model().authors; track author.id) {
+              <li class="chip">
+                {{ author.name }}
+                <button
+                  type="button"
+                  class="chip-remove"
+                  [attr.aria-label]="'Remover autor ' + author.name"
+                  (click)="removeAuthor(author.id)"
+                >
+                  <ml-icon name="close" [size]="12" />
+                </button>
+              </li>
+            }
+          </ul>
+        }
+        @if (errorOf(bookForm.authors); as message) {
+          <p id="erro-autores" class="error">{{ message }}</p>
+        }
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="secao-classificacao">
+      <h2 id="secao-classificacao">Classificação</h2>
+
+      <div class="field">
+        <ml-entity-picker
+          source="genres"
+          label="Gêneros"
+          placeholder="Busque ou crie um gênero"
+          [exclude]="genreIds()"
+          (picked)="addGenre($event)"
+        />
+        @if (model().genres.length > 0) {
+          <ul class="chips" aria-label="Gêneros escolhidos">
+            @for (genre of model().genres; track genre.id) {
+              <li class="chip">
+                {{ genre.name }}
+                <button
+                  type="button"
+                  class="chip-remove"
+                  [attr.aria-label]="'Remover gênero ' + genre.name"
+                  (click)="removeGenre(genre.id)"
+                >
+                  <ml-icon name="close" [size]="12" />
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <div class="row">
+        <div class="field grow">
+          @if (model().seriesId === null) {
+            <ml-entity-picker
+              source="series"
+              label="Série"
+              placeholder="Busque ou crie uma série"
+              (picked)="setSeries($event)"
+            />
+          } @else {
+            <p class="picked-label">Série</p>
+            <p class="picked">
+              {{ model().seriesName }}
+              <button type="button" mlButton="link" (click)="setSeries(undefined)">
+                Tirar da série
+              </button>
+            </p>
+          }
+        </div>
+
+        <div class="field narrow">
+          <label for="posicao">Posição na série</label>
+          <input
+            id="posicao"
+            type="number"
+            step="0.1"
+            [formField]="bookForm.seriesPosition"
+            [attr.aria-describedby]="errorOf(bookForm.seriesPosition) ? 'erro-posicao' : null"
+          />
+          @if (errorOf(bookForm.seriesPosition); as message) {
+            <p id="erro-posicao" class="error">{{ message }}</p>
+          }
+        </div>
+      </div>
+
+      <div class="field">
+        @if (model().publisherId === null) {
+          <ml-entity-picker
+            source="publishers"
+            label="Editora"
+            placeholder="Busque ou crie uma editora"
+            (picked)="setPublisher($event)"
+          />
+        } @else {
+          <p class="picked-label">Editora</p>
+          <p class="picked">
+            {{ model().publisherName }}
+            <button type="button" mlButton="link" (click)="setPublisher(undefined)">
+              Trocar editora
+            </button>
+          </p>
+        }
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="secao-edicao">
+      <h2 id="secao-edicao">Edição</h2>
+
+      <div class="row">
+        <div class="field grow">
+          <label for="isbn13">ISBN-13</label>
+          <input
+            id="isbn13"
+            type="text"
+            inputmode="numeric"
+            [formField]="bookForm.isbn13"
+            [attr.aria-describedby]="errorOf(bookForm.isbn13) ? 'erro-isbn13' : null"
+          />
+          @if (errorOf(bookForm.isbn13); as message) {
+            <p id="erro-isbn13" class="error">{{ message }}</p>
+          }
+        </div>
+
+        <div class="field grow">
+          <label for="isbn10">ISBN-10</label>
+          <input
+            id="isbn10"
+            type="text"
+            [formField]="bookForm.isbn10"
+            [attr.aria-describedby]="errorOf(bookForm.isbn10) ? 'erro-isbn10' : null"
+          />
+          @if (errorOf(bookForm.isbn10); as message) {
+            <p id="erro-isbn10" class="error">{{ message }}</p>
+          }
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field grow">
+          <label for="paginas">Páginas</label>
+          <input
+            id="paginas"
+            type="number"
+            [formField]="bookForm.pageCount"
+            [attr.aria-describedby]="errorOf(bookForm.pageCount) ? 'erro-paginas' : null"
+          />
+          @if (errorOf(bookForm.pageCount); as message) {
+            <p id="erro-paginas" class="error">{{ message }}</p>
+          }
+        </div>
+
+        <div class="field grow">
+          <label for="ano">Ano de publicação</label>
+          <input
+            id="ano"
+            type="number"
+            [formField]="bookForm.publishedYear"
+            [attr.aria-describedby]="errorOf(bookForm.publishedYear) ? 'erro-ano' : null"
+          />
+          @if (errorOf(bookForm.publishedYear); as message) {
+            <p id="erro-ano" class="error">{{ message }}</p>
+          }
+        </div>
+
+        <div class="field grow">
+          <label for="idioma">Idioma</label>
+          <input
+            id="idioma"
+            type="text"
+            placeholder="por"
+            [formField]="bookForm.languageCode"
+            [attr.aria-describedby]="errorOf(bookForm.languageCode) ? 'erro-idioma' : 'dica-idioma'"
+          />
+          @if (errorOf(bookForm.languageCode); as message) {
+            <p id="erro-idioma" class="error">{{ message }}</p>
+          } @else {
+            <p id="dica-idioma" class="hint">Código de três letras: por, eng, spa.</p>
+          }
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="sinopse">Sinopse</label>
+        <textarea
+          id="sinopse"
+          rows="6"
+          [formField]="bookForm.synopsis"
+          [attr.aria-describedby]="errorOf(bookForm.synopsis) ? 'erro-sinopse' : null"
+        ></textarea>
+        @if (errorOf(bookForm.synopsis); as message) {
+          <p id="erro-sinopse" class="error">{{ message }}</p>
+        }
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="secao-estante">
+      <h2 id="secao-estante">Na minha estante</h2>
+
+      <div class="row">
+        <div class="field grow">
+          <label for="posse">Este livro</label>
+          <select id="posse" [formField]="bookForm.ownership">
+            <option value="NONE">Não informar</option>
+            <option value="OWNED">Tenho este livro</option>
+            <option value="WISHLIST">Está na minha wishlist</option>
+          </select>
+        </div>
+
+        <label class="check">
+          <input type="checkbox" [formField]="bookForm.favorite" />
+          Favorito
+        </label>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="secao-imagens">
+      <h2 id="secao-imagens">Imagens</h2>
+      <p class="hint">JPEG, PNG ou WebP, com até 5 MB. Sem capa, o livro usa uma capa de papel.</p>
+
+      @if (imageError()) {
+        <p class="error" role="alert">{{ imageError() }}</p>
+      }
+
+      <div class="row">
+        <div class="field grow">
+          <label for="capa">Capa</label>
+          <input
+            id="capa"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            (change)="chooseImage('cover', $event)"
+          />
+          @if (editing() && book.value()?.coverUrl) {
+            <label class="check">
+              <input type="checkbox" (change)="toggleRemoval('cover', $event)" />
+              Remover a capa atual
+            </label>
+          }
+        </div>
+
+        <div class="field grow">
+          <label for="banner">Banner</label>
+          <input
+            id="banner"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            (change)="chooseImage('banner', $event)"
+          />
+          @if (editing() && book.value()?.bannerUrl) {
+            <label class="check">
+              <input type="checkbox" (change)="toggleRemoval('banner', $event)" />
+              Remover o banner atual
+            </label>
+          }
+        </div>
+      </div>
+    </section>
+
+    <div class="actions">
+      <a mlButton="secondary" [routerLink]="editing() ? ['/livros', id()] : ['/estante']"
+        >Cancelar</a
+      >
+      <button mlButton="primary" type="submit" [disabled]="bookForm().submitting()">
+        {{ bookForm().submitting() ? 'Salvando…' : 'Salvar livro' }}
+      </button>
+    </div>
+  </form>
+}

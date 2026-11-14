@@ -37,7 +37,7 @@ Os exemplos estão em [`docs/testes-e-qualidade.md`](../testes-e-qualidade.md).
    - Vitest em modo navegador (Chromium via Playwright) para os componentes de `shared/ui`, que usam `<dialog>` e Popover.
    - Testing Library e `@testing-library/jest-dom` em componentes e páginas.
    - `HttpTestingController` para simular a API.
-7. **E2E com Playwright** no Chromium e no Firefox:
+7. **E2E com Playwright** no Chromium (o Firefox saiu do E2E em novembro de 2026: o app é usado no Chrome, e o Firefox do CI derrubava a página sob o axe sem relação com o código):
    - Contra o jar real, no perfil `e2e`.
    - Pasta de dados temporária e Open Library simulada por WireMock.
    - Cinco jornadas no MVP.

@@ -3,6 +3,9 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ThemeStore } from '@core/theme/theme-store';
 import { Icon } from '@shared/ui/icon/icon';
 
+import { GenreMenu } from '../genre-menu/genre-menu';
+import { SearchPanel } from '../search-panel/search-panel';
+
 interface MenuItem {
   readonly path: string;
   readonly label: string;
@@ -11,7 +14,7 @@ interface MenuItem {
 
 @Component({
   selector: 'ml-header',
-  imports: [RouterLink, RouterLinkActive, Icon],
+  imports: [RouterLink, RouterLinkActive, GenreMenu, Icon, SearchPanel],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })

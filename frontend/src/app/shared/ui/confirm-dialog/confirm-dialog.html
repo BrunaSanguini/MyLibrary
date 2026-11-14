@@ -1,0 +1,14 @@
+<dialog #dialog class="dialog" aria-labelledby="ml-confirm-title">
+  <h2 id="ml-confirm-title" class="title">{{ title() }}</h2>
+  @if (message()) {
+    <p class="message">{{ message() }}</p>
+  }
+  <div class="actions">
+    <button mlButton="secondary" type="button" autofocus [disabled]="busy()" (click)="close()">
+      {{ cancelLabel() }}
+    </button>
+    <button mlButton="primary" type="button" [disabled]="busy()" (click)="confirmed.emit()">
+      {{ confirmLabel() }}
+    </button>
+  </div>
+</dialog>

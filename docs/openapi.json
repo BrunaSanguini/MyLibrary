@@ -1092,8 +1092,19 @@
           "totalVolumes" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "bookCount" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "coverUrls" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           }
-        }
+        },
+        "required" : [ "bookCount", "coverUrls", "id", "name" ]
       },
       "PublisherRequest" : {
         "type" : "object",
@@ -1115,8 +1126,19 @@
           },
           "name" : {
             "type" : "string"
+          },
+          "bookCount" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "coverUrls" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           }
-        }
+        },
+        "required" : [ "bookCount", "coverUrls", "id", "name" ]
       },
       "GenreRequest" : {
         "type" : "object",
@@ -1147,7 +1169,8 @@
             "type" : "integer",
             "format" : "int64"
           }
-        }
+        },
+        "required" : [ "id", "name" ]
       },
       "BookRequest" : {
         "type" : "object",
@@ -1235,7 +1258,8 @@
           "name" : {
             "type" : "string"
           }
-        }
+        },
+        "required" : [ "id", "name" ]
       },
       "BookDetailResponse" : {
         "type" : "object",
@@ -1312,7 +1336,8 @@
             "type" : "string",
             "format" : "date-time"
           }
-        }
+        },
+        "required" : [ "authors", "favorite", "genres", "id", "ownership", "title" ]
       },
       "BookGenreResponse" : {
         "type" : "object",
@@ -1328,7 +1353,8 @@
             "type" : "integer",
             "format" : "int64"
           }
-        }
+        },
+        "required" : [ "id", "name" ]
       },
       "BookPublisherResponse" : {
         "type" : "object",
@@ -1340,7 +1366,8 @@
           "name" : {
             "type" : "string"
           }
-        }
+        },
+        "required" : [ "id", "name" ]
       },
       "BookSeriesResponse" : {
         "type" : "object",
@@ -1359,7 +1386,8 @@
             "type" : "integer",
             "format" : "int32"
           }
-        }
+        },
+        "required" : [ "id", "name", "position" ]
       },
       "OpenLibraryResponse" : {
         "type" : "object",
@@ -1391,7 +1419,8 @@
           "coverUrl" : {
             "type" : "string"
           }
-        }
+        },
+        "required" : [ "coverUrl" ]
       },
       "BannerResponse" : {
         "type" : "object",
@@ -1399,7 +1428,8 @@
           "bannerUrl" : {
             "type" : "string"
           }
-        }
+        },
+        "required" : [ "bannerUrl" ]
       },
       "AuthorRequest" : {
         "type" : "object",
@@ -1421,8 +1451,19 @@
           },
           "name" : {
             "type" : "string"
+          },
+          "bookCount" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "coverUrls" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           }
-        }
+        },
+        "required" : [ "bookCount", "coverUrls", "id", "name" ]
       },
       "BookCardResponse" : {
         "type" : "object",
@@ -1459,7 +1500,8 @@
           "series" : {
             "$ref" : "#/components/schemas/CardSeriesResponse"
           }
-        }
+        },
+        "required" : [ "authors", "favorite", "genres", "id", "ownership", "title" ]
       },
       "CardSeriesResponse" : {
         "type" : "object",
@@ -1474,7 +1516,8 @@
           "position" : {
             "type" : "number"
           }
-        }
+        },
+        "required" : [ "id", "name", "position" ]
       },
       "PageResponseBookCardResponse" : {
         "type" : "object",
@@ -1501,7 +1544,8 @@
             "type" : "integer",
             "format" : "int32"
           }
-        }
+        },
+        "required" : [ "content", "page", "size", "totalElements", "totalPages" ]
       },
       "PageResponseSeriesResponse" : {
         "type" : "object",
@@ -1528,7 +1572,8 @@
             "type" : "integer",
             "format" : "int32"
           }
-        }
+        },
+        "required" : [ "content", "page", "size", "totalElements", "totalPages" ]
       },
       "PageResponsePublisherResponse" : {
         "type" : "object",
@@ -1555,7 +1600,8 @@
             "type" : "integer",
             "format" : "int32"
           }
-        }
+        },
+        "required" : [ "content", "page", "size", "totalElements", "totalPages" ]
       },
       "GenreTreeResponse" : {
         "type" : "object",
@@ -1567,13 +1613,18 @@
           "name" : {
             "type" : "string"
           },
+          "bookCount" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
           "subgenres" : {
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/Subgenre"
             }
           }
-        }
+        },
+        "required" : [ "bookCount", "id", "name", "subgenres" ]
       },
       "Subgenre" : {
         "type" : "object",
@@ -1584,8 +1635,13 @@
           },
           "name" : {
             "type" : "string"
+          },
+          "bookCount" : {
+            "type" : "integer",
+            "format" : "int64"
           }
-        }
+        },
+        "required" : [ "bookCount", "id", "name" ]
       },
       "PageResponseAuthorResponse" : {
         "type" : "object",
@@ -1612,7 +1668,8 @@
             "type" : "integer",
             "format" : "int32"
           }
-        }
+        },
+        "required" : [ "content", "page", "size", "totalElements", "totalPages" ]
       }
     }
   }

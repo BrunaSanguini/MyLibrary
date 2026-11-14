@@ -76,6 +76,21 @@ export const ICONS = {
     strokeWidth: 1.5,
     paths: ['M8 3v10M3 8h10'],
   },
+  close: {
+    viewBox: '0 0 12 12',
+    strokeWidth: 1.5,
+    paths: ['M2.5 2.5l7 7M9.5 2.5l-7 7'],
+  },
+  star: {
+    viewBox: '0 0 16 16',
+    strokeWidth: 1.5,
+    paths: ['M8 2.2l1.8 3.7 4 .6-2.9 2.8.7 4L8 11.4l-3.6 1.9.7-4L2.2 6.5l4-.6z'],
+  },
+  upload: {
+    viewBox: '0 0 16 16',
+    strokeWidth: 1.5,
+    paths: ['M8 10.5V3M5 5.5 8 2.5l3 3M2.5 10v3h11v-3'],
+  },
   check: {
     viewBox: '0 0 14 14',
     strokeWidth: 1.7,

@@ -1,0 +1,164 @@
+@if (notFound()) {
+  <ml-empty-state
+    icon="search"
+    title="Livro não encontrado"
+    message="Este livro não está no seu acervo. Ele pode ter sido excluído."
+  >
+    <a mlButton="primary" routerLink="/estante">Ir para a Estante</a>
+  </ml-empty-state>
+} @else if (book.hasValue()) {
+  @let current = book.value();
+
+  @if (current.bannerUrl) {
+    <img class="banner" [src]="current.bannerUrl" alt="" />
+  }
+
+  <article class="book">
+    <ml-book-cover
+      class="cover"
+      size="lg"
+      [title]="current.title"
+      [author]="authorNames()"
+      [coverUrl]="current.coverUrl"
+    />
+
+    <div class="info">
+      <header>
+        <h1>{{ current.title }}</h1>
+        @if (current.subtitle) {
+          <p class="subtitle">{{ current.subtitle }}</p>
+        }
+        <p class="authors">
+          @for (author of current.authors; track author.id; let last = $last) {
+            <a [routerLink]="['/autores', author.id]">{{ author.name }}</a
+            >{{ last ? '' : ', ' }}
+          }
+        </p>
+      </header>
+
+      @if (failure()) {
+        <p class="failure" role="alert">{{ failure() }}</p>
+      }
+
+      <div class="states" role="group" aria-label="Este livro na minha estante">
+        <button
+          mlTag="state"
+          type="button"
+          [pressed]="current.ownership === 'OWNED'"
+          [attr.aria-pressed]="current.ownership === 'OWNED'"
+          (click)="toggleOwnership('OWNED')"
+        >
+          <ml-icon name="owned" [size]="15" />
+          Tenho este livro
+        </button>
+        <button
+          mlTag="state"
+          type="button"
+          [pressed]="current.ownership === 'WISHLIST'"
+          [attr.aria-pressed]="current.ownership === 'WISHLIST'"
+          (click)="toggleOwnership('WISHLIST')"
+        >
+          <ml-icon name="wishlist" [size]="15" />
+          Wishlist
+        </button>
+        <button
+          mlTag="state"
+          type="button"
+          [pressed]="current.favorite"
+          [attr.aria-pressed]="current.favorite"
+          (click)="toggleFavorite()"
+        >
+          <ml-icon name="star" [size]="15" />
+          Favorito
+        </button>
+      </div>
+
+      @if (current.genres.length > 0) {
+        <ul class="genres" aria-label="Gêneros">
+          @for (genre of current.genres; track genre.id) {
+            <li>
+              <a
+                [mlTag]="genre.parentId ? 'subgenre' : 'genre'"
+                [routerLink]="['/generos', genre.id]"
+                >{{ genre.name }}</a
+              >
+            </li>
+          }
+        </ul>
+      }
+
+      @if (current.series; as series) {
+        <section class="block" aria-labelledby="bloco-serie">
+          <h2 id="bloco-serie" class="block-label">
+            <ml-icon name="series" [size]="16" />
+            Série
+          </h2>
+          <a class="block-value" [routerLink]="['/series', series.id]">{{ series.name }}</a>
+          <p class="block-detail">{{ seriesPlace() }}</p>
+        </section>
+      }
+
+      @if (current.synopsis) {
+        <section aria-labelledby="titulo-sinopse">
+          <h2 id="titulo-sinopse" class="section-title">Sinopse</h2>
+          <p class="synopsis">{{ current.synopsis }}</p>
+        </section>
+      }
+
+      <section aria-labelledby="titulo-detalhes">
+        <h2 id="titulo-detalhes" class="section-title">Detalhes</h2>
+        <dl class="details">
+          @if (current.publisher; as publisher) {
+            <div>
+              <dt>Editora</dt>
+              <dd>
+                <a [routerLink]="['/editoras', publisher.id]">{{ publisher.name }}</a>
+              </dd>
+            </div>
+          }
+          @for (detail of details(); track detail.label) {
+            <div>
+              <dt>{{ detail.label }}</dt>
+              <dd>{{ detail.value }}</dd>
+            </div>
+          }
+        </dl>
+        @if (current.openLibrary?.url; as url) {
+          <a mlButton="link" [href]="url" target="_blank" rel="noopener noreferrer">
+            Ver na Open Library
+            <ml-icon name="arrow-right" [size]="16" />
+          </a>
+        }
+      </section>
+
+      <div class="actions">
+        <a mlButton="secondary" [routerLink]="['/livros', current.id, 'editar']">
+          <ml-icon name="edit" [size]="16" />
+          Editar informações
+        </a>
+        <button mlButton="icon" type="button" aria-label="Excluir livro" (click)="askToDelete()">
+          <ml-icon name="trash" [size]="18" />
+        </button>
+      </div>
+    </div>
+  </article>
+
+  <ml-confirm-dialog
+    title="Excluir este livro?"
+    [message]="'“' + current.title + '” sai do seu acervo. A capa e o banner vão para a lixeira.'"
+    confirmLabel="Excluir livro"
+    [busy]="deleting()"
+    (confirmed)="delete()"
+  />
+} @else if (book.error()) {
+  <ml-error-state [message]="errorMessage()" (retry)="book.reload()" />
+} @else {
+  <div class="book" aria-hidden="true">
+    <ml-skeleton variant="cover" width="372px" />
+    <div class="info">
+      <ml-skeleton width="70%" />
+      <ml-skeleton width="40%" />
+      <ml-skeleton variant="card" />
+    </div>
+  </div>
+}

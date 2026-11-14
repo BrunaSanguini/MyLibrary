@@ -30,3 +30,20 @@ export function toOneOf<T extends string>(
 ): (value: unknown) => T | undefined {
   return (value) => allowed.find((option) => option === value);
 }
+
+/**
+ * Positive integer id from the URL (a route parameter or a filter), or undefined. Anything else,
+ * such as `abc`, `0` or `-3`, is not an id the API could have issued.
+ */
+export function toId(value: unknown): number | undefined {
+  if (typeof value !== 'string' || !/^\d+$/.test(value)) {
+    return undefined;
+  }
+  const id = Number(value);
+  return Number.isSafeInteger(id) && id > 0 ? id : undefined;
+}
+
+/** Only "true" and "false" count; anything else leaves the filter off. */
+export function toFlag(value: unknown): boolean | undefined {
+  return value === 'true' ? true : value === 'false' ? false : undefined;
+}

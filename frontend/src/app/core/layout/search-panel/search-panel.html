@@ -1,0 +1,77 @@
+<button
+  #trigger
+  type="button"
+  class="trigger"
+  aria-label="Pesquisar no acervo"
+  aria-haspopup="dialog"
+  [attr.aria-expanded]="open()"
+  aria-controls="painel-de-busca"
+  (click)="toggle()"
+>
+  <ml-icon name="search" [size]="20" />
+</button>
+
+@if (open()) {
+  <div id="painel-de-busca" class="panel" role="dialog" aria-label="Pesquisar no acervo">
+    <div class="field-row">
+      <ml-icon class="field-icon" name="search" [size]="18" />
+      <input
+        #field
+        type="search"
+        class="field"
+        aria-label="Buscar por título ou autor"
+        placeholder="Buscar por título ou autor"
+        autocomplete="off"
+        [value]="term()"
+        (input)="onTyping($event)"
+        (keydown.arrowdown)="moveHighlight(1, $event)"
+        (keydown.enter)="submit()"
+      />
+    </div>
+
+    @if (searching()) {
+      <p class="hint" role="status">Procurando…</p>
+    } @else if (nothingFound()) {
+      <p class="hint" role="status">Nenhum livro encontrado.</p>
+    } @else if (books().length > 0) {
+      <ul class="results">
+        @for (book of books(); track book.id; let index = $index) {
+          <li>
+            <a
+              class="result"
+              [class.highlighted]="highlighted() === index"
+              [routerLink]="['/livros', book.id]"
+              (click)="close()"
+              (keydown.arrowdown)="moveHighlight(1, $event)"
+              (keydown.arrowup)="moveHighlight(-1, $event)"
+            >
+              <ml-book-cover
+                class="result-cover"
+                aria-hidden="true"
+                size="xs"
+                [title]="book.title"
+                [coverUrl]="book.coverUrl"
+              />
+              <span class="result-text">
+                <span class="result-title">{{ book.title }}</span>
+                <span class="result-authors">{{ book.authors.join(', ') }}</span>
+              </span>
+            </a>
+          </li>
+        }
+      </ul>
+
+      <a
+        class="see-all"
+        [routerLink]="['/estante']"
+        [queryParams]="{ q: term() }"
+        (click)="close()"
+      >
+        Ver todos na Estante
+        <ml-icon name="arrow-right" [size]="16" />
+      </a>
+    } @else {
+      <p class="hint">Digite ao menos duas letras.</p>
+    }
+  </div>
+}

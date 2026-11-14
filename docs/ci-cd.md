@@ -33,7 +33,7 @@ Compara as dependências do PR com as da `main` e falha se o PR introduzir uma d
 |---|---|---|
 | `backend` | Ubuntu | `./mvnw -B verify -Pskip-frontend -Pci`: Spotless check, NullAway, testes `*Test` e `*IT`, JaCoCo com gate de 80% e o snapshot do `openapi.json` |
 | `frontend` | Ubuntu | `npm ci`, geração dos tipos da API, ESLint, Prettier check, Stylelint, build com budgets e Vitest (jsdom e modo navegador no Chromium) |
-| `e2e` | Ubuntu | depois de `backend` e `frontend`: gera o jar completo, sobe o WireMock da Open Library e roda o Playwright no Chromium e no Firefox, com axe. Se falhar, publica relatório e traces como artefato |
+| `e2e` | Ubuntu | depois de `backend` e `frontend`: gera o jar completo, sobe o WireMock da Open Library e roda o Playwright no Chromium, com axe. Se falhar, publica relatório e traces como artefato |
 | `sonar` | Ubuntu | depois de `backend` e `frontend`, quando algum deles rodou: envia código e cobertura (JaCoCo XML e lcov) ao SonarQube Cloud e espera o resultado do quality gate (`sonar.qualitygate.wait=true`). Gate reprovado falha o job |
 | `ci` | Ubuntu | roda sempre, por último (`if: always()`). Falha se algum job anterior falhou ou foi cancelado; jobs pulados contam como aprovados |
 

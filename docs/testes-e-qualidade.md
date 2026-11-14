@@ -190,7 +190,7 @@ Os testes de resiliência usam WireMock para simular lentidão, erro 5xx e 429. 
 | Unitário | funções puras (`query-params`, ISBN, rótulos, resolução do tema), stores e interceptors | Vitest (jsdom) + `HttpTestingController` |
 | Componente de UI | `input`/`output`, estados, teclado e ARIA dos componentes de `shared/ui` | Vitest em modo navegador (Chromium via Playwright) + Testing Library |
 | Página | página + `httpResource` com respostas simuladas: carregando, vazio, erro, filtros na URL | Vitest + Testing Library + `HttpTestingController` |
-| E2E | jornadas completas no app real | Playwright no Chromium e no Firefox |
+| E2E | jornadas completas no app real | Playwright no Chromium |
 | Acessibilidade | qualquer violação WCAG 2.1 AA (de qualquer gravidade) em todas as páginas, nos dois temas | `@axe-core/playwright` nos E2E |
 
 - **Modo navegador nos componentes de UI:** o jsdom não implementa `<dialog>` nem a Popover API, que esses componentes usam.

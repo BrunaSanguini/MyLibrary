@@ -21,11 +21,11 @@ async function renderCard(book: BookCardData, compact = false) {
 }
 
 describe('BookCard', () => {
-  it('is a single link to the book, named once', async () => {
+  it('is a single link to the book, named by what it shows', async () => {
     await renderCard(FELLOWSHIP);
 
     const link = screen.getByRole('link', {
-      name: 'A Sociedade do Anel, J. R. R. Tolkien, nota 5',
+      name: 'A Sociedade do Anel J. R. R. Tolkien Nota 5 de 5 576 páginas',
     });
     expect(link).toHaveAttribute('href', '/livros/42');
   });
@@ -71,7 +71,7 @@ describe('BookCard', () => {
     await renderCard({ ...FELLOWSHIP, rating: undefined });
 
     expect(
-      screen.getByRole('link', { name: 'A Sociedade do Anel, J. R. R. Tolkien' }),
+      screen.getByRole('link', { name: 'A Sociedade do Anel J. R. R. Tolkien 576 páginas' }),
     ).toBeInTheDocument();
   });
 
@@ -87,6 +87,8 @@ describe('BookCard', () => {
     const { container } = await renderCard(FELLOWSHIP);
 
     expect(container.querySelector('.placeholder')).toBeInTheDocument();
+    // Decorative inside the card: the title next to it already names the link.
+    expect(container.querySelector('ml-book-cover')).toHaveAttribute('aria-hidden', 'true');
     expect(container.querySelector('img')).toBeNull();
   });
 });

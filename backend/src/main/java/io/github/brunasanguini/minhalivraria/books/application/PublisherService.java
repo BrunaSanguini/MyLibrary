@@ -6,6 +6,8 @@ import io.github.brunasanguini.minhalivraria.shared.error.ConflictException;
 import io.github.brunasanguini.minhalivraria.shared.error.NotFoundException;
 import io.github.brunasanguini.minhalivraria.shared.text.TextNormalizer;
 import io.github.brunasanguini.minhalivraria.shared.web.PageResponse;
+import java.util.List;
+import java.util.Map;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,9 +20,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class PublisherService {
 
     private final PublisherRepository publishers;
+    private final CatalogStats stats;
 
-    PublisherService(PublisherRepository publishers) {
+    PublisherService(PublisherRepository publishers, CatalogStats stats) {
         this.publishers = publishers;
+        this.stats = stats;
     }
 
     public PageResponse<PublisherResponse> search(@Nullable String q, Pageable pageable) {
@@ -28,11 +32,13 @@ public class PublisherService {
         Page<Publisher> page = term.isEmpty()
                 ? publishers.findAll(pageable)
                 : publishers.findByNormalizedNameContaining(term, pageable);
-        return PageResponse.of(page, PublisherService::toResponse);
+        Map<Long, CatalogStats.Stats> byPublisher =
+                stats.ofPublishers(page.map(Publisher::id).getContent());
+        return PageResponse.of(page, publisher -> toResponse(publisher, byPublisher));
     }
 
     public PublisherResponse get(long id) {
-        return toResponse(find(id));
+        return toResponse(find(id), stats.ofPublishers(List.of(id)));
     }
 
     @Transactional
@@ -65,5 +71,10 @@ public class PublisherService {
 
     private static PublisherResponse toResponse(Publisher publisher) {
         return new PublisherResponse(publisher.id(), publisher.name());
+    }
+
+    private static PublisherResponse toResponse(Publisher publisher, Map<Long, CatalogStats.Stats> stats) {
+        CatalogStats.Stats found = stats.getOrDefault(publisher.id(), CatalogStats.Stats.NONE);
+        return new PublisherResponse(publisher.id(), publisher.name(), found.bookCount(), found.coverUrls());
     }
 }

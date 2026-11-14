@@ -1,0 +1,37 @@
+/* Confirmation modal on the native dialog element. */
+
+.dialog {
+  width: min(440px, calc(100vw - var(--ml-space-32)));
+  padding: var(--ml-space-32);
+  border: 1px solid var(--ml-color-line);
+  border-radius: var(--ml-radius-lg);
+  background: var(--ml-color-surface);
+  box-shadow: var(--ml-shadow-soft);
+  color: var(--ml-color-ink);
+}
+
+.dialog::backdrop {
+  background: var(--ml-color-backdrop);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--ml-font-display);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.message {
+  margin: var(--ml-space-12) 0 0;
+  color: var(--ml-color-muted);
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--ml-space-12);
+  margin-top: var(--ml-space-24);
+}

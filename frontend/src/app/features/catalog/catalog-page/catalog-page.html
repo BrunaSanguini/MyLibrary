@@ -1,0 +1,90 @@
+<header class="head">
+  <p class="eyebrow">Meu acervo</p>
+  <h1>Catálogos</h1>
+</header>
+
+<nav class="tabs" aria-label="Tipos de catálogo">
+  <ul>
+    @for (tab of tabs; track tab.kind) {
+      <li>
+        <a
+          routerLink="/catalogos"
+          [queryParams]="{ tipo: tab.tab }"
+          [class.active]="tab.kind === tipo()"
+          [attr.aria-current]="tab.kind === tipo() ? 'page' : null"
+          >{{ tab.plural }}</a
+        >
+      </li>
+    }
+  </ul>
+</nav>
+
+<section [attr.aria-label]="group().plural">
+  @if (errorMessage()) {
+    <ml-error-state [message]="errorMessage()" (retry)="retry()" />
+  } @else if (loading()) {
+    <ul class="entries" aria-hidden="true">
+      @for (placeholder of placeholders; track placeholder) {
+        <li><ml-skeleton variant="card" /></li>
+      }
+    </ul>
+  } @else if (tipo() === 'genres') {
+    @if (genres.value()!.length === 0) {
+      <ml-empty-state
+        title="Nenhum gênero cadastrado"
+        message="Os gêneros aparecem aqui quando você os cria no cadastro de um livro."
+      />
+    } @else {
+      <ul class="entries">
+        @for (genre of genres.value(); track genre.id) {
+          <li class="entry genre-entry">
+            <a class="entry-name" [routerLink]="['/generos', genre.id]">{{ genre.name }}</a>
+            <p class="entry-count">{{ countOf(genre.bookCount) }}</p>
+            @if (genre.subgenres.length > 0) {
+              <ul class="subgenres" [attr.aria-label]="'Subgêneros de ' + genre.name">
+                @for (subgenre of genre.subgenres; track subgenre.id) {
+                  <li>
+                    <a mlTag="subgenre" [routerLink]="['/generos', subgenre.id]">
+                      {{ subgenre.name }} · {{ subgenre.bookCount }}
+                    </a>
+                  </li>
+                }
+              </ul>
+            }
+          </li>
+        }
+      </ul>
+    }
+  } @else if (entries.value()!.content.length === 0) {
+    <ml-empty-state
+      [title]="'Nada em ' + group().plural.toLowerCase() + ' ainda'"
+      message="Os registros aparecem aqui conforme você cadastra livros."
+    />
+  } @else {
+    <ul class="entries">
+      @for (entry of entries.value()!.content; track entry.id) {
+        <li class="entry">
+          <div class="entry-text">
+            <a class="entry-name" [routerLink]="[group().path, entry.id]">{{ entry.name }}</a>
+            <p class="entry-count">{{ countOf(entry.bookCount) }}</p>
+          </div>
+          @if (entry.coverUrls.length > 0) {
+            <div class="covers" aria-hidden="true">
+              @for (cover of entry.coverUrls; track cover) {
+                <ml-book-cover size="xs" [title]="entry.name" [coverUrl]="cover" />
+              }
+            </div>
+          }
+        </li>
+      }
+    </ul>
+
+    @if (entries.value()!.totalPages > 1) {
+      <ml-paginator
+        [page]="entries.value()!.page"
+        [totalPages]="entries.value()!.totalPages"
+        (pageChange)="changePage($event)"
+      />
+    }
+  }
+</section>

@@ -1,0 +1,50 @@
+<label class="label" [for]="inputId">{{ label() }}</label>
+
+<div class="field">
+  <input
+    ngCombobox
+    #combobox="ngCombobox"
+    class="input"
+    type="text"
+    autocomplete="off"
+    [id]="inputId"
+    [placeholder]="placeholder()"
+    [attr.aria-invalid]="invalid() ? 'true' : null"
+    [attr.aria-describedby]="describedBy() ?? null"
+    [(value)]="term"
+    [(expanded)]="expanded"
+  />
+
+  <ng-template ngComboboxPopup [combobox]="combobox">
+    <div
+      ngComboboxWidget
+      ngListbox
+      #listbox="ngListbox"
+      class="options"
+      focusMode="activedescendant"
+      selectionMode="explicit"
+      [attr.aria-label]="label()"
+      [activeDescendant]="listbox.activeDescendant()"
+      [(value)]="selection"
+    >
+      @for (entry of options(); track entry.id) {
+        <div ngOption class="option" [value]="entry.id" [label]="entry.name">{{ entry.name }}</div>
+      }
+      @if (canCreate()) {
+        <div ngOption class="option create" [value]="createId" [label]="term()">
+          Criar “{{ term().trim() }}”
+        </div>
+      }
+      @if (options().length === 0 && !canCreate()) {
+        <p class="empty">Digite um nome para buscar ou criar.</p>
+      }
+    </div>
+  </ng-template>
+</div>
+
+@if (creating()) {
+  <p class="status" role="status">Criando…</p>
+}
+@if (failure()) {
+  <p class="failure" role="alert">{{ failure() }}</p>
+}

@@ -1,0 +1,115 @@
+/* Minha Estante: header, filters and the list of cards. */
+
+:host {
+  display: block;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: var(--ml-space-40) var(--ml-space-32) var(--ml-space-56);
+}
+
+.head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  margin-bottom: var(--ml-space-32);
+}
+
+.head > :not(.add) {
+  grid-column: 1;
+}
+
+.add {
+  grid-row: 1 / span 3;
+  grid-column: 2;
+}
+
+.eyebrow {
+  margin: 0 0 var(--ml-space-8);
+  color: var(--ml-color-accent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-family: var(--ml-font-display);
+  font-size: 54px;
+  font-weight: 600;
+  line-height: 1.02;
+}
+
+.count {
+  margin: var(--ml-space-8) 0 0;
+  color: var(--ml-color-muted);
+  font-size: 15px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ml-space-16);
+  margin-bottom: var(--ml-space-24);
+}
+
+fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ml-space-8);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+legend {
+  float: left;
+  margin-right: var(--ml-space-12);
+  padding: 0;
+  color: var(--ml-color-muted);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 36px;
+}
+
+.sort {
+  display: flex;
+  align-items: center;
+  gap: var(--ml-space-8);
+  color: var(--ml-color-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+select {
+  min-height: 36px;
+  padding: 0 var(--ml-space-12);
+  border: 1.5px solid var(--ml-color-line);
+  border-radius: var(--ml-radius-pill);
+  background: var(--ml-color-surface);
+  color: var(--ml-color-ink);
+  font-family: var(--ml-font-body);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+select:focus-visible {
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 2px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ml-space-16);
+  margin: 0 0 var(--ml-space-40);
+  padding: 0;
+  list-style: none;
+}
+
+ml-paginator {
+  margin-top: var(--ml-space-32);
+}

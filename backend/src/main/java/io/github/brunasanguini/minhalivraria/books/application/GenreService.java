@@ -21,18 +21,24 @@ import org.springframework.transaction.annotation.Transactional;
 public class GenreService {
 
     private final GenreRepository genres;
+    private final CatalogStats stats;
 
-    GenreService(GenreRepository genres) {
+    GenreService(GenreRepository genres, CatalogStats stats) {
         this.genres = genres;
+        this.stats = stats;
     }
 
     /** Genres with their subgenres, both in name order. */
     public List<GenreTreeResponse> tree() {
         Map<Long, GenreTreeResponse> roots = new LinkedHashMap<>();
         List<Genre> all = genres.findAllWithParent();
+        Map<Long, Long> counts = stats.bookCountsByGenre();
         for (Genre genre : all) {
             if (!genre.isSubgenre()) {
-                roots.put(genre.id(), new GenreTreeResponse(genre.id(), genre.name(), new ArrayList<>()));
+                roots.put(
+                        genre.id(),
+                        new GenreTreeResponse(
+                                genre.id(), genre.name(), counts.getOrDefault(genre.id(), 0L), new ArrayList<>()));
             }
         }
         for (Genre genre : all) {
@@ -40,11 +46,13 @@ public class GenreService {
             if (parentId != null) {
                 Objects.requireNonNull(roots.get(parentId))
                         .subgenres()
-                        .add(new GenreTreeResponse.Subgenre(genre.id(), genre.name()));
+                        .add(new GenreTreeResponse.Subgenre(
+                                genre.id(), genre.name(), counts.getOrDefault(genre.id(), 0L)));
             }
         }
         return roots.values().stream()
-                .map(root -> new GenreTreeResponse(root.id(), root.name(), List.copyOf(root.subgenres())))
+                .map(root ->
+                        new GenreTreeResponse(root.id(), root.name(), root.bookCount(), List.copyOf(root.subgenres())))
                 .toList();
     }
 
