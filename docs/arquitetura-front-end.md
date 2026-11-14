@@ -182,7 +182,7 @@ A página da rota usa `export default`, porque é assim que o `loadComponent` da
     (pageChange)="changePage($event)"
   />
 } @else if (books.error()) {
-  <ml-error-state [error]="books.error()" (retry)="books.reload()" />
+  <ml-error-state [message]="errorMessage()" (retry)="books.reload()" />
 } @else {
   <ml-book-grid-skeleton />
 }
@@ -277,7 +277,7 @@ export const problemDetailsInterceptor: HttpInterceptorFn = (request, next) =>
   next(request).pipe(catchError((error: unknown) => throwError(() => ApiError.from(error))));
 ```
 
-O `ApiError` expõe `status`, `code`, `detail` e `fieldErrors`. Cada tela trata os códigos que conhece, por exemplo `review.not-found` vira "sem resenha". O componente `ml-error-state` exibe o `detail` dos demais.
+O `ApiError` expõe `status`, `code`, `detail` e `fieldErrors`. Cada tela trata os códigos que conhece, por exemplo `review.not-found` vira "sem resenha". O componente `ml-error-state` exibe o `detail` dos demais: a tela extrai o texto com `ApiError.from(erro).detail` e passa como `message`, porque `shared/ui` não pode importar de `core` e por isso não conhece o `ApiError`.
 
 Quando a resposta não é Problem Details, o próprio front cria o código:
 
