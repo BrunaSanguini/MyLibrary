@@ -11,10 +11,25 @@
   max-width: var(--ml-content-width);
   margin: 0 auto;
   padding: 10px 12px 10px 24px;
+  position: relative;
   border: 1px solid var(--ml-color-line);
   border-radius: var(--ml-radius-pill);
-  background: var(--ml-color-glass);
   box-shadow: var(--ml-shadow-soft);
+  isolation: isolate;
+}
+
+/*
+ * The glass is a layer behind the content, not a filter on the bar itself. With backdrop-filter on
+ * the bar, the search panel and the genre menu would open inside the filtered subtree, and Firefox
+ * crashed the page when the accessibility check ran over them (E2E, both themes).
+ */
+.bar::before {
+  position: absolute;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--ml-color-glass);
+  content: '';
+  inset: 0;
   backdrop-filter: blur(14px) saturate(1.2);
 }
 
