@@ -9,8 +9,13 @@ import { describe, expect, it } from 'vitest';
 import { GenreMenu } from './genre-menu';
 
 const TREE = [
-  { id: 1, name: 'Fantasia', subgenres: [{ id: 2, name: 'Alta fantasia' }] },
-  { id: 3, name: 'Ficção científica', subgenres: [] },
+  {
+    id: 1,
+    name: 'Fantasia',
+    bookCount: 2,
+    subgenres: [{ id: 2, name: 'Alta fantasia', bookCount: 1 }],
+  },
+  { id: 3, name: 'Ficção científica', bookCount: 1, subgenres: [] },
 ];
 
 async function renderMenu() {
@@ -56,18 +61,15 @@ describe('GenreMenu', () => {
     expect(screen.getByRole('link', { name: 'Fantasia' })).toBeInTheDocument();
   });
 
-  it('lists each genre with its subgenres, linking to the filtered shelf', async () => {
+  it('lists each genre with its subgenres, linking to the page of each one', async () => {
     const { http, fixture } = await renderMenu();
     await userEvent.click(screen.getByRole('button', { name: /Gêneros/ }));
     await answerTree(http, fixture);
 
-    expect(screen.getByRole('link', { name: 'Fantasia' })).toHaveAttribute(
-      'href',
-      '/estante?genreId=1',
-    );
+    expect(screen.getByRole('link', { name: 'Fantasia' })).toHaveAttribute('href', '/generos/1');
     expect(screen.getByRole('link', { name: 'Alta fantasia' })).toHaveAttribute(
       'href',
-      '/estante?genreId=2',
+      '/generos/2',
     );
     expect(screen.getByRole('link', { name: 'Ficção científica' })).toBeInTheDocument();
   });

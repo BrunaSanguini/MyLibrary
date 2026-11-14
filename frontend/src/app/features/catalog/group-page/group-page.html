@@ -1,0 +1,51 @@
+@if (notFound()) {
+  <ml-empty-state
+    icon="search"
+    [title]="group().singular + ' não encontrado no acervo'"
+    message="O endereço pode estar errado, ou o registro foi excluído."
+  >
+    <a mlButton="primary" routerLink="/catalogos" [queryParams]="{ tipo: group().tab }">
+      Ver {{ group().plural.toLowerCase() }}
+    </a>
+  </ml-empty-state>
+} @else if (failed()) {
+  <ml-error-state [message]="errorMessage()" (retry)="retry()" />
+} @else {
+  <header class="head">
+    <p class="eyebrow">{{ group().singular }}</p>
+    <h1>{{ name() ?? '…' }}</h1>
+    @if (books.hasValue()) {
+      <p class="count">
+        {{ books.value().totalElements }}
+        {{ books.value().totalElements === 1 ? 'livro' : 'livros' }}
+      </p>
+    }
+  </header>
+
+  @if (books.hasValue()) {
+    @if (cards().length > 0) {
+      <ul class="grid">
+        @for (card of cards(); track card.id) {
+          <li><ml-book-card [book]="card" /></li>
+        }
+      </ul>
+
+      @if (books.value().totalPages > 1) {
+        <ml-paginator
+          [page]="books.value().page"
+          [totalPages]="books.value().totalPages"
+          (pageChange)="changePage($event)"
+        />
+      }
+    } @else {
+      <ml-empty-state
+        title="Nenhum livro aqui ainda"
+        message="Quando um livro for ligado a este registro, ele aparece nesta página."
+      >
+        <a mlButton="secondary" routerLink="/estante">Ir para a Estante</a>
+      </ml-empty-state>
+    }
+  } @else {
+    <ml-book-grid-skeleton />
+  }
+}

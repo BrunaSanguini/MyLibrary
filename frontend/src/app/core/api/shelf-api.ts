@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpResourceRequest } from '@angular/common/http';
 
+import { BookCardData } from '@shared/ui/book-card/book-card';
+
 import { components } from './schema';
 
 export type BookCardResponse = components['schemas']['BookCardResponse'];
@@ -48,4 +50,16 @@ function paramsOf(filter: ShelfFilter): Record<string, string | number | boolean
     }
   }
   return params;
+}
+
+/** The card as the shared component draws it, from the card the API sends. */
+export function toBookCard(book: BookCardResponse): BookCardData {
+  return {
+    id: book.id,
+    title: book.title,
+    authors: book.authors,
+    coverUrl: book.coverUrl,
+    seriesName: book.series?.name,
+    seriesPosition: book.series?.position,
+  };
 }

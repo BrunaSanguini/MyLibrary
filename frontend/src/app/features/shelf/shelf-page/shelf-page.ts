@@ -10,6 +10,7 @@ import {
   ShelfFilter,
   ShelfPage as ShelfPageResponse,
   ShelfSort,
+  toBookCard,
 } from '@core/api/shelf-api';
 import { toFlag, toId, toOneOf, toPageIndex, toSearchTerm } from '@core/api/query-params';
 import { BookCard, BookCardData } from '@shared/ui/book-card/book-card';
@@ -20,7 +21,7 @@ import { Icon } from '@shared/ui/icon/icon';
 import { Paginator } from '@shared/ui/paginator/paginator';
 import { Tag } from '@shared/ui/tag/tag';
 
-import { BookGridSkeleton } from '../book-grid-skeleton/book-grid-skeleton';
+import { BookGridSkeleton } from '@shared/ui/book-grid-skeleton/book-grid-skeleton';
 
 const toOwnership = toOneOf(OWNERSHIPS);
 const toSort = toOneOf(SHELF_SORTS);
@@ -79,14 +80,7 @@ export default class ShelfPage {
   );
 
   protected readonly cards = computed<readonly BookCardData[]>(() =>
-    (this.books.value()?.content ?? []).map((book) => ({
-      id: book.id,
-      title: book.title,
-      authors: book.authors,
-      coverUrl: book.coverUrl,
-      seriesName: book.series?.name,
-      seriesPosition: book.series?.position,
-    })),
+    (this.books.value()?.content ?? []).map(toBookCard),
   );
 
   /** True once any filter narrows the shelf, which changes what the empty state should say. */

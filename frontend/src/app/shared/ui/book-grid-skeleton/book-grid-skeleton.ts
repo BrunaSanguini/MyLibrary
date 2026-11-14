@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { Skeleton } from '@shared/ui/skeleton/skeleton';
+import { Skeleton } from '../skeleton/skeleton';
 
 /** Placeholder of the shelf while the page loads, with one card outline per book. */
 @Component({
