@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/BrunaSanguini/MyLibrary/compare/v0.5.0...v0.6.0) (2026-11-14)
+
+
+### Funcionalidades
+
+* **frontend:** adiciona estante, busca e menu de gêneros ([#57](https://github.com/BrunaSanguini/MyLibrary/issues/57)) ([65d1718](https://github.com/BrunaSanguini/MyLibrary/commit/65d1718afab929a7b8cdb0ce1138f470d38d1df6))
+
 ## [0.5.0](https://github.com/BrunaSanguini/MyLibrary/compare/v0.4.0...v0.5.0) (2026-11-11)
 
 
