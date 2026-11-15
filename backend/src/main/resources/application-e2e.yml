@@ -1,7 +1,13 @@
 # Profile of the E2E tests (frontend/playwright.config.ts), run against the real jar.
 # Playwright passes a new temporary --app.data-dir on every run; this fallback also stays out of
-# the user's folder. The sample collection (SampleCatalog) loads here and in dev; the Open Library WireMock
-# joins the profile with its feature.
+# the user's folder. The sample collection (SampleCatalog) loads here and in dev. The Open Library is a
+# WireMock that Playwright starts with the stubs of frontend/e2e/open-library, so no E2E test reaches
+# the internet.
 app:
   data-dir: ${java.io.tmpdir}/minha-livraria-e2e
+  open-library:
+    base-url: http://127.0.0.1:8472
+    covers-url: http://127.0.0.1:8472
+    contact: e2e@example.invalid
+    read-timeout: 1s
 

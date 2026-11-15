@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.brunasanguini.minhalivraria.shared.config.AppProperties;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
@@ -84,6 +85,12 @@ class DatabaseBackupTest {
     private DatabaseBackup backupAt(DataSource database, String instant, int keep) {
         AppProperties properties = new AppProperties(
                 dataDir,
+                new AppProperties.OpenLibrary(
+                        URI.create("https://openlibrary.org"),
+                        URI.create("https://covers.openlibrary.org"),
+                        null,
+                        Duration.ofSeconds(3),
+                        Duration.ofSeconds(10)),
                 new AppProperties.Images(DataSize.ofMegabytes(5), Duration.ofDays(30)),
                 new AppProperties.Backup(keep),
                 null);

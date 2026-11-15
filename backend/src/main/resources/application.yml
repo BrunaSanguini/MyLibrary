@@ -44,6 +44,13 @@ springdoc:
 app:
   data-dir: ${user.home}/.minha-livraria
   shutdown-token: ${MINHA_LIVRARIA_SHUTDOWN_TOKEN:}
+  open-library:
+    base-url: https://openlibrary.org
+    covers-url: https://covers.openlibrary.org
+    # Stays empty here: the contact is personal and comes from the local config.yml (ADR-0004).
+    contact: ""
+    connect-timeout: 3s
+    read-timeout: 10s
   images:
     max-size: 5MB
     trash-retention: 30d

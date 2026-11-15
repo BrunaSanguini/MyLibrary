@@ -90,6 +90,33 @@ class ApiExceptionHandlerTest {
     }
 
     @Test
+    void shouldAnswerBadGatewayExceptionsWith502() {
+        assertThat(mvc.get().uri(BASE + "/bad-gateway"))
+                .hasStatus(HttpStatus.BAD_GATEWAY)
+                .bodyJson()
+                .extractingPath("$.code")
+                .isEqualTo("openlibrary.bad-response");
+    }
+
+    @Test
+    void shouldAnswerServiceUnavailableExceptionsWith503() {
+        assertThat(mvc.get().uri(BASE + "/unavailable"))
+                .hasStatus(HttpStatus.SERVICE_UNAVAILABLE)
+                .bodyJson()
+                .extractingPath("$.detail")
+                .isEqualTo("Sem conexão com a Open Library. O cadastro manual continua disponível.");
+    }
+
+    @Test
+    void shouldAnswerGatewayTimeoutExceptionsWith504() {
+        assertThat(mvc.get().uri(BASE + "/timeout"))
+                .hasStatus(HttpStatus.GATEWAY_TIMEOUT)
+                .bodyJson()
+                .extractingPath("$.code")
+                .isEqualTo("openlibrary.timeout");
+    }
+
+    @Test
     void shouldAnswerUnsupportedMediaTypeExceptionsWith415() {
         assertThat(mvc.get().uri(BASE + "/unsupported"))
                 .hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
@@ -179,6 +206,21 @@ class ApiExceptionHandlerTest {
         @GetMapping("/unsupported")
         void unsupported() {
             throw new UnsupportedMediaTypeException("image.invalid-type");
+        }
+
+        @GetMapping("/bad-gateway")
+        void badGateway() {
+            throw new BadGatewayException("openlibrary.bad-response");
+        }
+
+        @GetMapping("/unavailable")
+        void unavailable() {
+            throw new ServiceUnavailableException("openlibrary.unavailable");
+        }
+
+        @GetMapping("/timeout")
+        void timeout() {
+            throw new GatewayTimeoutException("openlibrary.timeout");
         }
 
         @GetMapping("/unexpected")

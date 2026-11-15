@@ -8,3 +8,11 @@ springdoc:
 
 app:
   data-dir: ${java.io.tmpdir}/minha-livraria-test
+  open-library:
+    # No test reaches the real Open Library: nothing listens on this port. Tests that need answers
+    # point these addresses at a WireMock.
+    base-url: http://127.0.0.1:9
+    covers-url: http://127.0.0.1:9
+    contact: tests@example.invalid
+    connect-timeout: 1s
+    read-timeout: 400ms

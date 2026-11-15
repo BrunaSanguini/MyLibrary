@@ -43,6 +43,9 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
             case BusinessRuleException ignored -> HttpStatus.UNPROCESSABLE_CONTENT;
             case PayloadTooLargeException ignored -> HttpStatus.CONTENT_TOO_LARGE;
             case UnsupportedMediaTypeException ignored -> HttpStatus.UNSUPPORTED_MEDIA_TYPE;
+            case BadGatewayException ignored -> HttpStatus.BAD_GATEWAY;
+            case ServiceUnavailableException ignored -> HttpStatus.SERVICE_UNAVAILABLE;
+            case GatewayTimeoutException ignored -> HttpStatus.GATEWAY_TIMEOUT;
         };
         ProblemDetail problem = problem(status, exception.code(), exception.args(), request);
         exception.extensions().forEach(problem::setProperty);
