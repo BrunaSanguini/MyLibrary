@@ -1,0 +1,46 @@
+{
+  "numFound": 2,
+  "start": 0,
+  "numFoundExact": true,
+  "docs": [
+    {
+      "author_name": ["J.R.R. Tolkien"],
+      "cover_edition_key": "OL7604539M",
+      "cover_i": 14826646,
+      "first_publish_year": 1937,
+      "key": "/works/OL27482W",
+      "title": "The Hobbit",
+      "editions": {
+        "numFound": 320,
+        "start": 0,
+        "numFoundExact": true,
+        "docs": [
+          {
+            "key": "/books/OL29823759M",
+            "title": "O Hobbit",
+            "cover_i": 14826646,
+            "publish_date": ["2019-07-15"]
+          }
+        ]
+      }
+    },
+    {
+      "author_name": ["J.R.R. Tolkien"],
+      "first_publish_year": 1937,
+      "key": "/works/OL27482W",
+      "title": "The Hobbit",
+      "editions": {
+        "numFound": 320,
+        "start": 0,
+        "numFoundExact": true,
+        "docs": [
+          {
+            "key": "/books/OL7604539M",
+            "title": "The Hobbit",
+            "publish_date": ["1 Deccember 2021"]
+          }
+        ]
+      }
+    }
+  ]
+}

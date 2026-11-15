@@ -11,6 +11,12 @@ const APP_URL = 'http://127.0.0.1:8471';
 const externalApp = process.env['E2E_BASE_URL'];
 const jar = path.resolve(__dirname, '../backend/target/minha-livraria.jar');
 
+// The Open Library of the E2E: a WireMock with the stubs of e2e/open-library, on the port the e2e
+// profile of the back-end points to. Its jar is copied to target/ by the back-end build.
+const OPEN_LIBRARY_PORT = 8472;
+const wiremockJar = path.resolve(__dirname, '../backend/target/wiremock-standalone.jar');
+const openLibraryStubs = path.resolve(__dirname, 'e2e/open-library');
+
 function temporaryDataDir(): string {
   return mkdtempSync(path.join(tmpdir(), 'minha-livraria-e2e-'));
 }
@@ -35,12 +41,22 @@ export default defineConfig({
   ],
   webServer: externalApp
     ? undefined
-    : {
-        command: `java -jar "${jar}" --spring.profiles.active=e2e --app.data-dir="${temporaryDataDir()}"`,
-        url: `${APP_URL}/actuator/health/readiness`,
-        timeout: 120_000,
-        reuseExistingServer: false,
-        stdout: 'ignore',
-        stderr: 'pipe',
-      },
+    : [
+        {
+          command: `java -jar "${wiremockJar}" --port ${OPEN_LIBRARY_PORT} --bind-address 127.0.0.1 --root-dir "${openLibraryStubs}" --disable-banner`,
+          url: `http://127.0.0.1:${OPEN_LIBRARY_PORT}/__admin/health`,
+          timeout: 60_000,
+          reuseExistingServer: false,
+          stdout: 'ignore',
+          stderr: 'pipe',
+        },
+        {
+          command: `java -jar "${jar}" --spring.profiles.active=e2e --app.data-dir="${temporaryDataDir()}"`,
+          url: `${APP_URL}/actuator/health/readiness`,
+          timeout: 120_000,
+          reuseExistingServer: false,
+          stdout: 'ignore',
+          stderr: 'pipe',
+        },
+      ],
 });

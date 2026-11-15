@@ -6,6 +6,12 @@
   <header class="head">
     <p class="eyebrow">{{ editing() ? 'Editar livro' : 'Novo livro' }}</p>
     <h1>{{ editing() ? book.value()?.title : 'Cadastrar livro' }}</h1>
+    @if (!editing()) {
+      <p class="lead">
+        Prefere trazer os dados prontos?
+        <a mlButton="link" routerLink="/livros/importar">Importar da Open Library</a>
+      </p>
+    }
   </header>
 
   <form class="form" novalidate (submit)="save($event)">

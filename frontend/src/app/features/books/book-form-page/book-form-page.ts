@@ -37,7 +37,7 @@ const IMAGE_LIMIT = 5 * 1024 * 1024;
   selector: 'ml-book-form-page',
   imports: [Button, EntityPicker, ErrorState, FormField, Icon, RouterLink, Skeleton],
   templateUrl: './book-form-page.html',
-  styleUrl: './book-form-page.css',
+  styleUrls: ['../book-fields.css', './book-form-page.css'],
 })
 export default class BookFormPage implements HasUnsavedChanges {
   /** Route parameter of `/livros/:id/editar`; absent on `/livros/novo`. */

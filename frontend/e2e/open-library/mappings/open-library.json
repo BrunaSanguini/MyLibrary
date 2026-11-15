@@ -1,0 +1,103 @@
+{
+  "mappings": [
+    {
+      "name": "search: hobbit",
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPath": "/search.json",
+        "queryParameters": { "q": { "equalTo": "hobbit", "caseInsensitive": true } }
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "bodyFileName": "search-hobbit.json"
+      }
+    },
+    {
+      "name": "search: the connection drops",
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPath": "/search.json",
+        "queryParameters": { "q": { "equalTo": "sem conexao", "caseInsensitive": true } }
+      },
+      "response": { "fault": "CONNECTION_RESET_BY_PEER" }
+    },
+    {
+      "name": "search: the answer takes longer than the application waits",
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPath": "/search.json",
+        "queryParameters": { "q": { "equalTo": "lenta", "caseInsensitive": true } }
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "bodyFileName": "search-empty.json",
+        "fixedDelayMilliseconds": 5000
+      }
+    },
+    {
+      "name": "search: anything else finds nothing",
+      "priority": 10,
+      "request": { "method": "GET", "urlPath": "/search.json" },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "bodyFileName": "search-empty.json"
+      }
+    },
+    {
+      "name": "isbn of O Hobbit redirects to its edition",
+      "request": { "method": "GET", "urlPath": "/isbn/9788595084742.json" },
+      "response": { "status": 302, "headers": { "Location": "/books/OL29823759M.json" } }
+    },
+    {
+      "name": "edition: O Hobbit",
+      "request": { "method": "GET", "urlPath": "/books/OL29823759M.json" },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "bodyFileName": "edition-OL29823759M.json"
+      }
+    },
+    {
+      "name": "edition: The Hobbit",
+      "request": { "method": "GET", "urlPath": "/books/OL7604539M.json" },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "bodyFileName": "edition-OL7604539M.json"
+      }
+    },
+    {
+      "name": "work: The Hobbit",
+      "request": { "method": "GET", "urlPath": "/works/OL27482W.json" },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "bodyFileName": "work-OL27482W.json"
+      }
+    },
+    {
+      "name": "author: J.R.R. Tolkien",
+      "request": { "method": "GET", "urlPath": "/authors/OL26320A.json" },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "bodyFileName": "author-OL26320A.json"
+      }
+    },
+    {
+      "name": "cover of O Hobbit, in the sizes the preview and the import use",
+      "request": { "method": "GET", "urlPathPattern": "/b/id/14826646-[ML]\\.jpg" },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "image/jpeg" },
+        "bodyFileName": "cover.jpg"
+      }
+    }
+  ]
+}

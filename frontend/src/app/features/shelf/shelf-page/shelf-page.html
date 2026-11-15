@@ -7,10 +7,13 @@
       {{ books.value().totalElements === 1 ? 'livro' : 'livros' }}
     </p>
   }
-  <a class="add" mlButton="primary" routerLink="/livros/novo">
-    <ml-icon name="plus" [size]="16" />
-    Adicionar livro
-  </a>
+  <div class="add">
+    <a mlButton="secondary" routerLink="/livros/importar">Importar livro</a>
+    <a mlButton="primary" routerLink="/livros/novo">
+      <ml-icon name="plus" [size]="16" />
+      Adicionar livro
+    </a>
+  </div>
 </header>
 
 <div class="filters">
@@ -81,9 +84,10 @@
   } @else {
     <ml-empty-state
       title="Sua estante está vazia"
-      message="Cadastre o primeiro livro e ele aparece aqui."
+      message="Cadastre ou importe o primeiro livro e ele aparece aqui."
     >
       <a mlButton="primary" routerLink="/livros/novo">Adicionar livro</a>
+      <a mlButton="link" routerLink="/livros/importar">Importar da Open Library</a>
     </ml-empty-state>
   }
 } @else if (books.error()) {

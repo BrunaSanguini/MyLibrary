@@ -323,20 +323,26 @@ interface OpenLibraryApi {
     SearchResponse search(
             @RequestParam("q") String query,
             @RequestParam("fields") String fields,
+            @RequestParam("lang") String language,
             @RequestParam("limit") int limit);
 
     @GetExchange("/isbn/{isbn}.json")
-    EditionResponse findEdition(@PathVariable String isbn);
+    EditionResponse findEditionByIsbn(@PathVariable("isbn") String isbn);
+
+    @GetExchange("/books/{editionId}.json")
+    EditionResponse findEdition(@PathVariable("editionId") String editionId);
 
     @GetExchange("/works/{workId}.json")
-    WorkResponse findWork(@PathVariable String workId);
+    WorkResponse findWork(@PathVariable("workId") String workId);
 
     @GetExchange("/authors/{authorId}.json")
-    AuthorResponse findAuthor(@PathVariable String authorId);
+    AuthorResponse findAuthor(@PathVariable("authorId") String authorId);
 }
 ```
 
-**Camada anticorrupção:** os DTOs da Open Library (`SearchResponse`, `EditionResponse`...) ficam em subpacote interno. A API pública do módulo expõe só os nossos records (`OpenLibraryBook`, `OpenLibraryAuthor`). A conversão trata as inconsistências da API:
+**Camada anticorrupção:** os DTOs da Open Library (`SearchResponse`, `EditionResponse`...) ficam no subpacote interno `openlibrary.client`, junto com a interface HTTP. A API pública do módulo é o `OpenLibraryClient`, que expõe só os nossos records (`OpenLibraryCandidate`, `OpenLibraryBook`, `OpenLibraryAuthor`).
+
+Toda chamada passa pelo `OpenLibraryGateway`, que aplica o limite de taxa, as novas tentativas e a conversão das falhas HTTP nos erros `openlibrary.*`. Uma edição raramente traz tudo: quando falta a descrição ou os autores, o cliente busca a obra (`/works`) e completa. A conversão trata as inconsistências da API:
 
 - `description` às vezes vem como texto e às vezes como objeto `{ "type", "value" }`.
 - `publish_date` é texto livre (`"1954"`, `"July 29, 1954"`) e vira ano.
@@ -361,7 +367,7 @@ interface OpenLibraryApi {
 2. **Confirmação:**
    - A capa é baixada fora da transação.
    - Livro, autores e editora são salvos numa transação só. Autores e editora são reaproveitados pelo nome normalizado.
-   - Se o salvamento falhar, a capa baixada vai para a lixeira.
+   - Se o salvamento falhar, o rollback desfaz também a capa: o arquivo recém-gravado é removido junto com o registro, que nunca chegou a existir no banco. A lixeira é para imagens que já pertenceram a algo.
 
 A série é sempre preenchida à mão. Sem internet, o cadastro manual continua funcionando.
 
@@ -388,7 +394,12 @@ public record AppProperties(
         @Valid Images images,
         @Valid Backup backup) {
 
-    public record OpenLibrary(@NotNull URI baseUrl, @NotNull URI coversUrl, String contact) {}
+    public record OpenLibrary(
+            @NotNull URI baseUrl,
+            @NotNull URI coversUrl,
+            @Nullable String contact,
+            @NotNull Duration connectTimeout,
+            @NotNull Duration readTimeout) {}
 
     public record Images(@NotNull DataSize maxSize, @NotNull Duration trashRetention) {}
 
@@ -433,6 +444,8 @@ app:
     base-url: https://openlibrary.org
     covers-url: https://covers.openlibrary.org
     contact: ""
+    connect-timeout: 3s
+    read-timeout: 10s
   images:
     max-size: 5MB
     trash-retention: 30d
