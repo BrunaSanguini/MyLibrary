@@ -34,6 +34,7 @@
         <jacoco.version>0.8.16</jacoco.version>
         <error-prone.version>2.52.0</error-prone.version>
         <nullaway.version>0.14.3</nullaway.version>
+        <wiremock.version>3.13.1</wiremock.version>
         <coverage.minimum-lines>0.80</coverage.minimum-lines>
 
         <!-- Front-end built into the jar (ADR-0001). Same major as .nvmrc; Renovate updates both. -->
@@ -85,6 +86,11 @@
             <artifactId>spring-modulith-starter-core</artifactId>
         </dependency>
         <dependency>
+            <!-- In-memory cache of the Open Library answers (ADR-0004). -->
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
@@ -98,6 +104,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <!-- Simulates the Open Library in the resilience tests and in the E2E (ADR-0007). -->
+            <groupId>org.wiremock</groupId>
+            <artifactId>wiremock-standalone</artifactId>
+            <version>${wiremock.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -180,6 +193,31 @@
                                     <directory>${frontend.directory}/dist/minha-livraria/browser</directory>
                                 </resource>
                             </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!-- The E2E starts this jar as the Open Library (frontend/playwright.config.ts). -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-wiremock</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.wiremock</groupId>
+                                    <artifactId>wiremock-standalone</artifactId>
+                                    <version>${wiremock.version}</version>
+                                    <destFileName>wiremock-standalone.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>

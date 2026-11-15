@@ -155,33 +155,41 @@ O `@ApplicationModuleTest` sobe só o módulo `reading`. As dependências de out
 
 ### Open Library
 
-As respostas reais da Open Library ficam gravadas em `src/test/resources/openlibrary/`, incluindo os casos estranhos (descrição como objeto, data em texto livre, livro sem capa):
+As respostas reais da Open Library ficam gravadas em `src/test/resources/openlibrary/`, incluindo os casos estranhos (descrição como objeto, data em texto livre, edição sem autores). O `README.md` da pasta diz de onde veio cada uma:
 
 ```java
 class OpenLibraryClientTest {
 
-    private final RestClient.Builder builder = RestClient.builder().baseUrl("https://openlibrary.org");
-    private final MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+    private final RestClient.Builder builder = RestClient.builder();
+    private final MockRestServiceServer server =
+            MockRestServiceServer.bindTo(builder).ignoreExpectOrder(true).build();
     private final OpenLibraryClient client = new OpenLibraryClient(
-            HttpServiceProxyFactory.builderFor(RestClientAdapter.create(builder.build()))
-                    .build()
-                    .createClient(OpenLibraryApi.class));
+            new OpenLibraryGateway(
+                    HttpServiceProxyFactory.builderFor(RestClientAdapter.create(
+                                    builder.clone().baseUrl(API).build()))
+                            .build()
+                            .createClient(OpenLibraryApi.class),
+                    builder.clone().baseUrl(COVERS).build(),
+                    new RateLimiter(Duration.ZERO)),
+            properties());
 
     @Test
-    void shouldReadDescriptionWhenItComesAsObject() {
-        server.expect(requestTo("https://openlibrary.org/works/OL27448W.json"))
-                .andRespond(withSuccess(
-                        new ClassPathResource("openlibrary/work-description-object.json"),
-                        MediaType.APPLICATION_JSON));
+    void shouldReadADescriptionThatComesAsAnObjectAndBorrowTheAuthorsOfTheWork() {
+        expect("/books/OL33891995M.json", "edition-OL33891995M.json");
+        expect("/works/OL27482W.json", "work-OL27482W.json");
+        expect("/authors/OL26320A.json", "author-OL26320A.json");
 
-        OpenLibraryWork work = client.findWork("OL27448W");
+        OpenLibraryBook book = client.findEdition("OL33891995M");
 
-        assertThat(work.description()).isNotBlank();
+        assertThat(book.description()).startsWith("Bilbo Baggins is a hobbit");
+        assertThat(book.authors()).extracting(OpenLibraryAuthor::name).containsExactly("J.R.R. Tolkien");
     }
 }
 ```
 
-Os testes de resiliência usam WireMock para simular lentidão, erro 5xx e 429. Eles verificam o número de tentativas, o tempo entre elas e a conversão para os códigos `openlibrary.*` do [catálogo de erros](erros.md).
+Os testes de resiliência (`OpenLibraryResilienceIT`) usam WireMock para simular lentidão, erro 5xx, 429 e queda de conexão. Eles verificam o número de tentativas, o limite de requisições por segundo e a conversão para os códigos `openlibrary.*` do [catálogo de erros](erros.md).
+
+No perfil `test`, a Open Library aponta para um endereço local onde nada responde. Assim nenhum teste usa a internet, e o `BookImportOfflineIT` confere de graça o caso "sem conexão": a importação responde `503` e o cadastro manual segue funcionando.
 
 ## Front-end
 
@@ -271,8 +279,8 @@ describe('ShelfPage', () => {
 - O perfil `e2e` usa uma pasta de dados temporária, carrega os dados de exemplo e aponta a Open Library para um WireMock local.
 - O `webServer` do Playwright sobe o app e espera a readiness (`/actuator/health/readiness`).
 - **Nenhum teste toca em `%USERPROFILE%\.minha-livraria`.** O `playwright.config.ts` passa uma pasta temporária nova a cada execução.
-- O WireMock da Open Library e os dados de exemplo entram no perfil `e2e` junto com as funcionalidades deles (#21 e #20).
-- `npm run e2e` (em `frontend/`) roda contra o jar em `backend/target/minha-livraria.jar`. Com `E2E_BASE_URL=http://localhost:4200`, roda contra o `npm start`, sem precisar do jar.
+- O `webServer` também sobe o WireMock da Open Library, com os stubs de `frontend/e2e/open-library`. O jar do WireMock é copiado para `backend/target/wiremock-standalone.jar` pelo build do back-end.
+- `npm run e2e` (em `frontend/`) roda contra o jar em `backend/target/minha-livraria.jar`. Com `E2E_BASE_URL=http://localhost:4200`, roda contra o `npm start`, sem precisar do jar; nesse modo a jornada de importação é pulada, porque não há Open Library simulada.
 
 ```ts
 for (const theme of ['light', 'dark'] as const) {

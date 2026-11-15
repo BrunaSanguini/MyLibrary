@@ -8,6 +8,8 @@ import { Icon } from '../icon/icon';
  *
  * <p>`role="alert"` so the failure is announced when it replaces the content. The message comes
  * from the Problem Details `detail` of the API, which is already written in Portuguese.
+ * Another way forward, such as "Cadastrar manualmente" when the Open Library is out of reach, is
+ * projected after the retry button.
  */
 @Component({
   selector: 'ml-error-state',

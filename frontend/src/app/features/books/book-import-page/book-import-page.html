@@ -1,0 +1,321 @@
+<header class="head">
+  <p class="eyebrow">Open Library</p>
+  <h1>Importar livro</h1>
+  <p class="lead">
+    Busque por título, autor ou ISBN. Os dados vêm da Open Library e você confere tudo antes de
+    salvar.
+  </p>
+</header>
+
+<form class="search card" role="search" novalidate (submit)="search($event)">
+  <label for="busca">Título, autor ou ISBN</label>
+  <div class="search-row">
+    <input
+      id="busca"
+      type="search"
+      autocomplete="off"
+      [formField]="searchForm.query"
+      [attr.aria-describedby]="errorOf(searchForm.query) ? 'erro-busca' : 'dica-busca'"
+    />
+    <button mlButton="primary" type="submit">Buscar</button>
+  </div>
+  @if (errorOf(searchForm.query); as message) {
+    <p id="erro-busca" class="error">{{ message }}</p>
+  } @else {
+    <p id="dica-busca" class="hint">Um ISBN leva direto para a edição exata.</p>
+  }
+</form>
+
+@if (lookup()) {
+  @if (preview.hasValue()) {
+    @let book = preview.value();
+
+    <article class="preview card" aria-labelledby="titulo-previa">
+      <ml-book-cover
+        aria-hidden="true"
+        size="md"
+        [title]="book.title"
+        [author]="book.authors[0]"
+        [coverUrl]="book.coverUrl"
+      />
+
+      <div class="preview-body">
+        <p class="eyebrow">Pré-visualização</p>
+        <h2 id="titulo-previa" #previewTitle tabindex="-1">{{ book.title }}</h2>
+        @if (book.subtitle) {
+          <p class="subtitle">{{ book.subtitle }}</p>
+        }
+        @if (book.authors.length > 0) {
+          <p class="byline">{{ authorsOf(book) }}</p>
+        }
+
+        <dl class="facts">
+          @if (book.publisher) {
+            <div>
+              <dt>Editora</dt>
+              <dd>{{ book.publisher }}</dd>
+            </div>
+          }
+          @if (book.publishedYear) {
+            <div>
+              <dt>Ano</dt>
+              <dd>{{ book.publishedYear }}</dd>
+            </div>
+          }
+          @if (book.pageCount) {
+            <div>
+              <dt>Páginas</dt>
+              <dd>{{ book.pageCount }}</dd>
+            </div>
+          }
+          @if (book.languageCode) {
+            <div>
+              <dt>Idioma</dt>
+              <dd>{{ book.languageCode }}</dd>
+            </div>
+          }
+          @if (book.isbn13) {
+            <div>
+              <dt>ISBN-13</dt>
+              <dd>{{ book.isbn13 }}</dd>
+            </div>
+          }
+          @if (book.isbn10) {
+            <div>
+              <dt>ISBN-10</dt>
+              <dd>{{ book.isbn10 }}</dd>
+            </div>
+          }
+        </dl>
+
+        @if (book.synopsis) {
+          <p class="synopsis">{{ book.synopsis }}</p>
+        }
+      </div>
+    </article>
+
+    @if (importError()) {
+      <p class="top-error" role="alert">{{ importError() }}</p>
+    }
+
+    @if (book.libraryBookId) {
+      <div class="notice card" role="status">
+        <p><span mlTag="seal">Já está na sua estante</span></p>
+        <p class="notice-text">
+          Este livro já faz parte do seu acervo, então não há o que importar.
+        </p>
+        <div class="actions">
+          @if (cameFromResults()) {
+            <a
+              mlButton="secondary"
+              [routerLink]="[]"
+              [queryParams]="{ edicao: null }"
+              queryParamsHandling="merge"
+              >Voltar aos resultados</a
+            >
+          }
+          <a mlButton="primary" [routerLink]="['/livros', book.libraryBookId]">Abrir o livro</a>
+        </div>
+      </div>
+    } @else {
+      <form
+        class="classification card"
+        aria-labelledby="titulo-classificacao"
+        novalidate
+        (submit)="importBook($event, book.editionKey)"
+      >
+        <h2 id="titulo-classificacao">Classificação <span class="optional">(opcional)</span></h2>
+        <p class="hint">Você pode deixar em branco e classificar o livro depois.</p>
+
+        <div class="field">
+          <label for="posse">Este livro</label>
+          <select id="posse" [formField]="classificationForm.ownership">
+            <option value="NONE">Não informar</option>
+            <option value="OWNED">Tenho este livro</option>
+            <option value="WISHLIST">Está na minha wishlist</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <ml-entity-picker
+            source="genres"
+            label="Gêneros"
+            placeholder="Busque ou crie um gênero"
+            [exclude]="genreIds()"
+            (picked)="addGenre($event)"
+          />
+          @if (classificationModel().genres.length > 0) {
+            <ul class="chips" aria-label="Gêneros escolhidos">
+              @for (genre of classificationModel().genres; track genre.id) {
+                <li class="chip">
+                  {{ genre.name }}
+                  <button
+                    type="button"
+                    class="chip-remove"
+                    [attr.aria-label]="'Remover gênero ' + genre.name"
+                    (click)="removeGenre(genre.id)"
+                  >
+                    <ml-icon name="close" [size]="12" />
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+
+        <div class="row">
+          <div class="field grow">
+            @if (classificationModel().seriesId === null) {
+              <ml-entity-picker
+                source="series"
+                label="Série"
+                placeholder="Busque ou crie uma série"
+                (picked)="setSeries($event)"
+              />
+            } @else {
+              <p class="picked-label">Série</p>
+              <p class="picked">
+                {{ classificationModel().seriesName }}
+                <button type="button" mlButton="link" (click)="setSeries(undefined)">
+                  Tirar da série
+                </button>
+              </p>
+            }
+          </div>
+
+          <div class="field narrow">
+            <label for="posicao">Posição na série</label>
+            <input
+              id="posicao"
+              type="number"
+              step="0.1"
+              [formField]="classificationForm.seriesPosition"
+              [attr.aria-describedby]="
+                errorOf(classificationForm.seriesPosition) ? 'erro-posicao' : null
+              "
+            />
+            @if (errorOf(classificationForm.seriesPosition); as message) {
+              <p id="erro-posicao" class="error">{{ message }}</p>
+            }
+          </div>
+        </div>
+
+        <div class="actions">
+          @if (cameFromResults()) {
+            <a
+              mlButton="secondary"
+              [routerLink]="[]"
+              [queryParams]="{ edicao: null }"
+              queryParamsHandling="merge"
+              >Voltar aos resultados</a
+            >
+          }
+          <button mlButton="primary" type="submit" [disabled]="classificationForm().submitting()">
+            {{ classificationForm().submitting() ? 'Importando…' : 'Importar livro' }}
+          </button>
+        </div>
+      </form>
+    }
+  } @else if (previewFailure(); as failure) {
+    @if (failure.notFound) {
+      <ml-empty-state
+        icon="search"
+        title="Não encontramos esse livro na Open Library"
+        message="Confira o ISBN ou busque pelo título. Se o livro não estiver lá, cadastre manualmente."
+      >
+        <a mlButton="primary" routerLink="/livros/novo">Cadastrar manualmente</a>
+      </ml-empty-state>
+    } @else {
+      <ml-error-state
+        title="Não foi possível consultar a Open Library"
+        [message]="failure.message"
+        (retry)="preview.reload()"
+      >
+        @if (failure.outage) {
+          <a mlButton="link" routerLink="/livros/novo">Cadastrar manualmente</a>
+        }
+      </ml-error-state>
+    }
+  } @else {
+    <p class="status" role="status">Buscando a edição na Open Library…</p>
+    <ml-skeleton variant="card" />
+  }
+} @else if (q()) {
+  @if (results.hasValue()) {
+    @if (results.value().length > 0) {
+      <section aria-labelledby="titulo-resultados">
+        <h2 id="titulo-resultados" class="section-title">Resultados</h2>
+        <ul class="results">
+          @for (candidate of results.value(); track candidate.editionKey) {
+            <li class="result card">
+              <ml-book-cover
+                aria-hidden="true"
+                size="sm"
+                [title]="candidate.title"
+                [author]="candidate.authors[0]"
+                [coverUrl]="candidate.coverUrl"
+              />
+              <div class="result-body">
+                <h3>{{ candidate.title }}</h3>
+                <p class="byline">
+                  {{ authorsOf(candidate) }}
+                  @if (candidate.authors.length > 0 && candidate.publishedYear) {
+                    ·
+                  }
+                  {{ candidate.publishedYear }}
+                </p>
+                @if (candidate.libraryBookId) {
+                  <p><span mlTag="seal">Já está na sua estante</span></p>
+                  <a
+                    mlButton="link"
+                    [routerLink]="['/livros', candidate.libraryBookId]"
+                    [attr.aria-label]="'Abrir o livro ' + candidate.title"
+                    >Abrir o livro</a
+                  >
+                } @else {
+                  <a
+                    mlButton="secondary"
+                    [routerLink]="[]"
+                    [queryParams]="{ edicao: candidate.editionKey }"
+                    queryParamsHandling="merge"
+                    [attr.aria-label]="'Ver detalhes de ' + candidate.title"
+                    >Ver detalhes</a
+                  >
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      </section>
+    } @else {
+      <ml-empty-state
+        icon="search"
+        title="Nenhum livro encontrado"
+        message="Tente outro título, o nome do autor ou o ISBN. Se preferir, cadastre manualmente."
+      >
+        <a mlButton="primary" routerLink="/livros/novo">Cadastrar manualmente</a>
+      </ml-empty-state>
+    }
+  } @else if (resultsFailure(); as failure) {
+    <ml-error-state
+      title="Não foi possível buscar na Open Library"
+      [message]="failure.message"
+      (retry)="results.reload()"
+    >
+      @if (failure.outage) {
+        <a mlButton="link" routerLink="/livros/novo">Cadastrar manualmente</a>
+      }
+    </ml-error-state>
+  } @else {
+    <p class="status" role="status">Buscando na Open Library…</p>
+    <ml-skeleton variant="card" />
+  }
+} @else {
+  <ml-empty-state
+    icon="search"
+    title="O que você quer importar?"
+    message="Digite um título, um autor ou um ISBN para buscar na Open Library."
+  >
+    <a mlButton="link" routerLink="/livros/novo">Prefiro cadastrar manualmente</a>
+  </ml-empty-state>
+}

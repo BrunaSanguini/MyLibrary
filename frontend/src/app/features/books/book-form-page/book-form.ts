@@ -130,21 +130,29 @@ export function bookFormSchema(book: SchemaPathTree<BookFormModel>): void {
   validate(book.authors, ({ value }) =>
     value().length > 0 ? undefined : { kind: 'authors', message: 'Informe ao menos um autor.' },
   );
-  // Series and position travel together, as book.series-position-required says on the back-end.
-  validate(book.seriesPosition, ({ value, valueOf }) => {
-    const hasSeries = valueOf(book.seriesId) !== null;
-    const position = value();
-    if (hasSeries && position === null) {
-      return { kind: 'seriesPosition', message: 'Informe a posição do livro na série.' };
-    }
-    if (!hasSeries && position !== null) {
-      return { kind: 'seriesPosition', message: 'Escolha a série antes de informar a posição.' };
-    }
-    if (position !== null && position <= 0) {
-      return { kind: 'seriesPosition', message: 'A posição na série começa em 0,1.' };
-    }
-    return undefined;
-  });
+  validate(book.seriesPosition, ({ value, valueOf }) =>
+    seriesPositionError(valueOf(book.seriesId) !== null, value()),
+  );
+}
+
+/**
+ * Series and position travel together, as book.series-position-required says on the back-end.
+ * Shared with the import, which classifies the book with the same two fields.
+ */
+export function seriesPositionError(
+  hasSeries: boolean,
+  position: number | null,
+): { kind: string; message: string } | undefined {
+  if (hasSeries && position === null) {
+    return { kind: 'seriesPosition', message: 'Informe a posição do livro na série.' };
+  }
+  if (!hasSeries && position !== null) {
+    return { kind: 'seriesPosition', message: 'Escolha a série antes de informar a posição.' };
+  }
+  if (position !== null && position <= 0) {
+    return { kind: 'seriesPosition', message: 'A posição na série começa em 0,1.' };
+  }
+  return undefined;
 }
 
 /** Field of the form a server-side field error belongs to, by the name the API uses. */

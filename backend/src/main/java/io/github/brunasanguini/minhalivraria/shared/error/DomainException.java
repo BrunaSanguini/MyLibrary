@@ -15,7 +15,10 @@ public abstract sealed class DomainException extends RuntimeException
                 ConflictException,
                 BusinessRuleException,
                 PayloadTooLargeException,
-                UnsupportedMediaTypeException {
+                UnsupportedMediaTypeException,
+                BadGatewayException,
+                ServiceUnavailableException,
+                GatewayTimeoutException {
 
     private final String code;
     private final transient Object[] args;
