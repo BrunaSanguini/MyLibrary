@@ -75,7 +75,7 @@ class ShelfControllerTest {
 
         assertThat(mvc.get()
                         .uri("/api/v1/shelf/books?q=aneis&status=READING&status=READ&ownership=OWNED&favorite=true"
-                                + "&genreId=1&authorId=2&publisherId=3&seriesId=4"))
+                                + "&genreId=1&authorId=2&publisherId=3&seriesId=4&listId=5"))
                 .hasStatusOk();
 
         ArgumentCaptor<ShelfFilter> filter = ArgumentCaptor.forClass(ShelfFilter.class);
@@ -89,7 +89,8 @@ class ShelfControllerTest {
                         1L,
                         2L,
                         3L,
-                        4L));
+                        4L,
+                        5L));
     }
 
     @Test
@@ -100,7 +101,7 @@ class ShelfControllerTest {
 
         ArgumentCaptor<ShelfFilter> filter = ArgumentCaptor.forClass(ShelfFilter.class);
         then(service).should().search(filter.capture(), any());
-        assertThat(filter.getValue()).isEqualTo(new ShelfFilter(null, null, null, null, null, null, null, null));
+        assertThat(filter.getValue()).isEqualTo(new ShelfFilter(null, null, null, null, null, null, null, null, null));
     }
 
     @Test

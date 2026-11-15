@@ -9,6 +9,7 @@ import org.jspecify.annotations.Nullable;
  *
  * @param q accent-insensitive term, matched against title, subtitle and author names
  * @param statuses any of them; empty or null means every status
+ * @param listId only the books of this list; it is also what lets the listing be sorted by {@code listOrder}
  * @param genreId a genre also brings the books of its subgenres
  */
 public record ShelfFilter(
@@ -19,4 +20,5 @@ public record ShelfFilter(
         @Nullable Long genreId,
         @Nullable Long authorId,
         @Nullable Long publisherId,
-        @Nullable Long seriesId) {}
+        @Nullable Long seriesId,
+        @Nullable Long listId) {}
