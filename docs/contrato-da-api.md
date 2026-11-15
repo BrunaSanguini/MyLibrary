@@ -77,7 +77,7 @@ A resposta usa o record próprio `PageResponse<T>`, e não a serialização do `
 }
 ```
 
-- `progress` é `null` quando o livro não tem leitura em andamento.
+- `progress` é `null` quando o livro não tem leitura em andamento. Dentro dele, `pageCount` é `null` e `percent` é `0` quando o livro não tem número de páginas.
 - `rating` é `null` quando não há resenha.
 - `series` é `null` quando o livro não pertence a uma série.
 
@@ -271,6 +271,8 @@ O `bookCount` de um gênero conta os livros distintos do gênero e dos subgêner
 - O `POST` aceita `FINISHED` e `ABANDONED` para registrar leituras antigas; nesse caso, `endDate` é obrigatório.
 - Criar uma leitura `IN_PROGRESS` quando já existe outra em andamento devolve `409` (`reading.in-progress-exists`).
 - O status só muda pelas ações `finish` e `abandon`, nunca pelo `PUT`.
+- Mudar o período (pelo `PUT`, `finish` ou `abandon`) de um jeito que deixe uma sessão de fora devolve `422` (`session.out-of-period`).
+- `progress.percent` é sempre `100` numa leitura `FINISHED`.
 
 ```json
 {
@@ -294,8 +296,16 @@ O `bookCount` de um gênero conta os livros distintos do gênero e dos subgêner
 | `PUT /readings/{id}/sessions/{sessionId}` | `200` sessão |
 | `DELETE /readings/{id}/sessions/{sessionId}` | `204` |
 
+Corpo do `POST` e do `PUT`:
+
 ```json
 { "date": "2026-11-08", "pagesRead": 25, "currentPage": null, "note": "Capítulo do Conselho de Elrond." }
+```
+
+Resposta:
+
+```json
+{ "id": 3, "date": "2026-11-08", "pagesRead": 25, "note": "Capítulo do Conselho de Elrond." }
 ```
 
 - O corpo leva **exatamente um** entre `pagesRead` e `currentPage`, os dois modos do formulário. Com os dois ou nenhum, a resposta é `400` (`session.pages-mode`).
