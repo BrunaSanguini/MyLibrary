@@ -23,8 +23,8 @@ import io.github.brunasanguini.minhalivraria.reading.application.ReviewService;
 import io.github.brunasanguini.minhalivraria.reading.application.SessionRequest;
 import io.github.brunasanguini.minhalivraria.shared.error.BadRequestException;
 import io.github.brunasanguini.minhalivraria.shared.error.NotFoundException;
-import io.github.brunasanguini.minhalivraria.shelf.application.BookCardResponse.CardProgressResponse;
 import io.github.brunasanguini.minhalivraria.shared.web.PageQuery;
+import io.github.brunasanguini.minhalivraria.shelf.application.BookCardResponse.CardProgressResponse;
 import jakarta.persistence.EntityManager;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -221,7 +221,8 @@ class ShelfServiceTest {
 
     @Test
     void shouldCombineFiltersWithAnd() {
-        List<Long> found = ids(new ShelfFilter("tolkien", null, Ownership.OWNED, false, fantasy, tolkien, harper, null));
+        List<Long> found =
+                ids(new ShelfFilter("tolkien", null, Ownership.OWNED, false, fantasy, tolkien, harper, null));
 
         assertThat(found).containsExactly(hobbit);
     }
@@ -276,7 +277,8 @@ class ShelfServiceTest {
 
     @Test
     void shouldAnswerAnEmptyPagePastTheEnd() {
-        var page = shelf.search(new ShelfFilter(null, null, null, null, null, null, null, null), new PageQuery(5, 2, null));
+        var page = shelf.search(
+                new ShelfFilter(null, null, null, null, null, null, null, null), new PageQuery(5, 2, null));
 
         assertThat(page.getContent()).isEmpty();
         assertThat(page.getTotalElements()).isEqualTo(3);
@@ -538,8 +540,8 @@ class ShelfServiceTest {
     }
 
     private long start(long bookId, String startDate) {
-        long id = readings
-                .create(bookId, new ReadingRequest(ReadingStatus.IN_PROGRESS, LocalDate.parse(startDate), null, null))
+        long id = readings.create(
+                        bookId, new ReadingRequest(ReadingStatus.IN_PROGRESS, LocalDate.parse(startDate), null, null))
                 .id();
         entityManager.flush();
         return id;

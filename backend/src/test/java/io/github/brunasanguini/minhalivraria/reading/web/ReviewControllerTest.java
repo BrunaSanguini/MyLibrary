@@ -91,8 +91,7 @@ class ReviewControllerTest {
 
         assertThat(put("""
                         { "rating": 4.5, "content": "Um clássico." }
-                        """))
-                .hasStatusOk();
+                        """)).hasStatusOk();
     }
 
     @ParameterizedTest
@@ -157,10 +156,7 @@ class ReviewControllerTest {
                         PageRequest.of(0, 24),
                         1));
 
-        assertThat(mvc.get().uri("/api/v1/reviews"))
-                .hasStatusOk()
-                .bodyJson()
-                .isLenientlyEqualTo("""
+        assertThat(mvc.get().uri("/api/v1/reviews")).hasStatusOk().bodyJson().isLenientlyEqualTo("""
                         {
                           "page": 0,
                           "totalElements": 1,

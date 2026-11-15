@@ -11,5 +11,7 @@ import org.jspecify.annotations.Nullable;
  * @param rating from 1 to 5, in half points
  */
 public record ReviewRequest(
-        @DecimalMin("1.0") @DecimalMax("5.0") @HalfPoint @Nullable BigDecimal rating,
+        @DecimalMin("1.0") @DecimalMax("5.0") @HalfPoint @Nullable
+        BigDecimal rating,
+
         @Size(max = 20000) @Nullable String content) {}

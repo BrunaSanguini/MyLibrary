@@ -133,9 +133,7 @@ class ReadingServiceTest {
         assertThatThrownBy(() -> jdbc.sql("""
                         insert into reading (book_id, status, start_date, reread, created_at, updated_at)
                         values (:book, 'IN_PROGRESS', date '2026-11-08', false, now(), now())
-                        """)
-                        .param("book", fellowship)
-                        .update())
+                        """).param("book", fellowship).update())
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
@@ -196,7 +194,8 @@ class ReadingServiceTest {
         readings.addSession(reading, pages(NOV_1.plusDays(1), 25));
         entityManager.flush();
 
-        ReadingResponse corrected = readings.reschedule(reading, new ReadingPeriodRequest(NOV_1.minusDays(2), null, true));
+        ReadingResponse corrected =
+                readings.reschedule(reading, new ReadingPeriodRequest(NOV_1.minusDays(2), null, true));
 
         assertThat(corrected.startDate()).isEqualTo(NOV_1.minusDays(2));
         assertThat(corrected.reread()).isTrue();
@@ -344,7 +343,8 @@ class ReadingServiceTest {
         long session = readings.addSession(reading, pages(NOV_8, 30)).id();
         entityManager.flush();
 
-        assertThat(readings.updateSession(reading, session, currentPage(NOV_8, 150)).pagesRead())
+        assertThat(readings.updateSession(reading, session, currentPage(NOV_8, 150))
+                        .pagesRead())
                 .isEqualTo(50);
     }
 
@@ -421,8 +421,7 @@ class ReadingServiceTest {
     }
 
     private long past(ReadingStatus status, String endDate) {
-        return readings
-                .create(fellowship, new ReadingRequest(status, null, LocalDate.parse(endDate), null))
+        return readings.create(fellowship, new ReadingRequest(status, null, LocalDate.parse(endDate), null))
                 .id();
     }
 

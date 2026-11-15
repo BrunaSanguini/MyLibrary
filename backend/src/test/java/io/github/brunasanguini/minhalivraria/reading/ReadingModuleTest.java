@@ -93,8 +93,8 @@ class ReadingModuleTest {
 
         ReadingResponse reading =
                 readings.create(hobbit, new ReadingRequest(ReadingStatus.IN_PROGRESS, NOV_1, null, null));
-        assertThatThrownBy(() ->
-                        readings.create(hobbit, new ReadingRequest(ReadingStatus.IN_PROGRESS, NOV_1, null, null)))
+        assertThatThrownBy(
+                        () -> readings.create(hobbit, new ReadingRequest(ReadingStatus.IN_PROGRESS, NOV_1, null, null)))
                 .isInstanceOf(ConflictException.class);
 
         readings.addSession(reading.id(), new SessionRequest(NOV_1, 100, null, null));

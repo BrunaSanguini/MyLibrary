@@ -228,7 +228,8 @@ public class ShelfService {
         if (filter.statuses() != null && !filter.statuses().isEmpty()) {
             clauses.add("(" + STATUS + ") in (:statuses)");
             params.put(
-                    "statuses", filter.statuses().stream().map(ShelfStatus::name).toList());
+                    "statuses",
+                    filter.statuses().stream().map(ShelfStatus::name).toList());
         }
         if (filter.ownership() != null) {
             clauses.add("b.ownership = :ownership");

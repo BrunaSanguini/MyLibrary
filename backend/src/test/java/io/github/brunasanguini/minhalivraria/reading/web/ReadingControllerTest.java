@@ -273,9 +273,18 @@ class ReadingControllerTest {
                 { "date": "2026-11-08", "pagesRead": 10 }
                 """);
 
-        assertThat(result).hasStatus(HttpStatus.UNPROCESSABLE_CONTENT).bodyJson().extractingPath("$.code").isEqualTo(code);
+        assertThat(result)
+                .hasStatus(HttpStatus.UNPROCESSABLE_CONTENT)
+                .bodyJson()
+                .extractingPath("$.code")
+                .isEqualTo(code);
         // Every code has its own text in messages.properties, not the code itself.
-        assertThat(result).bodyJson().extractingPath("$.detail").asString().doesNotContain(code).isNotBlank();
+        assertThat(result)
+                .bodyJson()
+                .extractingPath("$.detail")
+                .asString()
+                .doesNotContain(code)
+                .isNotBlank();
     }
 
     @Test

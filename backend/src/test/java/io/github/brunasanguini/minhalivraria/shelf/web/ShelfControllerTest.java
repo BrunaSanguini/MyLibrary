@@ -9,14 +9,14 @@ import static org.mockito.BDDMockito.willThrow;
 import io.github.brunasanguini.minhalivraria.WebSliceTest;
 import io.github.brunasanguini.minhalivraria.books.Ownership;
 import io.github.brunasanguini.minhalivraria.shared.error.BadRequestException;
-import io.github.brunasanguini.minhalivraria.shelf.application.BookCardResponse;
 import io.github.brunasanguini.minhalivraria.shared.error.NotFoundException;
+import io.github.brunasanguini.minhalivraria.shelf.application.BookCardResponse;
 import io.github.brunasanguini.minhalivraria.shelf.application.BookCardResponse.CardProgressResponse;
 import io.github.brunasanguini.minhalivraria.shelf.application.BookCardResponse.CardSeriesResponse;
 import io.github.brunasanguini.minhalivraria.shelf.application.RelatedBooksResponse;
-import io.github.brunasanguini.minhalivraria.shelf.application.ShelfStatus;
 import io.github.brunasanguini.minhalivraria.shelf.application.ShelfFilter;
 import io.github.brunasanguini.minhalivraria.shelf.application.ShelfService;
+import io.github.brunasanguini.minhalivraria.shelf.application.ShelfStatus;
 import java.math.BigDecimal;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -80,8 +80,16 @@ class ShelfControllerTest {
 
         ArgumentCaptor<ShelfFilter> filter = ArgumentCaptor.forClass(ShelfFilter.class);
         then(service).should().search(filter.capture(), any());
-        assertThat(filter.getValue()).isEqualTo(new ShelfFilter(
-                        "aneis", List.of(ShelfStatus.READING, ShelfStatus.READ), Ownership.OWNED, true, 1L, 2L, 3L, 4L));
+        assertThat(filter.getValue())
+                .isEqualTo(new ShelfFilter(
+                        "aneis",
+                        List.of(ShelfStatus.READING, ShelfStatus.READ),
+                        Ownership.OWNED,
+                        true,
+                        1L,
+                        2L,
+                        3L,
+                        4L));
     }
 
     @Test

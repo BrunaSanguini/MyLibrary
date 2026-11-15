@@ -20,6 +20,7 @@ public record ProgressResponse(int pagesRead, @Nullable Integer pageCount, int p
         if (pageCount == null || pageCount <= 0) {
             return new ProgressResponse(pagesRead, pageCount, 0);
         }
-        return new ProgressResponse(pagesRead, pageCount, (int) Math.min(COMPLETE, (long) pagesRead * COMPLETE / pageCount));
+        return new ProgressResponse(
+                pagesRead, pageCount, (int) Math.min(COMPLETE, (long) pagesRead * COMPLETE / pageCount));
     }
 }

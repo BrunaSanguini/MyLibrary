@@ -7,4 +7,8 @@ import org.jspecify.annotations.Nullable;
  *
  * @param pageCount unknown for books registered without it; a reading session needs it
  */
-public record BookSummary(long id, String title, @Nullable Integer pageCount, @Nullable String coverUrl) {}
+public record BookSummary(
+        long id,
+        String title,
+        @Nullable Integer pageCount,
+        @Nullable String coverUrl) {}

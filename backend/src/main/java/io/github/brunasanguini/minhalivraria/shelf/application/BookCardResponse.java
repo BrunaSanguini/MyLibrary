@@ -30,7 +30,8 @@ public record BookCardResponse(
      * @param pageCount pages of the book, when it has them
      * @param percent from 0 to 100, rounded down
      */
-    public record CardProgressResponse(int pagesRead, @Nullable Integer pageCount, int percent) {}
+    public record CardProgressResponse(
+            int pagesRead, @Nullable Integer pageCount, int percent) {}
 
     /** Where the book sits in its series, so the card can show "1 de 3". */
     public record CardSeriesResponse(long id, String name, BigDecimal position) {}

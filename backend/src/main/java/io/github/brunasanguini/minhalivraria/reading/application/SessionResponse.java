@@ -6,4 +6,5 @@ import org.jspecify.annotations.Nullable;
 /**
  * @param pagesRead always the pages of the day, also when the session was sent as "current page"
  */
-public record SessionResponse(long id, LocalDate date, int pagesRead, @Nullable String note) {}
+public record SessionResponse(
+        long id, LocalDate date, int pagesRead, @Nullable String note) {}
