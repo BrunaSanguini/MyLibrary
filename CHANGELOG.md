@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.0](https://github.com/BrunaSanguini/MyLibrary/compare/v0.6.0...v0.7.0) (2026-11-15)
+
+
+### Funcionalidades
+
+* **books:** adiciona importação da open library ([#59](https://github.com/BrunaSanguini/MyLibrary/issues/59)) ([c112568](https://github.com/BrunaSanguini/MyLibrary/commit/c11256887f13e284d38af31c111a02a7766b0e8f))
+* **reading:** adiciona leituras, sessões e resenha ([#61](https://github.com/BrunaSanguini/MyLibrary/issues/61)) ([e82ada6](https://github.com/BrunaSanguini/MyLibrary/commit/e82ada65f98a8f49fc89c1905f67595ec58f5667))
+
 ## [0.6.0](https://github.com/BrunaSanguini/MyLibrary/compare/v0.5.0...v0.6.0) (2026-11-14)
 
 
