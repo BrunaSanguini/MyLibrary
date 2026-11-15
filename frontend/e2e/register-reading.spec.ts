@@ -160,11 +160,15 @@ for (const theme of THEMES) {
     await expectNoAccessibilityViolations(page);
 
     // The shelf filtered by status, with the progress on the card.
+    // The pointer is parked first: resting where a button lands, it would start a hover
+    // transition, and axe would measure the contrast of a color halfway through it.
+    await page.mouse.move(0, 0);
     await page.goto('/estante?status=READING');
     await expect(page.getByRole('button', { name: 'Lendo' })).toHaveAttribute(
       'aria-pressed',
       'true',
     );
+    await expect(page.getByRole('progressbar').first()).toBeVisible();
     await expectNoAccessibilityViolations(page);
   });
 }
