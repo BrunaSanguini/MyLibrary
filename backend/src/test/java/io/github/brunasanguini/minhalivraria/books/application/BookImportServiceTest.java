@@ -37,7 +37,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 /**
  * Not transactional, unlike the other service tests: what happens to the cover when saving fails only shows when the
- * import really commits or rolls back. Each test cleans the tables it filled.
+ * import really commits or rolls back. Each test cleans the tables and the cover files it left.
  */
 @SpringBootTest
 class BookImportServiceTest {
@@ -90,6 +90,13 @@ class BookImportServiceTest {
         }
         jdbc.sql("delete from genre where parent_id is not null").update();
         jdbc.sql("delete from genre").update();
+        for (Path cover : coverFiles()) {
+            try {
+                Files.delete(cover);
+            } catch (IOException exception) {
+                throw new UncheckedIOException(exception);
+            }
+        }
     }
 
     @Test
@@ -144,7 +151,8 @@ class BookImportServiceTest {
 
     @Test
     void shouldReuseTheAuthorOfAPreviousImportEvenAfterARename() {
-        long tolkien = service.importEdition(importOf(EDITION)).authors().getFirst().id();
+        long tolkien =
+                service.importEdition(importOf(EDITION)).authors().getFirst().id();
         authors.update(tolkien, new AuthorRequest("John Ronald Reuel Tolkien"));
         given(openLibrary.findEdition("OL7604539M")).willReturn(englishHobbit());
 
@@ -275,9 +283,7 @@ class BookImportServiceTest {
 
         assertThat(candidates)
                 .extracting(ImportCandidateResponse::editionKey, ImportCandidateResponse::libraryBookId)
-                .containsExactly(
-                        tuple(EDITION, existing),
-                        tuple("OL33891995M", null));
+                .containsExactly(tuple(EDITION, existing), tuple("OL33891995M", null));
         assertThat(candidates.getFirst().coverUrl()).isEqualTo(COVERS + "/b/id/" + COVER_ID + "-M.jpg");
         assertThat(candidates.getLast().coverUrl()).isNull();
     }

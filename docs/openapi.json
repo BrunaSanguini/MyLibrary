@@ -846,6 +846,36 @@
         }
       }
     },
+    "/api/v1/books/import" : {
+      "post" : {
+        "tags" : [ "books" ],
+        "summary" : "Imports an edition into the collection",
+        "description" : "Downloads the cover and reuses authors and publisher by name. Edition or ISBN-13 already in the collection: 409 book.edition-duplicated or book.isbn-duplicated, with bookId. Open Library failures: 404 openlibrary.not-found, 502 openlibrary.bad-response, 503 openlibrary.unavailable and 504 openlibrary.timeout.",
+        "operationId" : "importBook",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ImportRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BookDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/authors" : {
       "get" : {
         "tags" : [ "authors" ],
@@ -1053,6 +1083,74 @@
                 "schema" : {
                   "type" : "string",
                   "format" : "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/books/import/search" : {
+      "get" : {
+        "tags" : [ "books" ],
+        "summary" : "Searches the Open Library by title or author",
+        "description" : "Up to 20 results. libraryBookId is set when the edition is already in the collection. Open Library failures: 404 openlibrary.not-found, 502 openlibrary.bad-response, 503 openlibrary.unavailable and 504 openlibrary.timeout.",
+        "operationId" : "searchImportCandidates",
+        "parameters" : [ {
+          "name" : "q",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "maxLength" : 200,
+            "minLength" : 0
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ImportCandidateResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/books/import/preview" : {
+      "get" : {
+        "tags" : [ "books" ],
+        "summary" : "The data of one edition, before importing it",
+        "description" : "Send exactly one of isbn and editionKey; otherwise 400 request.invalid. Nothing is saved and the cover still points to the Open Library. Open Library failures: 404 openlibrary.not-found, 502 openlibrary.bad-response, 503 openlibrary.unavailable and 504 openlibrary.timeout.",
+        "operationId" : "previewImport",
+        "parameters" : [ {
+          "name" : "isbn",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : [ "string", "null" ]
+          }
+        }, {
+          "name" : "editionKey",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : [ "string", "null" ]
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ImportPreviewResponse"
                 }
               }
             }
@@ -1465,6 +1563,36 @@
         },
         "required" : [ "bookCount", "coverUrls", "id", "name" ]
       },
+      "ImportRequest" : {
+        "type" : "object",
+        "properties" : {
+          "editionKey" : {
+            "type" : "string",
+            "minLength" : 1,
+            "pattern" : "OL\\d{1,20}M"
+          },
+          "ownership" : {
+            "type" : "string",
+            "enum" : [ "OWNED", "WISHLIST", "NONE" ]
+          },
+          "genreIds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "integer",
+              "format" : "int64"
+            }
+          },
+          "seriesId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "seriesPosition" : {
+            "type" : "number",
+            "minimum" : 0.1
+          }
+        },
+        "required" : [ "editionKey" ]
+      },
       "BookCardResponse" : {
         "type" : "object",
         "properties" : {
@@ -1642,6 +1770,92 @@
           }
         },
         "required" : [ "bookCount", "id", "name" ]
+      },
+      "ImportCandidateResponse" : {
+        "type" : "object",
+        "properties" : {
+          "editionKey" : {
+            "type" : "string"
+          },
+          "workKey" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "authors" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "publishedYear" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "coverUrl" : {
+            "type" : "string"
+          },
+          "libraryBookId" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "authors", "editionKey", "title" ]
+      },
+      "ImportPreviewResponse" : {
+        "type" : "object",
+        "properties" : {
+          "editionKey" : {
+            "type" : "string"
+          },
+          "workKey" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "subtitle" : {
+            "type" : "string"
+          },
+          "authors" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "publisher" : {
+            "type" : "string"
+          },
+          "pageCount" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "isbn13" : {
+            "type" : "string"
+          },
+          "isbn10" : {
+            "type" : "string"
+          },
+          "publishedYear" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "languageCode" : {
+            "type" : "string"
+          },
+          "synopsis" : {
+            "type" : "string"
+          },
+          "coverUrl" : {
+            "type" : "string"
+          },
+          "libraryBookId" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "authors", "editionKey", "title" ]
       },
       "PageResponseAuthorResponse" : {
         "type" : "object",

@@ -198,6 +198,31 @@
                 </executions>
             </plugin>
             <plugin>
+                <!-- The E2E starts this jar as the Open Library (frontend/playwright.config.ts). -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-wiremock</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.wiremock</groupId>
+                                    <artifactId>wiremock-standalone</artifactId>
+                                    <version>${wiremock.version}</version>
+                                    <destFileName>wiremock-standalone.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <executions>

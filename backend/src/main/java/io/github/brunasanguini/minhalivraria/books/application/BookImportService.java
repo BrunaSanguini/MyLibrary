@@ -135,10 +135,13 @@ public class BookImportService {
                 false));
         book.linkToOpenLibrary(source.workKey(), source.editionKey());
         cover.ifPresent(content -> book.replaceCover(images.store(ImageKind.COVER, content)));
-        book.assignAuthors(source.authors().stream().map(this::authorOf).distinct().toList());
+        book.assignAuthors(
+                source.authors().stream().map(this::authorOf).distinct().toList());
         book.assignPublisher(publisherOf(source.publisher()));
-        book.assignGenres(
-                request.genreIdsOrEmpty().stream().distinct().map(this::findGenre).toList());
+        book.assignGenres(request.genreIdsOrEmpty().stream()
+                .distinct()
+                .map(this::findGenre)
+                .toList());
         book.assignSeries(seriesOf(request.seriesId()), request.seriesPosition());
         return BookService.toResponse(books.save(book));
     }

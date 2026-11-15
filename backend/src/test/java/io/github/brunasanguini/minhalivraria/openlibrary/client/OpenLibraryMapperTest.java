@@ -67,8 +67,8 @@ class OpenLibraryMapperTest {
 
     @Test
     void shouldSkipLanguagesThatAreNotThreeLetterCodes() {
-        List<KeyReference> languages =
-                List.of(new KeyReference(null), new KeyReference("/languages/pt-BR"), new KeyReference("/languages/eng"));
+        List<KeyReference> languages = List.of(
+                new KeyReference(null), new KeyReference("/languages/pt-BR"), new KeyReference("/languages/eng"));
 
         assertThat(OpenLibraryMapper.languageCode(languages)).isEqualTo("eng");
         assertThat(OpenLibraryMapper.languageCode(null)).isNull();

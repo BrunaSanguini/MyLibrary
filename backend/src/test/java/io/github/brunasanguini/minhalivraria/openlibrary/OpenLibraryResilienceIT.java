@@ -79,7 +79,8 @@ class OpenLibraryResilienceIT {
 
     @Test
     void shouldAnswer504AfterTryingThreeTimesWhenTheOpenLibraryIsTooSlow() {
-        OPEN_LIBRARY.stubFor(get(urlPathEqualTo(EDITION)).willReturn(okJson("{}").withFixedDelay(2_000)));
+        OPEN_LIBRARY.stubFor(
+                get(urlPathEqualTo(EDITION)).willReturn(okJson("{}").withFixedDelay(2_000)));
 
         assertThat(mvc.get().uri(PREVIEW + "OL29823759M"))
                 .hasStatus(HttpStatus.GATEWAY_TIMEOUT)
@@ -115,8 +116,8 @@ class OpenLibraryResilienceIT {
 
     @Test
     void shouldAnswer404WithoutTryingAgainWhenTheEditionDoesNotExist() {
-        OPEN_LIBRARY.stubFor(get(urlPathEqualTo("/books/OL404M.json"))
-                .willReturn(aResponse().withStatus(404)));
+        OPEN_LIBRARY.stubFor(
+                get(urlPathEqualTo("/books/OL404M.json")).willReturn(aResponse().withStatus(404)));
 
         assertThat(mvc.get().uri(PREVIEW + "OL404M"))
                 .hasStatus(HttpStatus.NOT_FOUND)

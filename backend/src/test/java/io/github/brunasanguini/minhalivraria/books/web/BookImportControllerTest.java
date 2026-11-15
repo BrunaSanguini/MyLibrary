@@ -131,8 +131,8 @@ class BookImportControllerTest {
 
     @Test
     void shouldAnswerAnImportedBookWith201AndItsLocation() {
-        given(service.importEdition(new ImportRequest(
-                        "OL29823759M", Ownership.OWNED, List.of(1L, 4L), 3L, new BigDecimal("1"))))
+        given(service.importEdition(
+                        new ImportRequest("OL29823759M", Ownership.OWNED, List.of(1L, 4L), 3L, new BigDecimal("1"))))
                 .willReturn(book(42));
 
         assertThat(mvc.post()

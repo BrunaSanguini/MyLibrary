@@ -35,10 +35,11 @@ class OpenLibraryConfiguration {
             AppProperties properties, ObjectProvider<BuildProperties> build) {
         AppProperties.OpenLibrary settings = properties.openLibrary();
         String userAgent = userAgent(settings, build.getIfAvailable());
-        return groups -> groups.filterByName(GROUP).forEachClient((group, client) -> client.baseUrl(
-                        settings.baseUrl().toString())
-                .defaultHeader(HttpHeaders.USER_AGENT, userAgent)
-                .requestFactory(requestFactory(settings)));
+        return groups -> groups.filterByName(GROUP)
+                .forEachClient(
+                        (group, client) -> client.baseUrl(settings.baseUrl().toString())
+                                .defaultHeader(HttpHeaders.USER_AGENT, userAgent)
+                                .requestFactory(requestFactory(settings)));
     }
 
     @Bean

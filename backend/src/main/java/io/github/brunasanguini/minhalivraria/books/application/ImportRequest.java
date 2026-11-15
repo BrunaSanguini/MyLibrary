@@ -16,10 +16,10 @@ import org.jspecify.annotations.Nullable;
  */
 public record ImportRequest(
         @NotBlank
-                @Pattern(
-                        regexp = "OL\\d{1,20}M",
-                        message = "{io.github.brunasanguini.minhalivraria.validation.editionKey.message}")
-                String editionKey,
+        @Pattern(
+                regexp = "OL\\d{1,20}M",
+                message = "{io.github.brunasanguini.minhalivraria.validation.editionKey.message}")
+        String editionKey,
 
         @Nullable Ownership ownership,
         @Nullable List<@NotNull Long> genreIds,

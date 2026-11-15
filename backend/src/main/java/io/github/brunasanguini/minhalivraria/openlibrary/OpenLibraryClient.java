@@ -52,7 +52,8 @@ public class OpenLibraryClient {
 
     public OpenLibraryClient(OpenLibraryGateway gateway, AppProperties properties) {
         this.gateway = gateway;
-        this.coversUrl = withoutTrailingSlash(properties.openLibrary().coversUrl().toString());
+        this.coversUrl =
+                withoutTrailingSlash(properties.openLibrary().coversUrl().toString());
     }
 
     /** Up to 20 books whose title or author matches the text. */
