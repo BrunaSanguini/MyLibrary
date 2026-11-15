@@ -2,8 +2,10 @@ package io.github.brunasanguini.minhalivraria.shelf.application;
 
 import io.github.brunasanguini.minhalivraria.books.Ownership;
 import io.github.brunasanguini.minhalivraria.images.ImageUrls;
+import io.github.brunasanguini.minhalivraria.shared.error.NotFoundException;
 import io.github.brunasanguini.minhalivraria.shared.text.TextNormalizer;
 import io.github.brunasanguini.minhalivraria.shared.web.PageQuery;
+import io.github.brunasanguini.minhalivraria.shelf.application.BookCardResponse.CardProgressResponse;
 import io.github.brunasanguini.minhalivraria.shelf.application.BookCardResponse.CardSeriesResponse;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -34,7 +36,35 @@ public class ShelfService {
             left join series s on s.id = b.series_id
             left join book_author ba0 on ba0.book_id = b.id and ba0.author_order = 0
             left join author a0 on a0.id = ba0.author_id
+            left join review rv on rv.book_id = b.id
             """;
+
+    /**
+     * The status of docs/modelo-de-dados.md. Reading wins; otherwise the latest reading decides, by end date and
+     * then by id, which is the order they were registered in.
+     */
+    private static final String STATUS = """
+            case when exists (
+                select 1 from reading r where r.book_id = b.id and r.status = 'IN_PROGRESS') then 'READING'
+            else coalesce((
+                select case when r.status = 'FINISHED' then 'READ' else 'ABANDONED' end
+                from reading r where r.book_id = b.id and r.status <> 'IN_PROGRESS'
+                order by r.end_date desc, r.id desc fetch first 1 row only), 'WANT_TO_READ') end""";
+
+    private static final String PAGES_IN_PROGRESS = """
+            (select coalesce(sum(rs.pages_read), 0) from reading_session rs
+                join reading r on r.id = rs.reading_id
+                where r.book_id = b.id and r.status = 'IN_PROGRESS')""";
+
+    /** How many subgenres a book shares with the book :id. */
+    private static final String SHARED_SUBGENRES = """
+            (select count(*) from book_genre bg join genre g on g.id = bg.genre_id
+                where bg.book_id = b.id and g.parent_id is not null
+                and bg.genre_id in (select own.genre_id from book_genre own where own.book_id = :id))""";
+
+    private static final int SERIES_LIMIT = 100;
+    private static final int SIMILAR_LIMIT = 12;
+    private static final int COMPLETE = 100;
 
     private final JdbcClient jdbc;
 
@@ -53,12 +83,49 @@ public class ShelfService {
         if (total == 0) {
             return new PageImpl<>(List.of(), pageable, 0);
         }
-        List<Card> cards = cards(conditions, pageable);
+        List<Card> cards = cards(
+                conditions.where(),
+                conditions.params(),
+                ShelfSort.orderBy(pageable.getSort()),
+                pageable.getPageSize(),
+                pageable.getOffset());
         if (cards.isEmpty()) {
             // A page past the end of the result: there is a total, but nothing to fill in.
             return new PageImpl<>(List.of(), pageable, total);
         }
         return new PageImpl<>(withCollections(cards), pageable, total);
+    }
+
+    /**
+     * What the page of a book shows below it.
+     *
+     * @throws NotFoundException {@code book.not-found}
+     */
+    public RelatedBooksResponse related(long bookId) {
+        Long found = jdbc.sql("select count(*) from book where id = :id")
+                .param("id", bookId)
+                .query(Long.class)
+                .single();
+        if (found == null || found == 0) {
+            throw new NotFoundException("book.not-found");
+        }
+        Map<String, Object> params = Map.of("id", bookId);
+        List<Card> series = cards(
+                " where b.id <> :id and b.series_id = (select own.series_id from book own where own.id = :id)",
+                params,
+                "b.series_position asc, b.id asc",
+                SERIES_LIMIT,
+                0);
+        // The books of the series are already in the other list.
+        List<Card> similar = cards(
+                " where b.id <> :id and " + SHARED_SUBGENRES + " > 0"
+                        + " and (b.series_id is null or b.series_id not in ("
+                        + "select own.series_id from book own where own.id = :id and own.series_id is not null))",
+                params,
+                SHARED_SUBGENRES + " desc, b.search_text asc, b.id asc",
+                SIMILAR_LIMIT,
+                0);
+        return new RelatedBooksResponse(withCollections(series), withCollections(similar));
     }
 
     private long count(Conditions conditions) {
@@ -69,33 +136,43 @@ public class ShelfService {
         return total == null ? 0 : total;
     }
 
-    private List<Card> cards(Conditions conditions, Pageable pageable) {
-        String sql = "select b.id, b.title, b.cover_image_id, b.ownership, b.favorite,"
-                + " s.id as series_id, s.name as series_name, b.series_position "
+    private List<Card> cards(String where, Map<String, Object> params, String orderBy, int limit, long offset) {
+        String sql = "select b.id, b.title, b.cover_image_id, b.ownership, b.favorite, b.page_count,"
+                + " s.id as series_id, s.name as series_name, b.series_position, rv.rating,"
+                + STATUS + " as shelf_status, " + PAGES_IN_PROGRESS + " as pages_in_progress "
                 + FROM_BOOK
-                + conditions.where()
+                + where
                 + " order by "
-                + ShelfSort.orderBy(pageable.getSort())
+                + orderBy
                 + " limit :limit offset :offset";
         return jdbc.sql(sql)
-                .params(conditions.params())
-                .param("limit", pageable.getPageSize())
-                .param("offset", pageable.getOffset())
-                .query((rs, row) -> new Card(
-                        rs.getLong("id"),
-                        rs.getString("title"),
-                        imageUrl(rs.getObject("cover_image_id", Long.class)),
-                        Ownership.valueOf(rs.getString("ownership")),
-                        rs.getBoolean("favorite"),
-                        series(
-                                rs.getObject("series_id", Long.class),
-                                rs.getString("series_name"),
-                                rs.getBigDecimal("series_position"))))
+                .params(params)
+                .param("limit", limit)
+                .param("offset", offset)
+                .query((rs, row) -> {
+                    ShelfStatus status = ShelfStatus.valueOf(rs.getString("shelf_status"));
+                    return new Card(
+                            rs.getLong("id"),
+                            rs.getString("title"),
+                            imageUrl(rs.getObject("cover_image_id", Long.class)),
+                            status,
+                            progress(status, rs.getInt("pages_in_progress"), rs.getObject("page_count", Integer.class)),
+                            rs.getBigDecimal("rating"),
+                            Ownership.valueOf(rs.getString("ownership")),
+                            rs.getBoolean("favorite"),
+                            series(
+                                    rs.getObject("series_id", Long.class),
+                                    rs.getString("series_name"),
+                                    rs.getBigDecimal("series_position")));
+                })
                 .list();
     }
 
     /** Fills authors and genres of the page in one query each, keeping the order of each list. */
     private List<BookCardResponse> withCollections(List<Card> cards) {
+        if (cards.isEmpty()) {
+            return List.of();
+        }
         List<Long> ids = cards.stream().map(Card::id).toList();
         Map<Long, List<String>> authors = namesByBook("""
                 select ba.book_id, a.name from book_author ba
@@ -115,6 +192,9 @@ public class ShelfService {
                         card.title(),
                         authors.getOrDefault(card.id(), List.of()),
                         card.coverUrl(),
+                        card.status(),
+                        card.progress(),
+                        card.rating(),
                         genres.getOrDefault(card.id(), List.of()),
                         card.ownership(),
                         card.favorite(),
@@ -144,6 +224,11 @@ public class ShelfService {
                         select 1 from book_author ba join author a on a.id = ba.author_id
                         where ba.book_id = b.id and a.normalized_name like :term escape '\\'))""");
             params.put("term", "%" + escapeLike(TextNormalizer.normalize(filter.q())) + "%");
+        }
+        if (filter.statuses() != null && !filter.statuses().isEmpty()) {
+            clauses.add("(" + STATUS + ") in (:statuses)");
+            params.put(
+                    "statuses", filter.statuses().stream().map(ShelfStatus::name).toList());
         }
         if (filter.ownership() != null) {
             clauses.add("b.ownership = :ownership");
@@ -186,6 +271,18 @@ public class ShelfService {
         return imageId == null ? null : ImageUrls.of(imageId);
     }
 
+    /** The card only shows progress while the book is being read. */
+    private static @Nullable CardProgressResponse progress(
+            ShelfStatus status, int pagesRead, @Nullable Integer pageCount) {
+        if (status != ShelfStatus.READING) {
+            return null;
+        }
+        int percent = pageCount == null || pageCount <= 0
+                ? 0
+                : (int) Math.min(COMPLETE, (long) pagesRead * COMPLETE / pageCount);
+        return new CardProgressResponse(pagesRead, pageCount, percent);
+    }
+
     private static @Nullable CardSeriesResponse series(
             @Nullable Long id, @Nullable String name, @Nullable BigDecimal position) {
         if (id == null || name == null || position == null) {
@@ -204,6 +301,9 @@ public class ShelfService {
             long id,
             String title,
             @Nullable String coverUrl,
+            ShelfStatus status,
+            @Nullable CardProgressResponse progress,
+            @Nullable BigDecimal rating,
             Ownership ownership,
             boolean favorite,
             @Nullable CardSeriesResponse series) {}
