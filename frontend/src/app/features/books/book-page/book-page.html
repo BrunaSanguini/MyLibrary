@@ -87,15 +87,14 @@
         </ul>
       }
 
-      @if (current.series; as series) {
-        <section class="block" aria-labelledby="bloco-serie">
-          <h2 id="bloco-serie" class="block-label">
-            <ml-icon name="series" [size]="16" />
-            Série
-          </h2>
-          <a class="block-value" [routerLink]="['/series', series.id]">{{ series.name }}</a>
-          <p class="block-detail">{{ seriesPlace() }}</p>
-        </section>
+      @if (readings.hasValue()) {
+        <ml-reading-sheet
+          aria-labelledby="titulo-ficha"
+          role="region"
+          [book]="current"
+          [readings]="readings.value()"
+          [rating]="rating()"
+        />
       }
 
       @if (current.synopsis) {
@@ -142,6 +141,25 @@
       </div>
     </div>
   </article>
+
+  @if (reviewFailure()) {
+    <p class="failure" role="alert">{{ reviewFailure() }}</p>
+  } @else if (!review.isLoading()) {
+    <ml-review-editor
+      class="review"
+      aria-labelledby="titulo-resenha"
+      role="region"
+      [bookId]="current.id"
+      [review]="savedReview()"
+      (changed)="review.reload()"
+    />
+  }
+
+  @defer (on viewport) {
+    <ml-related-books class="related" [bookId]="current.id" />
+  } @placeholder {
+    <div class="related-placeholder"></div>
+  }
 
   <ml-confirm-dialog
     title="Excluir este livro?"

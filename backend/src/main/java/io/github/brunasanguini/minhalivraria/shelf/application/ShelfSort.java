@@ -4,10 +4,10 @@ import java.util.Map;
 import org.springframework.data.domain.Sort;
 
 /**
- * The sort fields the shelf accepts, and the column each one becomes. {@code PageQuery} rejects anything outside this
- * map with {@code request.invalid-sort}, so only these four strings ever reach the SQL.
+ * The sort fields the shelf accepts, and the SQL each one becomes. {@code PageQuery} rejects anything outside this
+ * map with {@code request.invalid-sort}, so only these strings ever reach the SQL.
  *
- * <p>{@code rating}, {@code finishedAt} and {@code listOrder} arrive with the readings and the lists.
+ * <p>{@code listOrder} arrives with the lists.
  */
 final class ShelfSort {
 
@@ -16,7 +16,9 @@ final class ShelfSort {
             "title", "b.search_text",
             "author", "a0.normalized_name",
             "addedAt", "b.created_at",
-            "seriesPosition", "b.series_position");
+            "seriesPosition", "b.series_position",
+            "rating", "rv.rating",
+            "finishedAt", "(select max(r.end_date) from reading r where r.book_id = b.id and r.status = 'FINISHED')");
 
     static final Sort DEFAULT = Sort.by(Sort.Direction.DESC, "b.created_at");
 

@@ -51,6 +51,8 @@ Este catálogo cresce junto com o código: todo `code` novo entra aqui no mesmo 
 | <a id="reading-not-in-progress"></a>`reading.not-in-progress` | 409 | Ação de concluir ou abandonar numa leitura que não está em andamento. |
 | <a id="reading-end-before-start"></a>`reading.end-before-start` | 422 | Data de fim anterior à data de início. |
 | <a id="reading-end-date-required"></a>`reading.end-date-required` | 422 | Leitura concluída ou abandonada sem data de fim. |
+| <a id="reading-start-date-required"></a>`reading.start-date-required` | 422 | Leitura em andamento sem data de início. |
+| <a id="reading-end-date-not-allowed"></a>`reading.end-date-not-allowed` | 422 | Data de fim numa leitura em andamento. O fim só entra pelas ações de concluir e abandonar. |
 | <a id="session-not-found"></a>`session.not-found` | 404 | Sessão inexistente. |
 | <a id="session-pages-mode"></a>`session.pages-mode` | 400 | A sessão não informou exatamente um entre `pagesRead` e `currentPage`. |
 | <a id="session-page-count-required"></a>`session.page-count-required` | 422 | O livro não tem número de páginas cadastrado. |

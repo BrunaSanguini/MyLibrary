@@ -6,13 +6,15 @@ import {
   OWNERSHIPS,
   Ownership,
   SHELF_SORTS,
+  SHELF_STATUSES,
   ShelfApi,
   ShelfFilter,
   ShelfPage as ShelfPageResponse,
   ShelfSort,
+  ShelfStatus,
   toBookCard,
 } from '@core/api/shelf-api';
-import { toFlag, toId, toOneOf, toPageIndex, toSearchTerm } from '@core/api/query-params';
+import { toFlag, toId, toManyOf, toOneOf, toPageIndex, toSearchTerm } from '@core/api/query-params';
 import { BookCard, BookCardData } from '@shared/ui/book-card/book-card';
 import { Button } from '@shared/ui/button/button';
 import { EmptyState } from '@shared/ui/empty-state/empty-state';
@@ -25,6 +27,7 @@ import { BookGridSkeleton } from '@shared/ui/book-grid-skeleton/book-grid-skelet
 
 const toOwnership = toOneOf(OWNERSHIPS);
 const toSort = toOneOf(SHELF_SORTS);
+const toStatuses = toManyOf(SHELF_STATUSES);
 
 /**
  * Minha Estante: the whole collection, filtered, sorted and paginated.
@@ -51,6 +54,8 @@ const toSort = toOneOf(SHELF_SORTS);
 })
 export default class ShelfPage {
   readonly q = input(undefined, { transform: toSearchTerm });
+  /** Repeats in the URL: `?status=READING&status=READ` shows the books in either status. */
+  readonly status = input([], { transform: toStatuses });
   readonly ownership = input(undefined, { transform: toOwnership });
   readonly favorite = input(undefined, { transform: toFlag });
   readonly genreId = input(undefined, { transform: toId });
@@ -65,6 +70,7 @@ export default class ShelfPage {
 
   protected readonly filter = computed<ShelfFilter>(() => ({
     q: this.q(),
+    status: this.status(),
     ownership: this.ownership(),
     favorite: this.favorite(),
     genreId: this.genreId(),
@@ -84,16 +90,18 @@ export default class ShelfPage {
   );
 
   /** True once any filter narrows the shelf, which changes what the empty state should say. */
-  protected readonly filtered = computed(() =>
-    Boolean(
-      this.q() ??
-      this.ownership() ??
-      this.favorite() ??
-      this.genreId() ??
-      this.authorId() ??
-      this.publisherId() ??
-      this.seriesId(),
-    ),
+  protected readonly filtered = computed(
+    () =>
+      this.status().length > 0 ||
+      Boolean(
+        this.q() ??
+        this.ownership() ??
+        this.favorite() ??
+        this.genreId() ??
+        this.authorId() ??
+        this.publisherId() ??
+        this.seriesId(),
+      ),
   );
 
   /** The detail the API wrote, already in Portuguese, or the front-end's own network message. */
@@ -107,7 +115,25 @@ export default class ShelfPage {
     { value: 'title', label: 'Título' },
     { value: 'author', label: 'Autor' },
     { value: 'seriesPosition', label: 'Posição na série' },
+    { value: 'rating', label: 'Melhor nota' },
+    { value: 'finishedAt', label: 'Lidos por último' },
   ];
+
+  protected readonly statusOptions: readonly { value: ShelfStatus; label: string }[] = [
+    { value: 'READING', label: 'Lendo' },
+    { value: 'WANT_TO_READ', label: 'Quero ler' },
+    { value: 'READ', label: 'Lidos' },
+    { value: 'ABANDONED', label: 'Abandonados' },
+  ];
+
+  /** Each status is a switch of its own: several can be on, and none means all of them. */
+  protected toggleStatus(status: ShelfStatus): void {
+    const current = this.status();
+    const next = current.includes(status)
+      ? current.filter((active) => active !== status)
+      : [...current, status];
+    this.changeFilter({ status: next.length > 0 ? next : null });
+  }
 
   /** Clicking the active state turns the filter off, which is what a pressed toggle should do. */
   protected toggleOwnership(ownership: Ownership): void {
@@ -129,7 +155,7 @@ export default class ShelfPage {
   }
 
   /** Changing a filter goes back to the first page: page 4 of the old filter means nothing. */
-  protected changeFilter(params: Record<string, string | null>): void {
+  protected changeFilter(params: Record<string, string | readonly string[] | null>): void {
     this.navigate({ ...params, page: null });
   }
 
@@ -137,7 +163,7 @@ export default class ShelfPage {
     void this.router.navigate([], { queryParams: {} });
   }
 
-  private navigate(queryParams: Record<string, string | number | null>): void {
+  private navigate(queryParams: Record<string, string | number | readonly string[] | null>): void {
     void this.router.navigate([], { queryParams, queryParamsHandling: 'merge' });
   }
 }

@@ -186,4 +186,84 @@ describe('ShelfPage', () => {
     expect(screen.getByRole('alert')).toBeInTheDocument();
     expect(screen.getByText('A ordenação pedida não existe.')).toBeInTheDocument();
   });
+
+  it('sends every status of the URL, and drops the ones that do not exist', async () => {
+    const { params } = await openShelf('/estante?status=READING&status=READ&status=EMPRESTADO');
+
+    expect(params.getAll('status')).toEqual(['READING', 'READ']);
+    expect(screen.getByRole('button', { name: 'Lendo' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Lidos' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Quero ler' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+  });
+
+  it('sends no status at all when none is picked', async () => {
+    const { params } = await openShelf('/estante');
+
+    expect(params.has('status')).toBe(false);
+  });
+
+  it('adds a status to the ones already picked and goes back to the first page', async () => {
+    await openShelf('/estante?status=READING&page=2');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Lidos' }));
+
+    expect(TestBed.inject(Router).url).toBe('/estante?status=READING&status=READ');
+  });
+
+  it('takes a status out when its pressed tag is clicked again', async () => {
+    await openShelf('/estante?status=READING');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Lendo' }));
+
+    expect(TestBed.inject(Router).url).toBe('/estante');
+  });
+
+  it('asks for the best rated and the latest finished first', async () => {
+    const { params } = await openShelf('/estante?sort=rating');
+    expect(params.get('sort')).toBe('rating,desc');
+  });
+
+  it('keeps the other sort fields in the order the API defaults to', async () => {
+    const { params } = await openShelf('/estante?sort=title');
+    expect(params.get('sort')).toBe('title');
+  });
+
+  it('shows the status, the rating and the progress on the cards', async () => {
+    await openShelf(
+      '/estante',
+      page([
+        {
+          ...FELLOWSHIP,
+          status: 'READING',
+          progress: { pagesRead: 120, pageCount: 576, percent: 20 },
+        },
+        { ...FELLOWSHIP, id: 43, title: 'O Hobbit', status: 'READ', rating: 4.5, series: null },
+        {
+          ...FELLOWSHIP,
+          id: 44,
+          title: 'Duna',
+          status: 'WANT_TO_READ',
+          rating: null,
+          series: null,
+        },
+      ]),
+    );
+
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '20');
+    expect(screen.getByRole('link', { name: /O Hobbit.*Lido/ })).toBeInTheDocument();
+    expect(screen.getAllByRole('img', { name: 'Nota 4,5 de 5' })).toHaveLength(1);
+    // A rating the API sends as null is "no rating", not zero stars.
+    expect(screen.queryByRole('img', { name: /Sem nota/ })).not.toBeInTheDocument();
+  });
+
+  it('says the filters found nothing when only a status narrows the shelf', async () => {
+    await openShelf('/estante?status=ABANDONED', page([]));
+
+    expect(
+      screen.getByRole('heading', { name: 'Nenhum livro com esses filtros' }),
+    ).toBeInTheDocument();
+  });
 });

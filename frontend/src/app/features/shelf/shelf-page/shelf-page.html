@@ -18,6 +18,21 @@
 
 <div class="filters">
   <fieldset>
+    <legend>Status</legend>
+    @for (option of statusOptions; track option.value) {
+      <button
+        mlTag="state"
+        type="button"
+        [pressed]="status().includes(option.value)"
+        [attr.aria-pressed]="status().includes(option.value)"
+        (click)="toggleStatus(option.value)"
+      >
+        {{ option.label }}
+      </button>
+    }
+  </fieldset>
+
+  <fieldset>
     <legend>Mostrar</legend>
     <button
       mlTag="state"

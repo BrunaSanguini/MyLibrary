@@ -72,42 +72,14 @@ h1 {
   list-style: none;
 }
 
-.block {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-self: flex-start;
-  min-width: 280px;
-  padding: 18px 20px;
-  border: 1px solid var(--ml-color-line);
-  border-radius: var(--ml-radius-md);
-  background: var(--ml-color-raised);
+.review,
+.related {
+  margin-top: var(--ml-space-56);
 }
 
-.block-label {
-  display: flex;
-  align-items: center;
-  gap: var(--ml-space-8);
-  margin: 0;
-  color: var(--ml-color-muted);
-  font-family: var(--ml-font-body);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 1.6px;
-  text-transform: uppercase;
-}
-
-.block-value {
-  font-family: var(--ml-font-display);
-  font-size: 24px;
-  font-weight: 600;
-}
-
-.block-detail {
-  margin: 0;
-  color: var(--ml-color-muted);
-  font-size: 13px;
-  font-weight: 600;
+/* Keeps a little room at the end of the page, so the related books have a viewport to enter. */
+.related-placeholder {
+  min-height: var(--ml-space-40);
 }
 
 .section-title {
@@ -155,21 +127,18 @@ dd {
 
 /* Links inside the text share one look. */
 .authors a,
-.details a,
-.block-value {
+.details a {
   color: var(--ml-color-accent);
   text-decoration: none;
 }
 
 .authors a:hover,
-.details a:hover,
-.block-value:hover {
+.details a:hover {
   text-decoration: underline;
 }
 
 .authors a:focus-visible,
-.details a:focus-visible,
-.block-value:focus-visible {
+.details a:focus-visible {
   outline: 2px solid var(--ml-color-accent);
   outline-offset: 2px;
 }

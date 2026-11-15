@@ -76,6 +76,7 @@ class SampleCatalog implements ApplicationRunner {
         book(
                 "Memórias Póstumas de Brás Cubas",
                 1881,
+                368,
                 machado,
                 null,
                 trilogy,
@@ -84,14 +85,15 @@ class SampleCatalog implements ApplicationRunner {
                 true,
                 realism,
                 classic);
-        book("Quincas Borba", 1891, machado, garnier, trilogy, 2, Ownership.OWNED, false, realism, classic);
-        book("Dom Casmurro", 1899, machado, garnier, trilogy, 3, Ownership.OWNED, true, realism, classic);
-        book("O Cortiço", 1890, azevedo, garnier, null, null, Ownership.OWNED, false, naturalism, classic);
-        book("Iracema", 1865, alencar, null, null, null, Ownership.WISHLIST, false, indianism, classic);
-        book("O Guarani", 1857, alencar, null, null, null, Ownership.NONE, false, indianism, classic);
+        book("Quincas Borba", 1891, 352, machado, garnier, trilogy, 2, Ownership.OWNED, false, realism, classic);
+        book("Dom Casmurro", 1899, 320, machado, garnier, trilogy, 3, Ownership.OWNED, true, realism, classic);
+        book("O Cortiço", 1890, 280, azevedo, garnier, null, null, Ownership.OWNED, false, naturalism, classic);
+        book("Iracema", 1865, 160, alencar, null, null, null, Ownership.WISHLIST, false, indianism, classic);
+        book("O Guarani", 1857, 416, alencar, null, null, null, Ownership.NONE, false, indianism, classic);
         book(
                 "Triste Fim de Policarpo Quaresma",
                 1915,
+                296,
                 barreto,
                 null,
                 null,
@@ -106,6 +108,7 @@ class SampleCatalog implements ApplicationRunner {
     private void book(
             String title,
             int year,
+            int pages,
             long author,
             @Nullable Long publisher,
             @Nullable Long seriesId,
@@ -118,7 +121,7 @@ class SampleCatalog implements ApplicationRunner {
                 null,
                 null,
                 null,
-                null,
+                pages,
                 (short) year,
                 "por",
                 null,

@@ -1,0 +1,51 @@
+/* Rating input: the same two layers of stars as the read-only rating, with a range input on top. */
+
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ml-space-16);
+}
+
+.stars {
+  display: inline-block;
+  position: relative;
+  border-radius: var(--ml-radius-sm);
+  font-size: 34px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.empty {
+  color: var(--ml-color-line);
+}
+
+.filled {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  color: var(--ml-color-gold);
+}
+
+/* The input is there for the pointer, the keyboard and assistive technology; the stars are what shows. */
+input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.stars:has(input:focus-visible) {
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 4px;
+}
+
+.text {
+  color: var(--ml-color-muted);
+  font-size: 14px;
+  font-weight: 600;
+}

@@ -1,0 +1,87 @@
+<form class="form" aria-labelledby="titulo-sessao" novalidate (submit)="save($event)">
+  <h2 id="titulo-sessao">Registrar sessão</h2>
+
+  @if (failure()) {
+    <p class="failure" role="alert">{{ failure() }}</p>
+  }
+
+  <div class="row">
+    <div class="field">
+      <label for="dia-sessao">Dia</label>
+      <input
+        id="dia-sessao"
+        type="date"
+        [formField]="sessionForm.date"
+        [attr.aria-describedby]="errorOf(sessionForm.date) ? 'erro-dia' : null"
+      />
+      @if (errorOf(sessionForm.date); as message) {
+        <p id="erro-dia" class="error">{{ message }}</p>
+      }
+    </div>
+
+    <fieldset class="mode">
+      <legend>O que você quer informar?</legend>
+      <label class="choice">
+        <input type="radio" value="pagesRead" [formField]="sessionForm.mode" />
+        Páginas lidas
+      </label>
+      <label class="choice">
+        <input type="radio" value="currentPage" [formField]="sessionForm.mode" />
+        Página atual
+      </label>
+    </fieldset>
+  </div>
+
+  <div class="field">
+    <label for="paginas-sessao">{{ amountLabel() }}</label>
+    <div class="amount">
+      <input
+        id="paginas-sessao"
+        type="number"
+        step="1"
+        inputmode="numeric"
+        [formField]="sessionForm.amount"
+        [attr.aria-describedby]="errorOf(sessionForm.amount) ? 'erro-paginas' : 'dica-paginas'"
+      />
+      <div class="shortcuts" role="group" aria-label="Somar páginas">
+        @for (pages of shortcuts; track pages) {
+          <button
+            mlButton="secondary"
+            type="button"
+            [attr.aria-label]="'Somar ' + pages + ' páginas'"
+            (click)="add(pages)"
+          >
+            +{{ pages }}
+          </button>
+        }
+      </div>
+    </div>
+    @if (errorOf(sessionForm.amount); as message) {
+      <p id="erro-paginas" class="error">{{ message }}</p>
+    } @else {
+      <p id="dica-paginas" class="hint">
+        Você está na página {{ pagesRead() }} de {{ pageCount() }}.
+      </p>
+    }
+  </div>
+
+  <div class="field">
+    <label for="anotacao-sessao">Anotação <span class="optional">(opcional)</span></label>
+    <textarea
+      id="anotacao-sessao"
+      rows="3"
+      [formField]="sessionForm.note"
+      [attr.aria-describedby]="errorOf(sessionForm.note) ? 'erro-anotacao' : null"
+    ></textarea>
+    @if (errorOf(sessionForm.note); as message) {
+      <p id="erro-anotacao" class="error">{{ message }}</p>
+    }
+  </div>
+
+  <div class="actions">
+    <p class="confirmation" role="status">{{ confirmation() }}</p>
+    <button mlButton="primary" type="submit" [disabled]="sessionForm().submitting()">
+      {{ sessionForm().submitting() ? 'Salvando…' : 'Salvar sessão' }}
+    </button>
+  </div>
+</form>

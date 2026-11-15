@@ -1,0 +1,69 @@
+<header class="head">
+  <h2 id="titulo-ficha">Ficha de leitura</h2>
+  @if (reread()) {
+    <span mlTag="seal">
+      <ml-icon name="reread" [size]="14" />
+      Relido
+    </span>
+  }
+</header>
+
+<dl class="facts">
+  <div>
+    <dt>Nota</dt>
+    <dd>
+      @if (rating() !== undefined) {
+        <ml-rating-stars size="md" [value]="rating()" />
+      } @else {
+        <span class="none">Sem nota ainda</span>
+      }
+    </dd>
+  </div>
+  <div>
+    <dt>Status</dt>
+    <dd>{{ statusLabel() }}</dd>
+  </div>
+  @if (book().series; as series) {
+    <div>
+      <dt>Série</dt>
+      <dd>
+        <a [routerLink]="['/series', series.id]">{{ series.name }}</a>
+        <span class="detail">{{ seriesPlace() }}</span>
+      </dd>
+    </div>
+  }
+  @if (startDate()) {
+    <div>
+      <dt>Início</dt>
+      <dd>{{ startDate() }}</dd>
+    </div>
+  }
+  @if (endDate()) {
+    <div>
+      <dt>Fim</dt>
+      <dd>{{ endDate() }}</dd>
+    </div>
+  }
+  @if (pages()) {
+    <div>
+      <dt>Páginas</dt>
+      <dd>{{ pages() }}</dd>
+    </div>
+  }
+  <div>
+    <dt>Leituras</dt>
+    <dd>{{ timesRead() }}</dd>
+  </div>
+</dl>
+
+@if (reading() && latest(); as current) {
+  <div class="progress">
+    <ml-progress-bar [value]="current.progress.percent" />
+    <span class="percent">{{ current.progress.percent }}%</span>
+  </div>
+}
+
+<a mlButton="primary" [routerLink]="['/livros', book().id, 'leitura']">
+  <ml-icon name="reading" [size]="16" />
+  {{ action() }}
+</a>

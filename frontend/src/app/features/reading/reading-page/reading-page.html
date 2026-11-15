@@ -1,0 +1,204 @@
+@if (notFound()) {
+  <ml-empty-state
+    icon="search"
+    title="Livro não encontrado"
+    message="Este livro não está no seu acervo. Ele pode ter sido excluído."
+  >
+    <a mlButton="primary" routerLink="/estante">Ir para a Estante</a>
+  </ml-empty-state>
+} @else if (book.hasValue() && readings.hasValue()) {
+  @let currentBook = book.value();
+
+  <header class="head">
+    <p class="eyebrow">Registrar leitura</p>
+    <h1>{{ currentBook.title }}</h1>
+    <p class="lead">
+      @if (startedOn()) {
+        Leitura iniciada em {{ startedOn() }}.
+      }
+      <a mlButton="link" [routerLink]="['/livros', currentBook.id]">Voltar ao livro</a>
+    </p>
+  </header>
+
+  @if (failure()) {
+    <p class="failure" role="alert">{{ failure() }}</p>
+  }
+  <p class="notice" role="status">{{ notice() }}</p>
+
+  @if (current(); as reading) {
+    <ml-reading-progress [reading]="reading" [sessions]="sessionList()" [today]="today()" />
+
+    @if (currentBook.pageCount; as pageCount) {
+      <ml-session-form
+        [readingId]="reading.id"
+        [pagesRead]="reading.progress.pagesRead"
+        [pageCount]="pageCount"
+        [startDate]="reading.startDate ?? undefined"
+        [today]="today()"
+        (saved)="refresh()"
+      />
+    } @else {
+      <section class="card" aria-labelledby="titulo-sem-paginas">
+        <h2 id="titulo-sem-paginas">Falta o número de páginas</h2>
+        <p class="text">
+          Para registrar sessões e acompanhar o progresso, o livro precisa do número de páginas.
+        </p>
+        <div class="actions">
+          <a mlButton="secondary" [routerLink]="['/livros', currentBook.id, 'editar']">
+            Editar o livro
+          </a>
+        </div>
+      </section>
+    }
+
+    @if (latestSessions().length > 0) {
+      <section class="card" aria-labelledby="titulo-sessoes">
+        <h2 id="titulo-sessoes">Sessões registradas</h2>
+        <ul class="sessions">
+          @for (session of latestSessions(); track session.id) {
+            <li class="session">
+              <span class="session-day">{{ session.day }}</span>
+              <span class="session-pages">{{ session.pages }}</span>
+              <span class="session-note">{{ session.note }}</span>
+              <button
+                mlButton="icon"
+                type="button"
+                [disabled]="busy()"
+                [attr.aria-label]="'Excluir a sessão de ' + session.day + ', ' + session.pages"
+                (click)="deleteSession(reading, session)"
+              >
+                <ml-icon name="trash" [size]="16" />
+              </button>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <form
+      class="form"
+      aria-labelledby="titulo-periodo"
+      novalidate
+      (submit)="savePeriod($event, reading)"
+    >
+      <h2 id="titulo-periodo">Período da leitura</h2>
+      <div class="row">
+        <div class="field">
+          <label for="inicio-leitura">Início</label>
+          <input
+            id="inicio-leitura"
+            type="date"
+            [formField]="periodForm.startDate"
+            [attr.aria-describedby]="errorOf(periodForm.startDate) ? 'erro-inicio' : null"
+          />
+          @if (errorOf(periodForm.startDate); as message) {
+            <p id="erro-inicio" class="error">{{ message }}</p>
+          }
+        </div>
+        <label class="choice reread">
+          <input type="checkbox" [formField]="periodForm.reread" />
+          Esta é uma releitura
+        </label>
+      </div>
+      <div class="actions">
+        <button mlButton="secondary" type="submit" [disabled]="busy()">Salvar período</button>
+      </div>
+    </form>
+
+    <section class="card" aria-labelledby="titulo-encerrar">
+      <h2 id="titulo-encerrar">Encerrar a leitura</h2>
+      <p class="text">
+        Concluir marca o livro como lido. Abandonar guarda o que você leu, sem contar como lido.
+      </p>
+      <div class="field end">
+        <label for="fim-leitura">Dia do término</label>
+        <input
+          id="fim-leitura"
+          type="date"
+          [formField]="periodForm.endDate"
+          [attr.aria-describedby]="errorOf(periodForm.endDate) ? 'erro-fim' : null"
+        />
+        @if (errorOf(periodForm.endDate); as message) {
+          <p id="erro-fim" class="error">{{ message }}</p>
+        }
+      </div>
+      <div class="actions">
+        <button mlButton="link" type="button" [disabled]="busy()" (click)="abandon(reading)">
+          Abandonar leitura
+        </button>
+        <button mlButton="primary" type="button" [disabled]="busy()" (click)="finish(reading)">
+          <ml-icon name="check" [size]="16" />
+          Concluir leitura
+        </button>
+      </div>
+    </section>
+  } @else {
+    <form class="form" aria-labelledby="titulo-nova" novalidate (submit)="createReading($event)">
+      <h2 id="titulo-nova">Nova leitura</h2>
+      <p class="text">Este livro não tem uma leitura em andamento.</p>
+
+      <div class="field">
+        <label for="situacao-leitura">O que você quer registrar?</label>
+        <select id="situacao-leitura" [formField]="newReadingForm.status">
+          <option value="IN_PROGRESS">Estou lendo agora</option>
+          <option value="FINISHED">Já li este livro</option>
+          <option value="ABANDONED">Comecei e abandonei</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="inicio-nova">
+            Início
+            @if (!startingNow()) {
+              <span class="optional">(opcional)</span>
+            }
+          </label>
+          <input
+            id="inicio-nova"
+            type="date"
+            [formField]="newReadingForm.startDate"
+            [attr.aria-describedby]="errorOf(newReadingForm.startDate) ? 'erro-inicio-nova' : null"
+          />
+          @if (errorOf(newReadingForm.startDate); as message) {
+            <p id="erro-inicio-nova" class="error">{{ message }}</p>
+          }
+        </div>
+
+        @if (!startingNow()) {
+          <div class="field">
+            <label for="fim-nova">Fim</label>
+            <input
+              id="fim-nova"
+              type="date"
+              [formField]="newReadingForm.endDate"
+              [attr.aria-describedby]="errorOf(newReadingForm.endDate) ? 'erro-fim-nova' : null"
+            />
+            @if (errorOf(newReadingForm.endDate); as message) {
+              <p id="erro-fim-nova" class="error">{{ message }}</p>
+            }
+          </div>
+        }
+      </div>
+
+      <label class="choice">
+        <input type="checkbox" [formField]="newReadingForm.reread" />
+        Esta é uma releitura
+      </label>
+
+      <div class="actions">
+        <button mlButton="primary" type="submit" [disabled]="busy()">
+          <ml-icon name="reading" [size]="16" />
+          {{ startingNow() ? 'Começar leitura' : 'Registrar leitura' }}
+        </button>
+      </div>
+    </form>
+  }
+} @else if (book.error() || readings.error()) {
+  <ml-error-state [message]="errorMessage()" (retry)="book.reload(); readings.reload()" />
+} @else {
+  <div aria-hidden="true">
+    <ml-skeleton width="50%" />
+    <ml-skeleton variant="card" />
+  </div>
+}

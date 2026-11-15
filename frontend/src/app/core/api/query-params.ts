@@ -47,3 +47,19 @@ export function toId(value: unknown): number | undefined {
 export function toFlag(value: unknown): boolean | undefined {
   return value === 'true' ? true : value === 'false' ? false : undefined;
 }
+
+/**
+ * A query param that may repeat (`?status=READING&status=READ`), keeping only the allowed values.
+ * The router hands one value as a string and several as an array.
+ */
+export function toManyOf<T extends string>(
+  allowed: readonly T[],
+): (value: unknown) => readonly T[] {
+  return (value) => {
+    const values: readonly unknown[] = Array.isArray(value) ? value : [value];
+    const kept = values.filter((candidate): candidate is T =>
+      (allowed as readonly unknown[]).includes(candidate),
+    );
+    return [...new Set(kept)];
+  };
+}

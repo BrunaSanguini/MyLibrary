@@ -1,0 +1,21 @@
+@if (series().length > 0) {
+  <section aria-labelledby="titulo-serie">
+    <h2 id="titulo-serie">Mais da série</h2>
+    <ul class="grid">
+      @for (card of series(); track card.id) {
+        <li><ml-book-card [book]="card" /></li>
+      }
+    </ul>
+  </section>
+}
+
+@if (similar().length > 0) {
+  <section aria-labelledby="titulo-similares">
+    <h2 id="titulo-similares">Você também pode gostar</h2>
+    <ul class="grid">
+      @for (card of similar(); track card.id) {
+        <li><ml-book-card [book]="card" /></li>
+      }
+    </ul>
+  </section>
+}

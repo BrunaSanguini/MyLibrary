@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { toOneOf, toPageIndex, toSearchTerm } from './query-params';
+import { toManyOf, toOneOf, toPageIndex, toSearchTerm } from './query-params';
 
 describe('toPageIndex', () => {
   it('returns 0 when the value is not a non-negative integer', () => {
@@ -39,5 +39,25 @@ describe('toOneOf', () => {
     expect(toStatus('read')).toBeUndefined();
     expect(toStatus('XYZ')).toBeUndefined();
     expect(toStatus(undefined)).toBeUndefined();
+  });
+});
+
+describe('toManyOf', () => {
+  const toStatuses = toManyOf(['READING', 'READ'] as const);
+
+  it('accepts one value, as the router hands a param that appears once', () => {
+    expect(toStatuses('READING')).toEqual(['READING']);
+  });
+
+  it('accepts several values, as the router hands a repeated param', () => {
+    expect(toStatuses(['READ', 'READING'])).toEqual(['READ', 'READING']);
+  });
+
+  it('drops what is not allowed and what repeats', () => {
+    expect(toStatuses(['READ', 'EMPRESTADO', 'READ', 7])).toEqual(['READ']);
+  });
+
+  it('is empty for an absent param', () => {
+    expect(toStatuses(undefined)).toEqual([]);
   });
 });

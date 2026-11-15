@@ -9,10 +9,14 @@ import static org.mockito.BDDMockito.willThrow;
 import io.github.brunasanguini.minhalivraria.WebSliceTest;
 import io.github.brunasanguini.minhalivraria.books.Ownership;
 import io.github.brunasanguini.minhalivraria.shared.error.BadRequestException;
+import io.github.brunasanguini.minhalivraria.shared.error.NotFoundException;
 import io.github.brunasanguini.minhalivraria.shelf.application.BookCardResponse;
+import io.github.brunasanguini.minhalivraria.shelf.application.BookCardResponse.CardProgressResponse;
 import io.github.brunasanguini.minhalivraria.shelf.application.BookCardResponse.CardSeriesResponse;
+import io.github.brunasanguini.minhalivraria.shelf.application.RelatedBooksResponse;
 import io.github.brunasanguini.minhalivraria.shelf.application.ShelfFilter;
 import io.github.brunasanguini.minhalivraria.shelf.application.ShelfService;
+import io.github.brunasanguini.minhalivraria.shelf.application.ShelfStatus;
 import java.math.BigDecimal;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -52,6 +56,9 @@ class ShelfControllerTest {
                               "title": "A Sociedade do Anel",
                               "authors": ["J. R. R. Tolkien"],
                               "coverUrl": "/api/v1/images/17",
+                              "status": "READING",
+                              "progress": { "pagesRead": 120, "pageCount": 576, "percent": 20 },
+                              "rating": 4.5,
                               "genres": ["Alta fantasia"],
                               "ownership": "OWNED",
                               "favorite": true,
@@ -67,13 +74,22 @@ class ShelfControllerTest {
         given(service.search(any(), any())).willReturn(emptyPage());
 
         assertThat(mvc.get()
-                        .uri("/api/v1/shelf/books?q=aneis&ownership=OWNED&favorite=true"
+                        .uri("/api/v1/shelf/books?q=aneis&status=READING&status=READ&ownership=OWNED&favorite=true"
                                 + "&genreId=1&authorId=2&publisherId=3&seriesId=4"))
                 .hasStatusOk();
 
         ArgumentCaptor<ShelfFilter> filter = ArgumentCaptor.forClass(ShelfFilter.class);
         then(service).should().search(filter.capture(), any());
-        assertThat(filter.getValue()).isEqualTo(new ShelfFilter("aneis", Ownership.OWNED, true, 1L, 2L, 3L, 4L));
+        assertThat(filter.getValue())
+                .isEqualTo(new ShelfFilter(
+                        "aneis",
+                        List.of(ShelfStatus.READING, ShelfStatus.READ),
+                        Ownership.OWNED,
+                        true,
+                        1L,
+                        2L,
+                        3L,
+                        4L));
     }
 
     @Test
@@ -84,7 +100,7 @@ class ShelfControllerTest {
 
         ArgumentCaptor<ShelfFilter> filter = ArgumentCaptor.forClass(ShelfFilter.class);
         then(service).should().search(filter.capture(), any());
-        assertThat(filter.getValue()).isEqualTo(new ShelfFilter(null, null, null, null, null, null, null));
+        assertThat(filter.getValue()).isEqualTo(new ShelfFilter(null, null, null, null, null, null, null, null));
     }
 
     @Test
@@ -103,6 +119,34 @@ class ShelfControllerTest {
     @Test
     void shouldRefuseAnUnknownOwnership() {
         assertThat(mvc.get().uri("/api/v1/shelf/books?ownership=EMPRESTADO")).hasStatus(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void shouldRefuseAnUnknownStatus() {
+        assertThat(mvc.get().uri("/api/v1/shelf/books?status=EMPRESTADO")).hasStatus(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void shouldAnswerTheRelatedBooksInTheirTwoLists() {
+        given(service.related(42)).willReturn(new RelatedBooksResponse(List.of(card()), List.of()));
+
+        assertThat(mvc.get().uri("/api/v1/shelf/books/42/related"))
+                .hasStatusOk()
+                .bodyJson()
+                .isLenientlyEqualTo("""
+                        { "series": [{ "id": 42, "status": "READING" }], "similar": [] }
+                        """);
+    }
+
+    @Test
+    void shouldAnswer404ForTheRelatedBooksOfAnUnknownBook() {
+        given(service.related(404)).willThrow(new NotFoundException("book.not-found"));
+
+        assertThat(mvc.get().uri("/api/v1/shelf/books/404/related"))
+                .hasStatus(HttpStatus.NOT_FOUND)
+                .bodyJson()
+                .extractingPath("$.code")
+                .isEqualTo("book.not-found");
     }
 
     @Test
@@ -136,6 +180,9 @@ class ShelfControllerTest {
                 "A Sociedade do Anel",
                 List.of("J. R. R. Tolkien"),
                 "/api/v1/images/17",
+                ShelfStatus.READING,
+                new CardProgressResponse(120, 576, 20),
+                new BigDecimal("4.5"),
                 List.of("Alta fantasia"),
                 Ownership.OWNED,
                 true,

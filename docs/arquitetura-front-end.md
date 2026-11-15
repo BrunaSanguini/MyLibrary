@@ -43,9 +43,11 @@ Cada componente tem a própria pasta, com `.ts`, `.html`, `.css` e `.spec.ts`:
 features/books/
 ├─ books.routes.ts
 ├─ book-page/
-├─ book-form/
-├─ book-import/
-└─ reading-sheet/        ficha de leitura exibida na página do livro
+├─ book-form-page/
+├─ book-import-page/
+├─ reading-sheet/        ficha de leitura exibida na página do livro
+├─ review-editor/        resenha, lida e escrita na própria página
+└─ related-books/        livros relacionados, carregados com @defer
 ```
 
 **Regras de dependência**
