@@ -7,13 +7,23 @@ import { ProgressBar } from '../progress-bar/progress-bar';
 import { RatingStars } from '../rating-stars/rating-stars';
 import { Tag } from '../tag/tag';
 
-/** What the card needs to show a book. Mirrors BookCardResponse, plus the Marco 3 fields. */
+/** Where the book stands on the shelf, as the API calculates it from the readings. */
+export type BookCardStatus = 'WANT_TO_READ' | 'READING' | 'READ' | 'ABANDONED';
+
+/** Only a book that was read or abandoned says so; reading shows the bar, and the rest is silent. */
+const STATUS_LABELS: Readonly<Partial<Record<BookCardStatus, string>>> = {
+  READ: 'Lido',
+  ABANDONED: 'Abandonado',
+};
+
+/** What the card needs to show a book. Mirrors BookCardResponse. */
 export interface BookCardData {
   readonly id: number;
   readonly title: string;
   readonly authors: readonly string[];
   readonly coverUrl?: string;
   readonly pageCount?: number;
+  readonly status?: BookCardStatus;
   /** 0 to 5, in half points. Absent until the review exists. */
   readonly rating?: number;
   /** 0 to 100. Only a book being read has one, and only then the bar shows. */
@@ -46,6 +56,11 @@ export class BookCard {
 
   protected readonly authors = computed(() => this.book().authors.join(', '));
   protected readonly reading = computed(() => this.book().progress !== undefined);
+
+  protected readonly statusLabel = computed(() => {
+    const status = this.book().status;
+    return status ? STATUS_LABELS[status] : undefined;
+  });
 
   protected readonly series = computed(() => {
     const { seriesName, seriesPosition } = this.book();

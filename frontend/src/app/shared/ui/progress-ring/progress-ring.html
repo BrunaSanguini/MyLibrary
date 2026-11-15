@@ -1,0 +1,12 @@
+<svg viewBox="0 0 120 120" aria-hidden="true">
+  <circle class="track" cx="60" cy="60" [attr.r]="radius" />
+  <circle
+    class="fill"
+    cx="60"
+    cy="60"
+    [attr.r]="radius"
+    [attr.stroke-dasharray]="circumference"
+    [attr.stroke-dashoffset]="offset()"
+  />
+</svg>
+<span class="number" aria-hidden="true">{{ percentage() }}<span class="sign">%</span></span>

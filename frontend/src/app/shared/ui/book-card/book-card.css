@@ -64,6 +64,16 @@
   font-weight: 400;
 }
 
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ml-space-4);
+  color: var(--ml-color-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
 .series {
   align-self: flex-start;
   margin-top: 2px;

@@ -1,0 +1,52 @@
+/* Progress ring: a muted track and a burgundy stroke that starts at the top. */
+
+:host {
+  display: inline-grid;
+  place-items: center;
+  width: 168px;
+  height: 168px;
+}
+
+svg {
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+circle {
+  fill: none;
+  stroke-width: 10;
+}
+
+.track {
+  stroke: var(--ml-color-line);
+}
+
+.fill {
+  transition: stroke-dashoffset 400ms ease;
+  stroke: var(--ml-color-accent);
+  stroke-linecap: round;
+}
+
+.number {
+  grid-area: 1 / 1;
+  font-family: var(--ml-font-display);
+  font-size: 44px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.sign {
+  margin-left: 2px;
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-body);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill {
+    transition: none;
+  }
+}

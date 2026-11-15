@@ -17,6 +17,8 @@ const routes: Routes = [
   {
     path: ':id',
     loadComponent: () => import('./book-page/book-page'),
+    // The review is written on the page itself.
+    canDeactivate: [unsavedChangesGuard],
     title: 'Livro',
   },
   {

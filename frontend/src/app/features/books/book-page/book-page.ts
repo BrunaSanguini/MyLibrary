@@ -4,7 +4,9 @@ import { Router, RouterLink } from '@angular/router';
 import { ApiError } from '@core/api/api-error';
 import { BookDetailResponse, BooksApi } from '@core/api/books-api';
 import { toId } from '@core/api/query-params';
+import { NO_REVIEW, ReadingApi, ReadingResponse, ReviewResponse } from '@core/api/reading-api';
 import { Ownership } from '@core/api/shelf-api';
+import { HasUnsavedChanges } from '@core/routing/unsaved-changes-guard';
 import { BookCover } from '@shared/ui/book-cover/book-cover';
 import { Button } from '@shared/ui/button/button';
 import { ConfirmDialog } from '@shared/ui/confirm-dialog/confirm-dialog';
@@ -14,6 +16,10 @@ import { Icon } from '@shared/ui/icon/icon';
 import { Skeleton } from '@shared/ui/skeleton/skeleton';
 import { Tag } from '@shared/ui/tag/tag';
 import { firstValueFrom, Observable } from 'rxjs';
+
+import { ReadingSheet } from '../reading-sheet/reading-sheet';
+import { RelatedBooks } from '../related-books/related-books';
+import { ReviewEditor } from '../review-editor/review-editor';
 
 const LANGUAGES: Readonly<Record<string, string>> = {
   por: 'Português',
@@ -26,8 +32,8 @@ const LANGUAGES: Readonly<Record<string, string>> = {
 };
 
 /**
- * The page of a book: its data, where it sits in the catalog, and the three quick switches
- * (Tenho, Wishlist and favorite).
+ * The page of a book: its data, where it sits in the catalog, the three quick switches (Tenho,
+ * Wishlist and favorite), the reading record, the review and, at the end, the related books.
  *
  * <p>The switches update the page first and the server right after, so a click answers at once;
  * if the server refuses, the page goes back to what is really saved and says why.
@@ -41,6 +47,9 @@ const LANGUAGES: Readonly<Record<string, string>> = {
     EmptyState,
     ErrorState,
     Icon,
+    ReadingSheet,
+    RelatedBooks,
+    ReviewEditor,
     RouterLink,
     Skeleton,
     Tag,
@@ -48,16 +57,44 @@ const LANGUAGES: Readonly<Record<string, string>> = {
   templateUrl: './book-page.html',
   styleUrl: './book-page.css',
 })
-export default class BookPage {
+export default class BookPage implements HasUnsavedChanges {
   readonly id = input(undefined, { transform: toId });
 
   private readonly router = inject(Router);
   private readonly booksApi = inject(BooksApi);
+  private readonly readingApi = inject(ReadingApi);
   private readonly confirmDeletion = viewChild(ConfirmDialog);
+  private readonly reviewEditor = viewChild(ReviewEditor);
 
   protected readonly book = httpResource<BookDetailResponse>(() => {
     const id = this.id();
     return id === undefined ? undefined : this.booksApi.detailRequest(id);
+  });
+
+  protected readonly readings = httpResource<ReadingResponse[]>(() => {
+    const id = this.id();
+    return id === undefined ? undefined : this.readingApi.readingsRequest(id);
+  });
+
+  /** A book without review answers 404, which is an everyday state here and not a failure. */
+  protected readonly review = httpResource<ReviewResponse>(() => {
+    const id = this.id();
+    return id === undefined ? undefined : this.readingApi.reviewRequest(id);
+  });
+
+  protected readonly savedReview = computed(() =>
+    this.review.hasValue() ? this.review.value() : undefined,
+  );
+  /** The API sends an absent rating as null. */
+  protected readonly rating = computed(() => this.savedReview()?.rating ?? undefined);
+
+  protected readonly reviewFailure = computed(() => {
+    const error: unknown = this.review.error();
+    if (error === undefined) {
+      return undefined;
+    }
+    const apiError = ApiError.from(error);
+    return apiError.code === NO_REVIEW ? undefined : apiError.detail;
   });
 
   protected readonly failure = signal<string | undefined>(undefined);
@@ -95,16 +132,10 @@ export default class BookPage {
     ].filter((detail): detail is { label: string; value: string } => Boolean(detail.value));
   });
 
-  protected readonly seriesPlace = computed(() => {
-    const series = this.book.value()?.series;
-    if (!series) {
-      return undefined;
-    }
-    const position = series.position.toLocaleString('pt-BR');
-    return series.totalVolumes
-      ? `Livro ${position} de ${series.totalVolumes}`
-      : `Livro ${position}`;
-  });
+  /** A review being written is the one thing this page can lose. */
+  hasUnsavedChanges(): boolean {
+    return this.reviewEditor()?.hasUnsavedChanges() ?? false;
+  }
 
   /** Clicking the active tag turns it off: the book goes back to "not informed". */
   protected toggleOwnership(ownership: Ownership): void {

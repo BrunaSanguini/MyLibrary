@@ -55,6 +55,27 @@ describe('BookCard', () => {
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '62');
   });
 
+  it('says when the book was read or abandoned', async () => {
+    await renderCard({ ...FELLOWSHIP, status: 'READ' });
+
+    expect(screen.getByRole('link', { name: /576 páginas Lido$/ })).toBeInTheDocument();
+  });
+
+  it('says abandoned for a book that was given up', async () => {
+    await renderCard({ ...FELLOWSHIP, status: 'ABANDONED' });
+
+    expect(screen.getByText('Abandonado')).toBeInTheDocument();
+  });
+
+  it.each(['WANT_TO_READ', 'READING'] as const)(
+    'has no status label for a book in %s',
+    async (status) => {
+      await renderCard({ ...FELLOWSHIP, status });
+
+      expect(screen.queryByText(/Lido|Abandonado|Quero ler/)).not.toBeInTheDocument();
+    },
+  );
+
   it('shows where the book sits in its series', async () => {
     await renderCard({ ...FELLOWSHIP, seriesName: 'O Senhor dos Anéis', seriesPosition: 1 });
 

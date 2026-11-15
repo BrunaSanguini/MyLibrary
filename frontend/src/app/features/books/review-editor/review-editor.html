@@ -1,0 +1,67 @@
+<h2 id="titulo-resenha">Minha resenha</h2>
+
+@if (editing()) {
+  <form class="form" aria-labelledby="titulo-resenha" novalidate (submit)="save($event)">
+    <div class="field">
+      <label for="nota-resenha">Nota</label>
+      <ml-rating-input inputId="nota-resenha" [value]="rating()" (valueChange)="rate($event)" />
+      <p class="hint">Use as setas para mudar meia estrela por vez. Todo à esquerda tira a nota.</p>
+    </div>
+
+    <div class="field">
+      <label for="texto-resenha">O que você achou?</label>
+      <textarea
+        id="texto-resenha"
+        rows="8"
+        [formField]="reviewForm.content"
+        [attr.aria-describedby]="errorOf(reviewForm.content) ? 'erro-resenha' : null"
+      ></textarea>
+      @if (errorOf(reviewForm.content); as message) {
+        <p id="erro-resenha" class="error">{{ message }}</p>
+      }
+    </div>
+
+    @if (failure()) {
+      <p class="failure" role="alert">{{ failure() }}</p>
+    }
+
+    <div class="actions">
+      @if (review()) {
+        <button
+          class="delete"
+          mlButton="link"
+          type="button"
+          [disabled]="saving()"
+          (click)="delete()"
+        >
+          Excluir resenha
+        </button>
+      }
+      <button mlButton="secondary" type="button" [disabled]="saving()" (click)="cancel()">
+        Cancelar
+      </button>
+      <button mlButton="primary" type="submit" [disabled]="saving()">
+        {{ saving() ? 'Salvando…' : 'Salvar resenha' }}
+      </button>
+    </div>
+  </form>
+} @else if (review(); as saved) {
+  @if (savedRating() !== undefined) {
+    <ml-rating-stars size="md" [value]="savedRating()" />
+  }
+  @if (saved.content) {
+    <p class="content">{{ saved.content }}</p>
+  }
+  <button mlButton="secondary" type="button" (click)="edit()">
+    <ml-icon name="edit" [size]="16" />
+    Editar resenha
+  </button>
+} @else {
+  <p class="invitation">
+    Você ainda não avaliou este livro. Que tal dar uma nota ou contar o que achou?
+  </p>
+  <button mlButton="secondary" type="button" (click)="edit()">
+    <ml-icon name="star" [size]="16" />
+    Escrever resenha
+  </button>
+}

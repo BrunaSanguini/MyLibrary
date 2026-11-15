@@ -18,6 +18,14 @@
       @if (book().pageCount) {
         <span class="pages">{{ book().pageCount }} páginas</span>
       }
+      @if (statusLabel()) {
+        <span class="status">
+          @if (book().status === 'READ') {
+            <ml-icon name="check" [size]="13" />
+          }
+          {{ statusLabel() }}
+        </span>
+      }
     </span>
 
     @if (series()) {

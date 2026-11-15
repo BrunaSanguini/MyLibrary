@@ -1,0 +1,16 @@
+<span class="stars">
+  <span class="empty" aria-hidden="true">{{ stars }}</span>
+  <span class="filled" aria-hidden="true" [style.width.%]="percentage()">{{ stars }}</span>
+  <input
+    type="range"
+    min="0"
+    [max]="max"
+    [step]="step"
+    [id]="inputId()"
+    [value]="value() ?? 0"
+    [attr.aria-label]="label()"
+    [attr.aria-valuetext]="valueText()"
+    (input)="change($event)"
+  />
+</span>
+<span class="text" aria-hidden="true">{{ valueText() }}</span>
