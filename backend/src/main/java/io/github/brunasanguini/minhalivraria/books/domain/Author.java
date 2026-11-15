@@ -23,6 +23,17 @@ public class Author extends NamedEntity {
         super(name);
     }
 
+    /** An author that came with an imported book. */
+    public Author(String name, @Nullable String olAuthorKey) {
+        super(name);
+        this.olAuthorKey = olAuthorKey;
+    }
+
+    /** Remembers who the author is at the Open Library, so the next import finds them even after a rename. */
+    public void linkToOpenLibrary(String olAuthorKey) {
+        this.olAuthorKey = olAuthorKey;
+    }
+
     /** For JPA only. */
     protected Author() {}
 
