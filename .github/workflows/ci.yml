@@ -2,9 +2,9 @@ name: CI
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, feat/leitura-e-resenha]
   push:
-    branches: [main]
+    branches: [main, feat/leitura-e-resenha]
 
 permissions:
   contents: read
