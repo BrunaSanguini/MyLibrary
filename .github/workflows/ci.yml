@@ -2,9 +2,9 @@ name: CI
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, feat/importacao-open-library]
   push:
-    branches: [main]
+    branches: [main, feat/importacao-open-library]
 
 permissions:
   contents: read
