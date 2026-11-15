@@ -37,8 +37,7 @@ class ReadingHistoryService implements ReadingHistory {
 
     @Override
     public int finishedRereads(LocalDate from, LocalDate to) {
-        return Math.toIntExact(
-                readings.countByStatusAndRereadTrueAndEndDateBetween(ReadingStatus.FINISHED, from, to));
+        return Math.toIntExact(readings.countByStatusAndRereadTrueAndEndDateBetween(ReadingStatus.FINISHED, from, to));
     }
 
     @Override

@@ -79,8 +79,8 @@ public class ShelfService {
      */
     public Page<BookCardResponse> search(ShelfFilter filter, PageQuery page) {
         Pageable pageable = page.toPageable(ShelfSort.COLUMNS, ShelfSort.DEFAULT);
-        boolean byListOrder =
-                pageable.getSort().stream().anyMatch(order -> order.getProperty().equals(ShelfSort.LIST_ORDER));
+        boolean byListOrder = pageable.getSort().stream()
+                .anyMatch(order -> order.getProperty().equals(ShelfSort.LIST_ORDER));
         if (byListOrder && filter.listId() == null) {
             // The order of a list means nothing without the list.
             throw new BadRequestException("request.invalid-sort");

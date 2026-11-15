@@ -109,10 +109,7 @@ class GoalControllerTest {
 
         assertThat(post("""
                         { "type": "BOOKS", "period": "YEAR", "year": 2026, "target": 24 }
-                        """))
-                .hasStatus(HttpStatus.CONFLICT)
-                .bodyJson()
-                .isLenientlyEqualTo("""
+                        """)).hasStatus(HttpStatus.CONFLICT).bodyJson().isLenientlyEqualTo("""
                         { "code": "goal.duplicated", "title": "Meta já existe" }
                         """);
     }

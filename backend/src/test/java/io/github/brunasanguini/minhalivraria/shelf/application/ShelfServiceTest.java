@@ -255,7 +255,8 @@ class ShelfServiceTest {
 
     @Test
     void shouldPutBooksWithoutASeriesPositionLast() {
-        List<Long> found = ids(new ShelfFilter(null, null, null, null, null, null, null, null, null), "seriesPosition,asc");
+        List<Long> found =
+                ids(new ShelfFilter(null, null, null, null, null, null, null, null, null), "seriesPosition,asc");
 
         assertThat(found).startsWith(fellowship);
     }
@@ -308,7 +309,8 @@ class ShelfServiceTest {
     @Test
     void shouldPaginateKeepingTheTotal() {
         var page = shelf.search(
-                new ShelfFilter(null, null, null, null, null, null, null, null, null), new PageQuery(0, 2, "title,asc"));
+                new ShelfFilter(null, null, null, null, null, null, null, null, null),
+                new PageQuery(0, 2, "title,asc"));
 
         assertThat(page.getContent()).hasSize(2);
         assertThat(page.getTotalElements()).isEqualTo(3);

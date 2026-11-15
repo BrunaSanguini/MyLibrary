@@ -51,7 +51,8 @@ class ShelfController {
             @RequestParam(required = false) @Nullable Long seriesId,
             @RequestParam(required = false) @Nullable Long listId,
             @Valid @ParameterObject PageQuery page) {
-        ShelfFilter filter = new ShelfFilter(q, status, ownership, favorite, genreId, authorId, publisherId, seriesId, listId);
+        ShelfFilter filter =
+                new ShelfFilter(q, status, ownership, favorite, genreId, authorId, publisherId, seriesId, listId);
         return PageResponse.of(service.search(filter, page), Function.identity());
     }
 

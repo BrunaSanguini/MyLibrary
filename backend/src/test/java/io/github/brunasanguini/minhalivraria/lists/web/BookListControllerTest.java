@@ -36,7 +36,13 @@ class BookListControllerTest {
     private static final String REQUESTED_BY = "X-Requested-By";
     private static final String MINHA_LIVRARIA = "minha-livraria";
     private static final BookListResponse VACATION = new BookListResponse(
-            7, "Para as férias", "Leituras leves", 3, 1, List.of("/api/v1/images/a.webp"), Instant.parse("2026-11-01T12:00:00Z"));
+            7,
+            "Para as férias",
+            "Leituras leves",
+            3,
+            1,
+            List.of("/api/v1/images/a.webp"),
+            Instant.parse("2026-11-01T12:00:00Z"));
 
     @Autowired
     private MockMvcTester mvc;
@@ -48,10 +54,7 @@ class BookListControllerTest {
     void shouldListTheCardsSortedByNameByDefault() {
         given(service.search(any())).willReturn(new PageImpl<>(List.of(VACATION), PageRequest.of(0, 20), 1));
 
-        assertThat(mvc.get().uri("/api/v1/lists"))
-                .hasStatusOk()
-                .bodyJson()
-                .isLenientlyEqualTo("""
+        assertThat(mvc.get().uri("/api/v1/lists")).hasStatusOk().bodyJson().isLenientlyEqualTo("""
                         {
                           "content": [
                             {
@@ -193,15 +196,16 @@ class BookListControllerTest {
     void shouldReorderWith204() {
         assertThat(put("/api/v1/lists/7/order", """
                         { "bookIds": [3, 1, 2] }
-                        """))
-                .hasStatus(HttpStatus.NO_CONTENT);
+                        """)).hasStatus(HttpStatus.NO_CONTENT);
 
         then(service).should().reorder(7, List.of(3L, 1L, 2L));
     }
 
     @Test
     void shouldAnswer422ForAnOrderThatIsNotTheBooksOfTheList() {
-        willThrow(new BusinessRuleException("list.invalid-order")).given(service).reorder(anyLong(), any());
+        willThrow(new BusinessRuleException("list.invalid-order"))
+                .given(service)
+                .reorder(anyLong(), any());
 
         assertThat(put("/api/v1/lists/7/order", """
                         { "bookIds": [3] }

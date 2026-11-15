@@ -148,8 +148,7 @@ class GoalServiceTest {
         finished(dune, "2025-04-01", false);
         finished(dune, "2024-12-31", false);
         readings.create(
-                withoutPages,
-                new ReadingRequest(ReadingStatus.ABANDONED, null, LocalDate.parse("2025-03-15"), null));
+                withoutPages, new ReadingRequest(ReadingStatus.ABANDONED, null, LocalDate.parse("2025-03-15"), null));
         entityManager.flush();
 
         assertThat(goals.create(yearly(GoalType.BOOKS, 4)).current()).isEqualTo(3);

@@ -113,9 +113,9 @@ public class BookListService {
             return;
         }
         int next = items.findByIdBookListIdOrderByItemOrderAsc(id).stream()
-                .mapToInt(BookListItem::itemOrder)
-                .max()
-                .orElse(-1)
+                        .mapToInt(BookListItem::itemOrder)
+                        .max()
+                        .orElse(-1)
                 + 1;
         items.save(new BookListItem(id, bookId, next, Instant.now(clock)));
     }
@@ -165,8 +165,8 @@ public class BookListService {
                 .filter(Objects::nonNull)
                 .limit(COVERS_ON_A_CARD)
                 .toList();
-        int readCount =
-                (int) ofList.stream().filter(item -> read.contains(item.bookId())).count();
+        int readCount = (int)
+                ofList.stream().filter(item -> read.contains(item.bookId())).count();
         return new BookListResponse(
                 list.id(),
                 list.name(),

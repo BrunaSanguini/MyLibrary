@@ -12,8 +12,8 @@ import org.springframework.data.domain.Sort;
  */
 final class ShelfSort {
 
-    static final String LIST_ORDER = "(select li.item_order from book_list_item li"
-            + " where li.book_list_id = :listId and li.book_id = b.id)";
+    static final String LIST_ORDER =
+            "(select li.item_order from book_list_item li" + " where li.book_list_id = :listId and li.book_id = b.id)";
 
     /** {@code search_text} starts with the normalized title, which is the alphabetical order the shelf wants. */
     static final Map<String, String> COLUMNS = Map.of(
