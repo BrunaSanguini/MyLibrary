@@ -1,0 +1,44 @@
+/* Session form: the day and the mode side by side, then the amount with its shortcuts. */
+
+:host {
+  display: block;
+}
+
+.mode {
+  display: flex;
+  flex: 1 1 260px;
+  flex-wrap: wrap;
+  gap: 0 var(--ml-space-24);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.mode legend {
+  width: 100%;
+}
+
+.amount {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ml-space-12);
+}
+
+.amount input {
+  flex: 1 1 160px;
+  width: auto;
+}
+
+.shortcuts {
+  display: flex;
+  gap: var(--ml-space-8);
+}
+
+/* The confirmation sits on the left of the button and is always there for the live region. */
+.confirmation {
+  min-height: 1em;
+  margin: 0 auto 0 0;
+  color: var(--ml-color-muted);
+  font-size: 14px;
+  font-weight: 600;
+}

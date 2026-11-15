@@ -1,0 +1,130 @@
+/*
+ * What the forms of the reading feature share: cards, fields and messages. Each component lists
+ * this file before its own stylesheet, so the rules stay scoped to the component.
+ */
+
+.card,
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ml-space-16);
+  padding: var(--ml-space-32);
+  border: 1px solid var(--ml-color-line);
+  border-radius: var(--ml-radius-lg);
+  background: var(--ml-color-surface);
+  box-shadow: var(--ml-shadow-soft);
+}
+
+h2 {
+  margin: 0;
+  font-family: var(--ml-font-display);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--ml-space-24);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.row > .field {
+  flex: 1 1 200px;
+}
+
+label,
+legend {
+  margin: 0 0 6px;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+input[type='date'],
+input[type='number'],
+select,
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 var(--ml-space-16);
+  border: 1.5px solid var(--ml-color-line);
+  border-radius: var(--ml-radius-pill);
+  background: var(--ml-color-surface);
+  color: var(--ml-color-ink);
+  font-family: var(--ml-font-body);
+  font-size: 15px;
+}
+
+textarea {
+  padding: var(--ml-space-12) var(--ml-space-16);
+  border-radius: var(--ml-radius-md);
+  line-height: 1.5;
+  resize: vertical;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  border-color: var(--ml-color-accent);
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 2px;
+}
+
+input[aria-invalid='true'],
+textarea[aria-invalid='true'] {
+  border-color: var(--ml-color-accent);
+}
+
+.choice {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ml-space-8);
+  min-height: 44px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.error {
+  margin: 6px 0 0;
+  color: var(--ml-color-accent);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.hint {
+  margin: 6px 0 0;
+  color: var(--ml-color-muted);
+  font-size: 13px;
+}
+
+.optional {
+  color: var(--ml-color-muted);
+  font-weight: 400;
+}
+
+.failure {
+  margin: 0;
+  padding: var(--ml-space-12) var(--ml-space-16);
+  border: 1.5px solid var(--ml-color-accent);
+  border-radius: var(--ml-radius-md);
+  background: var(--ml-color-accent-tint);
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ml-space-12);
+}

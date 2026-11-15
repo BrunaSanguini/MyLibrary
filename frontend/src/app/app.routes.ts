@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { unsavedChangesGuard } from '@core/routing/unsaved-changes-guard';
 
 /** Routes are visible in the address bar, so they are in Portuguese (ADR-0006). */
 export const routes: Routes = [
@@ -11,6 +12,13 @@ export const routes: Routes = [
     path: 'estante',
     loadComponent: () => import('@features/shelf/shelf-page/shelf-page'),
     title: 'Minha Estante',
+  },
+  // Before the routes of the books: the reading is another feature under the same address.
+  {
+    path: 'livros/:id/leitura',
+    loadComponent: () => import('@features/reading/reading-page/reading-page'),
+    canDeactivate: [unsavedChangesGuard],
+    title: 'Registrar leitura',
   },
   { path: 'livros', loadChildren: () => import('@features/books/books.routes') },
   {
