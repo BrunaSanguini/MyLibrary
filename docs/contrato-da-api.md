@@ -338,13 +338,17 @@ O mapa de calor, o "Esta semana" e a tabela de Ritmo saem do `daily-pages`.
 | Método e rota | Corpo | Resposta |
 |---|---|---|
 | `GET /lists` | paginado, `sort=name` ou `updatedAt` | `200` `PageResponse` de cards com `bookCount`, `readCount` e até três `coverUrls` |
-| `POST /lists` | `{ "name": "...", "description": "..." }` | `201` |
+| `POST /lists` | `{ "name": "...", "description": "..." }` | `201`; `409` (`list.name-duplicated`) se outra lista já tiver o nome, ignorando maiúsculas e acentos |
 | `GET /lists/{id}` · `PUT /lists/{id}` · `DELETE /lists/{id}` | | `200` / `200` / `204` |
 | `PUT /lists/{id}/books/{bookId}` | | `204`; adiciona no fim e é idempotente |
-| `DELETE /lists/{id}/books/{bookId}` | | `204` |
-| `PUT /lists/{id}/order` | `{ "bookIds": [5, 2, 9] }` | `204`; precisa conter exatamente os livros da lista |
+| `DELETE /lists/{id}/books/{bookId}` | | `204`; também idempotente |
+| `PUT /lists/{id}/order` | `{ "bookIds": [5, 2, 9] }` | `204`; `422` (`list.invalid-order`) se não tiver exatamente os livros da lista, cada um uma vez |
 
-Os livros de uma lista vêm de `GET /shelf/books?listId={id}&sort=listOrder,asc`.
+Os livros de uma lista vêm de `GET /shelf/books?listId={id}&sort=listOrder,asc`. `listOrder` sem `listId` devolve `400` (`request.invalid-sort`).
+
+- `readCount` conta os livros com ao menos uma leitura concluída.
+- `coverUrls` traz as capas dos três primeiros livros com capa, na ordem da lista.
+- Excluir a lista não exclui os livros; excluir um livro o tira de todas as listas.
 
 ## Metas (`goals`)
 
@@ -358,6 +362,12 @@ Os livros de uma lista vêm de `GET /shelf/books?listId={id}&sort=listOrder,asc`
 ```json
 { "id": 1, "type": "BOOKS", "period": "YEAR", "year": 2026, "month": null, "target": 12, "current": 3, "percent": 25 }
 ```
+
+- `type`: `BOOKS` (leituras concluídas no período, releituras incluídas), `PAGES` (páginas das sessões do período, mais o que faltava ao concluir uma leitura no período) e `REREADS` (leituras concluídas marcadas como releitura).
+- `REREADS` só existe por ano. Meta mensal sem `month`, anual com `month` ou releituras por mês: `422` (`goal.invalid-period`).
+- `percent` é arredondado para baixo e para em 100; `current` pode passar do alvo.
+- Sem `year`, `GET /goals` usa o ano atual. A lista vem com as anuais primeiro e depois mês a mês.
+- Só o alvo muda. Uma meta de tipo ou período errado é excluída e criada de novo.
 
 ## Perfil (`profile`)
 
