@@ -137,10 +137,8 @@ public class BookImportService {
         cover.ifPresent(content -> book.replaceCover(images.store(ImageKind.COVER, content)));
         book.assignAuthors(
                 source.authors().stream().map(this::authorOf).distinct().toList());
-        book.assignPublishers(source.publishers().stream()
-                .map(this::publisherOf)
-                .distinct()
-                .toList());
+        book.assignPublishers(
+                source.publishers().stream().map(this::publisherOf).distinct().toList());
         book.assignGenres(request.genreIdsOrEmpty().stream()
                 .distinct()
                 .map(this::findGenre)

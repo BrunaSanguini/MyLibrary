@@ -85,7 +85,8 @@ class BookImportServiceTest {
 
     @AfterEach
     void emptyTheCollection() {
-        for (String table : List.of("book_author", "book_genre", "book_publisher", "book", "author", "publisher", "series", "image")) {
+        for (String table : List.of(
+                "book_author", "book_genre", "book_publisher", "book", "author", "publisher", "series", "image")) {
             jdbc.sql("delete from " + table).update();
         }
         jdbc.sql("delete from genre where parent_id is not null").update();
