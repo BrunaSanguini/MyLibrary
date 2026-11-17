@@ -185,6 +185,15 @@ describe('BookPage', () => {
     );
   });
 
+  it('shows the genres and the subgenres in rows of their own', async () => {
+    await openBook();
+
+    const genres = screen.getByRole('list', { name: 'Gêneros' });
+    const subgenres = screen.getByRole('list', { name: 'Subgêneros' });
+    expect(within(genres).getByRole('link').textContent).toBe('Fantasia');
+    expect(within(subgenres).getByRole('link').textContent).toBe('Alta fantasia');
+  });
+
   it('shows the trail from the shelf to the book', async () => {
     await openBook();
 

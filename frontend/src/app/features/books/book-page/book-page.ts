@@ -113,6 +113,14 @@ export default class BookPage implements HasUnsavedChanges {
   );
   protected readonly errorMessage = computed(() => this.error()?.detail);
 
+  /** The classification in two rows: the genres, then the subgenres inside them. */
+  protected readonly genres = computed(
+    () => this.book.value()?.genres.filter((genre) => genre.parentId == null) ?? [],
+  );
+  protected readonly subgenres = computed(
+    () => this.book.value()?.genres.filter((genre) => genre.parentId != null) ?? [],
+  );
+
   protected readonly authorNames = computed(() =>
     (this.book.value()?.authors ?? []).map((author) => author.name).join(', '),
   );

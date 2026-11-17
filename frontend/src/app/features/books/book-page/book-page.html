@@ -76,17 +76,36 @@
       </div>
 
       @if (current.genres.length > 0) {
-        <ul class="genres" aria-label="Gêneros">
-          @for (genre of current.genres; track genre.id) {
-            <li>
-              <a
-                [mlTag]="genre.parentId ? 'subgenre' : 'genre'"
-                [routerLink]="['/generos', genre.id]"
-                >{{ genre.name }}</a
-              >
-            </li>
+        <dl class="classification">
+          @if (genres().length > 0) {
+            <div>
+              <dt class="row-label">Gêneros</dt>
+              <dd class="row-value">
+                <ul class="genres" aria-label="Gêneros">
+                  @for (genre of genres(); track genre.id) {
+                    <li>
+                      <a mlTag="genre" [routerLink]="['/generos', genre.id]">{{ genre.name }}</a>
+                    </li>
+                  }
+                </ul>
+              </dd>
+            </div>
           }
-        </ul>
+          @if (subgenres().length > 0) {
+            <div>
+              <dt class="row-label">Subgêneros</dt>
+              <dd class="row-value">
+                <ul class="genres" aria-label="Subgêneros">
+                  @for (genre of subgenres(); track genre.id) {
+                    <li>
+                      <a mlTag="subgenre" [routerLink]="['/generos', genre.id]">{{ genre.name }}</a>
+                    </li>
+                  }
+                </ul>
+              </dd>
+            </div>
+          }
+        </dl>
       }
 
       @if (readings.hasValue()) {

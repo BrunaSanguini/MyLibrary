@@ -63,6 +63,33 @@ h1 {
 }
 
 .states,
+.classification {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ml-space-12);
+  margin: 0;
+}
+
+.classification > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ml-space-12);
+  align-items: center;
+}
+
+.row-label {
+  min-width: 96px;
+  color: var(--ml-color-muted);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.row-value {
+  margin: 0;
+}
+
 .genres {
   display: flex;
   flex-wrap: wrap;
