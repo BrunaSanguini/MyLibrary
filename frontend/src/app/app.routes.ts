@@ -67,8 +67,7 @@ export const routes: Routes = [
   },
   {
     path: 'series/:id',
-    loadComponent: () => import('@features/catalog/group-page/group-page'),
-    data: { kind: 'series' },
+    loadComponent: () => import('@features/catalog/series-page/series-page'),
     title: 'Série',
   },
   {

@@ -1,0 +1,191 @@
+@if (notFound()) {
+  <ml-empty-state
+    icon="search"
+    title="Série não encontrada"
+    message="Esta série não existe. Ela pode ter sido excluída."
+  >
+    <a mlButton="primary" routerLink="/catalogos" [queryParams]="{ tipo: 'series' }"
+      >Ir para as séries</a
+    >
+  </ml-empty-state>
+} @else if (errorMessage()) {
+  <ml-error-state [message]="errorMessage()" (retry)="retry()" />
+} @else if (series.hasValue() && books.hasValue()) {
+  @let current = series.value();
+
+  <section class="hero" aria-labelledby="titulo-serie">
+    <div class="glow" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <div class="hero-bar">
+        <button class="back" type="button" (click)="back()">
+          <ml-icon name="chevron-left" [size]="16" /> Voltar
+        </button>
+      </div>
+
+      @if (fan().length > 0) {
+        <div class="fan" aria-hidden="true" [attr.data-count]="fan().length">
+          @for (book of fan(); track book.id; let index = $index) {
+            <ml-book-cover
+              size="md"
+              [class]="'fan-cover fan-' + index"
+              [title]="book.title"
+              [author]="book.authors.join(', ')"
+              [coverUrl]="book.coverUrl"
+            />
+          }
+        </div>
+      }
+
+      <div class="hero-text">
+        <p class="eyebrow">Série</p>
+        <h1 id="titulo-serie">{{ current.name }}</h1>
+        @if (authors().length > 0) {
+          <p class="authors">{{ authors().join(' · ') }}</p>
+        }
+        <ul class="chips" aria-label="Resumo da série">
+          <li class="chip">
+            <ml-icon name="series" [size]="14" />
+            {{ countOf(current.bookCount, 'livro', 'livros') }}
+          </li>
+          <li class="chip">
+            <ml-icon name="check" [size]="14" />
+            {{ countOf(readCount(), 'lido', 'lidos') }}
+          </li>
+          @if (complete()) {
+            <li class="chip chip-gold">Série completa</li>
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  @if (failure()) {
+    <p class="failure" role="alert">{{ failure() }}</p>
+  }
+
+  <div class="layout">
+    <section class="about card" aria-label="Sobre a série">
+      <div ngTabs>
+        <div ngTabList class="tab-list" aria-label="Detalhes da série" [(selectedTab)]="tab">
+          <button ngTab type="button" class="tab" value="sobre">Sobre a série</button>
+          <button ngTab type="button" class="tab" value="resenhas">Minhas resenhas</button>
+        </div>
+
+        <div ngTabPanel class="tab-panel" value="sobre">
+          <ng-template ngTabContent>
+            @if (genres().length > 0) {
+              <ul class="genres" aria-label="Gêneros da série">
+                @for (genre of genres(); track genre.id) {
+                  <li>
+                    <a
+                      [mlTag]="genre.subgenre ? 'subgenre' : 'genre'"
+                      [routerLink]="['/generos', genre.id]"
+                      >{{ genre.name }}</a
+                    >
+                  </li>
+                }
+              </ul>
+            }
+
+            <div class="progress">
+              <p class="progress-head">
+                <span>Seu progresso na série</span>
+                <span>{{ readCount() }} de {{ totalVolumes() }}</span>
+              </p>
+              <div class="bars" aria-hidden="true">
+                @for (done of progressBars(); track $index) {
+                  <span class="bar" [class.done]="done"></span>
+                }
+              </div>
+              @if (averageRating(); as average) {
+                <p class="progress-note">
+                  Nota média da série: <b>{{ average }}</b>
+                </p>
+              }
+            </div>
+          </ng-template>
+        </div>
+
+        <div ngTabPanel class="tab-panel" value="resenhas">
+          <ng-template ngTabContent>
+            <div class="reviews">
+              @for (book of books.value().content; track book.id) {
+                <ml-series-review [book]="book" [position]="positionOf(book)" />
+              }
+            </div>
+            <p class="reviews-hint">Os volumes sem resenha não aparecem aqui.</p>
+          </ng-template>
+        </div>
+      </div>
+    </section>
+
+    <section class="volumes" aria-labelledby="titulo-livros">
+      <div class="volumes-head">
+        <h2 id="titulo-livros">Livros da série</h2>
+        <button
+          mlButton="secondary"
+          type="button"
+          class="sort"
+          [attr.aria-pressed]="lastFirst()"
+          (click)="lastFirst.set(!lastFirst())"
+        >
+          {{ lastFirst() ? 'Último primeiro' : 'Ordem da série' }}
+          <ml-icon name="chevron-down" [size]="14" />
+        </button>
+      </div>
+
+      @if (volumes().length === 0) {
+        <p class="empty">Nenhum livro desta série está no acervo ainda.</p>
+      } @else {
+        <ol class="volume-list">
+          @for (book of volumes(); track book.id) {
+            <li class="volume">
+              <a
+                class="volume-cover"
+                [routerLink]="['/livros', book.id]"
+                tabindex="-1"
+                aria-hidden="true"
+              >
+                <span class="volume-number">{{ positionOf(book) }}</span>
+                <ml-book-cover
+                  size="sm"
+                  [title]="book.title"
+                  [author]="book.authors.join(', ')"
+                  [coverUrl]="book.coverUrl"
+                />
+              </a>
+              <div class="volume-text">
+                <a class="volume-title" [routerLink]="['/livros', book.id]">
+                  <span class="ml-visually-hidden">Livro {{ positionOf(book) }}: </span
+                  >{{ book.title }}
+                </a>
+                <p class="volume-meta">{{ book.authors.join(', ') }}</p>
+                <p class="volume-state">
+                  @if (book.rating) {
+                    <ml-rating-stars [value]="book.rating" />
+                  }
+                  <span mlTag="seal">{{ statusLabels[book.status] }}</span>
+                </p>
+              </div>
+              <button
+                class="favorite"
+                type="button"
+                [class.on]="favorite(book)"
+                [attr.aria-pressed]="favorite(book)"
+                [attr.aria-label]="'Favoritar ' + book.title"
+                (click)="toggleFavorite(book)"
+              >
+                <ml-icon name="star" [size]="20" />
+              </button>
+            </li>
+          }
+        </ol>
+      }
+    </section>
+  </div>
+} @else {
+  <div class="loading" aria-hidden="true">
+    <ml-skeleton variant="card" />
+    <ml-skeleton variant="card" />
+  </div>
+}

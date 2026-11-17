@@ -159,7 +159,10 @@ for (const theme of THEMES) {
         page.getByRole('heading', { name: 'Trilogia Realista', level: 1 }),
       ).toBeVisible();
 
-      const books = page.getByRole('main').getByRole('listitem').getByRole('link');
+      const books = page
+        .getByRole('region', { name: 'Livros da série' })
+        .getByRole('listitem')
+        .getByRole('link');
       await expect(books.nth(0)).toContainText('Memórias Póstumas de Brás Cubas');
       await expect(books.nth(1)).toContainText('Quincas Borba');
       await expect(books.nth(2)).toContainText('Dom Casmurro');
