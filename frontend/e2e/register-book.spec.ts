@@ -38,6 +38,12 @@ test('registers a book by hand and finds it again', async ({ page }, testInfo) =
   await page.getByRole('option', { name: /^Criar/ }).click();
   await expect(page.getByRole('list', { name: 'Gêneros escolhidos' })).toContainText(genre);
 
+  // And a subgenre inside it, which the book page shows in a row of its own.
+  const subgenre = `Conto ${testInfo.project.name} ${testInfo.retry}`;
+  await page.getByRole('combobox', { name: 'Subgêneros' }).fill(subgenre);
+  await page.getByRole('option', { name: /^Criar/ }).click();
+  await expect(page.getByRole('list', { name: 'Subgêneros escolhidos' })).toContainText(subgenre);
+
   await page.getByLabel('Ano de publicação').fill('1882');
   await page.getByRole('button', { name: 'Salvar livro' }).click();
 
@@ -46,6 +52,7 @@ test('registers a book by hand and finds it again', async ({ page }, testInfo) =
   await expect(page).toHaveURL(/\/livros\/\d+$/);
   await expect(page.getByRole('link', { name: 'Machado de Assis' })).toBeVisible();
   await expect(page.getByText('1882')).toBeVisible();
+  await expect(page.getByRole('list', { name: 'Subgêneros' })).toContainText(subgenre);
 
   // The state tags are toggles and say so.
   const owned = page.getByRole('button', { name: 'Tenho este livro' });

@@ -97,32 +97,7 @@
     <section class="card" aria-labelledby="secao-classificacao">
       <h2 id="secao-classificacao">Classificação</h2>
 
-      <div class="field">
-        <ml-entity-picker
-          source="genres"
-          label="Gêneros"
-          placeholder="Busque ou crie um gênero"
-          [exclude]="genreIds()"
-          (picked)="addGenre($event)"
-        />
-        @if (model().genres.length > 0) {
-          <ul class="chips" aria-label="Gêneros escolhidos">
-            @for (genre of model().genres; track genre.id) {
-              <li class="chip">
-                {{ genre.name }}
-                <button
-                  type="button"
-                  class="chip-remove"
-                  [attr.aria-label]="'Remover gênero ' + genre.name"
-                  (click)="removeGenre(genre.id)"
-                >
-                  <ml-icon name="close" [size]="12" />
-                </button>
-              </li>
-            }
-          </ul>
-        }
-      </div>
+      <ml-genre-fields [genres]="model().genres" (changed)="setGenres($event)" />
 
       <div class="row">
         <div class="field grow">

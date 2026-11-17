@@ -1,9 +1,9 @@
 import { maxLength, required, SchemaPathTree, validate } from '@angular/forms/signals';
-import { NamedEntry } from '@core/api/catalog-api';
 import { ImportRequest } from '@core/api/import-api';
 import { Ownership } from '@core/api/shelf-api';
 
 import { seriesPositionError } from '../book-form-page/book-form';
+import type { GenreEntry } from '../genre-fields/genre-fields';
 
 /** The search field. Whether the text is an ISBN or a title is decided when it reaches the URL. */
 export interface ImportSearchModel {
@@ -21,7 +21,7 @@ export function importSearchSchema(search: SchemaPathTree<ImportSearchModel>): v
  */
 export interface ImportClassificationModel {
   ownership: Ownership;
-  genres: NamedEntry[];
+  genres: GenreEntry[];
   seriesId: number | null;
   seriesName: string;
   seriesPosition: number | null;

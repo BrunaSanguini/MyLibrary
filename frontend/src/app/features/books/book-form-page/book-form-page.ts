@@ -15,6 +15,7 @@ import { Skeleton } from '@shared/ui/skeleton/skeleton';
 import { firstValueFrom } from 'rxjs';
 
 import { EntityPicker } from '../entity-picker/entity-picker';
+import { GenreEntry, GenreFields } from '../genre-fields/genre-fields';
 import {
   bookFormOf,
   bookFormSchema,
@@ -36,7 +37,17 @@ const IMAGE_LIMIT = 5 * 1024 * 1024;
  */
 @Component({
   selector: 'ml-book-form-page',
-  imports: [Breadcrumbs, Button, EntityPicker, ErrorState, FormField, Icon, RouterLink, Skeleton],
+  imports: [
+    Breadcrumbs,
+    Button,
+    EntityPicker,
+    ErrorState,
+    FormField,
+    GenreFields,
+    Icon,
+    RouterLink,
+    Skeleton,
+  ],
   templateUrl: './book-form-page.html',
   styleUrls: ['../book-fields.css', './book-form-page.css'],
 })
@@ -73,7 +84,6 @@ export default class BookFormPage implements HasUnsavedChanges {
   private filled = false;
 
   protected readonly authorIds = computed(() => this.model().authors.map((author) => author.id));
-  protected readonly genreIds = computed(() => this.model().genres.map((genre) => genre.id));
 
   protected readonly loadError = computed(() => {
     const error: unknown = this.book.error();
@@ -112,14 +122,8 @@ export default class BookFormPage implements HasUnsavedChanges {
     this.bookForm.authors().markAsTouched();
   }
 
-  protected addGenre(genre: NamedEntry): void {
-    this.change(() => this.bookForm.genres().value.update((genres) => [...genres, genre]));
-  }
-
-  protected removeGenre(id: number): void {
-    this.change(() =>
-      this.bookForm.genres().value.update((genres) => genres.filter((g) => g.id !== id)),
-    );
+  protected setGenres(genres: GenreEntry[]): void {
+    this.change(() => this.bookForm.genres().value.set(genres));
   }
 
   protected setPublisher(publisher: NamedEntry | undefined): void {

@@ -27,13 +27,13 @@ import { Breadcrumbs } from '@shared/ui/breadcrumbs/breadcrumbs';
 import { Button } from '@shared/ui/button/button';
 import { EmptyState } from '@shared/ui/empty-state/empty-state';
 import { ErrorState } from '@shared/ui/error-state/error-state';
-import { Icon } from '@shared/ui/icon/icon';
 import { Skeleton } from '@shared/ui/skeleton/skeleton';
 import { Tag } from '@shared/ui/tag/tag';
 import { compactIsbn, isValidIsbn10, isValidIsbn13 } from '@shared/validation/isbn';
 import { firstValueFrom } from 'rxjs';
 
 import { EntityPicker } from '../entity-picker/entity-picker';
+import { GenreEntry, GenreFields } from '../genre-fields/genre-fields';
 import {
   emptyClassification,
   importClassificationSchema,
@@ -86,9 +86,9 @@ function failureOf(error: unknown): ImportFailure | undefined {
     Button,
     EmptyState,
     EntityPicker,
+    GenreFields,
     ErrorState,
     FormField,
-    Icon,
     RouterLink,
     Skeleton,
     Tag,
@@ -156,10 +156,6 @@ export default class BookImportPage {
   protected readonly resultsFailure = computed(() => failureOf(this.results.error()));
   protected readonly previewFailure = computed(() => failureOf(this.preview.error()));
 
-  protected readonly genreIds = computed(() =>
-    this.classificationModel().genres.map((genre) => genre.id),
-  );
-
   constructor() {
     // The field shows what the URL searched, also after a reload or the back button.
     effect(() => this.searchModel.set({ query: this.q() ?? '' }));
@@ -194,14 +190,8 @@ export default class BookImportPage {
     });
   }
 
-  protected addGenre(genre: NamedEntry): void {
-    this.classificationForm.genres().value.update((genres) => [...genres, genre]);
-  }
-
-  protected removeGenre(id: number): void {
-    this.classificationForm
-      .genres()
-      .value.update((genres) => genres.filter((genre) => genre.id !== id));
+  protected setGenres(genres: GenreEntry[]): void {
+    this.classificationForm.genres().value.set(genres);
   }
 
   /** Leaving a series also clears the position, which means nothing without it. */

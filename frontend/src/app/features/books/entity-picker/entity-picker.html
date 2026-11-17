@@ -30,12 +30,12 @@
       @for (entry of options(); track entry.id) {
         <div ngOption class="option" [value]="entry.id" [label]="entry.name">{{ entry.name }}</div>
       }
-      @if (canCreate()) {
-        <div ngOption class="option create" [value]="createId" [label]="term()">
-          Criar “{{ term().trim() }}”
+      @for (create of createOptions(); track create.id) {
+        <div ngOption class="option create" [value]="create.id" [label]="create.label">
+          {{ create.label }}
         </div>
       }
-      @if (options().length === 0 && !canCreate()) {
+      @if (options().length === 0 && createOptions().length === 0) {
         <p class="empty">Digite um nome para buscar ou criar.</p>
       }
     </div>

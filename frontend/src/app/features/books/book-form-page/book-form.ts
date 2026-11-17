@@ -12,6 +12,8 @@ import { NamedEntry } from '@core/api/catalog-api';
 import { Ownership } from '@core/api/shelf-api';
 import { isValidIsbn10, isValidIsbn13 } from '@shared/validation/isbn';
 
+import type { GenreEntry } from '../genre-fields/genre-fields';
+
 /**
  * The book as the form edits it. Signal Forms wants a model with no undefined, so empty text is
  * '' and an empty number is null; publisher and series are flattened into id and name.
@@ -28,7 +30,8 @@ export interface BookFormModel {
   authors: NamedEntry[];
   publisherId: number | null;
   publisherName: string;
-  genres: NamedEntry[];
+  /** Genres and subgenres together, as the API takes them; the form shows them apart. */
+  genres: GenreEntry[];
   seriesId: number | null;
   seriesName: string;
   seriesPosition: number | null;
@@ -71,7 +74,7 @@ export function bookFormOf(book: BookDetailResponse): BookFormModel {
     authors: book.authors.map(({ id, name }) => ({ id, name })),
     publisherId: book.publisher?.id ?? null,
     publisherName: book.publisher?.name ?? '',
-    genres: book.genres.map(({ id, name }) => ({ id, name })),
+    genres: book.genres.map(({ id, name, parentId }) => ({ id, name, parentId: parentId ?? null })),
     seriesId: book.series?.id ?? null,
     seriesName: book.series?.name ?? '',
     seriesPosition: book.series?.position ?? null,
