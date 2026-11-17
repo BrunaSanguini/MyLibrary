@@ -5,7 +5,6 @@ import io.github.brunasanguini.minhalivraria.shared.error.GatewayTimeoutExceptio
 import io.github.brunasanguini.minhalivraria.shared.error.NotFoundException;
 import io.github.brunasanguini.minhalivraria.shared.error.ServiceUnavailableException;
 import java.net.SocketTimeoutException;
-import java.net.http.HttpConnectTimeoutException;
 import java.net.http.HttpTimeoutException;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -139,12 +138,12 @@ public class OpenLibraryGateway {
         }
     }
 
-    /** Not managing to connect in time means there is no connection; only a silent server is a timeout. */
-    private static boolean timedOut(Throwable failure) {
+    /**
+     * A slow Open Library is a timeout, whether it was slow to accept the connection or to answer: its servers can
+     * take seconds just for the TLS handshake. Only a refused or unreachable connection means there is none.
+     */
+    static boolean timedOut(Throwable failure) {
         for (Throwable cause = failure; cause != null; cause = cause.getCause()) {
-            if (cause instanceof HttpConnectTimeoutException) {
-                return false;
-            }
             if (cause instanceof HttpTimeoutException || cause instanceof SocketTimeoutException) {
                 return true;
             }

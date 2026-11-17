@@ -106,6 +106,7 @@ export default class BookImportPage {
   private readonly importApi = inject(ImportApi);
 
   private readonly previewTitle = viewChild<ElementRef<HTMLElement>>('previewTitle');
+  private readonly searchField = viewChild<ElementRef<HTMLInputElement>>('searchField');
 
   protected readonly searchModel = signal({ query: '' });
   protected readonly searchForm = form(this.searchModel, importSearchSchema);
@@ -188,6 +189,12 @@ export default class BookImportPage {
       await this.router.navigate([], { queryParams: { q: this.searchModel().query.trim() } });
       return undefined;
     });
+  }
+
+  /** An ISBN the Open Library does not have: clears the search and leaves the field ready for a title. */
+  protected async searchByTitle(): Promise<void> {
+    await this.router.navigate([], { queryParams: {} });
+    this.searchField()?.nativeElement.focus();
   }
 
   protected setGenres(genres: GenreEntry[]): void {

@@ -368,6 +368,14 @@ describe('BookImportPage', () => {
       'href',
       '/livros/novo',
     );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Buscar pelo título' }));
+    await harness.fixture.whenStable();
+
+    const field = screen.getByLabelText('Título, autor ou ISBN');
+    await vi.waitFor(() => expect(field).toHaveValue(''));
+    expect(field).toHaveFocus();
+    expect(TestBed.inject(Router).url).toBe('/livros/importar');
   });
 
   it('announces that it is searching while the Open Library answers', async () => {

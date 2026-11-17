@@ -49,8 +49,9 @@ app:
     covers-url: https://covers.openlibrary.org
     # Stays empty here: the contact is personal and comes from the local config.yml (ADR-0004).
     contact: ""
-    connect-timeout: 3s
-    read-timeout: 10s
+    # The Open Library is often slow to accept a connection; 3 s was not enough on a home connection.
+    connect-timeout: 10s
+    read-timeout: 20s
   images:
     max-size: 5MB
     trash-retention: 30d

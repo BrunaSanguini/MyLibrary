@@ -19,6 +19,7 @@
   <label for="busca">Título, autor ou ISBN</label>
   <div class="search-row">
     <input
+      #searchField
       id="busca"
       type="search"
       autocomplete="off"
@@ -204,9 +205,12 @@
       <ml-empty-state
         icon="search"
         title="Não encontramos esse livro na Open Library"
-        message="Confira o ISBN ou busque pelo título. Se o livro não estiver lá, cadastre manualmente."
+        message="Muitas edições brasileiras não estão lá pelo ISBN. Busque pelo título: outra edição serve de base, e você corrige os dados da sua antes de salvar."
       >
-        <a mlButton="primary" routerLink="/livros/novo">Cadastrar manualmente</a>
+        <button mlButton="primary" type="button" (click)="searchByTitle()">
+          Buscar pelo título
+        </button>
+        <a mlButton="secondary" routerLink="/livros/novo">Cadastrar manualmente</a>
       </ml-empty-state>
     } @else {
       <ml-error-state
