@@ -14,11 +14,13 @@ param(
   [string] $Version,
 
   # How the jar goes into the package. The startup measurements (docs/ci-cd.md) compare them:
-  #   Jar      the Spring Boot jar as built, with the libraries nested inside;
-  #   Extracted  the jar extracted into the application and lib/, as plain jars;
-  #   AotCache   extracted, plus the AOT cache of the JDK, trained by starting the app once.
+  #   Jar        the Spring Boot jar as built, with the libraries nested inside;
+  #   Extracted  the jar extracted into the application and lib/, as plain jars (the default: it
+  #              started 17% faster, at the same size);
+  #   AotCache   extracted, plus the AOT cache of the JDK, trained by starting the app once. It added
+  #              no measured gain and 34 MB, so it stays here only to be measured again.
   [ValidateSet('Jar', 'Extracted', 'AotCache')]
-  [string] $Layout = 'AotCache'
+  [string] $Layout = 'Extracted'
 )
 
 $ErrorActionPreference = 'Stop'

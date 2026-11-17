@@ -5,8 +5,6 @@ name: README screenshots
 # docs/images/. Run by hand when the screens change.
 on:
   workflow_dispatch:
-  push:
-    branches: [feat/entrega]
 
 permissions:
   contents: read

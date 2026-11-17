@@ -9,6 +9,9 @@
   shutdown. The first run creates the database and is left out: the others start on data that
   already exists, as every start after the first.
 
+  Every start also checks that the interface is served at /. The release runs it once on the
+  package before attaching it.
+
   Prints one line per run and a summary with the median, in milliseconds: the time until the
   readiness answered, and the time Spring Boot logs as "process running for", which is precise.
 #>
@@ -16,9 +19,7 @@ param(
   [Parameter(Mandatory = $true)]
   [string] $Zip,
   [int] $Runs = 7,
-  [int] $Port = 8481,
-  # Adds a start with the AOT log of the JVM, to check that the cache is used.
-  [switch] $LogAot
+  [int] $Port = 8481
 )
 
 $ErrorActionPreference = 'Stop'
@@ -46,6 +47,9 @@ function Measure-Start {
     Start-Sleep -Milliseconds 50
   }
   $elapsed = [int] $clock.Elapsed.TotalMilliseconds
+  # The package must still serve the interface, not only the API.
+  $page = Invoke-WebRequest -Uri "$url/" -UseBasicParsing
+  if ($page.Content -notmatch '<ml-root') { throw 'The interface was not served at /' }
   # What Spring Boot logs when it is ready: "Started ... in 5.1 seconds (process running for 5.6)".
   # A refused connection takes about 2 s on Windows, so the readiness polling above is coarse; the
   # log has the precise number.
@@ -73,14 +77,6 @@ try {
   $middle = [int][Math]::Floor($times.Count / 2)
   Write-Host "median: ready $($ready[$middle]) ms, started $($jvm[$middle]) ms (min $($jvm[0]), max $($jvm[-1]))"
 
-  if ($LogAot) {
-    # One more start, only to see whether the JVM loaded the AOT cache of the package.
-    $env:JDK_JAVA_OPTIONS = "-Xlog:aot,cds:file=$(Join-Path $place 'aot.log')"
-    Measure-Start | Out-Null
-    Remove-Item Env:JDK_JAVA_OPTIONS
-    Write-Host '--- AOT log'
-    Get-Content (Join-Path $place 'aot.log') -TotalCount 25 | ForEach-Object { Write-Host $_ }
-  }
   [pscustomobject]@{
     First = $first.Jvm; Median = $jvm[$middle]; Min = $jvm[0]; Max = $jvm[-1]; Ready = $ready[$middle]
   }

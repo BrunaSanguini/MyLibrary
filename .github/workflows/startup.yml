@@ -4,8 +4,6 @@ name: Startup
 # when a change may affect the startup: a new JDK, Spring Boot or a big dependency.
 on:
   workflow_dispatch:
-  push:
-    branches: [feat/entrega]
 
 permissions:
   contents: read
@@ -38,7 +36,7 @@ jobs:
             $zip = Get-ChildItem dist/*.zip | Select-Object -First 1
             $size = [Math]::Round($zip.Length / 1MB, 1)
             Write-Host "== $layout ($size MB)"
-            $measure = ./scripts/measure-startup.ps1 -Zip $zip.FullName -Runs 7 -LogAot:($layout -eq 'AotCache')
+            $measure = ./scripts/measure-startup.ps1 -Zip $zip.FullName -Runs 7
             $results += [pscustomobject]@{
               Layout = $layout; SizeMb = $size; First = $measure.First; Median = $measure.Median
               Min = $measure.Min; Max = $measure.Max; Ready = $measure.Ready
