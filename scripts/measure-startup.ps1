@@ -62,6 +62,6 @@ try {
   Write-Host "median: $median ms (min $($sorted[0]), max $($sorted[-1]))"
   [pscustomobject]@{ First = $first; Median = $median; Min = $sorted[0]; Max = $sorted[-1] }
 } finally {
-  Remove-Item -Env:MINHA_LIVRARIA_SHUTDOWN_TOKEN -ErrorAction SilentlyContinue
+  Remove-Item Env:MINHA_LIVRARIA_SHUTDOWN_TOKEN -ErrorAction SilentlyContinue
   Remove-Item -Recurse -Force $place -ErrorAction SilentlyContinue
 }
