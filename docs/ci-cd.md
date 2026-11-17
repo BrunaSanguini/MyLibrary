@@ -95,16 +95,16 @@ Os passos 3 e 4 ficam em `scripts/package-windows.ps1`, que também roda localme
 
 Medido pelo workflow `startup.yml`, num runner `windows-latest`, com o script `scripts/measure-startup.ps1`. Cada pacote é extraído numa pasta diferente da do build, como uma pessoa faria. O primeiro início cria o banco e fica de fora; os 7 seguintes partem de dados que já existem. O tempo é o que o Spring Boot registra no log ao ficar pronto ("process running for"). A consulta à readiness serve só de conferência, porque no Windows uma conexão recusada leva cerca de 2 s e deixa essa medida grossa.
 
-Medição de 17/11/2026 (JDK 25, Spring Boot 4.1):
+Medições de 17/11/2026 (JDK 25, Spring Boot 4.1), em duas execuções, cada uma num runner:
 
-| Pacote | Tamanho | Mediana | Mín–máx |
+| Pacote | Tamanho | Mediana (1ª) | Mediana (2ª) |
 |---|---|---|---|
-| Jar único, como sai do build (antes) | 98,4 MB | 10,74 s | 10,54–10,99 s |
-| **Jar extraído (adotado)** | 98,2 MB | **8,88 s** | 8,78–9,46 s |
-| Jar extraído + cache AOT do JDK 25 | 131,9 MB | 9,09 s | 8,98–10,65 s |
+| Jar único, como sai do build (antes) | 98,4 MB | 10,74 s | 11,44 s |
+| **Jar extraído (adotado)** | 98,2 MB | **8,88 s** | **9,98 s** |
+| Jar extraído + cache AOT do JDK 25 | 131,9 MB | 9,09 s | 9,45 s |
 
-- **Jar extraído:** 17% mais rápido, sem custo de tamanho. É o padrão do `package-windows.ps1`.
-- **Cache AOT (`-XX:AOTCache`):** não trouxe ganho medido sobre o jar extraído e aumentou o pacote em 34 MB. Fica disponível no script (`-Layout AotCache`) para ser medido de novo em versões futuras do JDK.
+- **Jar extraído:** de 13% a 17% mais rápido, sem custo de tamanho. É o padrão do `package-windows.ps1`.
+- **Cache AOT (`-XX:AOTCache`):** variou entre 2% mais lento e 5% mais rápido que o jar extraído, dentro da variação entre execuções, e aumentou o pacote em 34 MB. Fica disponível no script (`-Layout AotCache`) para ser medido de novo em versões futuras do JDK.
 - Os runners do GitHub são mais lentos que um computador comum; o que vale é a comparação entre os pacotes.
 
 Para medir de novo: **Actions → Startup → Run workflow**. O resumo da execução traz a tabela.
