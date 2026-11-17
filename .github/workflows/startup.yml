@@ -1,0 +1,48 @@
+name: Startup
+
+# Measures the startup of the Windows package in its three layouts (docs/ci-cd.md). Run by hand,
+# when a change may affect the startup: a new JDK, Spring Boot or a big dependency.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  measure:
+    name: measure
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version-file: .java-version
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+      - name: Build the jar
+        working-directory: backend
+        shell: bash
+        run: ./mvnw -B -ntp package -DskipTests
+      - name: Package and measure each layout
+        shell: pwsh
+        run: |
+          $results = @()
+          foreach ($layout in 'Jar', 'Extracted', 'AotCache') {
+            ./scripts/package-windows.ps1 -Version 0.0.0 -Layout $layout | Out-Null
+            $zip = Get-ChildItem dist/*.zip | Select-Object -First 1
+            $size = [Math]::Round($zip.Length / 1MB, 1)
+            Write-Host "== $layout ($size MB)"
+            $measure = ./scripts/measure-startup.ps1 -Zip $zip.FullName -Runs 7
+            $results += [pscustomobject]@{
+              Layout = $layout; SizeMb = $size; First = $measure.First; Median = $measure.Median
+              Min = $measure.Min; Max = $measure.Max; Ready = $measure.Ready
+            }
+          }
+          $results | Format-Table | Out-String | Write-Host
+          $table = @('| Pacote | Tamanho (MB) | Primeira (ms) | Mediana (ms) | Mín (ms) | Máx (ms) | Readiness (ms) |', '|---|---|---|---|---|---|---|')
+          foreach ($r in $results) { $table += "| $($r.Layout) | $($r.SizeMb) | $($r.First) | $($r.Median) | $($r.Min) | $($r.Max) | $($r.Ready) |" }
+          $table -join "`n" | Out-File -Append -Encoding utf8 $env:GITHUB_STEP_SUMMARY

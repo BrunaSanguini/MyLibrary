@@ -60,6 +60,11 @@ jobs:
       - name: Build the Windows package
         shell: pwsh
         run: ./scripts/package-windows.ps1 -Version $env:VERSION
+      # Starts the package as the hub does and checks the API and the interface; the log keeps the
+      # startup time of the version.
+      - name: Check the package
+        shell: pwsh
+        run: ./scripts/measure-startup.ps1 -Zip "dist/minha-livraria-$env:VERSION-windows-x64.zip" -Runs 3
       - name: Attach to the GitHub Release
         shell: bash
         env:

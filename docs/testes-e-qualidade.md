@@ -274,6 +274,8 @@ describe('ShelfPage', () => {
 4. Criar uma lista, adicionar livros e reordenar só pelo teclado; a ordem continua depois de recarregar.
 5. Trocar o tema e recarregar sem "piscar"; uma janela nova, sem nada salvo no navegador, abre no tema escolhido, porque ele vem do perfil.
 
+Além das jornadas, o `hub-contract.spec.ts` valida o contrato com o My Collection: sobe cópias próprias do jar, em portas próprias, e confere readiness, encerramento pelo token sem perda de dados e o bloqueio de uma segunda instância nos mesmos dados.
+
 O perfil é um só para o servidor inteiro, e os testes rodam em paralelo. Por isso só o `profile.spec.ts` altera o perfil de verdade, com os testes em série e o perfil restaurado ao final de cada um. Os testes de acessibilidade fixam o tema apenas na própria página: o `useTheme` troca o tema na resposta de `GET /profile` daquela página.
 
 **Ambiente**
