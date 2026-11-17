@@ -99,7 +99,7 @@ test('a finished reading moves the goal of the month', async ({ page }) => {
   await card(page)
     .getByRole('button', { name: /Alterar a meta/ })
     .click();
-  await page.getByLabel('Nova meta').fill('6');
+  await card(page).getByLabel('Nova meta').fill('6');
   await card(page).getByRole('button', { name: 'Salvar' }).click();
   await expect(card(page).getByText(/ de 6 livros$/)).toBeVisible();
 });
