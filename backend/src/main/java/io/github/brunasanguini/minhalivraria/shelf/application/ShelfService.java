@@ -259,7 +259,8 @@ public class ShelfService {
             params.put("authorId", filter.authorId());
         }
         if (filter.publisherId() != null) {
-            clauses.add("b.publisher_id = :publisherId");
+            clauses.add("exists (select 1 from book_publisher bp"
+                    + " where bp.book_id = b.id and bp.publisher_id = :publisherId)");
             params.put("publisherId", filter.publisherId());
         }
         if (filter.seriesId() != null) {

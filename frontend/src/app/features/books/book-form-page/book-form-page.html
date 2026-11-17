@@ -135,21 +135,31 @@
       </div>
 
       <div class="field">
-        @if (model().publisherId === null) {
-          <ml-entity-picker
-            source="publishers"
-            label="Editora"
-            placeholder="Busque ou crie uma editora"
-            (picked)="setPublisher($event)"
-          />
+        <ml-entity-picker
+          source="publishers"
+          label="Editoras"
+          placeholder="Busque ou crie uma editora"
+          [exclude]="publisherIds()"
+          (picked)="addPublisher($event)"
+        />
+        @if (model().publishers.length > 0) {
+          <ul class="chips" aria-label="Editoras escolhidas">
+            @for (publisher of model().publishers; track publisher.id) {
+              <li class="chip">
+                {{ publisher.name }}
+                <button
+                  type="button"
+                  class="chip-remove"
+                  [attr.aria-label]="'Remover editora ' + publisher.name"
+                  (click)="removePublisher(publisher.id)"
+                >
+                  <ml-icon name="close" [size]="12" />
+                </button>
+              </li>
+            }
+          </ul>
         } @else {
-          <p class="picked-label">Editora</p>
-          <p class="picked">
-            {{ model().publisherName }}
-            <button type="button" mlButton="link" (click)="setPublisher(undefined)">
-              Trocar editora
-            </button>
-          </p>
+          <p class="hint">Em uma coedição, adicione cada editora na ordem impressa no livro.</p>
         }
       </div>
     </section>

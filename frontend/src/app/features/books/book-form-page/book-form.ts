@@ -16,7 +16,7 @@ import type { GenreEntry } from '../genre-fields/genre-fields';
 
 /**
  * The book as the form edits it. Signal Forms wants a model with no undefined, so empty text is
- * '' and an empty number is null; publisher and series are flattened into id and name.
+ * '' and an empty number is null; the series is flattened into id and name.
  */
 export interface BookFormModel {
   title: string;
@@ -28,8 +28,8 @@ export interface BookFormModel {
   languageCode: string;
   synopsis: string;
   authors: NamedEntry[];
-  publisherId: number | null;
-  publisherName: string;
+  /** In the order printed on the book; more than one in a co-edition. */
+  publishers: NamedEntry[];
   /** Genres and subgenres together, as the API takes them; the form shows them apart. */
   genres: GenreEntry[];
   seriesId: number | null;
@@ -50,8 +50,7 @@ export function emptyBookForm(): BookFormModel {
     languageCode: '',
     synopsis: '',
     authors: [],
-    publisherId: null,
-    publisherName: '',
+    publishers: [],
     genres: [],
     seriesId: null,
     seriesName: '',
@@ -72,8 +71,7 @@ export function bookFormOf(book: BookDetailResponse): BookFormModel {
     languageCode: book.languageCode ?? '',
     synopsis: book.synopsis ?? '',
     authors: book.authors.map(({ id, name }) => ({ id, name })),
-    publisherId: book.publisher?.id ?? null,
-    publisherName: book.publisher?.name ?? '',
+    publishers: book.publishers.map(({ id, name }) => ({ id, name })),
     genres: book.genres.map(({ id, name, parentId }) => ({ id, name, parentId: parentId ?? null })),
     seriesId: book.series?.id ?? null,
     seriesName: book.series?.name ?? '',
@@ -96,7 +94,7 @@ export function bookRequestOf(model: BookFormModel): BookRequest {
     languageCode: text(model.languageCode),
     synopsis: text(model.synopsis),
     authorIds: model.authors.map((author) => author.id),
-    publisherId: model.publisherId ?? undefined,
+    publisherIds: model.publishers.map((publisher) => publisher.id),
     genreIds: model.genres.map((genre) => genre.id),
     seriesId: model.seriesId ?? undefined,
     seriesPosition: model.seriesPosition ?? undefined,

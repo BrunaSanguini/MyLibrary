@@ -141,11 +141,14 @@
             <section aria-labelledby="titulo-detalhes">
               <h2 id="titulo-detalhes" class="section-title">Detalhes</h2>
               <dl class="details">
-                @if (current.publisher; as publisher) {
+                @if (current.publishers.length > 0) {
                   <div>
-                    <dt>Editora</dt>
+                    <dt>{{ current.publishers.length > 1 ? 'Editoras' : 'Editora' }}</dt>
                     <dd>
-                      <a [routerLink]="['/editoras', publisher.id]">{{ publisher.name }}</a>
+                      @for (publisher of current.publishers; track publisher.id; let last = $last) {
+                        <a [routerLink]="['/editoras', publisher.id]">{{ publisher.name }}</a
+                        >{{ last ? '' : ', ' }}
+                      }
                     </dd>
                   </div>
                 }

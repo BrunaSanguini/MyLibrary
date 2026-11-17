@@ -19,6 +19,9 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     /** An author with books cannot be deleted (author.has-books). */
     boolean existsByAuthorsId(long authorId);
 
+    /** Books of a publisher being deleted, which lose it and keep the other publishers. */
+    List<Book> findByPublishersId(long publisherId);
+
     /** Books of a series being deleted, to clear series and position together. */
     List<Book> findBySeriesId(long seriesId);
 }

@@ -46,10 +46,11 @@ class CatalogStats {
     Map<Long, Stats> ofPublishers(Collection<Long> ids) {
         return stats(
                 ids,
-                "select b.publisher_id as id, count(*) as total from book b"
-                        + " where b.publisher_id in (:ids) group by b.publisher_id",
-                "select b.publisher_id as id, b.cover_image_id as cover from book b"
-                        + " where b.publisher_id in (:ids) and b.cover_image_id is not null"
+                "select bp.publisher_id as id, count(*) as total from book_publisher bp"
+                        + " where bp.publisher_id in (:ids) group by bp.publisher_id",
+                "select bp.publisher_id as id, b.cover_image_id as cover from book_publisher bp"
+                        + " join book b on b.id = bp.book_id"
+                        + " where bp.publisher_id in (:ids) and b.cover_image_id is not null"
                         + " order by b.created_at desc, b.id desc");
     }
 

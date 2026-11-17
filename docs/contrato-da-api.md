@@ -138,7 +138,7 @@ Os sub-recursos de favorito e posse são atalhos para os cards e as tags da pág
   "languageCode": "por",
   "synopsis": "...",
   "authorIds": [7],
-  "publisherId": 2,
+  "publisherIds": [2],
   "genreIds": [1, 4],
   "seriesId": 3,
   "seriesPosition": 1,
@@ -147,9 +147,9 @@ Os sub-recursos de favorito e posse são atalhos para os cards e as tags da pág
 }
 ```
 
-Autores, editora, série e gêneros são referenciados por ID. Quando o usuário digita um nome novo no formulário, o front cria o registro antes (`POST /authors`, por exemplo) e usa o ID devolvido.
+Autores, editoras, série e gêneros são referenciados por ID. Quando o usuário digita um nome novo no formulário, o front cria o registro antes (`POST /authors`, por exemplo) e usa o ID devolvido.
 
-Todo livro tem pelo menos um autor (`authorIds` não pode vir vazio). Editora, série e gêneros são opcionais.
+Todo livro tem pelo menos um autor (`authorIds` não pode vir vazio). Editoras (até 10, na ordem impressa no livro), série e gêneros são opcionais.
 
 **`BookDetailResponse`**
 
@@ -159,7 +159,7 @@ Todo livro tem pelo menos um autor (`authorIds` não pode vir vazio). Editora, s
   "title": "A Sociedade do Anel",
   "subtitle": null,
   "authors": [{ "id": 7, "name": "J. R. R. Tolkien" }],
-  "publisher": { "id": 2, "name": "HarperCollins Brasil" },
+  "publishers": [{ "id": 2, "name": "HarperCollins Brasil" }],
   "series": { "id": 3, "name": "O Senhor dos Anéis", "position": 1, "totalVolumes": 3 },
   "genres": [
     { "id": 1, "name": "Fantasia", "parentId": null },

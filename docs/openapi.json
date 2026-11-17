@@ -2710,9 +2710,14 @@
             },
             "minItems" : 1
           },
-          "publisherId" : {
-            "type" : "integer",
-            "format" : "int64"
+          "publisherIds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "integer",
+              "format" : "int64"
+            },
+            "maxItems" : 10,
+            "minItems" : 0
           },
           "genreIds" : {
             "type" : "array",
@@ -2771,8 +2776,11 @@
               "$ref" : "#/components/schemas/BookAuthorResponse"
             }
           },
-          "publisher" : {
-            "$ref" : "#/components/schemas/BookPublisherResponse"
+          "publishers" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BookPublisherResponse"
+            }
           },
           "series" : {
             "$ref" : "#/components/schemas/BookSeriesResponse"
@@ -2828,7 +2836,7 @@
             "format" : "date-time"
           }
         },
-        "required" : [ "authors", "favorite", "genres", "id", "ownership", "title" ]
+        "required" : [ "authors", "favorite", "genres", "id", "ownership", "publishers", "title" ]
       },
       "BookGenreResponse" : {
         "type" : "object",
@@ -3550,8 +3558,11 @@
               "type" : "string"
             }
           },
-          "publisher" : {
-            "type" : "string"
+          "publishers" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "pageCount" : {
             "type" : "integer",
@@ -3581,7 +3592,7 @@
             "format" : "int64"
           }
         },
-        "required" : [ "authors", "editionKey", "title" ]
+        "required" : [ "authors", "editionKey", "publishers", "title" ]
       },
       "PageResponseAuthorResponse" : {
         "type" : "object",

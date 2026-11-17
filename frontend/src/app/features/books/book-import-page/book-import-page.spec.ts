@@ -40,7 +40,7 @@ const HOBBIT_PREVIEW = {
   title: 'O Hobbit',
   subtitle: null,
   authors: ['J.R.R. Tolkien'],
-  publisher: 'Harper Collins',
+  publishers: ['Harper Collins'],
   pageCount: 336,
   isbn13: '9788595084742',
   isbn10: '8595084742',

@@ -82,6 +82,9 @@ export default class BookFormPage implements HasUnsavedChanges {
   private filled = false;
 
   protected readonly authorIds = computed(() => this.model().authors.map((author) => author.id));
+  protected readonly publisherIds = computed(() =>
+    this.model().publishers.map((publisher) => publisher.id),
+  );
 
   protected readonly loadError = computed(() => {
     const error: unknown = this.book.error();
@@ -124,11 +127,18 @@ export default class BookFormPage implements HasUnsavedChanges {
     this.change(() => this.bookForm.genres().value.set(genres));
   }
 
-  protected setPublisher(publisher: NamedEntry | undefined): void {
-    this.change(() => {
-      this.bookForm.publisherId().value.set(publisher?.id ?? null);
-      this.bookForm.publisherName().value.set(publisher?.name ?? '');
-    });
+  protected addPublisher(publisher: NamedEntry): void {
+    this.change(() =>
+      this.bookForm.publishers().value.update((publishers) => [...publishers, publisher]),
+    );
+  }
+
+  protected removePublisher(id: number): void {
+    this.change(() =>
+      this.bookForm
+        .publishers()
+        .value.update((publishers) => publishers.filter((p) => p.id !== id)),
+    );
   }
 
   /** Leaving a series also clears the position, which means nothing without it. */

@@ -1,5 +1,6 @@
 package io.github.brunasanguini.minhalivraria.books.application;
 
+import io.github.brunasanguini.minhalivraria.books.domain.BookRepository;
 import io.github.brunasanguini.minhalivraria.books.domain.Publisher;
 import io.github.brunasanguini.minhalivraria.books.domain.PublisherRepository;
 import io.github.brunasanguini.minhalivraria.shared.error.ConflictException;
@@ -21,10 +22,12 @@ public class PublisherService {
 
     private final PublisherRepository publishers;
     private final CatalogStats stats;
+    private final BookRepository books;
 
-    PublisherService(PublisherRepository publishers, CatalogStats stats) {
+    PublisherService(PublisherRepository publishers, CatalogStats stats, BookRepository books) {
         this.publishers = publishers;
         this.stats = stats;
+        this.books = books;
     }
 
     public PageResponse<PublisherResponse> search(@Nullable String q, Pageable pageable) {
@@ -59,10 +62,12 @@ public class PublisherService {
         return toResponse(publisher);
     }
 
-    // Books of the publisher lose it (ON DELETE SET NULL in the books table).
     @Transactional
+    /** The books keep their other publishers; a book with only this one is left without publisher. */
     public void delete(long id) {
-        publishers.delete(find(id));
+        Publisher publisher = find(id);
+        books.findByPublishersId(id).forEach(book -> book.removePublisher(id));
+        publishers.delete(publisher);
     }
 
     private Publisher find(long id) {

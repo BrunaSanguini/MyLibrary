@@ -58,10 +58,10 @@
         }
 
         <dl class="facts">
-          @if (book.publisher) {
+          @if (book.publishers.length > 0) {
             <div>
-              <dt>Editora</dt>
-              <dd>{{ book.publisher }}</dd>
+              <dt>{{ book.publishers.length > 1 ? 'Editoras' : 'Editora' }}</dt>
+              <dd>{{ book.publishers.join(', ') }}</dd>
             </div>
           }
           @if (book.publishedYear) {

@@ -60,7 +60,7 @@ class OpenLibraryClientTest {
         assertThat(book.title()).isEqualTo("O Hobbit");
         assertThat(book.subtitle()).isNull();
         assertThat(book.authors()).containsExactly(new OpenLibraryAuthor("OL26320A", "J.R.R. Tolkien"));
-        assertThat(book.publisher()).isEqualTo("Harper Collins");
+        assertThat(book.publishers()).containsExactly("Harper Collins");
         assertThat(book.pageCount()).isEqualTo(336);
         assertThat(book.isbn13()).isEqualTo("9788595084742");
         assertThat(book.isbn10()).isEqualTo("8595084742");

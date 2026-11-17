@@ -126,7 +126,7 @@ class SampleCatalog implements ApplicationRunner {
                 "por",
                 null,
                 List.of(author),
-                publisher,
+                publisher == null ? List.of() : List.of(publisher),
                 Arrays.stream(genreIds).boxed().toList(),
                 seriesId,
                 position == null ? null : BigDecimal.valueOf(position),

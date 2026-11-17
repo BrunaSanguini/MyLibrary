@@ -16,7 +16,7 @@ const FELLOWSHIP = {
   title: 'A Sociedade do Anel',
   subtitle: 'O Senhor dos Anéis',
   authors: [{ id: 7, name: 'J. R. R. Tolkien' }],
-  publisher: { id: 2, name: 'HarperCollins Brasil' },
+  publishers: [{ id: 2, name: 'HarperCollins Brasil' }],
   series: { id: 3, name: 'O Senhor dos Anéis', position: 1, totalVolumes: 3 },
   genres: [
     { id: 1, name: 'Fantasia' },
@@ -192,6 +192,22 @@ describe('BookPage', () => {
     const subgenres = screen.getByRole('list', { name: 'Subgêneros' });
     expect(within(genres).getByRole('link').textContent).toBe('Fantasia');
     expect(within(subgenres).getByRole('link').textContent).toBe('Alta fantasia');
+  });
+
+  it('lists every publisher of a co-edition', async () => {
+    await openBook('/livros/42', {
+      ...FELLOWSHIP,
+      publishers: [
+        { id: 2, name: 'HarperCollins Brasil' },
+        { id: 6, name: 'Martins Fontes' },
+      ],
+    });
+
+    expect(screen.getByText('Editoras')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Martins Fontes' })).toHaveAttribute(
+      'href',
+      '/editoras/6',
+    );
   });
 
   it('shows the trail from the shelf to the book', async () => {

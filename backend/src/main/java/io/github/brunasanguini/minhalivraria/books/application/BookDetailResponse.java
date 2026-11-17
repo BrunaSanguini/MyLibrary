@@ -15,7 +15,7 @@ public record BookDetailResponse(
         String title,
         @Nullable String subtitle,
         List<BookAuthorResponse> authors,
-        @Nullable BookPublisherResponse publisher,
+        List<BookPublisherResponse> publishers,
         @Nullable BookSeriesResponse series,
         List<BookGenreResponse> genres,
         @Nullable String isbn13,
@@ -35,6 +35,7 @@ public record BookDetailResponse(
     /** An author, in the order printed on the cover. */
     public record BookAuthorResponse(long id, String name) {}
 
+    /** A publisher, in the order printed on the book. */
     public record BookPublisherResponse(long id, String name) {}
 
     /** The series and where the book sits in it; {@code totalVolumes} feeds the "2 de 3" bar. */

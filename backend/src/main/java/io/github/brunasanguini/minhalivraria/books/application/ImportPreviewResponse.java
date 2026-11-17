@@ -15,7 +15,7 @@ public record ImportPreviewResponse(
         String title,
         @Nullable String subtitle,
         List<String> authors,
-        @Nullable String publisher,
+        List<String> publishers,
         @Nullable Integer pageCount,
         @Nullable String isbn13,
         @Nullable String isbn10,
