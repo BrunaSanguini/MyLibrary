@@ -47,3 +47,11 @@ jobs:
           name: readme-screenshots
           path: docs/images/
           retention-days: 7
+      # Also in the log, for whoever cannot download artifacts: `base64 -d` gives the file back.
+      - name: Print the pictures as base64
+        run: |
+          for image in docs/images/*.png; do
+            echo "::group::$(basename "$image")"
+            base64 "$image"
+            echo "::endgroup::"
+          done
