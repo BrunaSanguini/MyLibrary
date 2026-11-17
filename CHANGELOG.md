@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.0](https://github.com/BrunaSanguini/MyLibrary/compare/v0.7.0...v0.8.0) (2026-11-17)
+
+
+### Funcionalidades
+
+* adiciona home completa, perfil e estatísticas de leitura ([#64](https://github.com/BrunaSanguini/MyLibrary/issues/64)) ([4785fe9](https://github.com/BrunaSanguini/MyLibrary/commit/4785fe9ac10e84c1342335b8e6e38b0f29633550))
+* adiciona listas de livros e metas de leitura ([#62](https://github.com/BrunaSanguini/MyLibrary/issues/62)) ([5e805be](https://github.com/BrunaSanguini/MyLibrary/commit/5e805be92b6d0f09847ecce6e0eb15deabc7f4be))
+
 ## [0.7.0](https://github.com/BrunaSanguini/MyLibrary/compare/v0.6.0...v0.7.0) (2026-11-15)
 
 
