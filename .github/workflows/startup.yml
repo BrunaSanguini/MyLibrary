@@ -38,13 +38,13 @@ jobs:
             $zip = Get-ChildItem dist/*.zip | Select-Object -First 1
             $size = [Math]::Round($zip.Length / 1MB, 1)
             Write-Host "== $layout ($size MB)"
-            $measure = ./scripts/measure-startup.ps1 -Zip $zip.FullName -Runs 7
+            $measure = ./scripts/measure-startup.ps1 -Zip $zip.FullName -Runs 7 -LogAot:($layout -eq 'AotCache')
             $results += [pscustomobject]@{
               Layout = $layout; SizeMb = $size; First = $measure.First; Median = $measure.Median
-              Min = $measure.Min; Max = $measure.Max
+              Min = $measure.Min; Max = $measure.Max; Ready = $measure.Ready
             }
           }
           $results | Format-Table | Out-String | Write-Host
-          $table = @('| Pacote | Tamanho (MB) | Primeira (ms) | Mediana (ms) | Mín (ms) | Máx (ms) |', '|---|---|---|---|---|---|')
-          foreach ($r in $results) { $table += "| $($r.Layout) | $($r.SizeMb) | $($r.First) | $($r.Median) | $($r.Min) | $($r.Max) |" }
+          $table = @('| Pacote | Tamanho (MB) | Primeira (ms) | Mediana (ms) | Mín (ms) | Máx (ms) | Readiness (ms) |', '|---|---|---|---|---|---|---|')
+          foreach ($r in $results) { $table += "| $($r.Layout) | $($r.SizeMb) | $($r.First) | $($r.Median) | $($r.Min) | $($r.Max) | $($r.Ready) |" }
           $table -join "`n" | Out-File -Append -Encoding utf8 $env:GITHUB_STEP_SUMMARY
