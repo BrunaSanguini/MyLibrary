@@ -23,6 +23,7 @@ import {
 } from '@core/api/import-api';
 import { toSearchTerm } from '@core/api/query-params';
 import { BookCover } from '@shared/ui/book-cover/book-cover';
+import { Breadcrumbs } from '@shared/ui/breadcrumbs/breadcrumbs';
 import { Button } from '@shared/ui/button/button';
 import { EmptyState } from '@shared/ui/empty-state/empty-state';
 import { ErrorState } from '@shared/ui/error-state/error-state';
@@ -80,6 +81,7 @@ function failureOf(error: unknown): ImportFailure | undefined {
 @Component({
   selector: 'ml-book-import-page',
   imports: [
+    Breadcrumbs,
     BookCover,
     Button,
     EmptyState,

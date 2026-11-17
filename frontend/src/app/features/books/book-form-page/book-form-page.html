@@ -3,6 +3,19 @@
 } @else if (editing() && !book.hasValue()) {
   <ml-skeleton variant="card" />
 } @else {
+  @if (editing()) {
+    <ml-breadcrumbs
+      [items]="[
+        { label: 'Estante', link: '/estante' },
+        { label: book.value()?.title ?? '', link: '/livros/' + id() },
+        { label: 'Editar' },
+      ]"
+    />
+  } @else {
+    <ml-breadcrumbs
+      [items]="[{ label: 'Estante', link: '/estante' }, { label: 'Cadastrar livro' }]"
+    />
+  }
   <header class="head">
     <p class="eyebrow">{{ editing() ? 'Editar livro' : 'Novo livro' }}</p>
     <h1>{{ editing() ? book.value()?.title : 'Cadastrar livro' }}</h1>

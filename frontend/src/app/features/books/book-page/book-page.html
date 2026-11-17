@@ -9,6 +9,8 @@
 } @else if (book.hasValue()) {
   @let current = book.value();
 
+  <ml-breadcrumbs [items]="[{ label: 'Estante', link: '/estante' }, { label: current.title }]" />
+
   @if (current.bannerUrl) {
     <img class="banner" [src]="current.bannerUrl" alt="" />
   }

@@ -1,3 +1,11 @@
+<ml-breadcrumbs
+  [items]="[
+    { label: 'Estante', link: '/estante' },
+    { label: 'Cadastrar livro', link: '/livros/novo' },
+    { label: 'Importar da Open Library' },
+  ]"
+/>
+
 <header class="head">
   <p class="eyebrow">Open Library</p>
   <h1>Importar livro</h1>
@@ -245,7 +253,7 @@
     @if (results.value().length > 0) {
       <section aria-labelledby="titulo-resultados">
         <h2 id="titulo-resultados" class="section-title">Resultados</h2>
-        <ul class="results">
+        <ul class="results" aria-label="Resultados da busca">
           @for (candidate of results.value(); track candidate.editionKey) {
             <li class="result card">
               <ml-book-cover

@@ -9,6 +9,14 @@
 } @else if (book.hasValue() && readings.hasValue()) {
   @let currentBook = book.value();
 
+  <ml-breadcrumbs
+    [items]="[
+      { label: 'Estante', link: '/estante' },
+      { label: currentBook.title, link: ['/livros', currentBook.id] },
+      { label: 'Registrar leitura' },
+    ]"
+  />
+
   <header class="head">
     <p class="eyebrow">Registrar leitura</p>
     <h1>{{ currentBook.title }}</h1>

@@ -153,7 +153,7 @@ describe('BookImportPage', () => {
   it('marks a result that is already on the shelf and links to the book', async () => {
     await openResults();
 
-    const results = screen.getByRole('list');
+    const results = screen.getByRole('list', { name: 'Resultados da busca' });
     const annotated = within(results)
       .getByRole('heading', { name: 'The Annotated Hobbit' })
       .closest('li')!;

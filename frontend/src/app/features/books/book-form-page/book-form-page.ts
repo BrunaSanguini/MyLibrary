@@ -7,6 +7,7 @@ import { BookDetailResponse, BookImage, BooksApi } from '@core/api/books-api';
 import { NamedEntry } from '@core/api/catalog-api';
 import { toId } from '@core/api/query-params';
 import { HasUnsavedChanges } from '@core/routing/unsaved-changes-guard';
+import { Breadcrumbs } from '@shared/ui/breadcrumbs/breadcrumbs';
 import { Button } from '@shared/ui/button/button';
 import { ErrorState } from '@shared/ui/error-state/error-state';
 import { Icon } from '@shared/ui/icon/icon';
@@ -35,7 +36,7 @@ const IMAGE_LIMIT = 5 * 1024 * 1024;
  */
 @Component({
   selector: 'ml-book-form-page',
-  imports: [Button, EntityPicker, ErrorState, FormField, Icon, RouterLink, Skeleton],
+  imports: [Breadcrumbs, Button, EntityPicker, ErrorState, FormField, Icon, RouterLink, Skeleton],
   templateUrl: './book-form-page.html',
   styleUrls: ['../book-fields.css', './book-form-page.css'],
 })

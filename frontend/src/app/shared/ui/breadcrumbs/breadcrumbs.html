@@ -1,0 +1,13 @@
+<nav aria-label="Trilha de navegação">
+  <ol>
+    @for (crumb of items(); track $index; let last = $last) {
+      <li>
+        @if (last || !crumb.link) {
+          <span [attr.aria-current]="last ? 'page' : null">{{ crumb.label }}</span>
+        } @else {
+          <a [routerLink]="crumb.link">{{ crumb.label }}</a>
+        }
+      </li>
+    }
+  </ol>
+</nav>

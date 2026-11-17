@@ -185,6 +185,17 @@ describe('BookPage', () => {
     );
   });
 
+  it('shows the trail from the shelf to the book', async () => {
+    await openBook();
+
+    const trail = screen.getByRole('navigation', { name: 'Trilha de navegação' });
+    expect(within(trail).getByRole('link', { name: 'Estante' })).toHaveAttribute(
+      'href',
+      '/estante',
+    );
+    expect(within(trail).getByText(FELLOWSHIP.title)).toHaveAttribute('aria-current', 'page');
+  });
+
   it('shows where the book sits in its series', async () => {
     await openBook();
 

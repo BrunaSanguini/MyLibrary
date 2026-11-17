@@ -8,6 +8,7 @@ import { NO_REVIEW, ReadingApi, ReadingResponse, ReviewResponse } from '@core/ap
 import { Ownership } from '@core/api/shelf-api';
 import { HasUnsavedChanges } from '@core/routing/unsaved-changes-guard';
 import { BookCover } from '@shared/ui/book-cover/book-cover';
+import { Breadcrumbs } from '@shared/ui/breadcrumbs/breadcrumbs';
 import { Button } from '@shared/ui/button/button';
 import { ConfirmDialog } from '@shared/ui/confirm-dialog/confirm-dialog';
 import { EmptyState } from '@shared/ui/empty-state/empty-state';
@@ -41,6 +42,7 @@ const LANGUAGES: Readonly<Record<string, string>> = {
 @Component({
   selector: 'ml-book-page',
   imports: [
+    Breadcrumbs,
     BookCover,
     Button,
     ConfirmDialog,
