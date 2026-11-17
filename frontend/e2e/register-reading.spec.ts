@@ -4,7 +4,7 @@ import { expectNoAccessibilityViolations, THEMES, useTheme } from './accessibili
 
 /**
  * Journey 3: start a reading, register sessions and finish it, then rate the book
- * (docs/testes-e-qualidade.md). The part about the goals on the Home arrives with Marco 4.
+ * (docs/testes-e-qualidade.md). The goals part is in goals.spec.ts.
  *
  * Each test creates its own book through the API, with a title of its own: a retry reuses the
  * same server, where the first attempt may have left a reading behind.

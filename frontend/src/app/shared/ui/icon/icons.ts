@@ -16,6 +16,16 @@ export const ICONS = {
     strokeWidth: 1.5,
     paths: ['M3 8h10M9 4l4 4-4 4'],
   },
+  'arrow-up': {
+    viewBox: '0 0 16 16',
+    strokeWidth: 1.5,
+    paths: ['M8 13V3M4 7l4-4 4 4'],
+  },
+  'arrow-down': {
+    viewBox: '0 0 16 16',
+    strokeWidth: 1.5,
+    paths: ['M8 3v10M4 9l4 4 4-4'],
+  },
   'chevron-left': {
     viewBox: '0 0 16 16',
     strokeWidth: 1.5,

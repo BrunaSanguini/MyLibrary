@@ -25,6 +25,7 @@ export class Header {
     { path: '/', label: 'Início', exact: true },
     { path: '/estante', label: 'Minha Estante', exact: false },
     { path: '/listas', label: 'Listas', exact: false },
+    { path: '/metas', label: 'Metas', exact: false },
     { path: '/catalogos', label: 'Catálogos', exact: false },
   ];
 

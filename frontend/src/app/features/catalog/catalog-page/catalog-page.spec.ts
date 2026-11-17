@@ -107,9 +107,51 @@ describe('CatalogPage', () => {
   });
 
   it('falls back to genres for a tab that does not exist', async () => {
-    const { http } = await open('/catalogos?tipo=listas');
+    const { http } = await open('/catalogos?tipo=estantes');
 
     expect(http.expectOne('/api/v1/genres')).toBeDefined();
+  });
+
+  it('shows the lists in the fifth tab, each linking to its own page', async () => {
+    const { harness, http } = await open('/catalogos?tipo=listas');
+    http
+      .expectOne((request) => request.url === '/api/v1/lists')
+      .flush({
+        ...AUTHORS,
+        content: [
+          {
+            id: 4,
+            name: 'Para as férias',
+            bookCount: 2,
+            readCount: 1,
+            coverUrls: [],
+            updatedAt: '2026-11-01T12:00:00Z',
+          },
+        ],
+        totalElements: 1,
+      });
+    await harness.fixture.whenStable();
+
+    expect(screen.getByRole('link', { name: 'Listas' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('link', { name: 'Para as férias' })).toHaveAttribute(
+      'href',
+      '/listas/4',
+    );
+    expect(screen.getByText('2 livros')).toBeInTheDocument();
+  });
+
+  it('points to the page of lists when there is none yet', async () => {
+    const { harness, http } = await open('/catalogos?tipo=listas');
+    http
+      .expectOne((request) => request.url === '/api/v1/lists')
+      .flush({ ...AUTHORS, content: [], totalElements: 0 });
+    await harness.fixture.whenStable();
+
+    expect(screen.getByRole('heading', { name: 'Nenhuma lista ainda' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Ir para as listas' })).toHaveAttribute(
+      'href',
+      '/listas',
+    );
   });
 
   it('says when a catalog is still empty', async () => {

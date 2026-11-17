@@ -35,6 +35,18 @@ const body = (request: { request: { body: unknown } }) =>
   JSON.parse(JSON.stringify(request.request.body)) as unknown;
 
 describe('SessionForm', () => {
+  it('only counts the pages and the note as something to lose', async () => {
+    const { view } = await setup();
+    const form = view.fixture.componentInstance;
+
+    fireEvent.input(screen.getByLabelText('Dia'), { target: { value: '2026-11-07' } });
+    await userEvent.click(screen.getByRole('radio', { name: 'Página atual' }));
+    expect(form.hasUnsavedChanges()).toBe(false);
+
+    await userEvent.type(screen.getByLabelText(/Anotação/), 'Capítulo 3.');
+    expect(form.hasUnsavedChanges()).toBe(true);
+  });
+
   it('starts on today, in pages read, and says where the reader is', async () => {
     await setup();
 

@@ -97,8 +97,15 @@ export class SessionForm {
     });
   }
 
+  /**
+   * Only what the person typed can be lost: the pages and the note. The day starts filled in and
+   * the mode is a choice of how to type, so neither of them alone is worth asking about. The
+   * form's own dirty flag is not used because the browser touches the date and radio fields while
+   * they are first drawn, which made the page ask before leaving a reading just started.
+   */
   hasUnsavedChanges(): boolean {
-    return this.sessionForm().dirty();
+    const { amount, note } = this.model();
+    return amount !== null || note.trim() !== '';
   }
 
   /** First message of a field, once the user has been there or tried to save. */

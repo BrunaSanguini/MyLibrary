@@ -2,6 +2,7 @@ package io.github.brunasanguini.minhalivraria.shelf.application;
 
 import io.github.brunasanguini.minhalivraria.books.Ownership;
 import io.github.brunasanguini.minhalivraria.images.ImageUrls;
+import io.github.brunasanguini.minhalivraria.shared.error.BadRequestException;
 import io.github.brunasanguini.minhalivraria.shared.error.NotFoundException;
 import io.github.brunasanguini.minhalivraria.shared.text.TextNormalizer;
 import io.github.brunasanguini.minhalivraria.shared.web.PageQuery;
@@ -78,6 +79,12 @@ public class ShelfService {
      */
     public Page<BookCardResponse> search(ShelfFilter filter, PageQuery page) {
         Pageable pageable = page.toPageable(ShelfSort.COLUMNS, ShelfSort.DEFAULT);
+        boolean byListOrder = pageable.getSort().stream()
+                .anyMatch(order -> order.getProperty().equals(ShelfSort.LIST_ORDER));
+        if (byListOrder && filter.listId() == null) {
+            // The order of a list means nothing without the list.
+            throw new BadRequestException("request.invalid-sort");
+        }
         Conditions conditions = conditionsOf(filter);
         long total = count(conditions);
         if (total == 0) {
@@ -258,6 +265,11 @@ public class ShelfService {
         if (filter.seriesId() != null) {
             clauses.add("b.series_id = :seriesId");
             params.put("seriesId", filter.seriesId());
+        }
+        if (filter.listId() != null) {
+            clauses.add("exists (select 1 from book_list_item li"
+                    + " where li.book_list_id = :listId and li.book_id = b.id)");
+            params.put("listId", filter.listId());
         }
         String where = clauses.isEmpty() ? "" : " where " + String.join(" and ", clauses);
         return new Conditions(where, params);

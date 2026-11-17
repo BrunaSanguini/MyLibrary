@@ -1,0 +1,66 @@
+<header class="head">
+  <p class="eyebrow">Meu acervo</p>
+  <h1>Listas</h1>
+  <p class="lead">Junte livros do seu jeito e coloque-os na ordem em que quer ler.</p>
+</header>
+
+<div class="layout">
+  <section class="cards" aria-label="Suas listas">
+    @if (errorMessage()) {
+      <ml-error-state [message]="errorMessage()" (retry)="lists.reload()" />
+    } @else if (!lists.hasValue()) {
+      <ul class="lists" aria-hidden="true">
+        @for (placeholder of placeholders; track placeholder) {
+          <li><ml-skeleton variant="card" /></li>
+        }
+      </ul>
+    } @else if (lists.value().content.length === 0) {
+      <ml-empty-state
+        title="Nenhuma lista ainda"
+        message="Crie a primeira no formulário ao lado e comece a juntar livros."
+      />
+    } @else {
+      <ul class="lists">
+        @for (list of lists.value().content; track list.id) {
+          <li class="list">
+            <div class="text">
+              <h2>
+                <a [routerLink]="['/listas', list.id]">{{ list.name }}</a>
+              </h2>
+              @if (list.description) {
+                <p class="description">{{ list.description }}</p>
+              }
+            </div>
+            @if (list.coverUrls.length > 0) {
+              <div class="covers" aria-hidden="true">
+                @for (cover of list.coverUrls; track cover) {
+                  <ml-book-cover size="xs" [title]="list.name" [coverUrl]="cover" />
+                }
+              </div>
+            }
+            <div class="read">
+              <p class="count">{{ readCountOf(list) }}</p>
+              @if (list.bookCount > 0) {
+                <ml-progress-bar
+                  size="sm"
+                  [value]="percentOf(list)"
+                  [label]="'Livros lidos de ' + list.name"
+                />
+              }
+            </div>
+          </li>
+        }
+      </ul>
+
+      @if (lists.value().totalPages > 1) {
+        <ml-paginator
+          [page]="lists.value().page"
+          [totalPages]="lists.value().totalPages"
+          (pageChange)="changePage($event)"
+        />
+      }
+    }
+  </section>
+
+  <ml-list-form class="new" (saved)="open($event)" />
+</div>

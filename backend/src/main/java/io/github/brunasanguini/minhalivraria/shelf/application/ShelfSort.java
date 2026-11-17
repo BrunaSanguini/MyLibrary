@@ -7,9 +7,13 @@ import org.springframework.data.domain.Sort;
  * The sort fields the shelf accepts, and the SQL each one becomes. {@code PageQuery} rejects anything outside this
  * map with {@code request.invalid-sort}, so only these strings ever reach the SQL.
  *
- * <p>{@code listOrder} arrives with the lists.
+ * <p>{@code listOrder} is the position of the book in the list of the {@code listId} filter, so it only works with
+ * that filter: its SQL uses the {@code :listId} parameter.
  */
 final class ShelfSort {
+
+    static final String LIST_ORDER =
+            "(select li.item_order from book_list_item li" + " where li.book_list_id = :listId and li.book_id = b.id)";
 
     /** {@code search_text} starts with the normalized title, which is the alphabetical order the shelf wants. */
     static final Map<String, String> COLUMNS = Map.of(
@@ -18,6 +22,7 @@ final class ShelfSort {
             "addedAt", "b.created_at",
             "seriesPosition", "b.series_position",
             "rating", "rv.rating",
+            "listOrder", LIST_ORDER,
             "finishedAt", "(select max(r.end_date) from reading r where r.book_id = b.id and r.status = 'FINISHED')");
 
     static final Sort DEFAULT = Sort.by(Sort.Direction.DESC, "b.created_at");
