@@ -1,7 +1,32 @@
-<section class="welcome" aria-labelledby="welcome-title">
-  <p class="ml-eyebrow">Sua biblioteca pessoal</p>
-  <h1 id="welcome-title">Boas-vindas à Minha Livraria</h1>
-  <p class="intro">
-    Aqui você vai cadastrar seus livros, registrar as leituras e acompanhar suas metas.
-  </p>
-</section>
+<ml-home-hero [books]="featured()" [loading]="favorites.isLoading()" />
+
+@if (favoriteBooks().length > 0) {
+  <ml-favorites-flow [books]="favoriteBooks()" />
+} @else if (favorites.hasValue()) {
+  <section class="note" aria-labelledby="titulo-favoritos">
+    <h2 id="titulo-favoritos">Favoritos</h2>
+    <p>Nenhum favorito ainda. Na página de um livro, marque a etiqueta Favorito para vê-lo aqui.</p>
+  </section>
+}
+
+@if (goals.hasValue()) {
+  <ml-home-goals [goals]="goals.value()" [year]="year()" />
+}
+
+@defer (on viewport) {
+  <ml-reading-now />
+} @placeholder {
+  <div class="placeholder" aria-hidden="true"></div>
+}
+
+@defer (on viewport) {
+  <ml-author-cards />
+} @placeholder {
+  <div class="placeholder" aria-hidden="true"></div>
+}
+
+@defer (on viewport) {
+  <ml-list-cards />
+} @placeholder {
+  <div class="placeholder" aria-hidden="true"></div>
+}

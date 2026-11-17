@@ -1,0 +1,73 @@
+.goals {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
+  gap: var(--ml-space-16);
+}
+
+.main,
+.side,
+.empty {
+  box-sizing: border-box;
+  padding: var(--ml-space-24);
+  border: 1px solid var(--ml-color-line);
+  border-radius: var(--ml-radius-lg);
+  background: var(--ml-color-surface);
+  box-shadow: var(--ml-shadow-soft);
+}
+
+.main {
+  display: flex;
+  align-items: center;
+  gap: var(--ml-space-24);
+}
+
+.main ml-progress-ring {
+  flex-shrink: 0;
+  width: 140px;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ml-space-8);
+}
+
+h3 {
+  margin: 0;
+  font-family: var(--ml-font-display);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.count {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.left,
+.percent {
+  margin: 0;
+  color: var(--ml-color-muted);
+  font-size: 14px;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ml-space-8);
+}
+
+.empty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ml-space-16);
+}
+
+.empty p {
+  margin: 0;
+  font-size: 16px;
+}

@@ -1,0 +1,53 @@
+<div class="head">
+  <h3>Os últimos seis meses</h3>
+  <p class="summary">{{ summary() }}</p>
+</div>
+
+<div class="grid" aria-hidden="true">
+  @for (week of weeks(); track $index) {
+    <div class="week">
+      @for (day of week; track day.date) {
+        <span
+          class="day"
+          [class]="'day level-' + day.level"
+          [class.future]="day.future"
+          [attr.title]="day.future ? null : titleOf(day.date, day.pages)"
+        ></span>
+      }
+    </div>
+  }
+</div>
+
+<p class="legend" aria-hidden="true">
+  Menos
+  @for (level of levels; track level) {
+    <span [class]="'day level-' + level"></span>
+  }
+  Mais
+</p>
+
+<table class="ml-visually-hidden">
+  <caption>
+    Dias com leitura nos últimos seis meses
+  </caption>
+  <thead>
+    <tr>
+      <th scope="col">Mês</th>
+      <th scope="col">Dias com leitura</th>
+      <th scope="col">Páginas</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (month of months(); track month.month) {
+      <tr>
+        <th scope="row">{{ month.month }}</th>
+        <td>{{ month.days }}</td>
+        <td>{{ formatNumber(month.pages) }}</td>
+      </tr>
+    } @empty {
+      <tr>
+        <td colspan="3">Nenhum dia com leitura registrado.</td>
+      </tr>
+    }
+  </tbody>
+</table>

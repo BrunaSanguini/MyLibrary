@@ -6,6 +6,7 @@ import io.github.brunasanguini.minhalivraria.books.application.BookRequest;
 import io.github.brunasanguini.minhalivraria.books.application.BookService;
 import io.github.brunasanguini.minhalivraria.books.application.CoverResponse;
 import io.github.brunasanguini.minhalivraria.books.application.OwnershipRequest;
+import io.github.brunasanguini.minhalivraria.shared.web.UploadedFile;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

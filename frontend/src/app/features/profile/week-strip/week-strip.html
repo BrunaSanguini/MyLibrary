@@ -1,0 +1,18 @@
+<div class="head">
+  <h3>Esta semana</h3>
+  <p class="summary">{{ summary() }}</p>
+</div>
+<ol class="days">
+  @for (day of week(); track day.date) {
+    <li [class.today]="day.today">
+      <span
+        class="spine"
+        [class.read]="day.pages > 0"
+        [class.future]="day.future"
+        aria-hidden="true"
+      ></span>
+      <span class="letter" aria-hidden="true">{{ day.letter }}</span>
+      <span class="ml-visually-hidden">{{ describe(day.date, day.pages, day.future) }}</span>
+    </li>
+  }
+</ol>

@@ -1,0 +1,126 @@
+/* Cards of authors and lists: a fan of covers over the name. */
+
+.cards {
+  display: grid;
+  gap: var(--ml-space-16);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ml-space-8);
+  box-sizing: border-box;
+  height: 100%;
+  padding: var(--ml-space-24);
+  border: 1px solid var(--ml-color-line);
+  border-radius: var(--ml-radius-lg);
+  background: var(--ml-color-surface);
+  box-shadow: var(--ml-shadow-soft);
+  color: var(--ml-color-ink);
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 3px;
+}
+
+.fan {
+  display: flex;
+  height: 96px;
+  margin-bottom: var(--ml-space-8);
+}
+
+.fan ml-book-cover:not(:first-child) {
+  margin-left: -18px;
+}
+
+.fan ml-book-cover:nth-child(2) {
+  transform: rotate(4deg) translateY(4px);
+}
+
+.fan ml-book-cover:nth-child(3) {
+  transform: rotate(8deg) translateY(8px);
+}
+
+.name {
+  font-family: var(--ml-font-display);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.description {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--ml-color-muted);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ml-space-16);
+  margin-top: auto;
+  color: var(--ml-color-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.meta span,
+.meta {
+  align-items: center;
+}
+
+.meta span {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.empty {
+  margin: 0;
+  padding: var(--ml-space-24);
+  border: 1.5px dashed var(--ml-color-line);
+  border-radius: var(--ml-radius-lg);
+  color: var(--ml-color-muted);
+  font-size: 16px;
+}
+
+.empty a {
+  color: var(--ml-color-accent);
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+}
+
+/* Holds the place of the section while it loads, so the page does not jump. */
+.loading {
+  height: 240px;
+  margin: 0;
+  border-radius: var(--ml-radius-lg);
+  background: var(--ml-color-raised);
+}

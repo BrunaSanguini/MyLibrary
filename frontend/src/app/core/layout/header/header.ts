@@ -1,5 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { initialOf, ProfileStore } from '@core/profile/profile-store';
 import { ThemeStore } from '@core/theme/theme-store';
 import { Icon } from '@shared/ui/icon/icon';
 
@@ -20,6 +21,7 @@ interface MenuItem {
 })
 export class Header {
   private readonly theme = inject(ThemeStore);
+  private readonly profiles = inject(ProfileStore);
 
   protected readonly menu: readonly MenuItem[] = [
     { path: '/', label: 'Início', exact: true },
@@ -30,9 +32,13 @@ export class Header {
   ];
 
   protected readonly dark = computed(() => this.theme.resolved() === 'dark');
+  protected readonly avatarUrl = computed(() => this.profiles.profile()?.avatarUrl);
+  protected readonly initial = computed(() => initialOf(this.profiles.profile()?.displayName));
 
-  // The profile does not exist yet; once it does, the choice is also saved with PUT /profile.
+  /** Saved in the profile, so it holds in every tab and on the next visit. */
   protected toggleTheme(): void {
-    this.theme.setPreference(this.dark() ? 'LIGHT' : 'DARK');
+    this.profiles.changeTheme(this.dark() ? 'LIGHT' : 'DARK').catch(() => {
+      // The store already went back to the previous theme; the button shows it again.
+    });
   }
 }

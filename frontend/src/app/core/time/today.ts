@@ -66,3 +66,9 @@ export const TODAY = new InjectionToken<() => IsoDate>('TODAY', {
   providedIn: 'root',
   factory: () => () => toIsoDate(new Date()),
 });
+
+/** The hour now, from 0 to 23, for greetings. Tests replace it like TODAY. */
+export const CURRENT_HOUR = new InjectionToken<() => number>('CURRENT_HOUR', {
+  providedIn: 'root',
+  factory: () => () => new Date().getHours(),
+});

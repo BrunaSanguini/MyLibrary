@@ -4,7 +4,7 @@ import { expectNoAccessibilityViolations, THEMES, useTheme } from './accessibili
 
 /**
  * The goals part of journey 3: a goal is created, a reading is finished and the goal moves
- * (docs/testes-e-qualidade.md). The Home that will also show it arrives with Marco 5.
+ * (docs/testes-e-qualidade.md). The Home shows it too, among Minhas metas.
  *
  * Other tests finish readings on the same server, so the test compares the count before and
  * after its own reading instead of expecting a fixed number. A goal of the same type and month
@@ -94,6 +94,12 @@ test('a finished reading moves the goal of the month', async ({ page }) => {
   await page.goto('/metas');
   await expect(card(page)).toBeVisible();
   expect(await booksReadIn(page, 5)).toBeGreaterThanOrEqual(before + 1);
+
+  // The Home shows the same goal among Minhas metas.
+  await page.goto('/');
+  const home = page.getByRole('region', { name: 'Minhas metas' });
+  await expect(home.getByRole('article', { name: `Livros em ${MONTH_NAME}` })).toBeVisible();
+  await page.goto('/metas');
 
   // The target changes on the card.
   await card(page)

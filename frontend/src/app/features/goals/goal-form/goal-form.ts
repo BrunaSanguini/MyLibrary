@@ -5,7 +5,7 @@ import { GOAL_TYPES, GoalPeriod, GoalsApi, GoalType } from '@core/api/goals-api'
 import { Button } from '@shared/ui/button/button';
 import { firstValueFrom } from 'rxjs';
 
-import { GOAL_TYPE_LABELS, MONTHS } from '../goal-labels';
+import { GOAL_TYPE_LABELS, MONTHS } from '@core/api/goal-labels';
 
 interface GoalModel {
   type: GoalType;

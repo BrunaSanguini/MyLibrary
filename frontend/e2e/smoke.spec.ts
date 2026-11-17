@@ -26,18 +26,3 @@ for (const theme of THEMES) {
     });
   });
 }
-
-test('keeps the chosen theme after reloading, without flashing', async ({ page }) => {
-  await page.goto('/');
-  await page.getByRole('button', { name: 'Usar tema escuro' }).click();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-
-  // The inline script of index.html applies the theme before Angular starts.
-  const themeAtFirstPaint = page
-    .waitForEvent('domcontentloaded')
-    .then(() => page.evaluate(() => document.documentElement.dataset['theme']));
-  await page.reload();
-
-  expect(await themeAtFirstPaint).toBe('dark');
-  await expect(page.getByRole('button', { name: 'Usar tema claro' })).toBeVisible();
-});

@@ -37,6 +37,11 @@ export const routes: Routes = [
     title: 'Metas',
   },
   {
+    path: 'perfil',
+    loadComponent: () => import('@features/profile/profile-page/profile-page'),
+    title: 'Perfil',
+  },
+  {
     path: 'catalogos',
     loadComponent: () => import('@features/catalog/catalog-page/catalog-page'),
     title: 'Catálogos',

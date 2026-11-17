@@ -1,16 +1,16 @@
-package io.github.brunasanguini.minhalivraria.books.web;
+package io.github.brunasanguini.minhalivraria.shared.web;
 
 import io.github.brunasanguini.minhalivraria.shared.error.BadRequestException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import org.springframework.web.multipart.MultipartFile;
 
-/** Content of an uploaded part. The format and the size are checked by the images module. */
-final class UploadedFile {
+/** Content of an uploaded part, such as a cover or an avatar. The format and the size are checked by the images module. */
+public final class UploadedFile {
 
     private UploadedFile() {}
 
-    static byte[] bytesOf(MultipartFile file) {
+    public static byte[] bytesOf(MultipartFile file) {
         if (file.isEmpty()) {
             throw new BadRequestException("request.invalid");
         }

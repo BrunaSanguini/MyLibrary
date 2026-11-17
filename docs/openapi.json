@@ -15,9 +15,6 @@
     "name" : "goals",
     "description" : "Reading goals by year or month, with their progress"
   }, {
-    "name" : "publishers",
-    "description" : "Publishers, unique by normalized name"
-  }, {
     "name" : "reviews",
     "description" : "Rating and review of each book"
   }, {
@@ -27,20 +24,29 @@
     "name" : "images",
     "description" : "Covers, banners and avatar saved on disk"
   }, {
+    "name" : "genres",
+    "description" : "Genres and subgenres, at most two levels"
+  }, {
+    "name" : "lists",
+    "description" : "Lists of books made by the user"
+  }, {
+    "name" : "publishers",
+    "description" : "Publishers, unique by normalized name"
+  }, {
     "name" : "books",
     "description" : "Books of the collection, registered by hand or imported"
   }, {
     "name" : "shelf",
     "description" : "Read-only listing of book cards, used by every screen"
   }, {
-    "name" : "genres",
-    "description" : "Genres and subgenres, at most two levels"
+    "name" : "stats",
+    "description" : "Reading statistics of the profile, calculated on every request"
+  }, {
+    "name" : "profile",
+    "description" : "Name, avatar and theme of the owner of the library"
   }, {
     "name" : "authors",
     "description" : "Authors of the collection"
-  }, {
-    "name" : "lists",
-    "description" : "Lists of books made by the user"
   } ],
   "paths" : {
     "/api/v1/series/{id}" : {
@@ -326,6 +332,97 @@
             "format" : "int64"
           }
         } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/profile" : {
+      "get" : {
+        "tags" : [ "profile" ],
+        "operationId" : "getProfile",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProfileResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "profile" ],
+        "summary" : "Changes the name and the theme",
+        "description" : "A blank name removes it: the app then greets without a name.",
+        "operationId" : "updateProfile",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ProfileRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProfileResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/profile/avatar" : {
+      "put" : {
+        "tags" : [ "profile" ],
+        "summary" : "Sends the avatar",
+        "description" : "JPEG, PNG or WebP up to 5 MB, the same rules as the covers. The previous avatar goes to the trash.",
+        "operationId" : "replaceProfileAvatar",
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "file" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "file" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AvatarResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "profile" ],
+        "operationId" : "removeProfileAvatar",
         "responses" : {
           "200" : {
             "description" : "OK"
@@ -1770,6 +1867,127 @@
         }
       }
     },
+    "/api/v1/stats/overview" : {
+      "get" : {
+        "tags" : [ "stats" ],
+        "summary" : "Totals of the month and of its year, average rating, rereads, pages and streaks",
+        "description" : "Without year or month, the current ones. The streaks always count up to today.",
+        "operationId" : "getStatsOverview",
+        "parameters" : [ {
+          "name" : "year",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32",
+            "maximum" : 2999,
+            "minimum" : 1900
+          }
+        }, {
+          "name" : "month",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32",
+            "maximum" : 12,
+            "minimum" : 1
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StatsOverviewResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stats/daily-pages" : {
+      "get" : {
+        "tags" : [ "stats" ],
+        "summary" : "Pages read per day, only the days with reading",
+        "description" : "Both days included. A period that ends before it starts: 400 stats.invalid-period; more than 366 days: 400 stats.period-too-long.",
+        "operationId" : "getDailyPages",
+        "parameters" : [ {
+          "name" : "from",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "to",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DailyPagesResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stats/books-time" : {
+      "get" : {
+        "tags" : [ "stats" ],
+        "summary" : "Days and pages of each book in the period, the books with more days first",
+        "description" : "Both days included. A period that ends before it starts: 400 stats.invalid-period; more than 366 days: 400 stats.period-too-long.",
+        "operationId" : "getBooksTime",
+        "parameters" : [ {
+          "name" : "from",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "to",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/BookTimeResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/shelf/books" : {
       "get" : {
         "tags" : [ "shelf" ],
@@ -2259,6 +2477,46 @@
           }
         },
         "required" : [ "bookCount", "coverUrls", "id", "name" ]
+      },
+      "ProfileRequest" : {
+        "type" : "object",
+        "properties" : {
+          "displayName" : {
+            "type" : "string",
+            "maxLength" : 80,
+            "minLength" : 0
+          },
+          "theme" : {
+            "type" : "string",
+            "enum" : [ "LIGHT", "DARK", "SYSTEM" ]
+          }
+        },
+        "required" : [ "theme" ]
+      },
+      "ProfileResponse" : {
+        "type" : "object",
+        "properties" : {
+          "displayName" : {
+            "type" : "string"
+          },
+          "avatarUrl" : {
+            "type" : "string"
+          },
+          "theme" : {
+            "type" : "string",
+            "enum" : [ "LIGHT", "DARK", "SYSTEM" ]
+          }
+        },
+        "required" : [ "theme" ]
+      },
+      "AvatarResponse" : {
+        "type" : "object",
+        "properties" : {
+          "avatarUrl" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "avatarUrl" ]
       },
       "BookListRequest" : {
         "type" : "object",
@@ -2825,6 +3083,113 @@
           }
         },
         "required" : [ "editionKey" ]
+      },
+      "FastestReadingResponse" : {
+        "type" : "object",
+        "properties" : {
+          "bookId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "days" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "bookId", "days", "title" ]
+      },
+      "StatsOverviewResponse" : {
+        "type" : "object",
+        "properties" : {
+          "year" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "month" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "finishedInMonth" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "finishedInYear" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "averageRating" : {
+            "type" : "number"
+          },
+          "rereadsInYear" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pagesInYear" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "currentStreak" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "longestStreak" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "finishedLast30Days" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "inProgress" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "fastestInYear" : {
+            "$ref" : "#/components/schemas/FastestReadingResponse"
+          }
+        },
+        "required" : [ "currentStreak", "finishedInMonth", "finishedInYear", "finishedLast30Days", "inProgress", "longestStreak", "month", "pagesInYear", "rereadsInYear", "year" ]
+      },
+      "DailyPagesResponse" : {
+        "type" : "object",
+        "properties" : {
+          "date" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "pages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "date", "pages" ]
+      },
+      "BookTimeResponse" : {
+        "type" : "object",
+        "properties" : {
+          "bookId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "coverUrl" : {
+            "type" : "string"
+          },
+          "days" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "bookId", "days", "pages", "title" ]
       },
       "BookCardResponse" : {
         "type" : "object",

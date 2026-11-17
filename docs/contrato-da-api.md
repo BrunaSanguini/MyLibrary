@@ -331,7 +331,12 @@ O front trata `review.not-found` como "sem resenha", sem exibir erro.
 | `GET /stats/daily-pages?from=&to=` | `[{ "date": "2026-11-08", "pages": 25 }]`, só os dias com leitura; período máximo de 366 dias |
 | `GET /stats/books-time?from=&to=` | `[{ "bookId": 42, "title": "...", "coverUrl": "...", "days": 6, "pages": 210 }]` |
 
-O mapa de calor, o "Esta semana" e a tabela de Ritmo saem do `daily-pages`.
+O mapa de calor e o "Esta semana" saem do `daily-pages`; a tabela de Ritmo sai do `overview`.
+
+- `daily-pages` e `books-time` exigem `from` e `to`, com os dois dias incluídos. Fim antes do início: `400` (`stats.invalid-period`); mais de 366 dias: `400` (`stats.period-too-long`).
+- Um dia com leitura é um dia com pelo menos uma sessão. A **sequência atual** termina hoje ou ontem (o dia de hoje ainda não acabou); a **maior sequência** considera todo o histórico.
+- `overview` traz `finishedInMonth`, `finishedInYear`, `rereadsInYear` e `pagesInYear` com as mesmas regras das metas; `averageRating` é a média de todas as notas, com uma casa decimal, e fica ausente sem notas; `finishedLast30Days` conta hoje e os 29 dias anteriores; `fastestInYear` é a leitura concluída no ano em menos dias (início e fim incluídos), entre as que têm data de início.
+- `books-time` ordena por dias e depois por páginas.
 
 ## Listas (`lists`)
 
@@ -377,6 +382,9 @@ Os livros de uma lista vêm de `GET /shelf/books?listId={id}&sort=listOrder,asc`
 | `PUT /profile` | `{ "displayName": "...", "theme": "DARK" }` | `200` |
 | `PUT /profile/avatar` | multipart `file` | `200` `{ "avatarUrl": "..." }` |
 | `DELETE /profile/avatar` | | `204` |
+
+- O nome tem até 80 caracteres; em branco, o perfil fica sem nome e o app cumprimenta sem ele.
+- O avatar segue as regras das capas (JPEG, PNG ou WebP até 5 MB, conferidos pelo conteúdo): `415` (`image.invalid-type`) e `413` (`image.too-large`). O avatar anterior vai para a lixeira.
 
 ## Imagens (`images`)
 

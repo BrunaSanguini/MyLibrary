@@ -14,6 +14,8 @@ export type SessionResponse = Schemas['SessionResponse'];
 export type SessionRequest = Schemas['SessionRequest'];
 export type ReviewResponse = Schemas['ReviewResponse'];
 export type ReviewRequest = Schemas['ReviewRequest'];
+export type ReviewSummary = Schemas['ReviewSummaryResponse'];
+export type ReviewsPage = Schemas['PageResponseReviewSummaryResponse'];
 
 /** The code the API answers when a book simply has no review yet, which is not a failure. */
 export const NO_REVIEW = 'review.not-found';
@@ -60,6 +62,11 @@ export class ReadingApi {
   /** Answers 404 with {@link NO_REVIEW} for a book without review. */
   reviewRequest(bookId: number): HttpResourceRequest {
     return { url: `/api/v1/books/${bookId}/review` };
+  }
+
+  /** The reviews written or changed last. */
+  latestReviewsRequest(size: number): HttpResourceRequest {
+    return { url: '/api/v1/reviews', params: { size, sort: 'updatedAt,desc' } };
   }
 
   createReading(bookId: number, request: ReadingRequest): Observable<ReadingResponse> {

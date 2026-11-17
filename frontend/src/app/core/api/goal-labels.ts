@@ -1,4 +1,4 @@
-import { GoalResponse, GoalType } from '@core/api/goals-api';
+import { GoalResponse, GoalType } from './goals-api';
 
 export const GOAL_TYPE_LABELS: Readonly<Record<GoalType, string>> = {
   BOOKS: 'Livros',

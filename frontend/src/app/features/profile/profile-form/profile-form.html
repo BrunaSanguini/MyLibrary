@@ -1,0 +1,41 @@
+<form class="form" aria-labelledby="titulo-editar-perfil" novalidate (submit)="save($event)">
+  <h2 id="titulo-editar-perfil">Editar perfil</h2>
+
+  @if (failure()) {
+    <p class="failure" role="alert">{{ failure() }}</p>
+  }
+
+  <div class="field">
+    <label for="nome-perfil">Nome</label>
+    <input
+      id="nome-perfil"
+      type="text"
+      autocomplete="nickname"
+      [formField]="profileForm.displayName"
+      [attr.aria-describedby]="
+        errorOf(profileForm.displayName) ? 'erro-nome-perfil' : 'dica-nome-perfil'
+      "
+    />
+    <p id="dica-nome-perfil" class="hint">Deixe em branco para não usar nome.</p>
+    @if (errorOf(profileForm.displayName); as message) {
+      <p id="erro-nome-perfil" class="error">{{ message }}</p>
+    }
+  </div>
+
+  <fieldset class="themes">
+    <legend>Tema</legend>
+    @for (theme of themes; track theme.value) {
+      <label class="choice">
+        <input type="radio" [value]="theme.value" [formField]="profileForm.theme" />
+        {{ theme.label }}
+      </label>
+    }
+  </fieldset>
+
+  <div class="actions">
+    <button mlButton="secondary" type="button" (click)="cancelled.emit()">Cancelar</button>
+    <button mlButton="primary" type="submit" [disabled]="profileForm().submitting()">
+      {{ profileForm().submitting() ? 'Salvando…' : 'Salvar perfil' }}
+    </button>
+  </div>
+</form>
