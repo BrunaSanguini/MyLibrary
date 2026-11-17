@@ -19,7 +19,8 @@
     "lint:ts": "eslint .",
     "lint:css": "stylelint \"src/**/*.css\"",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "readme:screenshots": "README_SCREENSHOTS=1 playwright test e2e/readme-screenshots.spec.ts"
   },
   "dependencies": {
     "@angular/aria": "22.2.5",
