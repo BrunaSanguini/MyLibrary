@@ -268,42 +268,20 @@
       <h2 id="secao-imagens">Imagens</h2>
       <p class="hint">JPEG, PNG ou WebP, com até 5 MB. Sem capa, o livro usa uma capa de papel.</p>
 
-      @if (imageError()) {
-        <p class="error" role="alert">{{ imageError() }}</p>
-      }
-
-      <div class="row">
-        <div class="field grow">
-          <label for="capa">Capa</label>
-          <input
-            id="capa"
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            (change)="chooseImage('cover', $event)"
-          />
-          @if (editing() && book.value()?.coverUrl) {
-            <label class="check">
-              <input type="checkbox" (change)="toggleRemoval('cover', $event)" />
-              Remover a capa atual
-            </label>
-          }
-        </div>
-
-        <div class="field grow">
-          <label for="banner">Banner</label>
-          <input
-            id="banner"
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            (change)="chooseImage('banner', $event)"
-          />
-          @if (editing() && book.value()?.bannerUrl) {
-            <label class="check">
-              <input type="checkbox" (change)="toggleRemoval('banner', $event)" />
-              Remover o banner atual
-            </label>
-          }
-        </div>
+      <div class="images">
+        <ml-image-field
+          label="Capa"
+          [currentUrl]="editing() ? (book.value()?.coverUrl ?? undefined) : undefined"
+          (fileChange)="setImage('cover', $event)"
+          (removeChange)="setRemoval('cover', $event)"
+        />
+        <ml-image-field
+          label="Banner"
+          shape="banner"
+          [currentUrl]="editing() ? (book.value()?.bannerUrl ?? undefined) : undefined"
+          (fileChange)="setImage('banner', $event)"
+          (removeChange)="setRemoval('banner', $event)"
+        />
       </div>
     </section>
 

@@ -16,6 +16,7 @@ import { firstValueFrom } from 'rxjs';
 
 import { EntityPicker } from '../entity-picker/entity-picker';
 import { GenreEntry, GenreFields } from '../genre-fields/genre-fields';
+import { ImageField } from '../image-field/image-field';
 import {
   bookFormOf,
   bookFormSchema,
@@ -23,9 +24,6 @@ import {
   emptyBookForm,
   SERVER_FIELDS,
 } from './book-form';
-
-const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const IMAGE_LIMIT = 5 * 1024 * 1024;
 
 /**
  * Registers a book by hand and edits one, on the same form.
@@ -44,6 +42,7 @@ const IMAGE_LIMIT = 5 * 1024 * 1024;
     ErrorState,
     FormField,
     GenreFields,
+    ImageField,
     Icon,
     RouterLink,
     Skeleton,
@@ -76,7 +75,6 @@ export default class BookFormPage implements HasUnsavedChanges {
   protected readonly bannerFile = signal<File | undefined>(undefined);
   protected readonly removeCover = signal(false);
   protected readonly removeBanner = signal(false);
-  protected readonly imageError = signal<string | undefined>(undefined);
 
   /** Pickers and files change the model from code, which the form does not count as dirty. */
   private readonly changedOutsideFields = signal(false);
@@ -144,26 +142,12 @@ export default class BookFormPage implements HasUnsavedChanges {
     });
   }
 
-  protected chooseImage(image: BookImage, event: Event): void {
-    const field = event.target as HTMLInputElement;
-    const file = field.files?.[0];
-    this.imageError.set(undefined);
-    if (file && !IMAGE_TYPES.includes(file.type)) {
-      this.imageError.set('Use uma imagem JPEG, PNG ou WebP.');
-      field.value = '';
-      return;
-    }
-    if (file && file.size > IMAGE_LIMIT) {
-      this.imageError.set('A imagem pode ter até 5 MB.');
-      field.value = '';
-      return;
-    }
+  protected setImage(image: BookImage, file: File | undefined): void {
     this.change(() => (image === 'cover' ? this.coverFile : this.bannerFile).set(file));
   }
 
-  protected toggleRemoval(image: BookImage, event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
-    this.change(() => (image === 'cover' ? this.removeCover : this.removeBanner).set(checked));
+  protected setRemoval(image: BookImage, remove: boolean): void {
+    this.change(() => (image === 'cover' ? this.removeCover : this.removeBanner).set(remove));
   }
 
   protected async save(event: Event): Promise<void> {
