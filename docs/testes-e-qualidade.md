@@ -270,9 +270,11 @@ describe('ShelfPage', () => {
 **Jornadas do MVP**
 1. Cadastrar um livro manualmente e encontrá-lo na Estante e na busca, inclusive buscando sem acento.
 2. Importar um livro da Open Library.
-3. Iniciar uma leitura, registrar sessões e concluir; conferir progresso, status e meta na Home (até a Home existir, a meta é conferida em `/metas`).
+3. Iniciar uma leitura, registrar sessões e concluir; conferir progresso, status e meta em `/metas` e na Home.
 4. Criar uma lista, adicionar livros e reordenar só pelo teclado; a ordem continua depois de recarregar.
-5. Trocar o tema e recarregar sem "piscar".
+5. Trocar o tema e recarregar sem "piscar"; uma janela nova, sem nada salvo no navegador, abre no tema escolhido, porque ele vem do perfil.
+
+O perfil é um só para o servidor inteiro, e os testes rodam em paralelo. Por isso só o `profile.spec.ts` altera o perfil de verdade, com os testes em série e o perfil restaurado ao final de cada um. Os testes de acessibilidade fixam o tema apenas na própria página: o `useTheme` troca o tema na resposta de `GET /profile` daquela página.
 
 **Ambiente**
 - Os testes rodam contra o **jar real**, com o perfil `e2e`.
