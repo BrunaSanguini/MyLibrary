@@ -43,7 +43,9 @@ function Measure-Start {
     Start-Sleep -Milliseconds 50
   }
   $elapsed = [int] $clock.Elapsed.TotalMilliseconds
-  Invoke-RestMethod -Method Post -Uri "$url/actuator/shutdown" -Headers @{ 'X-MyCollection-Token' = $token } | Out-Null
+  # No body: the Actuator refuses the form type PowerShell sends by default (415).
+  Invoke-RestMethod -Method Post -Uri "$url/actuator/shutdown" -ContentType 'application/json' `
+    -Headers @{ 'X-MyCollection-Token' = $token } | Out-Null
   if (-not $process.WaitForExit(60000)) { throw 'The app did not stop after the shutdown' }
   return $elapsed
 }
