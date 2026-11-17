@@ -1,0 +1,12 @@
+@if (readings().length > 0) {
+  <ol class="history">
+    @for (reading of readings(); track reading.id; let index = $index, count = $count) {
+      <li>
+        <ml-reading-entry [reading]="reading" [number]="count - index" />
+      </li>
+    }
+  </ol>
+} @else {
+  <p class="empty">Você ainda não registrou nenhuma leitura deste livro.</p>
+  <a mlButton="secondary" [routerLink]="['/livros', bookId(), 'leitura']">Começar a ler</a>
+}

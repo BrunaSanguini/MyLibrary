@@ -118,38 +118,62 @@
         />
       }
 
-      @if (current.synopsis) {
-        <section aria-labelledby="titulo-sinopse">
-          <h2 id="titulo-sinopse" class="section-title">Sinopse</h2>
-          <p class="synopsis">{{ current.synopsis }}</p>
-        </section>
-      }
+      <div ngTabs class="tabs">
+        <div ngTabList class="tab-list" aria-label="Sobre o livro" [(selectedTab)]="tab">
+          <button ngTab type="button" class="tab" value="sobre">Sobre</button>
+          <button ngTab type="button" class="tab" value="historico">
+            Histórico de leitura
+            @if (readings.value()?.length; as count) {
+              <span class="tab-count">{{ count }}</span>
+            }
+          </button>
+        </div>
 
-      <section aria-labelledby="titulo-detalhes">
-        <h2 id="titulo-detalhes" class="section-title">Detalhes</h2>
-        <dl class="details">
-          @if (current.publisher; as publisher) {
-            <div>
-              <dt>Editora</dt>
-              <dd>
-                <a [routerLink]="['/editoras', publisher.id]">{{ publisher.name }}</a>
-              </dd>
-            </div>
-          }
-          @for (detail of details(); track detail.label) {
-            <div>
-              <dt>{{ detail.label }}</dt>
-              <dd>{{ detail.value }}</dd>
-            </div>
-          }
-        </dl>
-        @if (current.openLibrary?.url; as url) {
-          <a mlButton="link" [href]="url" target="_blank" rel="noopener noreferrer">
-            Ver na Open Library
-            <ml-icon name="arrow-right" [size]="16" />
-          </a>
-        }
-      </section>
+        <div ngTabPanel class="tab-panel" value="sobre">
+          <ng-template ngTabContent>
+            @if (current.synopsis) {
+              <section aria-labelledby="titulo-sinopse">
+                <h2 id="titulo-sinopse" class="section-title">Sinopse</h2>
+                <p class="synopsis">{{ current.synopsis }}</p>
+              </section>
+            }
+
+            <section aria-labelledby="titulo-detalhes">
+              <h2 id="titulo-detalhes" class="section-title">Detalhes</h2>
+              <dl class="details">
+                @if (current.publisher; as publisher) {
+                  <div>
+                    <dt>Editora</dt>
+                    <dd>
+                      <a [routerLink]="['/editoras', publisher.id]">{{ publisher.name }}</a>
+                    </dd>
+                  </div>
+                }
+                @for (detail of details(); track detail.label) {
+                  <div>
+                    <dt>{{ detail.label }}</dt>
+                    <dd>{{ detail.value }}</dd>
+                  </div>
+                }
+              </dl>
+              @if (current.openLibrary?.url; as url) {
+                <a mlButton="link" [href]="url" target="_blank" rel="noopener noreferrer">
+                  Ver na Open Library
+                  <ml-icon name="arrow-right" [size]="16" />
+                </a>
+              }
+            </section>
+          </ng-template>
+        </div>
+
+        <div ngTabPanel class="tab-panel" value="historico">
+          <ng-template ngTabContent>
+            @if (readings.hasValue()) {
+              <ml-reading-history [bookId]="current.id" [readings]="readings.value()" />
+            }
+          </ng-template>
+        </div>
+      </div>
 
       <div class="actions">
         <a mlButton="secondary" [routerLink]="['/livros', current.id, 'editar']">

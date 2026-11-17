@@ -1,5 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { Component, computed, inject, input, signal, viewChild } from '@angular/core';
+import { Tab, TabContent, TabList, TabPanel, Tabs } from '@angular/aria/tabs';
 import { Router, RouterLink } from '@angular/router';
 import { ApiError } from '@core/api/api-error';
 import { BookDetailResponse, BooksApi } from '@core/api/books-api';
@@ -18,6 +19,7 @@ import { Skeleton } from '@shared/ui/skeleton/skeleton';
 import { Tag } from '@shared/ui/tag/tag';
 import { firstValueFrom, Observable } from 'rxjs';
 
+import { ReadingHistory } from '../reading-history/reading-history';
 import { ReadingSheet } from '../reading-sheet/reading-sheet';
 import { RelatedBooks } from '../related-books/related-books';
 import { ReviewEditor } from '../review-editor/review-editor';
@@ -49,11 +51,17 @@ const LANGUAGES: Readonly<Record<string, string>> = {
     EmptyState,
     ErrorState,
     Icon,
+    ReadingHistory,
     ReadingSheet,
     RelatedBooks,
     ReviewEditor,
     RouterLink,
     Skeleton,
+    Tab,
+    TabContent,
+    TabList,
+    TabPanel,
+    Tabs,
     Tag,
   ],
   templateUrl: './book-page.html',
@@ -112,6 +120,9 @@ export default class BookPage implements HasUnsavedChanges {
     () => this.id() === undefined || this.error()?.code === 'book.not-found',
   );
   protected readonly errorMessage = computed(() => this.error()?.detail);
+
+  /** Sobre (synopsis and details) or Histórico de leitura. */
+  protected readonly tab = signal<string | undefined>('sobre');
 
   /** The classification in two rows: the genres, then the subgenres inside them. */
   protected readonly genres = computed(

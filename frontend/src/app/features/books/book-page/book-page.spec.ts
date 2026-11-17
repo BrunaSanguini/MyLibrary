@@ -403,6 +403,64 @@ describe('BookPage', () => {
     expect(within(record()).getByText('Relido')).toBeInTheDocument();
   });
 
+  it('opens on Sobre, with the synopsis, and switches to the reading history', async () => {
+    await openBook('/livros/42', FELLOWSHIP, undefined, { readings: [READING, FINISHED] });
+
+    expect(screen.getByRole('tab', { name: 'Sobre' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByText('Uma jornada até a Montanha da Perdição.')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('tab', { name: /Histórico de leitura/ }));
+
+    const history = screen.getByRole('tabpanel');
+    expect(within(history).getByRole('heading', { name: '2ª leitura' })).toBeInTheDocument();
+    expect(within(history).getByRole('heading', { name: '1ª leitura' })).toBeInTheDocument();
+    expect(within(history).getByText('Lendo')).toBeInTheDocument();
+    expect(
+      within(history).getByText(/De 2 de janeiro de 2025 a 10 de fevereiro de 2025/),
+    ).toBeInTheDocument();
+    expect(within(history).getByText('120 de 576 páginas')).toBeInTheDocument();
+    expect(screen.queryByText('Uma jornada até a Montanha da Perdição.')).not.toBeInTheDocument();
+  });
+
+  it('shows the sessions of a reading only when asked', async () => {
+    const { http, harness } = await openBook('/livros/42', FELLOWSHIP, undefined, {
+      readings: [READING],
+    });
+    await userEvent.click(screen.getByRole('tab', { name: /Histórico de leitura/ }));
+
+    const toggle = screen.getByRole('button', { name: 'Ver 5 sessões' });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await userEvent.click(toggle);
+    await vi.waitFor(() => {
+      TestBed.tick();
+      http
+        .expectOne('/api/v1/readings/9/sessions')
+        .flush([{ id: 1, date: '2026-11-03', pagesRead: 40, note: 'Chegaram a Valfenda' }]);
+    });
+    await harness.fixture.whenStable();
+
+    expect(screen.getByRole('button', { name: 'Esconder 5 sessões' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+    expect(screen.getByText('Chegaram a Valfenda')).toBeInTheDocument();
+    expect(screen.getByText('40 páginas')).toBeInTheDocument();
+  });
+
+  it('invites the first reading when the history is empty', async () => {
+    await openBook();
+    await userEvent.click(screen.getByRole('tab', { name: /Histórico de leitura/ }));
+
+    const history = screen.getByRole('tabpanel');
+    expect(
+      within(history).getByText('Você ainda não registrou nenhuma leitura deste livro.'),
+    ).toBeInTheDocument();
+    expect(within(history).getByRole('link', { name: 'Começar a ler' })).toHaveAttribute(
+      'href',
+      '/livros/42/leitura',
+    );
+  });
+
   it('invites a review, without any error, when the book has none', async () => {
     await openBook();
 

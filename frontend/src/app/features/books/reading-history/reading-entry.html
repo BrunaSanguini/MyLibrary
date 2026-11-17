@@ -1,0 +1,61 @@
+<article class="entry" [attr.aria-labelledby]="'titulo-' + sessionsId()">
+  <header class="entry-head">
+    <h3 [id]="'titulo-' + sessionsId()">{{ title() }}</h3>
+    <span mlTag="seal">{{ statusLabel() }}</span>
+    @if (reading().reread) {
+      <span mlTag="seal">Releitura</span>
+    }
+  </header>
+
+  @if (period(); as period) {
+    <p class="period">
+      {{ period }}
+      @if (days(); as days) {
+        <span class="days">· {{ days }}</span>
+      }
+    </p>
+  }
+
+  <div class="progress">
+    <ml-progress-bar [value]="reading().progress.percent" [label]="'Progresso da ' + title()" />
+    <span>{{ pages() }}</span>
+  </div>
+
+  @if (reading().sessionCount > 0) {
+    <button
+      mlButton="link"
+      type="button"
+      [attr.aria-expanded]="open()"
+      [attr.aria-controls]="sessionsId()"
+      (click)="toggle()"
+    >
+      {{ open() ? 'Esconder' : 'Ver' }} {{ sessionCount() }}
+    </button>
+    @if (open()) {
+      <div [id]="sessionsId()">
+        @if (sessions.hasValue()) {
+          <ul class="sessions">
+            @for (session of sessions.value(); track session.id) {
+              <li>
+                <span class="session-date">{{ dateOf(session) }}</span>
+                <span
+                  >{{ session.pagesRead }}
+                  {{ session.pagesRead === 1 ? 'página' : 'páginas' }}</span
+                >
+                @if (session.note) {
+                  <span class="note">{{ session.note }}</span>
+                }
+              </li>
+            }
+          </ul>
+        } @else if (sessions.error()) {
+          <p class="empty" role="alert">Não foi possível carregar as sessões.</p>
+        } @else {
+          <p class="empty" role="status">Carregando as sessões…</p>
+        }
+      </div>
+    }
+  } @else {
+    <p class="empty">Nenhuma sessão registrada.</p>
+  }
+</article>
