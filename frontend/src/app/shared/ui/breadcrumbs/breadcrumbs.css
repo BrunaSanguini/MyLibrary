@@ -2,7 +2,9 @@
 
 :host {
   display: block;
-  margin-bottom: var(--ml-space-24);
+
+  /* The pages that use it start 40px below the header; the trail sits closer to it. */
+  margin: calc(-1 * var(--ml-space-40)) 0 var(--ml-space-24);
 }
 
 ol {
