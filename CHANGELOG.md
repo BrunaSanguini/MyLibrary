@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0](https://github.com/BrunaSanguini/MyLibrary/compare/v0.8.0...v1.0.0) (2026-11-17)
+
+
+### Funcionalidades
+
+* prepara a entrega da versão 1.0 ([#65](https://github.com/BrunaSanguini/MyLibrary/issues/65)) ([6dd31a8](https://github.com/BrunaSanguini/MyLibrary/commit/6dd31a8d4d07b43a8de9722a722fcad2bed747a6))
+
 ## [0.8.0](https://github.com/BrunaSanguini/MyLibrary/compare/v0.7.0...v0.8.0) (2026-11-17)
 
 
