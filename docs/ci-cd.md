@@ -89,7 +89,7 @@ Os passos 3 e 4 ficam em `scripts/package-windows.ps1`, que também roda localme
 ./scripts/package-windows.ps1 -Version 0.1.0
 ```
 
-**Primeira versão.** A v0.1.0 foi fixada com `release-as`, porque os commits até ela eram só de `build`, `ci` e `docs`. A partir dela, as versões seguem os commits.
+**Versões fixadas.** A v0.1.0 foi fixada com `release-as`, porque os commits até ela eram só de `build`, `ci` e `docs`. A v1.0.0 também, porque antes da 1.0 o release-please sobe só a minor: ela marca o fim do roadmap, não uma quebra de compatibilidade. Depois de cada versão fixada, o `release-as` sai do `release-please-config.json`, e as versões voltam a seguir os commits.
 
 ### Tempo de inicialização
 
