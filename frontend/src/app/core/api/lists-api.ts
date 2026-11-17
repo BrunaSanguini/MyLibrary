@@ -19,9 +19,10 @@ const LARGEST_PAGE = 100;
 export class ListsApi {
   private readonly http = inject(HttpClient);
 
-  /** Cards by name. */
-  listRequest(page = 0, size = 24): HttpResourceRequest {
-    return { url: '/api/v1/lists', params: { page, size } };
+  /** Cards by name, or the ones changed last. */
+  listRequest(page = 0, size = 24, sort: 'name' | 'updatedAt' = 'name'): HttpResourceRequest {
+    const params = { page, size, ...(sort === 'updatedAt' ? { sort: 'updatedAt,desc' } : {}) };
+    return { url: '/api/v1/lists', params };
   }
 
   oneRequest(id: number): HttpResourceRequest {

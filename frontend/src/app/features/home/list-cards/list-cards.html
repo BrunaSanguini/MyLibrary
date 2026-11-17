@@ -1,0 +1,50 @@
+<section aria-labelledby="titulo-listas">
+  <div class="section-head">
+    <div class="titles">
+      <p class="eyebrow">Suas coleções</p>
+      <h2 id="titulo-listas">Listas para explorar</h2>
+    </div>
+    <span class="rule" aria-hidden="true"></span>
+    <a class="more" routerLink="/listas">Ver todas <ml-icon name="arrow-right" [size]="16" /></a>
+  </div>
+
+  @if (page.error()) {
+    <p class="empty" role="alert">Não foi possível carregar as listas agora.</p>
+  } @else if (!page.hasValue()) {
+    <p class="loading" aria-hidden="true"></p>
+  } @else if (page.value().content.length > 0) {
+    <ul class="cards three">
+      @for (list of page.value().content; track list.id) {
+        <li>
+          <a class="card" [routerLink]="['/listas', list.id]">
+            <span class="fan" aria-hidden="true">
+              @for (cover of list.coverUrls; track cover) {
+                <ml-book-cover size="xs" [title]="list.name" [coverUrl]="cover" />
+              } @empty {
+                <ml-book-cover size="xs" [title]="list.name" />
+              }
+            </span>
+            <span class="name">{{ list.name }}</span>
+            @if (list.description) {
+              <span class="description">{{ list.description }}</span>
+            }
+            <span class="meta">
+              <span
+                ><ml-icon name="shelf" [size]="14" />
+                {{ list.bookCount === 1 ? '1 livro' : list.bookCount + ' livros' }}</span
+              >
+              <span
+                ><ml-icon name="check" [size]="14" />
+                {{ list.readCount === 1 ? '1 lido' : list.readCount + ' lidos' }}</span
+              >
+            </span>
+          </a>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="empty">
+      Nenhuma lista ainda. <a routerLink="/listas">Crie a primeira</a> e junte livros do seu jeito.
+    </p>
+  }
+</section>

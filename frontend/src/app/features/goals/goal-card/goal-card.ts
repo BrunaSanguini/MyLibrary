@@ -6,7 +6,7 @@ import { Icon } from '@shared/ui/icon/icon';
 import { ProgressBar } from '@shared/ui/progress-bar/progress-bar';
 import { firstValueFrom } from 'rxjs';
 
-import { goalProgress, goalTitle } from '../goal-labels';
+import { goalProgress, goalTitle } from '@core/api/goal-labels';
 
 const LARGEST_TARGET = 1_000_000;
 

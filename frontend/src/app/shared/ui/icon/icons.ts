@@ -26,6 +26,35 @@ export const ICONS = {
     strokeWidth: 1.5,
     paths: ['M8 3v10M4 9l4 4 4-4'],
   },
+  user: {
+    viewBox: '0 0 16 16',
+    strokeWidth: 1.5,
+    paths: [
+      'M8 8a2.8 2.8 0 1 0 0-5.6A2.8 2.8 0 0 0 8 8zM2.8 14c.6-2.7 2.7-4.2 5.2-4.2s4.6 1.5 5.2 4.2',
+    ],
+  },
+  camera: {
+    viewBox: '0 0 16 16',
+    strokeWidth: 1.5,
+    paths: ['M2 5.5h2.6l1.2-1.8h4.4l1.2 1.8H14v7.3H2zM8 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4z'],
+  },
+  flame: {
+    viewBox: '0 0 16 16',
+    strokeWidth: 1.5,
+    paths: [
+      'M8 14.5c2.6 0 4.3-1.8 4.3-4.2 0-2.7-2.2-4.2-2.9-6.8-1 1.2-1.4 2.4-1.3 3.6C7.2 6.3 6.6 5 6.6 3.4 4.7 5 3.7 7.4 3.7 10.3c0 2.4 1.7 4.2 4.3 4.2z',
+    ],
+  },
+  pause: {
+    viewBox: '0 0 16 16',
+    strokeWidth: 1.5,
+    paths: ['M5.5 3.5v9M10.5 3.5v9'],
+  },
+  play: {
+    viewBox: '0 0 16 16',
+    strokeWidth: 1.5,
+    paths: ['M5 3.2v9.6L12.5 8z'],
+  },
   'chevron-left': {
     viewBox: '0 0 16 16',
     strokeWidth: 1.5,

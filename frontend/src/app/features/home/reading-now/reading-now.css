@@ -1,0 +1,133 @@
+.card,
+.empty {
+  box-sizing: border-box;
+  padding: var(--ml-space-32);
+  border: 1px solid var(--ml-color-line);
+  border-radius: var(--ml-radius-lg);
+  background: var(--ml-color-surface);
+  box-shadow: var(--ml-shadow-soft);
+}
+
+.card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: var(--ml-space-32);
+}
+
+.about {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  margin: 0;
+  color: var(--ml-color-accent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+h3 {
+  margin: 0;
+  font-family: var(--ml-font-display);
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.05;
+}
+
+.author {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+}
+
+.details {
+  margin: 0;
+  color: var(--ml-color-muted);
+  font-size: 14px;
+}
+
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ml-space-12);
+}
+
+.numbers {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ml-space-12);
+  margin: 0;
+  color: var(--ml-color-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.percent {
+  color: var(--ml-color-ink);
+  font-family: var(--ml-font-display);
+  font-size: 48px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ml-space-12);
+  margin-top: var(--ml-space-8);
+}
+
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 22px;
+  border-radius: var(--ml-radius-pill);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.primary {
+  background: var(--ml-color-accent);
+  color: var(--ml-color-accent-ink);
+}
+
+.secondary {
+  border: 1.5px solid var(--ml-color-line);
+  color: var(--ml-color-ink);
+}
+
+.primary:focus-visible,
+.secondary:focus-visible {
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 2px;
+}
+
+.empty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ml-space-16);
+}
+
+.empty p,
+p.empty {
+  margin: 0;
+  font-size: 16px;
+}
+
+.loading {
+  height: 240px;
+  margin: 0;
+  border-radius: var(--ml-radius-lg);
+  background: var(--ml-color-raised);
+}

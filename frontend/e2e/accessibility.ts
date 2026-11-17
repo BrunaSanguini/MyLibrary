@@ -4,11 +4,27 @@ import { expect, type Page } from '@playwright/test';
 export const THEMES = ['light', 'dark'] as const;
 export type Theme = (typeof THEMES)[number];
 
-/** Opens the app with the theme preference already saved, as on a second visit. */
+/**
+ * Opens the app in a theme, as on a second visit: the copy in the browser paints it first and the
+ * profile confirms it.
+ *
+ * <p>The profile is one for the whole server, and the tests run side by side. So this page sees
+ * the profile with the theme it needs, and the real profile is left to the test that is about it
+ * (profile.spec.ts).
+ */
 export async function useTheme(page: Page, theme: Theme): Promise<void> {
-  await page.addInitScript((preference) => {
-    localStorage.setItem('ml-theme-preference', preference);
-  }, theme.toUpperCase());
+  const preference = theme.toUpperCase();
+  await page.addInitScript((saved) => {
+    localStorage.setItem('ml-theme-preference', saved);
+  }, preference);
+  await page.route('**/api/v1/profile', async (route) => {
+    if (route.request().method() !== 'GET') {
+      return route.continue();
+    }
+    const response = await route.fetch();
+    const profile = (await response.json()) as Record<string, unknown>;
+    return route.fulfill({ response, json: { ...profile, theme: preference } });
+  });
 }
 
 /**

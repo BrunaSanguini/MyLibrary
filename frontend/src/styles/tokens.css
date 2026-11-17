@@ -33,6 +33,14 @@
   --ml-color-hero-night: #1e3a4c;
   --ml-color-hero-gold: #f4d27a;
   --ml-color-hero-ink: #f7ead4;
+  --ml-color-hero-soft-ink: #e9d7b8;
+  --ml-color-hero-veil: rgb(8 14 18 / 90%);
+  --ml-color-hero-veil-mid: rgb(8 14 18 / 72%);
+  --ml-color-hero-veil-light: rgb(8 14 18 / 55%);
+  --ml-color-hero-veil-clear: rgb(8 14 18 / 0%);
+  --ml-color-hero-chip: rgb(247 234 212 / 12%);
+  --ml-color-hero-chip-line: rgb(247 234 212 / 45%);
+  --ml-color-hero-corner: rgb(244 210 122 / 70%);
 
   /* Placeholder covers, when the Open Library has no cover. */
   --ml-color-book-emerald: #2e6b4f;
@@ -68,6 +76,13 @@
   --ml-color-backdrop: rgb(42 25 18 / 55%);
   --ml-color-glass: rgb(255 247 234 / 74%);
   --ml-shadow-soft: 0 14px 36px rgb(140 70 20 / 12%);
+
+  /* Heat map of the profile: no reading, then four levels of pages. */
+  --ml-color-heat-0: #f4ddb6;
+  --ml-color-heat-1: #e8bb93;
+  --ml-color-heat-2: #d2896a;
+  --ml-color-heat-3: #ba4d3c;
+  --ml-color-heat-4: #a62b22;
 }
 
 [data-theme='dark'] {
@@ -89,4 +104,9 @@
   --ml-color-backdrop: rgb(0 0 0 / 65%);
   --ml-color-glass: rgb(42 27 20 / 62%);
   --ml-shadow-soft: 0 14px 36px rgb(0 0 0 / 35%);
+  --ml-color-heat-0: #3a261c;
+  --ml-color-heat-1: #6b3a2c;
+  --ml-color-heat-2: #9e4e3c;
+  --ml-color-heat-3: #c9644c;
+  --ml-color-heat-4: #ee7a5c;
 }

@@ -14,7 +14,7 @@ import { firstValueFrom } from 'rxjs';
 
 import { GoalCard } from '../goal-card/goal-card';
 import { GoalForm } from '../goal-form/goal-form';
-import { goalTitle } from '../goal-labels';
+import { goalTitle } from '@core/api/goal-labels';
 
 const FIRST_YEAR = 1900;
 const LAST_YEAR = 2999;

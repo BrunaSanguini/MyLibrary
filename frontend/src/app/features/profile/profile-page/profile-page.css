@@ -1,0 +1,145 @@
+:host {
+  display: block;
+}
+
+.intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 480px);
+  align-items: center;
+  gap: var(--ml-space-40);
+}
+
+.who {
+  display: flex;
+  align-items: center;
+  gap: var(--ml-space-32);
+}
+
+.avatar-box {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 132px;
+  height: 132px;
+  overflow: hidden;
+  border: 2px solid var(--ml-color-gold);
+  border-radius: var(--ml-radius-pill);
+  background: var(--ml-color-raised);
+  font-family: var(--ml-font-display);
+  font-size: 64px;
+  font-weight: 600;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera {
+  position: absolute;
+  right: 0;
+  bottom: 4px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 2px solid var(--ml-color-bg);
+  border-radius: var(--ml-radius-pill);
+  background: var(--ml-color-accent);
+  color: var(--ml-color-accent-ink);
+  cursor: pointer;
+}
+
+.camera:focus-visible,
+.pill:focus-visible,
+.more:focus-visible,
+.row:focus-visible {
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 2px;
+}
+
+.greeting,
+.since {
+  margin: 0;
+  color: var(--ml-color-muted);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+h1 {
+  margin: 0;
+  font-family: var(--ml-font-display);
+  font-size: 60px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ml-space-12);
+  margin-top: var(--ml-space-16);
+}
+
+.kpis,
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.kpi,
+.stat {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--ml-space-8);
+  padding: var(--ml-space-16) var(--ml-space-24);
+  border-bottom: 1px solid var(--ml-color-line);
+}
+
+.kpi:nth-child(odd),
+.stat:nth-child(odd) {
+  border-right: 1px solid var(--ml-color-line);
+}
+
+.kpi:nth-last-child(-n + 2),
+.stat:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+dd {
+  margin: 0;
+}
+
+.kpi dd,
+.stat dd {
+  font-family: var(--ml-font-display);
+  font-size: 48px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.kpi dt,
+.stat dt {
+  color: var(--ml-color-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.edit {
+  display: block;
+  max-width: 640px;
+  margin-top: var(--ml-space-32);
+}
+
+.failure {
+  margin: var(--ml-space-12) 0 0;
+  color: var(--ml-color-accent);
+  font-weight: 700;
+}

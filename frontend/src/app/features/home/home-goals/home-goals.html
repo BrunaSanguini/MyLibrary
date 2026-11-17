@@ -1,0 +1,45 @@
+<section aria-labelledby="titulo-metas">
+  <div class="section-head">
+    <div class="titles">
+      <p class="eyebrow">Metas de {{ year() }}</p>
+      <h2 id="titulo-metas">Minhas metas</h2>
+    </div>
+    <span class="rule" aria-hidden="true"></span>
+    <a class="more" routerLink="/metas"
+      >Gerenciar metas <ml-icon name="arrow-right" [size]="16"
+    /></a>
+  </div>
+
+  @if (main(); as goal) {
+    <div class="goals">
+      <article class="main" [attr.aria-label]="title(goal)">
+        <ml-progress-ring [value]="goal.percent" [label]="'Progresso de ' + title(goal)" />
+        <div class="text">
+          <h3>{{ title(goal) }}</h3>
+          <p class="count">{{ progress(goal) }}</p>
+          <p class="left">{{ remaining(goal) }}</p>
+        </div>
+      </article>
+
+      @for (other of others(); track other.id) {
+        <article class="side" [attr.aria-label]="title(other)">
+          <h3>{{ title(other) }}</h3>
+          <p class="count">{{ progress(other) }}</p>
+          <ml-progress-bar
+            size="sm"
+            [value]="other.percent"
+            [label]="'Progresso de ' + title(other)"
+          />
+          <p class="percent">{{ other.percent }}% concluído</p>
+        </article>
+      }
+    </div>
+  } @else {
+    <div class="empty">
+      <p>Nenhuma meta para {{ year() }}. Que tal decidir quantos livros ler este ano?</p>
+      <a class="more" routerLink="/metas"
+        >Criar uma meta <ml-icon name="arrow-right" [size]="16"
+      /></a>
+    </div>
+  }
+</section>

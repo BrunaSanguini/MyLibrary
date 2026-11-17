@@ -59,5 +59,21 @@
     >
       <ml-icon [name]="dark() ? 'sun' : 'moon'" />
     </button>
+
+    <a
+      class="avatar"
+      routerLink="/perfil"
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page"
+      aria-label="Meu perfil"
+    >
+      @if (avatarUrl(); as url) {
+        <img [src]="url" alt="" />
+      } @else if (initial(); as letter) {
+        <span aria-hidden="true">{{ letter }}</span>
+      } @else {
+        <ml-icon name="user" />
+      }
+    </a>
   </div>
 </header>

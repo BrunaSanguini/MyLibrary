@@ -1,0 +1,66 @@
+<section aria-labelledby="titulo-lendo">
+  <div class="section-head">
+    <div class="titles">
+      <p class="eyebrow">Na sua mesa de cabeceira</p>
+      <h2 id="titulo-lendo">Lendo agora</h2>
+    </div>
+    <span class="rule" aria-hidden="true"></span>
+    @if (books().length > 1) {
+      <div class="pager">
+        <button class="round" type="button" aria-label="Leitura anterior" (click)="step(-1)">
+          <ml-icon name="chevron-left" [size]="18" />
+        </button>
+        <span class="position" aria-live="polite">{{ index() + 1 }} / {{ books().length }}</span>
+        <button class="round" type="button" aria-label="Próxima leitura" (click)="step(1)">
+          <ml-icon name="chevron-right" [size]="18" />
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (page.error()) {
+    <p class="empty" role="alert">Não foi possível carregar as leituras agora.</p>
+  } @else if (!page.hasValue()) {
+    <p class="loading" aria-hidden="true"></p>
+  } @else if (current(); as book) {
+    <article class="card" [attr.aria-label]="book.title">
+      <a class="cover" [routerLink]="['/livros', book.id]" tabindex="-1" aria-hidden="true">
+        <ml-book-cover
+          size="sm"
+          [title]="book.title"
+          [author]="book.authors[0]"
+          [coverUrl]="book.coverUrl ?? undefined"
+        />
+      </a>
+      <div class="about">
+        <p class="label">Lendo agora</p>
+        <h3>{{ book.title }}</h3>
+        <p class="author">{{ book.authors.join(', ') }}</p>
+        @if (details()) {
+          <p class="details">{{ details() }}</p>
+        }
+        <p class="details">{{ sessions() }}</p>
+      </div>
+      <div class="progress">
+        <p class="numbers">
+          <span class="percent">{{ percent() }}%</span>
+          @if (pages(); as pages) {
+            <span>{{ pages }}</span>
+          }
+        </p>
+        <ml-progress-bar [value]="percent()" [label]="'Progresso de ' + book.title" />
+        <div class="actions">
+          <a class="primary" [routerLink]="['/livros', book.id, 'leitura']">Atualizar progresso</a>
+          <a class="secondary" [routerLink]="['/livros', book.id]">Abrir livro</a>
+        </div>
+      </div>
+    </article>
+  } @else {
+    <div class="empty">
+      <p>Nenhum livro em leitura. Escolha o próximo na estante e comece hoje.</p>
+      <a class="more" routerLink="/estante" [queryParams]="{ status: 'WANT_TO_READ' }">
+        Ver quero ler <ml-icon name="arrow-right" [size]="16" />
+      </a>
+    </div>
+  }
+</section>

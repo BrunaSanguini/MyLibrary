@@ -1,16 +1,29 @@
-.welcome {
-  display: grid;
-  gap: var(--ml-space-16);
-  max-width: 720px;
-  padding: var(--ml-space-40);
-  border: 1px solid var(--ml-color-line);
-  border-radius: var(--ml-radius-lg);
-  background: var(--ml-color-surface);
-  box-shadow: var(--ml-shadow-soft);
+:host {
+  display: block;
 }
 
-.intro {
+/* Holds the place of a section below the fold until it comes near the screen. */
+.placeholder {
+  height: 320px;
+  margin-top: var(--ml-space-72);
+}
+
+.note {
+  margin-top: var(--ml-space-72);
+  padding: var(--ml-space-32);
+  border: 1.5px dashed var(--ml-color-line);
+  border-radius: var(--ml-radius-lg);
+}
+
+.note h2 {
+  margin: 0 0 var(--ml-space-8);
+  font-family: var(--ml-font-display);
+  font-size: 36px;
+  font-weight: 600;
+}
+
+.note p {
+  margin: 0;
   color: var(--ml-color-muted);
   font-size: 16px;
-  line-height: 1.65;
 }

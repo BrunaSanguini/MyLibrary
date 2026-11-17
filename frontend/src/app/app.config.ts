@@ -24,7 +24,7 @@ export const appConfig: ApplicationConfig = {
       routes,
       withComponentInputBinding(),
       withViewTransitions(),
-      withInMemoryScrolling({ scrollPositionRestoration: 'enabled' }),
+      withInMemoryScrolling({ scrollPositionRestoration: 'enabled', anchorScrolling: 'enabled' }),
     ),
     provideHttpClient(withInterceptors([requestedByInterceptor, problemDetailsInterceptor])),
     { provide: LOCALE_ID, useValue: 'pt-BR' },
