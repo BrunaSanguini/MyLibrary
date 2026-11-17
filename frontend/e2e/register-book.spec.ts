@@ -166,10 +166,13 @@ for (const theme of THEMES) {
       await expectNoAccessibilityViolations(page);
     });
 
-    test('genre menu, open, has no WCAG 2.1 AA violations', async ({ page }) => {
-      await page.goto('/');
-      await page.getByRole('button', { name: /Gêneros/ }).click();
+    test('subgenres tab of the catalog has no WCAG 2.1 AA violations', async ({ page }) => {
+      await page.goto('/catalogos?tipo=subgeneros');
       await expect(page.getByRole('link', { name: 'Realismo' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'Subgêneros' })).toHaveAttribute(
+        'aria-current',
+        'page',
+      );
 
       await expectNoAccessibilityViolations(page);
     });

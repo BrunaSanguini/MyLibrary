@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { problemDetailsInterceptor } from '@core/api/problem-details-interceptor';
-import { screen } from '@testing-library/angular';
+import { screen, within } from '@testing-library/angular';
 import { describe, expect, it } from 'vitest';
 
 import CatalogPage from './catalog-page';
@@ -106,13 +106,35 @@ describe('CatalogPage', () => {
     expect(request.request.params.get('page')).toBe('2');
   });
 
+  it('lists every subgenre in its own tab, with its genre', async () => {
+    const { harness, http } = await open('/catalogos?tipo=subgeneros');
+    http.expectOne('/api/v1/genres').flush(TREE);
+    await harness.fixture.whenStable();
+
+    expect(screen.getByRole('link', { name: 'Subgêneros' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    const section = screen.getByRole('region', { name: 'Subgêneros' });
+    expect(within(section).getByRole('link', { name: 'Realismo' })).toHaveAttribute(
+      'href',
+      '/generos/2',
+    );
+    expect(within(section).getByText('3 livros')).toBeInTheDocument();
+    expect(within(section).getByRole('link', { name: 'Romance' })).toHaveAttribute(
+      'href',
+      '/generos/1',
+    );
+    expect(within(section).queryByRole('link', { name: 'Sátira' })).not.toBeInTheDocument();
+  });
+
   it('falls back to genres for a tab that does not exist', async () => {
     const { http } = await open('/catalogos?tipo=estantes');
 
     expect(http.expectOne('/api/v1/genres')).toBeDefined();
   });
 
-  it('shows the lists in the fifth tab, each linking to its own page', async () => {
+  it('shows the lists in the last tab, each linking to its own page', async () => {
     const { harness, http } = await open('/catalogos?tipo=listas');
     http
       .expectOne((request) => request.url === '/api/v1/lists')
