@@ -67,7 +67,7 @@ test('a finished reading moves the goal of the month', async ({ page }) => {
   await expect(page.getByRole('heading', { name: `Nova meta para ${YEAR}` })).toBeVisible();
   await page.getByLabel('O que contar').selectOption('BOOKS');
   await page.getByRole('radio', { name: 'Um mês' }).check();
-  await page.getByLabel('Mês').selectOption(String(MONTH));
+  await page.getByLabel('Mês', { exact: true }).selectOption(String(MONTH));
   await page.getByLabel('Quantos livros?').fill('5');
   await page.getByRole('button', { name: 'Criar meta' }).click();
   await expect(page.getByRole('status')).toHaveText('Meta criada.');
