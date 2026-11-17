@@ -10,6 +10,8 @@ Pipelines do GitHub Actions, release, atualização de dependências e configura
 | `renovate.json` | segundas, antes das 9h | PRs de atualização de dependências | ativo |
 | `.github/workflows/ci.yml` | PR para a `main` e push na `main` | `backend`, `frontend`, `e2e`, `sonar` | entra com o esqueleto do projeto |
 | `.github/workflows/release.yml` | push na `main` | `release-please`, `package` | entra com o esqueleto do projeto |
+| `.github/workflows/startup.yml` | manual | `measure`: tempo de inicialização do pacote do Windows | ativo |
+| `.github/workflows/readme-screenshots.yml` | manual | `screenshots`: prints do README a partir do app real | ativo |
 
 O `ci.yml` e o `release.yml` dependem do `pom.xml` e do `package.json`, então entram no mesmo PR que cria o esqueleto do back e do front.
 
@@ -73,9 +75,11 @@ Quando o PR de release é aceito, o release-please cria a tag `vX.Y.Z` e o GitHu
 
 1. Roda num runner **Windows**, porque o `jpackage` gera o executável do sistema em que roda.
 2. Faz o build completo (`./mvnw -B package`), com o front embutido.
-3. Gera o runtime com `jlink` e o app-image com `jpackage --type app-image`.
-4. Compacta em `minha-livraria-X.Y.Z-windows-x64.zip` e gera o checksum SHA-256.
-5. Anexa os dois arquivos ao GitHub Release.
+3. Extrai o jar (`java -Djarmode=tools -jar ... extract`): a aplicação e as bibliotecas viram jars comuns, o que deixa a inicialização mais rápida (veja abaixo).
+4. Gera o runtime com `jlink` e o app-image com `jpackage --type app-image`.
+5. Compacta em `minha-livraria-X.Y.Z-windows-x64.zip` e gera o checksum SHA-256.
+6. Confere o pacote: extrai o zip em outra pasta, inicia o executável como o hub faz (porta e token), espera a readiness, confere que a interface é servida em `/` e encerra pelo shutdown. O tempo de inicialização da versão fica no log.
+7. Anexa os dois arquivos ao GitHub Release.
 
 O executável não é assinado digitalmente. O Windows pode mostrar um aviso do SmartScreen na primeira execução.
 
@@ -86,6 +90,28 @@ Os passos 3 e 4 ficam em `scripts/package-windows.ps1`, que também roda localme
 ```
 
 **Primeira versão.** A v0.1.0 foi fixada com `release-as`, porque os commits até ela eram só de `build`, `ci` e `docs`. A partir dela, as versões seguem os commits.
+
+### Tempo de inicialização
+
+Medido pelo workflow `startup.yml`, num runner `windows-latest`, com o script `scripts/measure-startup.ps1`. Cada pacote é extraído numa pasta diferente da do build, como uma pessoa faria. O primeiro início cria o banco e fica de fora; os 7 seguintes partem de dados que já existem. O tempo é o que o Spring Boot registra no log ao ficar pronto ("process running for"). A consulta à readiness serve só de conferência, porque no Windows uma conexão recusada leva cerca de 2 s e deixa essa medida grossa.
+
+Medição de 17/11/2026 (JDK 25, Spring Boot 4.1):
+
+| Pacote | Tamanho | Mediana | Mín–máx |
+|---|---|---|---|
+| Jar único, como sai do build (antes) | 98,4 MB | 10,74 s | 10,54–10,99 s |
+| **Jar extraído (adotado)** | 98,2 MB | **8,88 s** | 8,78–9,46 s |
+| Jar extraído + cache AOT do JDK 25 | 131,9 MB | 9,09 s | 8,98–10,65 s |
+
+- **Jar extraído:** 17% mais rápido, sem custo de tamanho. É o padrão do `package-windows.ps1`.
+- **Cache AOT (`-XX:AOTCache`):** não trouxe ganho medido sobre o jar extraído e aumentou o pacote em 34 MB. Fica disponível no script (`-Layout AotCache`) para ser medido de novo em versões futuras do JDK.
+- Os runners do GitHub são mais lentos que um computador comum; o que vale é a comparação entre os pacotes.
+
+Para medir de novo: **Actions → Startup → Run workflow**. O resumo da execução traz a tabela.
+
+### Prints do README
+
+As imagens de `docs/images/` saem do app real: **Actions → README screenshots → Run workflow**. O script `frontend/e2e/readme-screenshots.spec.ts` sobe o jar com os dados de exemplo, acrescenta leituras, resenhas, uma lista e metas, e fotografa as telas. As imagens ficam como artefato e também impressas no log em base64.
 
 ## Renovate
 

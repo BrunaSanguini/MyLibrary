@@ -494,6 +494,8 @@ logging:
 3. A readiness fica `UP`, e o My Collection abre a interface.
 4. Em segundo plano: reconciliação das imagens com o disco e limpeza da lixeira.
 
-**Encerramento:** `POST /actuator/shutdown` com o token, e desligamento gracioso (`server.shutdown=graceful`), que fecha o banco corretamente.
+**Encerramento:** `POST /actuator/shutdown` com o token, sem corpo ou com `Content-Type: application/json` (o Actuator recusa corpo de formulário com `415`), e desligamento gracioso (`server.shutdown=graceful`), que fecha o banco corretamente. O processo termina sozinho, com código de saída `0`.
+
+**Contrato com o hub, testado de ponta a ponta** (`frontend/e2e/hub-contract.spec.ts`): o teste sobe o jar com porta e token como o My Collection faz, espera a readiness com backoff e cria um livro. Depois confere que um token errado recebe `403` sem derrubar o app, que o token certo encerra o processo com código `0` e que uma nova sessão encontra o livro e recusa o token antigo. Por fim, confere que uma segunda instância nos mesmos dados não sobe, por causa do lock de arquivo do H2, mesmo numa porta livre. O lado do hub (porta, token por sessão, readiness, navegador e encerramento) fica no módulo `launcher` do repositório [MyCollection](https://github.com/BrunaSanguini/MyCollection).
 
 **Observabilidade:** logs no console e em arquivo rotativo. O Actuator expõe só `health` (com as probes de readiness), `info` (versão, para o hub exibir) e `shutdown`.
