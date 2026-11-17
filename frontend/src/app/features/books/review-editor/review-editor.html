@@ -4,8 +4,12 @@
   <form class="form" aria-labelledby="titulo-resenha" novalidate (submit)="save($event)">
     <div class="field">
       <label for="nota-resenha">Nota</label>
-      <ml-rating-input inputId="nota-resenha" [value]="rating()" (valueChange)="rate($event)" />
-      <p class="hint">Use as setas para mudar meia estrela por vez. Todo à esquerda tira a nota.</p>
+      <div class="rating">
+        <ml-rating-input inputId="nota-resenha" [value]="rating()" (valueChange)="rate($event)" />
+        @if (rating() !== undefined) {
+          <button mlButton="link" type="button" (click)="rate(undefined)">Tirar nota</button>
+        }
+      </div>
     </div>
 
     <div class="field">

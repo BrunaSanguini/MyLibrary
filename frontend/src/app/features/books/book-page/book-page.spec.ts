@@ -463,6 +463,24 @@ describe('BookPage', () => {
     expect(within(reviewRegion()).getByText('Um clássico que envelhece bem.')).toBeInTheDocument();
   });
 
+  it('takes the rating away with the button, keeping the text', async () => {
+    const { http } = await openBook('/livros/42', FELLOWSHIP, undefined, { review: REVIEW });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Editar resenha' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Tirar nota' }));
+
+    expect(screen.getByRole('slider', { name: 'Nota' })).toHaveAttribute(
+      'aria-valuetext',
+      'Sem nota',
+    );
+    expect(screen.queryByRole('button', { name: 'Tirar nota' })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar resenha' }));
+    const request = http.expectOne({ method: 'PUT', url: '/api/v1/books/42/review' });
+    expect(JSON.parse(JSON.stringify(request.request.body))).toEqual({
+      content: 'Um clássico que envelhece bem.',
+    });
+  });
+
   it('keeps the form open and says why when the review is refused', async () => {
     const { http, harness } = await openBook('/livros/42', FELLOWSHIP, undefined, {
       review: REVIEW,
