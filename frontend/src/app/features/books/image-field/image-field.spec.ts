@@ -4,7 +4,7 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { ImageField } from './image-field';
 
-const PNG = new File(['png'], 'colada.png', { type: 'image/png' });
+const PNG = new File(['png'], 'capa.png', { type: 'image/png' });
 const GIF = new File(['gif'], 'anim.gif', { type: 'image/gif' });
 
 /** jsdom has neither blob URLs nor DataTransfer; the field only needs files on the event. */
@@ -35,7 +35,9 @@ describe('ImageField', () => {
 
     expect(fileChange).toHaveBeenCalledWith(PNG);
     expect(await screen.findByRole('img', { name: 'Prévia: Capa' })).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('Nova imagem: colada.png');
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Nova imagem: colada da área de transferência',
+    );
   });
 
   it('takes an image dropped on the area', async () => {
@@ -44,6 +46,7 @@ describe('ImageField', () => {
     fireEvent.drop(area, { dataTransfer: transferOf(PNG) });
 
     expect(fileChange).toHaveBeenCalledWith(PNG);
+    expect(screen.getByRole('status')).toHaveTextContent('Nova imagem: capa.png');
   });
 
   it('refuses a pasted image of another type', async () => {

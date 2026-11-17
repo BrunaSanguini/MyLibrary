@@ -10,7 +10,8 @@ let nextId = 0;
  * A cover or banner of the book, chosen three ways: the file field, an image dragged onto the
  * area or an image pasted from the clipboard (Ctrl+V with the area focused, or the "Colar imagem"
  * button). The image is only checked here (type and size) and shown before it is saved; the form
- * sends it once the book is saved.
+ * sends it once the book is saved. The name of the file does not matter: the app saves every
+ * image under a name of its own.
  */
 @Component({
   selector: 'ml-image-field',
@@ -38,6 +39,8 @@ export class ImageField implements OnDestroy {
   protected readonly remove = signal(false);
   protected readonly error = signal<string | undefined>(undefined);
   protected readonly dragging = signal(false);
+  /** A pasted image has no name of its own (the browser calls it image.png). */
+  protected readonly pasted = signal(false);
   private readonly fileUrl = signal<string | undefined>(undefined);
 
   protected readonly preview = computed(() => {
@@ -68,7 +71,7 @@ export class ImageField implements OnDestroy {
   protected chooseFromField(event: Event): void {
     const field = event.target as HTMLInputElement;
     const file = field.files?.[0];
-    if (file && !this.accept(file)) {
+    if (file && !this.accept(file, false)) {
       field.value = '';
     }
   }
@@ -77,7 +80,7 @@ export class ImageField implements OnDestroy {
     const file = imageOf(event.clipboardData?.files);
     if (file) {
       event.preventDefault();
-      this.accept(file);
+      this.accept(file, true);
     } else if (event.clipboardData?.types.includes('Files')) {
       event.preventDefault();
       this.error.set('Use uma imagem JPEG, PNG ou WebP.');
@@ -91,7 +94,7 @@ export class ImageField implements OnDestroy {
         const type = item.types.find((candidate) => IMAGE_TYPES.includes(candidate));
         if (type) {
           const blob = await item.getType(type);
-          this.accept(new File([blob], `colada.${type.split('/')[1]}`, { type }));
+          this.accept(new File([blob], `imagem.${type.split('/')[1]}`, { type }), true);
           return;
         }
       }
@@ -113,7 +116,7 @@ export class ImageField implements OnDestroy {
     this.dragging.set(false);
     const file = event.dataTransfer?.files[0];
     if (file) {
-      this.accept(file);
+      this.accept(file, false);
     }
   }
 
@@ -130,7 +133,7 @@ export class ImageField implements OnDestroy {
   }
 
   /** Keeps the image when it is one the API takes; otherwise says why. */
-  private accept(file: File): boolean {
+  private accept(file: File, pasted: boolean): boolean {
     this.error.set(undefined);
     if (!IMAGE_TYPES.includes(file.type)) {
       this.error.set('Use uma imagem JPEG, PNG ou WebP.');
@@ -140,6 +143,7 @@ export class ImageField implements OnDestroy {
       this.error.set('A imagem pode ter até 5 MB.');
       return false;
     }
+    this.pasted.set(pasted);
     this.file.set(file);
     this.fileChange.emit(file);
     return true;

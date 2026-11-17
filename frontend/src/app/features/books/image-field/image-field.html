@@ -42,7 +42,7 @@
     </div>
     @if (file(); as chosen) {
       <p class="chosen" role="status">
-        Nova imagem: {{ chosen.name }}
+        Nova imagem: {{ pasted() ? 'colada da área de transferência' : chosen.name }}
         <button mlButton="link" type="button" (click)="undo()">Desfazer</button>
       </p>
     }
