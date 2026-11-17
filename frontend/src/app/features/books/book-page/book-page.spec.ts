@@ -210,6 +210,17 @@ describe('BookPage', () => {
     );
   });
 
+  it('names the series and the volume beside the authors', async () => {
+    await openBook();
+
+    const byline = screen.getByRole('link', { name: 'J. R. R. Tolkien' }).closest('p')!;
+    expect(within(byline).getByRole('link', { name: 'O Senhor dos Anéis' })).toHaveAttribute(
+      'href',
+      '/series/3',
+    );
+    expect(byline).toHaveTextContent(/Série:\s*O Senhor dos Anéis\s*· Livro 1/);
+  });
+
   it('shows the trail from the shelf to the book', async () => {
     await openBook();
 
@@ -224,11 +235,11 @@ describe('BookPage', () => {
   it('shows where the book sits in its series', async () => {
     await openBook();
 
-    expect(screen.getByRole('link', { name: 'O Senhor dos Anéis' })).toHaveAttribute(
+    expect(within(record()).getByRole('link', { name: 'O Senhor dos Anéis' })).toHaveAttribute(
       'href',
       '/series/3',
     );
-    expect(screen.getByText('Livro 1 de 3')).toBeInTheDocument();
+    expect(within(record()).getByText('Livro 1 de 3')).toBeInTheDocument();
   });
 
   it('lists only the details the book has, with the language spelled out', async () => {
@@ -633,10 +644,15 @@ describe('BookPage', () => {
     });
     await harness.fixture.whenStable();
 
-    const series = screen.getByRole('region', { name: 'Mais da série' });
+    const series = screen.getByRole('region', { name: 'O Senhor dos Anéis' });
+    expect(within(series).getByText('Da mesma série')).toBeInTheDocument();
     expect(within(series).getByRole('link', { name: /As Duas Torres/ })).toHaveAttribute(
       'href',
       '/livros/43',
+    );
+    expect(within(series).getByRole('link', { name: /Ver série · 2 livros/ })).toHaveAttribute(
+      'href',
+      '/series/3',
     );
     const similar = screen.getByRole('region', { name: 'Você também pode gostar' });
     expect(within(similar).getByRole('link', { name: /O Nome do Vento/ })).toBeInTheDocument();
@@ -652,7 +668,7 @@ describe('BookPage', () => {
     });
     await harness.fixture.whenStable();
 
-    expect(screen.queryByRole('region', { name: 'Mais da série' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'O Senhor dos Anéis' })).not.toBeInTheDocument();
     expect(
       screen.queryByRole('region', { name: 'Você também pode gostar' }),
     ).not.toBeInTheDocument();

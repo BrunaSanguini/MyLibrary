@@ -31,9 +31,19 @@
           <p class="subtitle">{{ current.subtitle }}</p>
         }
         <p class="authors">
-          @for (author of current.authors; track author.id; let last = $last) {
-            <a [routerLink]="['/autores', author.id]">{{ author.name }}</a
-            >{{ last ? '' : ', ' }}
+          <span>
+            @for (author of current.authors; track author.id; let last = $last) {
+              <a [routerLink]="['/autores', author.id]">{{ author.name }}</a
+              >{{ last ? '' : ', ' }}
+            }
+          </span>
+          @if (current.series; as series) {
+            <span class="divider" aria-hidden="true"></span>
+            <span class="series">
+              <span class="ml-visually-hidden">Série:</span>
+              <a [routerLink]="['/series', series.id]">{{ series.name }}</a>
+              <span class="volume">· Livro {{ seriesPosition() }}</span>
+            </span>
           }
         </p>
       </header>
@@ -204,7 +214,7 @@
   }
 
   @defer (on viewport) {
-    <ml-related-books class="related" [bookId]="current.id" />
+    <ml-related-books class="related" [bookId]="current.id" [series]="current.series" />
   } @placeholder {
     <div class="related-placeholder"></div>
   }

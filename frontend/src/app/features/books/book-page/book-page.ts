@@ -121,6 +121,11 @@ export default class BookPage implements HasUnsavedChanges {
   );
   protected readonly errorMessage = computed(() => this.error()?.detail);
 
+  /** "1", or "2,5" for a volume between two others. */
+  protected readonly seriesPosition = computed(() =>
+    this.book.value()?.series?.position.toLocaleString('pt-BR'),
+  );
+
   /** Sobre (synopsis and details) or Histórico de leitura. */
   protected readonly tab = signal<string | undefined>('sobre');
 

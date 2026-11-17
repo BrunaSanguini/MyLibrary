@@ -48,9 +48,49 @@ h1 {
 }
 
 .authors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ml-space-8) var(--ml-space-16);
+  align-items: center;
   margin: var(--ml-space-12) 0 0;
   font-size: 16px;
   font-weight: 600;
+}
+
+/* The "|" between the authors and the series: a gold stroke that fades at both ends, with a dot. */
+.divider {
+  position: relative;
+  width: 1.5px;
+  height: 22px;
+  background: linear-gradient(
+    transparent,
+    var(--ml-color-gold) 30%,
+    var(--ml-color-gold) 70%,
+    transparent
+  );
+}
+
+.divider::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: var(--ml-color-gold);
+  content: '';
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.series {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.volume {
+  color: var(--ml-color-muted);
+  font-weight: 500;
 }
 
 .failure {
