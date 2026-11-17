@@ -62,7 +62,7 @@ describe('FavoritesFlow', () => {
     mockMotion(true);
     const view = await setup();
 
-    expect(centered()).toHaveAccessibleName('Um, de Autora (no centro)');
+    expect(centered()).toHaveAccessibleName('Um, de Autora, nota 5,0 (no centro)');
     expect(screen.getByText('★ 5,0')).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Trazer Dois, de Autora para o centro' }),
@@ -70,7 +70,7 @@ describe('FavoritesFlow', () => {
     // Three steps away, past the edge of the stage.
     const hidden = view.container.querySelectorAll('.item[aria-hidden="true"]');
     expect(hidden).toHaveLength(1);
-    expect(hidden[0]).toHaveAttribute('aria-label', 'Trazer Quatro, de Autora para o centro');
+    expect(hidden[0]).toHaveTextContent('Trazer Quatro, de Autora para o centro');
     expect(hidden[0]).toHaveAttribute('tabindex', '-1');
     expect(screen.getByText('01 / 06')).toBeInTheDocument();
   });
@@ -115,7 +115,7 @@ describe('FavoritesFlow', () => {
     vi.advanceTimersByTime(FLOW_INTERVAL * 2);
     TestBed.tick();
 
-    expect(centered()).toHaveAccessibleName('Um, de Autora (no centro)');
+    expect(centered()).toHaveAccessibleName('Um, de Autora, nota 5,0 (no centro)');
     expect(
       screen.getByRole('button', { name: 'Retomar a passagem dos favoritos' }),
     ).toBeInTheDocument();

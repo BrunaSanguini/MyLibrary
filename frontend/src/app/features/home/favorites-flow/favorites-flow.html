@@ -24,20 +24,22 @@
         [class.center]="item.offset === 0"
         [style.--offset]="item.offset"
         [style.--distance]="item.offset < 0 ? -item.offset : item.offset"
-        [attr.aria-label]="labelOf(item)"
         [attr.aria-hidden]="item.hidden ? 'true' : null"
         [attr.tabindex]="item.hidden ? -1 : null"
         (click)="pick(item)"
       >
-        <ml-book-cover
-          size="md"
-          [title]="item.book.title"
-          [author]="item.book.authors[0]"
-          [coverUrl]="item.book.coverUrl ?? undefined"
-        />
-        @if (item.offset === 0 && item.book.rating) {
-          <span class="badge">★ {{ formatRating(item.book.rating) }}</span>
-        }
+        <span aria-hidden="true">
+          <ml-book-cover
+            size="md"
+            [title]="item.book.title"
+            [author]="item.book.authors[0]"
+            [coverUrl]="item.book.coverUrl ?? undefined"
+          />
+          @if (item.offset === 0 && item.book.rating) {
+            <span class="badge">★ {{ formatRating(item.book.rating) }}</span>
+          }
+        </span>
+        <span class="ml-visually-hidden">{{ labelOf(item) }}</span>
       </button>
     }
   </div>

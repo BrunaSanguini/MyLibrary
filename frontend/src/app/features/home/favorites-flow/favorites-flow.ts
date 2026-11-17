@@ -110,9 +110,17 @@ export class FavoritesFlow {
     }
   }
 
+  /**
+   * The name of each cover, read instead of what is printed on it. The covers themselves are
+   * hidden from screen readers, so the name never disagrees with a visible text.
+   */
   protected labelOf(item: FlowItem): string {
     const author = item.book.authors[0];
     const name = author ? `${item.book.title}, de ${author}` : item.book.title;
-    return item.offset === 0 ? `${name} (no centro)` : `Trazer ${name} para o centro`;
+    if (item.offset !== 0) {
+      return `Trazer ${name} para o centro`;
+    }
+    const rating = item.book.rating ? `, nota ${formatRating(item.book.rating)}` : '';
+    return `${name}${rating} (no centro)`;
   }
 }
