@@ -1,0 +1,129 @@
+@if (notFound()) {
+  <ml-empty-state
+    icon="search"
+    title="Lista não encontrada"
+    message="Esta lista não existe. Ela pode ter sido excluída."
+  >
+    <a mlButton="primary" routerLink="/listas">Ir para as listas</a>
+  </ml-empty-state>
+} @else if (errorMessage()) {
+  <ml-error-state [message]="errorMessage()" (retry)="retry()" />
+} @else if (list.hasValue()) {
+  <header class="head">
+    <p class="eyebrow"><a routerLink="/listas">Listas</a></p>
+    <h1>{{ list.value().name }}</h1>
+    @if (list.value().description) {
+      <p class="lead">{{ list.value().description }}</p>
+    }
+    <p class="count">{{ readCountOf(list.value()) }}</p>
+    <div class="head-actions">
+      <button mlButton="secondary" type="button" [disabled]="editing()" (click)="editing.set(true)">
+        <ml-icon name="edit" [size]="16" /> Editar lista
+      </button>
+      <button mlButton="secondary" type="button" (click)="deleteDialog.open()">
+        <ml-icon name="trash" [size]="16" /> Excluir lista
+      </button>
+    </div>
+  </header>
+
+  @if (editing()) {
+    <ml-list-form
+      class="edit"
+      [list]="list.value()"
+      (saved)="onSaved()"
+      (cancelled)="editing.set(false)"
+    />
+  }
+
+  @if (failure()) {
+    <p class="failure" role="alert">{{ failure() }}</p>
+  }
+
+  <p class="announcement" role="status">{{ announcement() }}</p>
+
+  <div class="layout">
+    <section aria-labelledby="titulo-livros">
+      <h2 id="titulo-livros">Livros da lista</h2>
+      @if (books(); as inOrder) {
+        @if (inOrder.length === 0) {
+          <ml-empty-state
+            title="Esta lista está vazia"
+            message="Busque um livro da estante ao lado para começar."
+          />
+        } @else {
+          <ol class="books">
+            @for (book of inOrder; track book.id; let index = $index) {
+              <li class="book" [attr.data-book]="book.id">
+                <span class="position" aria-hidden="true">{{ index + 1 }}</span>
+                <ml-book-cover
+                  size="xs"
+                  aria-hidden="true"
+                  [title]="book.title"
+                  [coverUrl]="book.coverUrl ?? undefined"
+                />
+                <div class="text">
+                  <a class="title" [routerLink]="['/livros', book.id]">{{ book.title }}</a>
+                  <p class="meta">
+                    {{ book.authors.join(', ') }} · {{ statusLabels[book.status] }}
+                  </p>
+                </div>
+                <div class="row-actions">
+                  <button
+                    class="icon-button"
+                    type="button"
+                    data-move="up"
+                    [attr.aria-label]="'Mover ' + book.title + ' para cima'"
+                    [disabled]="$first"
+                    (click)="move(index, 'up')"
+                  >
+                    <ml-icon name="arrow-up" [size]="18" />
+                  </button>
+                  <button
+                    class="icon-button"
+                    type="button"
+                    data-move="down"
+                    [attr.aria-label]="'Mover ' + book.title + ' para baixo'"
+                    [disabled]="$last"
+                    (click)="move(index, 'down')"
+                  >
+                    <ml-icon name="arrow-down" [size]="18" />
+                  </button>
+                  <button
+                    class="icon-button"
+                    type="button"
+                    [attr.aria-label]="'Remover ' + book.title + ' da lista'"
+                    (click)="remove(book)"
+                  >
+                    <ml-icon name="close" [size]="18" />
+                  </button>
+                </div>
+              </li>
+            }
+          </ol>
+        }
+      } @else {
+        <ul class="books" aria-hidden="true">
+          @for (placeholder of placeholders; track placeholder) {
+            <li><ml-skeleton variant="card" /></li>
+          }
+        </ul>
+      }
+    </section>
+
+    <ml-book-adder [listId]="list.value().id" [inList]="inList()" (added)="onAdded($event)" />
+  </div>
+
+  <ml-confirm-dialog
+    #deleteDialog
+    title="Excluir esta lista?"
+    message="Os livros continuam na sua estante; só a lista deixa de existir."
+    confirmLabel="Excluir lista"
+    [busy]="deleting()"
+    (confirmed)="delete()"
+  />
+} @else {
+  <div class="loading" aria-hidden="true">
+    <ml-skeleton variant="text" width="40%" />
+    <ml-skeleton variant="card" />
+  </div>
+}

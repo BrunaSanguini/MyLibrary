@@ -56,10 +56,16 @@
       </ul>
     }
   } @else if (entries.value()!.content.length === 0) {
-    <ml-empty-state
-      [title]="'Nada em ' + group().plural.toLowerCase() + ' ainda'"
-      message="Os registros aparecem aqui conforme você cadastra livros."
-    />
+    @if (tipo() === 'lists') {
+      <ml-empty-state title="Nenhuma lista ainda" message="Crie a primeira na página de listas.">
+        <a mlButton routerLink="/listas">Ir para as listas</a>
+      </ml-empty-state>
+    } @else {
+      <ml-empty-state
+        [title]="'Nada em ' + group().plural.toLowerCase() + ' ainda'"
+        message="Os registros aparecem aqui conforme você cadastra livros."
+      />
+    }
   } @else {
     <ul class="entries">
       @for (entry of entries.value()!.content; track entry.id) {

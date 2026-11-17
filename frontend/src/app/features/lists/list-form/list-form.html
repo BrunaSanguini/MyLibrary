@@ -1,0 +1,43 @@
+<form class="form" aria-labelledby="titulo-lista" novalidate (submit)="save($event)">
+  <h2 id="titulo-lista">{{ list() ? 'Editar lista' : 'Nova lista' }}</h2>
+
+  @if (failure()) {
+    <p class="failure" role="alert">{{ failure() }}</p>
+  }
+
+  <div class="field">
+    <label for="nome-lista">Nome</label>
+    <input
+      id="nome-lista"
+      type="text"
+      autocomplete="off"
+      [formField]="listForm.name"
+      [attr.aria-describedby]="errorOf(listForm.name) ? 'erro-nome-lista' : null"
+    />
+    @if (errorOf(listForm.name); as message) {
+      <p id="erro-nome-lista" class="error">{{ message }}</p>
+    }
+  </div>
+
+  <div class="field">
+    <label for="descricao-lista">Descrição <span class="optional">(opcional)</span></label>
+    <textarea
+      id="descricao-lista"
+      rows="2"
+      [formField]="listForm.description"
+      [attr.aria-describedby]="errorOf(listForm.description) ? 'erro-descricao-lista' : null"
+    ></textarea>
+    @if (errorOf(listForm.description); as message) {
+      <p id="erro-descricao-lista" class="error">{{ message }}</p>
+    }
+  </div>
+
+  <div class="actions">
+    @if (list()) {
+      <button mlButton="secondary" type="button" (click)="cancelled.emit()">Cancelar</button>
+    }
+    <button mlButton="primary" type="submit" [disabled]="listForm().submitting()">
+      {{ listForm().submitting() ? 'Salvando…' : list() ? 'Salvar lista' : 'Criar lista' }}
+    </button>
+  </div>
+</form>

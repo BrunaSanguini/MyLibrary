@@ -1,0 +1,105 @@
+/* The search that adds books to a list. */
+
+.adder {
+  display: flex;
+  flex-direction: column;
+  padding: var(--ml-space-24);
+  border: 1px solid var(--ml-color-line);
+  border-radius: var(--ml-radius-lg);
+  background: var(--ml-color-surface);
+  box-shadow: var(--ml-shadow-soft);
+}
+
+h2 {
+  margin: 0 0 var(--ml-space-16);
+  font-family: var(--ml-font-display);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+label {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 var(--ml-space-16);
+  border: 1.5px solid var(--ml-color-line);
+  border-radius: var(--ml-radius-pill);
+  background: var(--ml-color-surface);
+  color: var(--ml-color-ink);
+  font-family: var(--ml-font-body);
+  font-size: 15px;
+}
+
+input:focus-visible {
+  border-color: var(--ml-color-accent);
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 2px;
+}
+
+.hint,
+.none {
+  margin: 6px 0 0;
+  color: var(--ml-color-muted);
+  font-size: 13px;
+}
+
+.none {
+  margin-top: var(--ml-space-16);
+  font-size: 15px;
+}
+
+.failure {
+  margin: var(--ml-space-16) 0 0;
+  padding: var(--ml-space-12) var(--ml-space-16);
+  border: 1.5px solid var(--ml-color-accent);
+  border-radius: var(--ml-radius-md);
+  background: var(--ml-color-accent-tint);
+  font-weight: 600;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  margin: var(--ml-space-16) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.result {
+  display: flex;
+  align-items: center;
+  gap: var(--ml-space-12);
+  padding: var(--ml-space-12) 0;
+  border-top: 1px solid var(--ml-color-line);
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.authors {
+  margin: 2px 0 0;
+  color: var(--ml-color-muted);
+  font-size: 13px;
+}
+
+.already {
+  flex-shrink: 0;
+  color: var(--ml-color-muted);
+  font-size: 13px;
+  font-weight: 600;
+}

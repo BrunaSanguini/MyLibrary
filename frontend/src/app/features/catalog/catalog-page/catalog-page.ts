@@ -4,17 +4,19 @@ import { Router, RouterLink } from '@angular/router';
 import { ApiError } from '@core/api/api-error';
 import { AuthorResponse, CatalogApi } from '@core/api/catalog-api';
 import { GenresApi, GenreTreeResponse } from '@core/api/genres-api';
+import { ListsApi } from '@core/api/lists-api';
 import { toPageIndex } from '@core/api/query-params';
 import { BookCover } from '@shared/ui/book-cover/book-cover';
+import { Button } from '@shared/ui/button/button';
 import { EmptyState } from '@shared/ui/empty-state/empty-state';
 import { ErrorState } from '@shared/ui/error-state/error-state';
 import { Paginator } from '@shared/ui/paginator/paginator';
 import { Skeleton } from '@shared/ui/skeleton/skeleton';
 import { Tag } from '@shared/ui/tag/tag';
 
-import { GROUP_KINDS, GROUPS, isListed, toGroupKind } from '../catalog-kinds';
+import { GROUP_KINDS, GROUPS, isListed, LISTS_TAB, toCatalogTab } from '../catalog-kinds';
 
-/** A page of authors, publishers or series: the three share name, count and covers. */
+/** A page of authors, publishers, series or lists: they all share name, count and covers. */
 interface EntryPage {
   readonly content: readonly AuthorResponse[];
   readonly page: number;
@@ -22,7 +24,7 @@ interface EntryPage {
 }
 
 /**
- * Catálogos: the collection by genre, author, publisher and series.
+ * Catálogos: the collection by genre, author, publisher, series and list.
  *
  * <p>The open tab lives in the URL (`?tipo=autores`), like the filters of the shelf, so it
  * survives a reload and can be linked to. The tabs are plain links with `aria-current`, which
@@ -30,20 +32,24 @@ interface EntryPage {
  */
 @Component({
   selector: 'ml-catalog-page',
-  imports: [BookCover, EmptyState, ErrorState, Paginator, RouterLink, Skeleton, Tag],
+  imports: [BookCover, Button, EmptyState, ErrorState, Paginator, RouterLink, Skeleton, Tag],
   templateUrl: './catalog-page.html',
   styleUrl: './catalog-page.css',
 })
 export default class CatalogPage {
-  readonly tipo = input('genres', { transform: toGroupKind });
+  readonly tipo = input('genres', { transform: toCatalogTab });
   readonly page = input(0, { transform: toPageIndex });
 
   private readonly router = inject(Router);
   private readonly catalogApi = inject(CatalogApi);
   private readonly genresApi = inject(GenresApi);
+  private readonly listsApi = inject(ListsApi);
 
-  protected readonly tabs = GROUP_KINDS.map((kind) => ({ kind, ...GROUPS[kind] }));
-  protected readonly group = computed(() => GROUPS[this.tipo()]);
+  protected readonly tabs = [...GROUP_KINDS.map((kind) => ({ kind, ...GROUPS[kind] })), LISTS_TAB];
+  protected readonly group = computed(() => {
+    const kind = this.tipo();
+    return kind === LISTS_TAB.kind ? LISTS_TAB : GROUPS[kind];
+  });
 
   protected readonly genres = httpResource<GenreTreeResponse[]>(() =>
     this.tipo() === 'genres' ? this.genresApi.treeRequest() : undefined,
@@ -51,6 +57,9 @@ export default class CatalogPage {
 
   protected readonly entries = httpResource<EntryPage>(() => {
     const kind = this.tipo();
+    if (kind === LISTS_TAB.kind) {
+      return this.listsApi.listRequest(this.page());
+    }
     return isListed(kind) ? this.catalogApi.listRequest(kind, undefined, this.page()) : undefined;
   });
 

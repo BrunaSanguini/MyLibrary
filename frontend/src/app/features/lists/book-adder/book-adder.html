@@ -1,0 +1,55 @@
+<section class="adder" aria-labelledby="titulo-adicionar">
+  <h2 id="titulo-adicionar">Adicionar livros</h2>
+
+  <label for="busca-lista">Buscar na estante</label>
+  <input
+    id="busca-lista"
+    type="search"
+    autocomplete="off"
+    placeholder="Título, autor ou ISBN"
+    aria-describedby="dica-busca-lista"
+    [value]="term()"
+    (input)="type($event)"
+  />
+  <p id="dica-busca-lista" class="hint">Digite pelo menos duas letras.</p>
+
+  @if (failure()) {
+    <p class="failure" role="alert">{{ failure() }}</p>
+  }
+
+  @if (books(); as found) {
+    @if (found.length === 0) {
+      <p class="none" role="status">Nenhum livro da estante com esse termo.</p>
+    } @else {
+      <ul class="results" aria-label="Livros encontrados">
+        @for (book of found; track book.id) {
+          <li class="result">
+            <ml-book-cover
+              size="xs"
+              aria-hidden="true"
+              [title]="book.title"
+              [coverUrl]="book.coverUrl ?? undefined"
+            />
+            <div class="text">
+              <p class="title">{{ book.title }}</p>
+              <p class="authors">{{ book.authors.join(', ') }}</p>
+            </div>
+            @if (inList().has(book.id)) {
+              <span class="already">Já está na lista</span>
+            } @else {
+              <button
+                mlButton="secondary"
+                type="button"
+                [attr.aria-label]="'Adicionar ' + book.title + ' à lista'"
+                [disabled]="adding() === book.id"
+                (click)="add(book)"
+              >
+                Adicionar
+              </button>
+            }
+          </li>
+        }
+      </ul>
+    }
+  }
+</section>

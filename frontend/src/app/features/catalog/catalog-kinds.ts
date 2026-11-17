@@ -1,7 +1,7 @@
 import { CatalogKind } from '@core/api/catalog-api';
 import { ShelfFilter } from '@core/api/shelf-api';
 
-/** The four ways the collection is grouped. Lists join them in Marco 4. */
+/** The four ways the collection is grouped by what the books are. Lists are the fifth tab. */
 export const GROUP_KINDS = ['genres', 'authors', 'publishers', 'series'] as const;
 export type GroupKind = (typeof GROUP_KINDS)[number];
 
@@ -54,4 +54,21 @@ export function isListed(kind: GroupKind): kind is CatalogKind {
 
 export function toGroupKind(tab: unknown): GroupKind {
   return GROUP_KINDS.find((kind) => GROUPS[kind].tab === tab) ?? 'genres';
+}
+
+/**
+ * The lists are the grouping the reader makes by hand. They get a tab on /catalogos next to the
+ * other four, but their page is /listas/:id, which lets the books be reordered.
+ */
+export const LISTS_TAB = {
+  kind: 'lists',
+  tab: 'listas',
+  plural: 'Listas',
+  path: '/listas',
+} as const;
+
+export type CatalogTab = GroupKind | typeof LISTS_TAB.kind;
+
+export function toCatalogTab(tab: unknown): CatalogTab {
+  return tab === LISTS_TAB.tab ? LISTS_TAB.kind : toGroupKind(tab);
 }

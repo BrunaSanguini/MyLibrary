@@ -22,6 +22,21 @@ export const routes: Routes = [
   },
   { path: 'livros', loadChildren: () => import('@features/books/books.routes') },
   {
+    path: 'listas',
+    loadComponent: () => import('@features/lists/lists-page/lists-page'),
+    title: 'Listas',
+  },
+  {
+    path: 'listas/:id',
+    loadComponent: () => import('@features/lists/list-page/list-page'),
+    title: 'Lista',
+  },
+  {
+    path: 'metas',
+    loadComponent: () => import('@features/goals/goals-page/goals-page'),
+    title: 'Metas',
+  },
+  {
     path: 'catalogos',
     loadComponent: () => import('@features/catalog/catalog-page/catalog-page'),
     title: 'Catálogos',
