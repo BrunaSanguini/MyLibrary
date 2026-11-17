@@ -244,8 +244,7 @@ class StatsServiceTest {
 
     private long inProgress(long bookId, String startDate) {
         return readings.create(
-                        bookId,
-                        new ReadingRequest(ReadingStatus.IN_PROGRESS, LocalDate.parse(startDate), null, null))
+                        bookId, new ReadingRequest(ReadingStatus.IN_PROGRESS, LocalDate.parse(startDate), null, null))
                 .id();
     }
 

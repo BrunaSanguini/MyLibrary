@@ -65,6 +65,7 @@ public class ProfileService {
 
     private static ProfileResponse toResponse(Profile profile) {
         Long avatar = profile.avatarImageId();
-        return new ProfileResponse(profile.displayName(), avatar == null ? null : ImageUrls.of(avatar), profile.theme());
+        return new ProfileResponse(
+                profile.displayName(), avatar == null ? null : ImageUrls.of(avatar), profile.theme());
     }
 }

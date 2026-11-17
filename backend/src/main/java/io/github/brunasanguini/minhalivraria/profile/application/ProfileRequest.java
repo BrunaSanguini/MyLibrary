@@ -6,4 +6,6 @@ import jakarta.validation.constraints.Size;
 import org.jspecify.annotations.Nullable;
 
 /** @param displayName absent or blank: the app greets without a name */
-public record ProfileRequest(@Size(max = 80) @Nullable String displayName, @NotNull ProfileTheme theme) {}
+public record ProfileRequest(
+        @Size(max = 80) @Nullable String displayName,
+        @NotNull ProfileTheme theme) {}

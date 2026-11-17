@@ -28,8 +28,8 @@ class ReadingStatsQueries {
                         """)
                 .param("from", from)
                 .param("to", to)
-                .query((row, number) -> new DailyPagesResponse(
-                        row.getObject("session_date", LocalDate.class), row.getInt("pages")))
+                .query((row, number) ->
+                        new DailyPagesResponse(row.getObject("session_date", LocalDate.class), row.getInt("pages")))
                 .list();
     }
 
@@ -59,7 +59,8 @@ class ReadingStatsQueries {
 
     Optional<BigDecimal> averageRating() {
         // AVG of no rows is one row holding null.
-        return jdbc.sql("SELECT AVG(rating) FROM review WHERE rating IS NOT NULL")
+        return jdbc
+                .sql("SELECT AVG(rating) FROM review WHERE rating IS NOT NULL")
                 .query(BigDecimal.class)
                 .list()
                 .stream()

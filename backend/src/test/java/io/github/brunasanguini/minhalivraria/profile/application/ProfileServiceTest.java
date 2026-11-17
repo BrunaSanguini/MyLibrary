@@ -59,7 +59,8 @@ class ProfileServiceTest {
     void shouldForgetABlankName() {
         profile.update(new ProfileRequest("Bru", ProfileTheme.LIGHT));
 
-        assertThat(profile.update(new ProfileRequest("   ", ProfileTheme.LIGHT)).displayName()).isNull();
+        assertThat(profile.update(new ProfileRequest("   ", ProfileTheme.LIGHT)).displayName())
+                .isNull();
     }
 
     @Test

@@ -47,8 +47,8 @@ public class StatsService {
      */
     public StatsOverviewResponse overview(@Nullable Integer year, @Nullable Integer month) {
         LocalDate today = LocalDate.now(clock);
-        YearMonth chosen = YearMonth.of(
-                year == null ? today.getYear() : year, month == null ? today.getMonthValue() : month);
+        YearMonth chosen =
+                YearMonth.of(year == null ? today.getYear() : year, month == null ? today.getMonthValue() : month);
         LocalDate yearStart = chosen.atDay(1).withDayOfYear(1);
         LocalDate yearEnd = yearStart.plusYears(1).minusDays(1);
         Streaks streaks = Streaks.of(queries.readingDays(), today);

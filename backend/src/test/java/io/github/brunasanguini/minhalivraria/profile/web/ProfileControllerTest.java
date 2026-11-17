@@ -37,10 +37,7 @@ class ProfileControllerTest {
     void shouldAnswerTheProfileWithNullsForWhatIsMissing() {
         given(service.get()).willReturn(new ProfileResponse(null, null, ProfileTheme.SYSTEM));
 
-        assertThat(mvc.get().uri("/api/v1/profile"))
-                .hasStatusOk()
-                .bodyJson()
-                .isLenientlyEqualTo("""
+        assertThat(mvc.get().uri("/api/v1/profile")).hasStatusOk().bodyJson().isLenientlyEqualTo("""
                         { "displayName": null, "avatarUrl": null, "theme": "SYSTEM" }
                         """);
     }
@@ -52,11 +49,7 @@ class ProfileControllerTest {
 
         assertThat(put("""
                         { "displayName": "Bru", "theme": "DARK" }
-                        """))
-                .hasStatusOk()
-                .bodyJson()
-                .extractingPath("$.theme")
-                .isEqualTo("DARK");
+                        """)).hasStatusOk().bodyJson().extractingPath("$.theme").isEqualTo("DARK");
     }
 
     @Test
