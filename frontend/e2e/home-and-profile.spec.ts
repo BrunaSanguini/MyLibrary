@@ -20,9 +20,14 @@ for (const theme of THEMES) {
 
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
-    // Scrolling down draws the sections that wait for the screen.
-    await page.getByRole('heading', { name: 'Listas para explorar' }).scrollIntoViewIfNeeded();
-    await expect(page.getByRole('heading', { name: 'Por autor' })).toBeVisible();
+    // Scrolling down draws the sections that wait for the screen, one after the other.
+    const lists = page.getByRole('heading', { name: 'Listas para explorar' });
+    await expect(async () => {
+      await page.mouse.wheel(0, 800);
+      await expect(lists).toBeVisible({ timeout: 500 });
+    }).toPass();
+    await expect(page.getByRole('heading', { name: 'Por autor' })).toBeAttached();
+    await expect(page.getByRole('heading', { name: 'Lendo agora' })).toBeAttached();
     await page.mouse.move(0, 0);
     await expectNoAccessibilityViolations(page);
   });
