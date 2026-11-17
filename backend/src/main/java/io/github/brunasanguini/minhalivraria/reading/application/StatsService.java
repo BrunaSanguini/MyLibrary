@@ -9,6 +9,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
@@ -83,13 +84,14 @@ public class StatsService {
         List<ReadingStatsQueries.BookTime> times = queries.timePerBook(from, to);
         Map<Long, BookSummary> summaries = books.findAll(
                 times.stream().map(ReadingStatsQueries.BookTime::bookId).toList());
-        return times.stream()
-                .filter(time -> summaries.containsKey(time.bookId()))
-                .map(time -> {
-                    BookSummary book = summaries.get(time.bookId());
-                    return new BookTimeResponse(book.id(), book.title(), book.coverUrl(), time.days(), time.pages());
-                })
-                .toList();
+        List<BookTimeResponse> result = new ArrayList<>();
+        for (ReadingStatsQueries.BookTime time : times) {
+            BookSummary book = summaries.get(time.bookId());
+            if (book != null) {
+                result.add(new BookTimeResponse(book.id(), book.title(), book.coverUrl(), time.days(), time.pages()));
+            }
+        }
+        return result;
     }
 
     private @Nullable FastestReadingResponse fastest(LocalDate from, LocalDate to) {
