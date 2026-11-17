@@ -54,7 +54,7 @@ public class ProfileService {
 
     /** The first migration creates the row and nothing deletes it, so it is always there. */
     private Profile profile() {
-        return profiles.findById(Profile.ID).orElseThrow(() -> new IllegalStateException("The profile row is missing"));
+        return profiles.findById(Profile.SINGLE_ROW_ID).orElseThrow(() -> new IllegalStateException("The profile row is missing"));
     }
 
     private void discard(@Nullable Long imageId) {

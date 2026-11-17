@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+import { ProfileStore } from '@core/profile/profile-store';
 import { render, screen } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -46,6 +47,7 @@ describe('Header', () => {
     await render(Header, {
       providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
     });
+    void TestBed.inject(ProfileStore).load();
     const http = TestBed.inject(HttpTestingController);
     http.expectOne('/api/v1/profile').flush({ displayName: 'Bru', theme: 'LIGHT' });
 
@@ -62,6 +64,7 @@ describe('Header', () => {
     await render(Header, {
       providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
     });
+    void TestBed.inject(ProfileStore).load();
     const http = TestBed.inject(HttpTestingController);
     http.expectOne('/api/v1/profile').flush({ theme: 'LIGHT' });
 
@@ -78,6 +81,7 @@ describe('Header', () => {
     const { fixture } = await render(Header, {
       providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
     });
+    void TestBed.inject(ProfileStore).load();
     TestBed.inject(HttpTestingController)
       .expectOne('/api/v1/profile')
       .flush({ displayName: 'bru', theme: 'SYSTEM' });

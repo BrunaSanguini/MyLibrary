@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { problemDetailsInterceptor } from '@core/api/problem-details-interceptor';
+import { ProfileStore } from '@core/profile/profile-store';
 import { CURRENT_HOUR, TODAY } from '@core/time/today';
 import { fireEvent, render, screen, within } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
@@ -35,6 +36,7 @@ async function setup(profile: object = { displayName: 'Bru', theme: 'LIGHT' }) {
       { provide: CURRENT_HOUR, useValue: () => 21 },
     ],
   });
+  void TestBed.inject(ProfileStore).load();
   const http = TestBed.inject(HttpTestingController);
   http.expectOne('/api/v1/profile').flush(profile);
   return { view, http };

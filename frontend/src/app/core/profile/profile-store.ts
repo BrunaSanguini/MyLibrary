@@ -9,6 +9,7 @@ import { firstValueFrom } from 'rxjs';
  *
  * <p>The official theme is the one in the profile. The ThemeStore keeps a copy in the browser so
  * the page opens with the right colors before the profile arrives (docs/arquitetura-front-end.md).
+ * The app loads the profile once when it starts (app.config.ts).
  */
 @Injectable({ providedIn: 'root' })
 export class ProfileStore {
@@ -19,10 +20,6 @@ export class ProfileStore {
 
   /** Undefined until the API answers, and while it cannot. */
   readonly profile = this.state.asReadonly();
-
-  constructor() {
-    void this.load();
-  }
 
   async load(): Promise<void> {
     try {

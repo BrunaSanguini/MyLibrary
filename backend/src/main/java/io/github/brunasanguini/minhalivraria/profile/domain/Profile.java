@@ -14,7 +14,7 @@ import org.jspecify.annotations.Nullable;
 public class Profile extends AuditedEntity {
 
     /** The only id the table accepts. */
-    public static final short ID = 1;
+    public static final short SINGLE_ROW_ID = 1;
 
     @Id
     private short id;
