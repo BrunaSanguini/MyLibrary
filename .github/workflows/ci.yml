@@ -2,9 +2,9 @@ name: CI
 
 on:
   pull_request:
-    branches: [main, feat/home-e-perfil]
+    branches: [main]
   push:
-    branches: [main, feat/home-e-perfil]
+    branches: [main]
 
 permissions:
   contents: read
