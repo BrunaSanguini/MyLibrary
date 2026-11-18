@@ -474,6 +474,8 @@ class ShelfServiceTest {
         entityManager.flush();
 
         assertThat(card(fellowship).progress()).isEqualTo(new CardProgressResponse(120, 576, 20));
+        assertThat(card(fellowship).startedOn()).isEqualTo(LocalDate.parse("2026-11-01"));
+        assertThat(card(hobbit).startedOn()).isNull();
     }
 
     @Test
@@ -485,6 +487,16 @@ class ShelfServiceTest {
         entityManager.flush();
 
         assertThat(card(fellowship).progress()).isEqualTo(new CardProgressResponse(0, 576, 0));
+    }
+
+    @Test
+    void shouldSealAsRereadABookFinishedTwiceOrAReadingMarkedAsOne() {
+        past(fellowship, ReadingStatus.FINISHED, "2024-03-01");
+        past(fellowship, ReadingStatus.FINISHED, "2025-03-01");
+        past(dune, ReadingStatus.FINISHED, "2025-06-01");
+
+        assertThat(card(fellowship).reread()).isTrue();
+        assertThat(card(dune).reread()).isFalse();
     }
 
     @Test

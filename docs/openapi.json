@@ -3247,9 +3247,16 @@
           "publishedYear" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "startedOn" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "reread" : {
+            "type" : "boolean"
           }
         },
-        "required" : [ "authors", "favorite", "genres", "id", "ownership", "status", "title" ]
+        "required" : [ "authors", "favorite", "genres", "id", "ownership", "reread", "status", "title" ]
       },
       "CardProgressResponse" : {
         "type" : "object",

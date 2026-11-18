@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
@@ -76,6 +77,38 @@ public class StatsService {
     public List<DailyPagesResponse> dailyPages(LocalDate from, LocalDate to) {
         checkPeriod(from, to);
         return queries.pagesPerDay(from, to);
+    }
+
+    /** A month of the calendar: the books of each day with a session, and the readings finished in it. */
+    public CalendarResponse calendar(@Nullable Integer year, @Nullable Integer month) {
+        LocalDate today = LocalDate.now(clock);
+        YearMonth chosen =
+                YearMonth.of(year == null ? today.getYear() : year, month == null ? today.getMonthValue() : month);
+        LocalDate from = chosen.atDay(1);
+        LocalDate to = chosen.atEndOfMonth();
+        List<ReadingStatsQueries.DayBook> rows = queries.pagesPerDayAndBook(from, to);
+        Map<Long, BookSummary> summaries = books.findAll(
+                rows.stream().map(ReadingStatsQueries.DayBook::bookId).distinct().toList());
+        Map<LocalDate, List<CalendarResponse.CalendarEntryResponse>> byDay = new LinkedHashMap<>();
+        for (ReadingStatsQueries.DayBook row : rows) {
+            BookSummary book = summaries.get(row.bookId());
+            if (book != null) {
+                byDay.computeIfAbsent(row.day(), day -> new ArrayList<>())
+                        .add(new CalendarResponse.CalendarEntryResponse(
+                                book.id(),
+                                book.title(),
+                                book.authors(),
+                                book.coverUrl(),
+                                row.pages(),
+                                row.started(),
+                                row.finished()));
+            }
+        }
+        List<CalendarResponse.CalendarDayResponse> days = byDay.entrySet().stream()
+                .map(entry -> new CalendarResponse.CalendarDayResponse(entry.getKey(), List.copyOf(entry.getValue())))
+                .toList();
+        return new CalendarResponse(
+                chosen.getYear(), chosen.getMonthValue(), queries.finishedBetween(from, to), days);
     }
 
     /** The books of the period, the ones with more days first. */

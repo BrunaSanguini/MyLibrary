@@ -234,6 +234,46 @@ class StatsServiceTest {
                         new BookTimeResponse(hobbit, "O Hobbit", null, 1, 100));
     }
 
+    @Test
+    void shouldListTheBooksOfEachDayOfTheMonthWithTheirStartAndEnd() {
+        long hobbitReading = inProgress(hobbit, "2025-12-30");
+        long duneReading = inProgress(dune, "2025-12-01");
+        session(hobbitReading, "2025-12-30", 100);
+        session(duneReading, "2025-12-30", 10);
+        session(hobbitReading, "2025-12-31", 15);
+        session(hobbitReading, "2025-12-31", 5);
+        readings.finish(hobbitReading, LocalDate.parse("2025-12-31"));
+        session(duneReading, "2026-01-01", 30);
+        entityManager.flush();
+
+        CalendarResponse december = stats.calendar(2025, 12);
+
+        assertThat(december.year()).isEqualTo(2025);
+        assertThat(december.month()).isEqualTo(12);
+        assertThat(december.finished()).isEqualTo(1);
+        assertThat(december.days())
+                .extracting(CalendarResponse.CalendarDayResponse::date)
+                .containsExactly(LocalDate.parse("2025-12-30"), LocalDate.parse("2025-12-31"));
+        assertThat(december.days().getFirst().books())
+                .containsExactly(
+                        new CalendarResponse.CalendarEntryResponse(
+                                hobbit, "O Hobbit", List.of("J. R. R. Tolkien"), null, 100, true, false),
+                        new CalendarResponse.CalendarEntryResponse(
+                                dune, "Duna", List.of("J. R. R. Tolkien"), null, 10, false, false));
+        assertThat(december.days().getLast().books())
+                .containsExactly(new CalendarResponse.CalendarEntryResponse(
+                        hobbit, "O Hobbit", List.of("J. R. R. Tolkien"), null, 20, false, true));
+    }
+
+    @Test
+    void shouldOpenTheCalendarOnTheCurrentMonth() {
+        CalendarResponse calendar = stats.calendar(null, null);
+
+        assertThat(calendar.year()).isEqualTo(2026);
+        assertThat(calendar.month()).isEqualTo(1);
+        assertThat(calendar.days()).isEmpty();
+    }
+
     private void sessionsOn(long bookId, String... dates) {
         long reading = inProgress(bookId, "2025-01-01");
         for (String date : dates) {

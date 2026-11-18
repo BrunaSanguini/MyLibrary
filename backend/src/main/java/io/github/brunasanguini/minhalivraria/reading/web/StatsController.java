@@ -1,6 +1,7 @@
 package io.github.brunasanguini.minhalivraria.reading.web;
 
 import io.github.brunasanguini.minhalivraria.reading.application.BookTimeResponse;
+import io.github.brunasanguini.minhalivraria.reading.application.CalendarResponse;
 import io.github.brunasanguini.minhalivraria.reading.application.DailyPagesResponse;
 import io.github.brunasanguini.minhalivraria.reading.application.StatsOverviewResponse;
 import io.github.brunasanguini.minhalivraria.reading.application.StatsService;
@@ -40,6 +41,17 @@ class StatsController {
             @RequestParam(required = false) @Min(1900) @Max(2999) @Nullable Integer year,
             @RequestParam(required = false) @Min(1) @Max(12) @Nullable Integer month) {
         return service.overview(year, month);
+    }
+
+    @Operation(
+            operationId = "getReadingCalendar",
+            summary = "The books read on each day of a month, and the readings finished in it",
+            description = "Without year or month, the current ones. Only the days with a session are listed.")
+    @GetMapping("/calendar")
+    CalendarResponse calendar(
+            @RequestParam(required = false) @Min(1900) @Max(2999) @Nullable Integer year,
+            @RequestParam(required = false) @Min(1) @Max(12) @Nullable Integer month) {
+        return service.calendar(year, month);
     }
 
     @Operation(

@@ -33,6 +33,44 @@ class ReadingStatsQueries {
                 .list();
     }
 
+    /** The pages of each book on each day of the period, the day's biggest reading first. */
+    List<DayBook> pagesPerDayAndBook(LocalDate from, LocalDate to) {
+        return jdbc.sql('''+Q+'''
+                        SELECT s.session_date AS day,
+                               r.book_id AS book_id,
+                               SUM(s.pages_read) AS pages,
+                               MAX(CASE WHEN r.start_date = s.session_date THEN 1 ELSE 0 END) AS started,
+                               MAX(CASE WHEN r.status = 'FINISHED' AND r.end_date = s.session_date
+                                   THEN 1 ELSE 0 END) AS finished
+                        FROM reading_session s
+                        JOIN reading r ON r.id = s.reading_id
+                        WHERE s.session_date BETWEEN :from AND :to
+                        GROUP BY s.session_date, r.book_id
+                        ORDER BY s.session_date, pages DESC, r.book_id
+                        '''+Q+''')
+                .param("from", from)
+                .param("to", to)
+                .query((row, number) -> new DayBook(
+                        row.getObject("day", LocalDate.class),
+                        row.getLong("book_id"),
+                        row.getInt("pages"),
+                        row.getInt("started") == 1,
+                        row.getInt("finished") == 1))
+                .list();
+    }
+
+    int finishedBetween(LocalDate from, LocalDate to) {
+        Integer count = jdbc.sql('''+Q+'''
+                        SELECT COUNT(*) FROM reading
+                        WHERE status = 'FINISHED' AND end_date BETWEEN :from AND :to
+                        '''+Q+''')
+                .param("from", from)
+                .param("to", to)
+                .query(Integer.class)
+                .single();
+        return count == null ? 0 : count;
+    }
+
     /** Every day with a session, oldest first: what the streaks are made of. */
     List<LocalDate> readingDays() {
         return jdbc.sql("SELECT DISTINCT session_date FROM reading_session ORDER BY session_date")
@@ -93,4 +131,6 @@ class ReadingStatsQueries {
     record BookTime(long bookId, int days, int pages) {}
 
     record Fastest(long bookId, int days) {}
+
+    record DayBook(LocalDate day, long bookId, int pages, boolean started, boolean finished) {}
 }

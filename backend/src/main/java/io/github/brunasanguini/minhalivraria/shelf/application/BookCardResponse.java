@@ -2,6 +2,7 @@ package io.github.brunasanguini.minhalivraria.shelf.application;
 
 import io.github.brunasanguini.minhalivraria.books.Ownership;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
 
@@ -11,6 +12,8 @@ import org.jspecify.annotations.Nullable;
  * @param progress only while the book has a reading in progress
  * @param rating only when the book has a review with a rating
  * @param publishedYear the year of the edition, when known
+ * @param startedOn when the reading in progress started; only while there is one
+ * @param reread read more than once, or a reading marked as a reread
  */
 public record BookCardResponse(
         long id,
@@ -24,7 +27,9 @@ public record BookCardResponse(
         Ownership ownership,
         boolean favorite,
         @Nullable CardSeriesResponse series,
-        @Nullable Short publishedYear) {
+        @Nullable Short publishedYear,
+        @Nullable LocalDate startedOn,
+        boolean reread) {
 
     /**
      * How far the reading in progress went.
