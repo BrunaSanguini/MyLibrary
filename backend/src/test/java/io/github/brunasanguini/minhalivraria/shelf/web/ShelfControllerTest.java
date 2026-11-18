@@ -187,6 +187,7 @@ class ShelfControllerTest {
                 List.of("Alta fantasia"),
                 Ownership.OWNED,
                 true,
-                new CardSeriesResponse(3, "O Senhor dos Anéis", new BigDecimal("1.0")));
+                new CardSeriesResponse(3, "O Senhor dos Anéis", new BigDecimal("1.0")),
+                (short) 1954);
     }
 }

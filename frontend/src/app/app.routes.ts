@@ -55,8 +55,7 @@ export const routes: Routes = [
   },
   {
     path: 'autores/:id',
-    loadComponent: () => import('@features/catalog/group-page/group-page'),
-    data: { kind: 'authors' },
+    loadComponent: () => import('@features/catalog/author-page/author-page'),
     title: 'Autor',
   },
   {

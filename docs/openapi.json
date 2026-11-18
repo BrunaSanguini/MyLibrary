@@ -3243,6 +3243,10 @@
           },
           "series" : {
             "$ref" : "#/components/schemas/CardSeriesResponse"
+          },
+          "publishedYear" : {
+            "type" : "integer",
+            "format" : "int32"
           }
         },
         "required" : [ "authors", "favorite", "genres", "id", "ownership", "status", "title" ]

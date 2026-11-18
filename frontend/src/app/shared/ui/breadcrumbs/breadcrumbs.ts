@@ -1,10 +1,11 @@
 import { Component, input } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Params, RouterLink } from '@angular/router';
 
 /** One step of the trail; the last one is the page itself and has no link. */
 export interface Crumb {
   readonly label: string;
   readonly link?: string | readonly (string | number)[];
+  readonly queryParams?: Params;
 }
 
 /**

@@ -10,6 +10,7 @@ import org.jspecify.annotations.Nullable;
  *
  * @param progress only while the book has a reading in progress
  * @param rating only when the book has a review with a rating
+ * @param publishedYear the year of the edition, when known
  */
 public record BookCardResponse(
         long id,
@@ -22,7 +23,8 @@ public record BookCardResponse(
         List<String> genres,
         Ownership ownership,
         boolean favorite,
-        @Nullable CardSeriesResponse series) {
+        @Nullable CardSeriesResponse series,
+        @Nullable Short publishedYear) {
 
     /**
      * How far the reading in progress went.

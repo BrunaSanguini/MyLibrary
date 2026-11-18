@@ -339,6 +339,7 @@ class ShelfServiceTest {
         assertThat(card.favorite()).isTrue();
         assertThat(card.coverUrl()).isNull();
         assertThat(card.status()).isEqualTo(ShelfStatus.WANT_TO_READ);
+        assertThat(card.publishedYear()).isEqualTo((short) 2019);
         assertThat(card.series()).isNotNull().satisfies(found -> {
             assertThat(found.id()).isEqualTo(lotr);
             assertThat(found.name()).isEqualTo("O Senhor dos Anéis");

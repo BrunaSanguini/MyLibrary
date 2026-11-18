@@ -144,7 +144,7 @@ public class ShelfService {
     }
 
     private List<Card> cards(String where, Map<String, Object> params, String orderBy, int limit, long offset) {
-        String sql = "select b.id, b.title, b.cover_image_id, b.ownership, b.favorite, b.page_count,"
+        String sql = "select b.id, b.title, b.cover_image_id, b.ownership, b.favorite, b.page_count, b.published_year,"
                 + " s.id as series_id, s.name as series_name, b.series_position, rv.rating,"
                 + STATUS + " as shelf_status, " + PAGES_IN_PROGRESS + " as pages_in_progress "
                 + FROM_BOOK
@@ -170,7 +170,8 @@ public class ShelfService {
                             series(
                                     rs.getObject("series_id", Long.class),
                                     rs.getString("series_name"),
-                                    rs.getBigDecimal("series_position")));
+                                    rs.getBigDecimal("series_position")),
+                            rs.getObject("published_year", Short.class));
                 })
                 .list();
     }
@@ -205,7 +206,8 @@ public class ShelfService {
                         genres.getOrDefault(card.id(), List.of()),
                         card.ownership(),
                         card.favorite(),
-                        card.series()))
+                        card.series(),
+                        card.publishedYear()))
                 .toList();
     }
 
@@ -320,5 +322,6 @@ public class ShelfService {
             @Nullable BigDecimal rating,
             Ownership ownership,
             boolean favorite,
-            @Nullable CardSeriesResponse series) {}
+            @Nullable CardSeriesResponse series,
+            @Nullable Short publishedYear) {}
 }
