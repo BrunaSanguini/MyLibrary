@@ -147,7 +147,7 @@ export default class CalendarPage {
         // Read after the number of the day, which is on the screen: " de novembro: O Hobbit, 20 páginas".
         label:
           books.length > 0
-            ? ` ${monthOf}: ${books.map((book) => `${book.title}, ${book.pages} páginas`).join('; ')}`
+            ? ` ${monthOf}: ${books.map((book) => (book.pages > 0 ? `${book.title}, ${book.pages} páginas` : book.title)).join('; ')}`
             : ` ${monthOf}`,
       });
     }

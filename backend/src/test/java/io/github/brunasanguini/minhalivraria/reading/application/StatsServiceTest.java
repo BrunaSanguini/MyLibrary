@@ -253,8 +253,12 @@ class StatsServiceTest {
         assertThat(december.finished()).isEqualTo(1);
         assertThat(december.days())
                 .extracting(CalendarResponse.CalendarDayResponse::date)
-                .containsExactly(LocalDate.parse("2025-12-30"), LocalDate.parse("2025-12-31"));
+                .containsExactly(
+                        LocalDate.parse("2025-12-01"), LocalDate.parse("2025-12-30"), LocalDate.parse("2025-12-31"));
         assertThat(december.days().getFirst().books())
+                .containsExactly(new CalendarResponse.CalendarEntryResponse(
+                        dune, "Duna", List.of("J. R. R. Tolkien"), null, 0, true, false));
+        assertThat(december.days().get(1).books())
                 .containsExactly(
                         new CalendarResponse.CalendarEntryResponse(
                                 hobbit, "O Hobbit", List.of("J. R. R. Tolkien"), null, 100, true, false),
@@ -263,6 +267,26 @@ class StatsServiceTest {
         assertThat(december.days().getLast().books())
                 .containsExactly(new CalendarResponse.CalendarEntryResponse(
                         hobbit, "O Hobbit", List.of("J. R. R. Tolkien"), null, 20, false, true));
+    }
+
+    @Test
+    void shouldShowStartsAndEndsWithoutSessionsInTheCalendar() {
+        inProgress(hobbit, "2025-12-10");
+        finished(dune, "2025-11-20", "2025-12-12", false);
+
+        CalendarResponse december = stats.calendar(2025, 12);
+
+        assertThat(december.finished()).isEqualTo(1);
+        assertThat(december.days())
+                .containsExactly(
+                        new CalendarResponse.CalendarDayResponse(
+                                LocalDate.parse("2025-12-10"),
+                                List.of(new CalendarResponse.CalendarEntryResponse(
+                                        hobbit, "O Hobbit", List.of("J. R. R. Tolkien"), null, 0, true, false))),
+                        new CalendarResponse.CalendarDayResponse(
+                                LocalDate.parse("2025-12-12"),
+                                List.of(new CalendarResponse.CalendarEntryResponse(
+                                        dune, "Duna", List.of("J. R. R. Tolkien"), null, 0, false, true))));
     }
 
     @Test

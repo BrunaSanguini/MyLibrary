@@ -93,7 +93,7 @@
           @if (cell.flag) {
             <span class="flag">{{ cell.flag }}</span>
           }
-          @if (cell.books.length > 0) {
+          @if (cell.pages > 0) {
             <span class="pages">{{ cell.pages }} págs</span>
           }
         </button>
@@ -130,7 +130,9 @@
               <p class="entry-title">{{ entry.title }}</p>
               <p class="entry-author">{{ entry.authors.join(', ') }}</p>
               <p class="entry-pages">
-                {{ entry.pages }} {{ entry.pages === 1 ? 'página' : 'páginas' }}
+                @if (entry.pages > 0) {
+                  {{ entry.pages }} {{ entry.pages === 1 ? 'página' : 'páginas' }}
+                }
                 @if (flagOf(entry); as flag) {
                   <span class="entry-flag">{{ flag }}</span>
                 }

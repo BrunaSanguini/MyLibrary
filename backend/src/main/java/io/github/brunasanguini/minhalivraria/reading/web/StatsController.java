@@ -46,7 +46,7 @@ class StatsController {
     @Operation(
             operationId = "getReadingCalendar",
             summary = "The books read on each day of a month, and the readings finished in it",
-            description = "Without year or month, the current ones. Only the days with a session are listed.")
+            description = "Without year or month, the current ones. Lists the days with a session, a start or an end.")
     @GetMapping("/calendar")
     CalendarResponse calendar(
             @RequestParam(required = false) @Min(1900) @Max(2999) @Nullable Integer year,

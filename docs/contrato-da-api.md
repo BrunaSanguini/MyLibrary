@@ -330,7 +330,7 @@ O front trata `review.not-found` como "sem resenha", sem exibir erro.
 | `GET /stats/overview?year=2026&month=11` | totais do mês e do ano, nota média, releituras, páginas no ano, sequência atual e maior sequência |
 | `GET /stats/daily-pages?from=&to=` | `[{ "date": "2026-11-08", "pages": 25 }]`, só os dias com leitura; período máximo de 366 dias |
 | `GET /stats/books-time?from=&to=` | `[{ "bookId": 42, "title": "...", "coverUrl": "...", "days": 6, "pages": 210 }]` |
-| `GET /stats/calendar?year=2026&month=11` | o mês do calendário: `finished` (leituras terminadas no mês) e `days`, só os dias com sessão, cada um com os livros do dia (`pages`, `started`, `finished`, autores e capa) |
+| `GET /stats/calendar?year=2026&month=11` | o mês do calendário: `finished` (leituras terminadas no mês) e `days`, os dias com sessão, início ou fim de leitura (sem sessão, `pages` é 0), cada um com os livros do dia (`pages`, `started`, `finished`, autores e capa) |
 
 O mapa de calor e o "Esta semana" saem do `daily-pages`; a tabela de Ritmo sai do `overview`.
 
