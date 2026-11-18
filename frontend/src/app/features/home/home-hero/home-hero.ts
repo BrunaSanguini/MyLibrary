@@ -37,7 +37,7 @@ export function formatRating(rating: number): string {
   selector: 'ml-home-hero',
   imports: [BookCover, Icon, RouterLink],
   templateUrl: './home-hero.html',
-  styleUrl: './home-hero.css',
+  styleUrls: ['./home-hero.css', './home-hero-foot.css'],
 })
 export class HomeHero {
   /** The favorites to feature, in order. */
@@ -91,6 +91,12 @@ export class HomeHero {
     const pad = (value: number) => String(value).padStart(2, '0');
     return { current: pad(this.index() + 1), total: pad(this.books().length) };
   });
+
+  /** A plain "#favoritos" link would leave the Home because of <base href="/">. */
+  protected toFavorites(event: Event): void {
+    event.preventDefault();
+    document.getElementById('favoritos')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   protected step(by: number): void {
     const total = this.books().length;
