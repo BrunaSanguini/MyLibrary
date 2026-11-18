@@ -33,9 +33,10 @@ const lotr = (position: number) => ({
 });
 
 const BOOKS = [
-  card(2, 'A Sociedade do Anel', 1954, 'READ', { rating: 5, ...lotr(1) }),
+  card(2, 'A Sociedade do Anel', 1954, 'READ', { rating: 5, reread: true, ...lotr(1) }),
   card(5, 'O Silmarillion', 1977, 'READING', {
     progress: { pagesRead: 120, pageCount: 352, percent: 34 },
+    startedOn: '2026-11-01',
   }),
   card(1, 'O Hobbit', 1937, 'READ', { rating: 4.5 }),
   card(6, 'Contos Inacabados', 1980, 'WANT_TO_READ'),
@@ -120,6 +121,9 @@ describe('AuthorPage', () => {
     const hobbit = screen.getByRole('link', { name: /O Hobbit/ });
     expect(hobbit).toHaveTextContent('1937');
     expect(within(hobbit).getByText('Lido')).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('link', { name: /A Sociedade do Anel/ })).getByText('Relido'),
+    ).toBeInTheDocument();
     expect(
       within(screen.getByRole('link', { name: /Contos Inacabados/ })).getByText('Quero ler'),
     ).toBeInTheDocument();

@@ -18,6 +18,7 @@ const card = (id: number, title: string, rating?: number): BookCardResponse => (
   genres: [],
   ownership: 'OWNED',
   favorite: true,
+  reread: false,
   rating,
 });
 

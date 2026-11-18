@@ -35,7 +35,7 @@ class ReadingStatsQueries {
 
     /** The pages of each book on each day of the period, the day's biggest reading first. */
     List<DayBook> pagesPerDayAndBook(LocalDate from, LocalDate to) {
-        return jdbc.sql('''+Q+'''
+        return jdbc.sql("""
                         SELECT s.session_date AS day,
                                r.book_id AS book_id,
                                SUM(s.pages_read) AS pages,
@@ -47,7 +47,7 @@ class ReadingStatsQueries {
                         WHERE s.session_date BETWEEN :from AND :to
                         GROUP BY s.session_date, r.book_id
                         ORDER BY s.session_date, pages DESC, r.book_id
-                        '''+Q+''')
+                        """)
                 .param("from", from)
                 .param("to", to)
                 .query((row, number) -> new DayBook(
@@ -60,10 +60,10 @@ class ReadingStatsQueries {
     }
 
     int finishedBetween(LocalDate from, LocalDate to) {
-        Integer count = jdbc.sql('''+Q+'''
+        Integer count = jdbc.sql("""
                         SELECT COUNT(*) FROM reading
                         WHERE status = 'FINISHED' AND end_date BETWEEN :from AND :to
-                        '''+Q+''')
+                        """)
                 .param("from", from)
                 .param("to", to)
                 .query(Integer.class)

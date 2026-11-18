@@ -104,7 +104,12 @@
               }
               @if (book.status === 'READING' && book.progress) {
                 <span class="book-progress">
-                  <span class="book-percent">{{ book.progress.percent }}%</span>
+                  <span class="book-progress-head">
+                    <span class="book-percent">{{ book.progress.percent }}%</span>
+                    @if (startedOn(book); as started) {
+                      <span class="book-started">Começou em {{ started }}</span>
+                    }
+                  </span>
                   <ml-progress-bar
                     [value]="book.progress.percent"
                     [label]="'Progresso de ' + book.title"

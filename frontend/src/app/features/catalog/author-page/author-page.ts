@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { ApiError } from '@core/api/api-error';
 import { CatalogApi, NamedEntry } from '@core/api/catalog-api';
 import { toId } from '@core/api/query-params';
+import { formatNumericDate } from '@core/time/today';
 import { BookCardResponse, ShelfApi, ShelfPage } from '@core/api/shelf-api';
 import { BookCover } from '@shared/ui/book-cover/book-cover';
 import { Breadcrumbs } from '@shared/ui/breadcrumbs/breadcrumbs';
@@ -165,7 +166,7 @@ export default class AuthorPage {
   protected sealOf(book: BookCardResponse): string | undefined {
     switch (book.status) {
       case 'READ':
-        return 'Lido';
+        return book.reread ? 'Relido' : 'Lido';
       case 'WANT_TO_READ':
         return 'Quero ler';
       case 'ABANDONED':
@@ -173,6 +174,10 @@ export default class AuthorPage {
       default:
         return undefined;
     }
+  }
+
+  protected startedOn(book: BookCardResponse): string | undefined {
+    return book.startedOn ? formatNumericDate(book.startedOn) : undefined;
   }
 
   protected ratingText(rating: number): string {
