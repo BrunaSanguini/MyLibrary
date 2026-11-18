@@ -1,0 +1,97 @@
+/* The strip at the bottom of the hero: the hint to scroll, in the middle, and the pager. */
+
+.foot {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--ml-space-24);
+}
+
+.scroll-hint {
+  display: flex;
+  grid-column: 2;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--ml-color-hero-ink);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.bob {
+  color: var(--ml-color-hero-gold);
+  animation: bob 2.4s ease-in-out infinite;
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(5px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bob {
+    animation: none;
+  }
+}
+
+.pager {
+  display: flex;
+  grid-column: 3;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+}
+
+.position {
+  margin: 0;
+  font-family: var(--ml-font-display);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.dots {
+  display: flex;
+  gap: 6px;
+}
+
+.dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--ml-color-hero-corner);
+}
+
+.dots .on {
+  width: 24px;
+  background: var(--ml-color-hero-gold);
+}
+
+.ghost,
+.gold {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--ml-color-hero-corner);
+  border-radius: var(--ml-radius-pill);
+  background: var(--ml-color-hero-veil-light);
+  color: var(--ml-color-hero-ink);
+  cursor: pointer;
+}
+
+.gold {
+  background: var(--ml-color-hero-gold);
+  color: var(--ml-color-hero-night);
+}

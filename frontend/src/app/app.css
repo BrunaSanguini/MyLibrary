@@ -30,6 +30,19 @@
   outline: none;
 }
 
+/* The Home: the header floats over the hero, with its glass showing the art behind. */
+:host(.over-hero) ml-header {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 5;
+}
+
+:host(.over-hero) .content {
+  padding-top: 0;
+}
+
 /* The signature at the end of every page, between two small gold ornaments. */
 .footer {
   display: flex;

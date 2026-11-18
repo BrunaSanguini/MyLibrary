@@ -1,13 +1,13 @@
-/* The hero spans the whole window and starts right under the header. */
+/* The hero fills the whole window, from the top: on the Home the header floats over it. */
 
 :host {
   display: block;
-  margin: calc(-1 * var(--ml-space-56)) calc(50% - 50vw) 0;
+  margin: 0 calc(50% - 50vw);
 }
 
 .hero {
   position: relative;
-  min-height: 640px;
+  min-height: max(640px, 100svh);
   overflow: hidden;
   background: var(--ml-color-hero-night);
   color: var(--ml-color-hero-ink);
@@ -28,7 +28,11 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, var(--ml-color-hero-veil-clear) 72%, var(--ml-color-bg) 100%),
+    linear-gradient(
+      180deg,
+      var(--ml-color-hero-veil-clear) calc(100% - 88px),
+      var(--ml-color-bg) 100%
+    ),
     linear-gradient(
       90deg,
       var(--ml-color-hero-veil) 0%,
@@ -40,6 +44,20 @@
     );
 }
 
+/* Darker at the top, so the header reads over any art. */
+.veil-top {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 200px;
+  background: linear-gradient(
+    180deg,
+    var(--ml-color-hero-veil-light) 0%,
+    var(--ml-color-hero-veil-clear) 100%
+  );
+}
+
 .corner {
   position: absolute;
   width: 36px;
@@ -48,13 +66,13 @@
 }
 
 .top-left {
-  top: 40px;
+  top: 128px;
   left: 48px;
   border-width: 1.5px 0 0 1.5px;
 }
 
 .top-right {
-  top: 40px;
+  top: 128px;
   right: 48px;
   border-width: 1.5px 1.5px 0 0;
 }
@@ -79,10 +97,10 @@
   align-items: center;
   gap: var(--ml-space-24);
   box-sizing: border-box;
-  min-height: 640px;
+  min-height: max(640px, 100svh);
   max-width: 1344px;
   margin: 0 auto;
-  padding: 96px 64px;
+  padding: 150px 64px 92px;
 }
 
 .side {
@@ -234,57 +252,6 @@ blockquote {
 .secondary {
   border: 1.5px solid var(--ml-color-hero-chip-line);
   color: var(--ml-color-hero-ink);
-}
-
-.pager {
-  display: flex;
-  grid-column: 1 / -1;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 14px;
-}
-
-.position {
-  margin: 0;
-  font-family: var(--ml-font-display);
-  font-size: 20px;
-  font-weight: 600;
-}
-
-.dots {
-  display: flex;
-  gap: 6px;
-}
-
-.dots span {
-  width: 6px;
-  height: 6px;
-  border-radius: 3px;
-  background: var(--ml-color-hero-corner);
-}
-
-.dots .on {
-  width: 24px;
-  background: var(--ml-color-hero-gold);
-}
-
-.ghost,
-.gold {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: 1px solid var(--ml-color-hero-corner);
-  border-radius: var(--ml-radius-pill);
-  background: var(--ml-color-hero-veil-light);
-  color: var(--ml-color-hero-ink);
-  cursor: pointer;
-}
-
-.gold {
-  background: var(--ml-color-hero-gold);
-  color: var(--ml-color-hero-night);
 }
 
 a:focus-visible,
