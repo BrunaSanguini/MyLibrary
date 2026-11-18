@@ -12,6 +12,7 @@ import { Button } from '@shared/ui/button/button';
 import { EmptyState } from '@shared/ui/empty-state/empty-state';
 import { ErrorState } from '@shared/ui/error-state/error-state';
 import { Paginator } from '@shared/ui/paginator/paginator';
+import { Tag } from '@shared/ui/tag/tag';
 
 import { GroupKind, GROUPS, isListed } from '../catalog-kinds';
 
@@ -24,7 +25,7 @@ import { GroupKind, GROUPS, isListed } from '../catalog-kinds';
  */
 @Component({
   selector: 'ml-group-page',
-  imports: [BookCard, BookGridSkeleton, Button, EmptyState, ErrorState, Paginator, RouterLink],
+  imports: [BookCard, BookGridSkeleton, Button, EmptyState, ErrorState, Paginator, RouterLink, Tag],
   templateUrl: './group-page.html',
   styleUrl: './group-page.css',
 })
@@ -76,6 +77,24 @@ export default class GroupPage {
     }
     return undefined;
   });
+
+  /** For a subgenre, the genre it belongs to; for a genre, its subgenres. */
+  protected readonly genreContext = computed(() => {
+    const id = this.id();
+    for (const genre of this.genres.value() ?? []) {
+      if (genre.id === id) {
+        return { subgenre: false, parent: undefined, subgenres: genre.subgenres };
+      }
+      if (genre.subgenres.some((sub) => sub.id === id)) {
+        return { subgenre: true, parent: genre, subgenres: [] };
+      }
+    }
+    return undefined;
+  });
+
+  protected readonly eyebrow = computed(() =>
+    this.genreContext()?.subgenre ? 'Subgênero' : this.group().singular,
+  );
 
   protected readonly cards = computed(() => (this.books.value()?.content ?? []).map(toBookCard));
 

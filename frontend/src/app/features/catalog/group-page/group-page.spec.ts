@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { problemDetailsInterceptor } from '@core/api/problem-details-interceptor';
-import { screen } from '@testing-library/angular';
+import { screen, within } from '@testing-library/angular';
 import { describe, expect, it } from 'vitest';
 
 import GroupPage from './group-page';
@@ -94,7 +94,23 @@ describe('GroupPage', () => {
     await harness.fixture.whenStable();
 
     expect(screen.getByRole('heading', { name: 'Realismo', level: 1 })).toBeInTheDocument();
+    expect(screen.getByText('Subgênero')).toBeInTheDocument();
+    expect(screen.getByText(/Subgênero de/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Romance' })).toHaveAttribute('href', '/generos/1');
+  });
+
+  it('calls a genre a genre and links to its subgenres', async () => {
+    const { harness, http } = await open('/generos/1');
+    http.expectOne('/api/v1/genres').flush(TREE);
+    http.expectOne(isShelf).flush(page([QUINCAS]));
+    await harness.fixture.whenStable();
+
     expect(screen.getByText('Gênero')).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('list', { name: 'Subgêneros de Romance' })).getByRole('link', {
+        name: 'Realismo',
+      }),
+    ).toHaveAttribute('href', '/generos/2');
   });
 
   it('says so when the genre is not in the tree', async () => {
