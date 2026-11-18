@@ -87,8 +87,10 @@ public class StatsService {
         LocalDate from = chosen.atDay(1);
         LocalDate to = chosen.atEndOfMonth();
         List<ReadingStatsQueries.DayBook> rows = queries.pagesPerDayAndBook(from, to);
-        Map<Long, BookSummary> summaries = books.findAll(
-                rows.stream().map(ReadingStatsQueries.DayBook::bookId).distinct().toList());
+        Map<Long, BookSummary> summaries = books.findAll(rows.stream()
+                .map(ReadingStatsQueries.DayBook::bookId)
+                .distinct()
+                .toList());
         Map<LocalDate, List<CalendarResponse.CalendarEntryResponse>> byDay = new LinkedHashMap<>();
         for (ReadingStatsQueries.DayBook row : rows) {
             BookSummary book = summaries.get(row.bookId());
@@ -107,8 +109,7 @@ public class StatsService {
         List<CalendarResponse.CalendarDayResponse> days = byDay.entrySet().stream()
                 .map(entry -> new CalendarResponse.CalendarDayResponse(entry.getKey(), List.copyOf(entry.getValue())))
                 .toList();
-        return new CalendarResponse(
-                chosen.getYear(), chosen.getMonthValue(), queries.finishedBetween(from, to), days);
+        return new CalendarResponse(chosen.getYear(), chosen.getMonthValue(), queries.finishedBetween(from, to), days);
     }
 
     /** The books of the period, the ones with more days first. */
