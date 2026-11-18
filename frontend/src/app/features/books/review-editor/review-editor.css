@@ -68,12 +68,6 @@ textarea:focus-visible {
   outline-offset: 2px;
 }
 
-.hint {
-  margin: 6px 0 0;
-  color: var(--ml-color-muted);
-  font-size: 13px;
-}
-
 .error {
   margin: 6px 0 0;
   color: var(--ml-color-accent);
@@ -101,4 +95,11 @@ textarea:focus-visible {
 /* Deleting stays apart from the two usual ways out of the form. */
 .delete {
   margin-right: auto;
+}
+
+.rating {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ml-space-16);
 }

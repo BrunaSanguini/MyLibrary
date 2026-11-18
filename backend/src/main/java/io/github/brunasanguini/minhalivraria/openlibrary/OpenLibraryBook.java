@@ -10,6 +10,7 @@ import org.jspecify.annotations.Nullable;
  * @param editionKey such as {@code OL51694024M}
  * @param workKey such as {@code OL27448W}
  * @param languageCode ISO 639-2, such as {@code por}
+ * @param publishers in the order the Open Library lists them; empty when it has none
  * @param coverId id of the cover at the Open Library, when there is one
  */
 public record OpenLibraryBook(
@@ -18,7 +19,7 @@ public record OpenLibraryBook(
         String title,
         @Nullable String subtitle,
         List<OpenLibraryAuthor> authors,
-        @Nullable String publisher,
+        List<String> publishers,
         @Nullable Integer pageCount,
         @Nullable String isbn13,
         @Nullable String isbn10,

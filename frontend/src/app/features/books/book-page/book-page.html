@@ -9,6 +9,8 @@
 } @else if (book.hasValue()) {
   @let current = book.value();
 
+  <ml-breadcrumbs [items]="[{ label: 'Estante', link: '/estante' }, { label: current.title }]" />
+
   @if (current.bannerUrl) {
     <img class="banner" [src]="current.bannerUrl" alt="" />
   }
@@ -29,9 +31,19 @@
           <p class="subtitle">{{ current.subtitle }}</p>
         }
         <p class="authors">
-          @for (author of current.authors; track author.id; let last = $last) {
-            <a [routerLink]="['/autores', author.id]">{{ author.name }}</a
-            >{{ last ? '' : ', ' }}
+          <span>
+            @for (author of current.authors; track author.id; let last = $last) {
+              <a [routerLink]="['/autores', author.id]">{{ author.name }}</a
+              >{{ last ? '' : ', ' }}
+            }
+          </span>
+          @if (current.series; as series) {
+            <span class="divider" aria-hidden="true"></span>
+            <span class="series">
+              <span class="ml-visually-hidden">Série:</span>
+              <a [routerLink]="['/series', series.id]">{{ series.name }}</a>
+              <span class="volume">· Livro {{ seriesPosition() }}</span>
+            </span>
           }
         </p>
       </header>
@@ -74,17 +86,36 @@
       </div>
 
       @if (current.genres.length > 0) {
-        <ul class="genres" aria-label="Gêneros">
-          @for (genre of current.genres; track genre.id) {
-            <li>
-              <a
-                [mlTag]="genre.parentId ? 'subgenre' : 'genre'"
-                [routerLink]="['/generos', genre.id]"
-                >{{ genre.name }}</a
-              >
-            </li>
+        <dl class="classification">
+          @if (genres().length > 0) {
+            <div>
+              <dt class="row-label">Gêneros</dt>
+              <dd class="row-value">
+                <ul class="genres" aria-label="Gêneros">
+                  @for (genre of genres(); track genre.id) {
+                    <li>
+                      <a mlTag="genre" [routerLink]="['/generos', genre.id]">{{ genre.name }}</a>
+                    </li>
+                  }
+                </ul>
+              </dd>
+            </div>
           }
-        </ul>
+          @if (subgenres().length > 0) {
+            <div>
+              <dt class="row-label">Subgêneros</dt>
+              <dd class="row-value">
+                <ul class="genres" aria-label="Subgêneros">
+                  @for (genre of subgenres(); track genre.id) {
+                    <li>
+                      <a mlTag="subgenre" [routerLink]="['/generos', genre.id]">{{ genre.name }}</a>
+                    </li>
+                  }
+                </ul>
+              </dd>
+            </div>
+          }
+        </dl>
       }
 
       @if (readings.hasValue()) {
@@ -97,38 +128,65 @@
         />
       }
 
-      @if (current.synopsis) {
-        <section aria-labelledby="titulo-sinopse">
-          <h2 id="titulo-sinopse" class="section-title">Sinopse</h2>
-          <p class="synopsis">{{ current.synopsis }}</p>
-        </section>
-      }
+      <div ngTabs class="tabs">
+        <div ngTabList class="tab-list" aria-label="Sobre o livro" [(selectedTab)]="tab">
+          <button ngTab type="button" class="tab" value="sobre">Sobre</button>
+          <button ngTab type="button" class="tab" value="historico">
+            Histórico de leitura
+            @if (readings.value()?.length; as count) {
+              <span class="tab-count">{{ count }}</span>
+            }
+          </button>
+        </div>
 
-      <section aria-labelledby="titulo-detalhes">
-        <h2 id="titulo-detalhes" class="section-title">Detalhes</h2>
-        <dl class="details">
-          @if (current.publisher; as publisher) {
-            <div>
-              <dt>Editora</dt>
-              <dd>
-                <a [routerLink]="['/editoras', publisher.id]">{{ publisher.name }}</a>
-              </dd>
-            </div>
-          }
-          @for (detail of details(); track detail.label) {
-            <div>
-              <dt>{{ detail.label }}</dt>
-              <dd>{{ detail.value }}</dd>
-            </div>
-          }
-        </dl>
-        @if (current.openLibrary?.url; as url) {
-          <a mlButton="link" [href]="url" target="_blank" rel="noopener noreferrer">
-            Ver na Open Library
-            <ml-icon name="arrow-right" [size]="16" />
-          </a>
-        }
-      </section>
+        <div ngTabPanel class="tab-panel" value="sobre">
+          <ng-template ngTabContent>
+            @if (current.synopsis) {
+              <section aria-labelledby="titulo-sinopse">
+                <h2 id="titulo-sinopse" class="section-title">Sinopse</h2>
+                <p class="synopsis">{{ current.synopsis }}</p>
+              </section>
+            }
+
+            <section aria-labelledby="titulo-detalhes">
+              <h2 id="titulo-detalhes" class="section-title">Detalhes</h2>
+              <dl class="details">
+                @if (current.publishers.length > 0) {
+                  <div>
+                    <dt>{{ current.publishers.length > 1 ? 'Editoras' : 'Editora' }}</dt>
+                    <dd>
+                      @for (publisher of current.publishers; track publisher.id; let last = $last) {
+                        <a [routerLink]="['/editoras', publisher.id]">{{ publisher.name }}</a
+                        >{{ last ? '' : ', ' }}
+                      }
+                    </dd>
+                  </div>
+                }
+                @for (detail of details(); track detail.label) {
+                  <div>
+                    <dt>{{ detail.label }}</dt>
+                    <dd>{{ detail.value }}</dd>
+                  </div>
+                }
+              </dl>
+              @if (current.openLibrary?.url; as url) {
+                <a mlButton="link" [href]="url" target="_blank" rel="noopener noreferrer">
+                  Ver na Open Library
+                  <ml-icon name="arrow-right" [size]="16" />
+                </a>
+              }
+            </section>
+          </ng-template>
+        </div>
+
+        <div ngTabPanel class="tab-panel" value="historico">
+          <ng-template ngTabContent>
+            @if (readings.hasValue()) {
+              <ml-reading-history [bookId]="current.id" [readings]="readings.value()" />
+            }
+          </ng-template>
+        </div>
+      </div>
 
       <div class="actions">
         <a mlButton="secondary" [routerLink]="['/livros', current.id, 'editar']">
@@ -156,7 +214,7 @@
   }
 
   @defer (on viewport) {
-    <ml-related-books class="related" [bookId]="current.id" />
+    <ml-related-books class="related" [bookId]="current.id" [series]="current.series" />
   } @placeholder {
     <div class="related-placeholder"></div>
   }

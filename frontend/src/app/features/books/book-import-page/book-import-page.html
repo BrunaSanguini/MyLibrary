@@ -1,3 +1,11 @@
+<ml-breadcrumbs
+  [items]="[
+    { label: 'Estante', link: '/estante' },
+    { label: 'Cadastrar livro', link: '/livros/novo' },
+    { label: 'Importar da Open Library' },
+  ]"
+/>
+
 <header class="head">
   <p class="eyebrow">Open Library</p>
   <h1>Importar livro</h1>
@@ -11,6 +19,7 @@
   <label for="busca">Título, autor ou ISBN</label>
   <div class="search-row">
     <input
+      #searchField
       id="busca"
       type="search"
       autocomplete="off"
@@ -50,10 +59,10 @@
         }
 
         <dl class="facts">
-          @if (book.publisher) {
+          @if (book.publishers.length > 0) {
             <div>
-              <dt>Editora</dt>
-              <dd>{{ book.publisher }}</dd>
+              <dt>{{ book.publishers.length > 1 ? 'Editoras' : 'Editora' }}</dt>
+              <dd>{{ book.publishers.join(', ') }}</dd>
             </div>
           }
           @if (book.publishedYear) {
@@ -136,32 +145,7 @@
           </select>
         </div>
 
-        <div class="field">
-          <ml-entity-picker
-            source="genres"
-            label="Gêneros"
-            placeholder="Busque ou crie um gênero"
-            [exclude]="genreIds()"
-            (picked)="addGenre($event)"
-          />
-          @if (classificationModel().genres.length > 0) {
-            <ul class="chips" aria-label="Gêneros escolhidos">
-              @for (genre of classificationModel().genres; track genre.id) {
-                <li class="chip">
-                  {{ genre.name }}
-                  <button
-                    type="button"
-                    class="chip-remove"
-                    [attr.aria-label]="'Remover gênero ' + genre.name"
-                    (click)="removeGenre(genre.id)"
-                  >
-                    <ml-icon name="close" [size]="12" />
-                  </button>
-                </li>
-              }
-            </ul>
-          }
-        </div>
+        <ml-genre-fields [genres]="classificationModel().genres" (changed)="setGenres($event)" />
 
         <div class="row">
           <div class="field grow">
@@ -221,9 +205,12 @@
       <ml-empty-state
         icon="search"
         title="Não encontramos esse livro na Open Library"
-        message="Confira o ISBN ou busque pelo título. Se o livro não estiver lá, cadastre manualmente."
+        message="Muitas edições brasileiras não estão lá pelo ISBN. Busque pelo título: outra edição serve de base, e você corrige os dados da sua antes de salvar."
       >
-        <a mlButton="primary" routerLink="/livros/novo">Cadastrar manualmente</a>
+        <button mlButton="primary" type="button" (click)="searchByTitle()">
+          Buscar pelo título
+        </button>
+        <a mlButton="secondary" routerLink="/livros/novo">Cadastrar manualmente</a>
       </ml-empty-state>
     } @else {
       <ml-error-state
@@ -245,7 +232,7 @@
     @if (results.value().length > 0) {
       <section aria-labelledby="titulo-resultados">
         <h2 id="titulo-resultados" class="section-title">Resultados</h2>
-        <ul class="results">
+        <ul class="results" aria-label="Resultados da busca">
           @for (candidate of results.value(); track candidate.editionKey) {
             <li class="result card">
               <ml-book-cover

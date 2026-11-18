@@ -20,6 +20,9 @@ import org.jspecify.annotations.Nullable;
  */
 public final class OpenLibraryMapper {
 
+    /** The same limit a book has when edited by hand. */
+    private static final int MAX_PUBLISHERS = 10;
+
     private static final Pattern YEAR = Pattern.compile("(?<!\\d)(\\d{4})(?!\\d)");
     private static final Pattern LANGUAGE = Pattern.compile("[a-z]{3}");
     private static final int LAST_YEAR = 2999;
@@ -48,7 +51,7 @@ public final class OpenLibraryMapper {
                 title,
                 blankToNull(edition.subtitle()),
                 List.copyOf(authors),
-                first(edition.publishers()),
+                publishers(edition.publishers()),
                 positive(edition.numberOfPages()),
                 isbn(edition.isbn13(), Isbns::isValid13),
                 isbn(edition.isbn10(), Isbns::isValid10),
@@ -206,6 +209,16 @@ public final class OpenLibraryMapper {
 
     private static @Nullable Integer positive(@Nullable Integer value) {
         return value != null && value > 0 ? value : null;
+    }
+
+    /** Every publisher of the edition, without blanks or repeats, at most {@value #MAX_PUBLISHERS}. */
+    private static List<String> publishers(@Nullable List<String> values) {
+        return orEmpty(values).stream()
+                .map(OpenLibraryMapper::blankToNull)
+                .filter(Objects::nonNull)
+                .distinct()
+                .limit(MAX_PUBLISHERS)
+                .toList();
     }
 
     private static @Nullable String first(@Nullable List<String> values) {

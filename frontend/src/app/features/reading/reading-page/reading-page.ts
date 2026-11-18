@@ -8,6 +8,7 @@ import { toId } from '@core/api/query-params';
 import { ReadingApi, ReadingResponse, ReadingStatus, SessionResponse } from '@core/api/reading-api';
 import { HasUnsavedChanges } from '@core/routing/unsaved-changes-guard';
 import { formatLongDate, formatShortDate, TODAY } from '@core/time/today';
+import { Breadcrumbs } from '@shared/ui/breadcrumbs/breadcrumbs';
 import { Button } from '@shared/ui/button/button';
 import { EmptyState } from '@shared/ui/empty-state/empty-state';
 import { ErrorState } from '@shared/ui/error-state/error-state';
@@ -44,6 +45,7 @@ interface PeriodModel {
 @Component({
   selector: 'ml-reading-page',
   imports: [
+    Breadcrumbs,
     Button,
     EmptyState,
     ErrorState,

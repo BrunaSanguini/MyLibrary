@@ -5,6 +5,7 @@ import {
   daysBetween,
   formatLongDate,
   formatLongWeekday,
+  formatNumericDate,
   formatShortDate,
   formatWeekday,
   startOfWeek,
@@ -46,6 +47,7 @@ describe('formatting', () => {
   it('writes dates and weekdays in Portuguese', () => {
     expect(formatLongDate('2026-11-08')).toBe('8 de novembro de 2026');
     expect(formatShortDate('2026-11-08')).toMatch(/^8 de nov\.?$/);
+    expect(formatNumericDate('2026-11-08')).toBe('08/11/2026');
     expect(formatWeekday('2026-11-08')).toBe('dom');
     expect(formatLongWeekday('2026-11-08')).toBe('domingo');
   });

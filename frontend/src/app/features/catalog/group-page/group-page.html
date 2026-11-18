@@ -12,8 +12,27 @@
   <ml-error-state [message]="errorMessage()" (retry)="retry()" />
 } @else {
   <header class="head">
-    <p class="eyebrow">{{ group().singular }}</p>
+    <p class="eyebrow">{{ eyebrow() }}</p>
     <h1>{{ name() ?? '…' }}</h1>
+    @if (genreContext(); as context) {
+      @if (context.parent; as parent) {
+        <p class="relation">
+          Subgênero de
+          <a mlTag="genre" [routerLink]="['/generos', parent.id]">{{ parent.name }}</a>
+        </p>
+      } @else if (context.subgenres.length > 0) {
+        <div class="relation">
+          <span>Subgêneros:</span>
+          <ul class="relation-list" aria-label="Subgêneros de {{ name() }}">
+            @for (subgenre of context.subgenres; track subgenre.id) {
+              <li>
+                <a mlTag="subgenre" [routerLink]="['/generos', subgenre.id]">{{ subgenre.name }}</a>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    }
     @if (books.hasValue()) {
       <p class="count">
         {{ books.value().totalElements }}

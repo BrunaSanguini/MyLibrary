@@ -354,7 +354,7 @@ Toda chamada passa pelo `OpenLibraryGateway`, que aplica o limite de taxa, as no
 
 | Recurso | Configuração |
 |---|---|
-| Timeouts | 3 s para conectar, 10 s para ler |
+| Timeouts | 10 s para conectar, 20 s para ler. A Open Library às vezes leva segundos só para aceitar a conexão; com 3 s, a busca falhava numa conexão doméstica |
 | Retry | `@Retryable` do Spring 7 (com `@EnableResilientMethods`): 2 novas tentativas com espera crescente, só em GET e só para 5xx, timeout e 429 |
 | Limite de taxa | limitador próprio com intervalo mínimo entre chamadas: 3 req/s com contato no `User-Agent`, 1 req/s sem |
 | Cache | Caffeine em memória, 1 hora: a confirmação da importação reaproveita o que a pré-visualização buscou |
@@ -444,8 +444,8 @@ app:
     base-url: https://openlibrary.org
     covers-url: https://covers.openlibrary.org
     contact: ""
-    connect-timeout: 3s
-    read-timeout: 10s
+    connect-timeout: 10s
+    read-timeout: 20s
   images:
     max-size: 5MB
     trash-retention: 30d

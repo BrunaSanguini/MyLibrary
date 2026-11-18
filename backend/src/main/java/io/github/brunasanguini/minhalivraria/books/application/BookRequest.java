@@ -40,7 +40,7 @@ public record BookRequest(
 
         @Size(max = 10_000) @Nullable String synopsis,
         @NotEmpty List<@NotNull Long> authorIds,
-        @Nullable Long publisherId,
+        @Nullable @Size(max = 10) List<@NotNull Long> publisherIds,
         @Nullable List<@NotNull Long> genreIds,
         @Nullable Long seriesId,
 
@@ -60,5 +60,10 @@ public record BookRequest(
 
     public List<Long> genreIdsOrEmpty() {
         return genreIds == null ? List.of() : genreIds;
+    }
+
+    /** In the order printed on the book; more than one in a co-edition. */
+    public List<Long> publisherIdsOrEmpty() {
+        return publisherIds == null ? List.of() : publisherIds;
     }
 }

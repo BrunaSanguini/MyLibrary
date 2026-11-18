@@ -70,7 +70,7 @@ class BookServiceTest {
                 "por",
                 "Uma jornada até a Montanha da Perdição.",
                 List.of(tolkien),
-                harper,
+                List.of(harper),
                 List.of(fantasy),
                 lotr,
                 new BigDecimal("1.0"),
@@ -79,7 +79,9 @@ class BookServiceTest {
 
         assertThat(created.title()).isEqualTo("A Sociedade do Anel");
         assertThat(created.authors()).singleElement().extracting("name").isEqualTo("J. R. R. Tolkien");
-        assertThat(created.publisher()).isNotNull().extracting("name").isEqualTo("HarperCollins Brasil");
+        assertThat(created.publishers())
+                .extracting(BookDetailResponse.BookPublisherResponse::name)
+                .containsExactly("HarperCollins Brasil");
         assertThat(created.series())
                 .isNotNull()
                 .extracting("name", "totalVolumes")

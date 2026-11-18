@@ -118,7 +118,7 @@ class ShelfServiceTest {
                         "por",
                         null,
                         List.of(tolkien),
-                        harper,
+                        List.of(harper),
                         List.of(highFantasy),
                         lotr,
                         new BigDecimal("1.0"),
@@ -135,7 +135,7 @@ class ShelfServiceTest {
                         null,
                         null,
                         List.of(tolkien),
-                        harper,
+                        List.of(harper),
                         List.of(fantasy),
                         null,
                         null,
@@ -339,6 +339,7 @@ class ShelfServiceTest {
         assertThat(card.favorite()).isTrue();
         assertThat(card.coverUrl()).isNull();
         assertThat(card.status()).isEqualTo(ShelfStatus.WANT_TO_READ);
+        assertThat(card.publishedYear()).isEqualTo((short) 2019);
         assertThat(card.series()).isNotNull().satisfies(found -> {
             assertThat(found.id()).isEqualTo(lotr);
             assertThat(found.name()).isEqualTo("O Senhor dos Anéis");
@@ -473,6 +474,8 @@ class ShelfServiceTest {
         entityManager.flush();
 
         assertThat(card(fellowship).progress()).isEqualTo(new CardProgressResponse(120, 576, 20));
+        assertThat(card(fellowship).startedOn()).isEqualTo(LocalDate.parse("2026-11-01"));
+        assertThat(card(hobbit).startedOn()).isNull();
     }
 
     @Test
@@ -484,6 +487,16 @@ class ShelfServiceTest {
         entityManager.flush();
 
         assertThat(card(fellowship).progress()).isEqualTo(new CardProgressResponse(0, 576, 0));
+    }
+
+    @Test
+    void shouldSealAsRereadABookFinishedTwiceOrAReadingMarkedAsOne() {
+        past(fellowship, ReadingStatus.FINISHED, "2024-03-01");
+        past(fellowship, ReadingStatus.FINISHED, "2025-03-01");
+        past(dune, ReadingStatus.FINISHED, "2025-06-01");
+
+        assertThat(card(fellowship).reread()).isTrue();
+        assertThat(card(dune).reread()).isFalse();
     }
 
     @Test

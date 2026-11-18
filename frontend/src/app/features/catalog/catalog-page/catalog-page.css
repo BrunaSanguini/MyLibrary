@@ -123,6 +123,15 @@ h1 {
   margin: 0;
 }
 
+.entry-parent {
+  display: flex;
+  gap: var(--ml-space-8);
+  align-items: center;
+  margin: var(--ml-space-4) 0 0;
+  color: var(--ml-color-muted);
+  font-size: 13px;
+}
+
 .subgenres {
   display: flex;
   flex-wrap: wrap;

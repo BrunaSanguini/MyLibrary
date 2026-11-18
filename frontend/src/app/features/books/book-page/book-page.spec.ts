@@ -16,7 +16,7 @@ const FELLOWSHIP = {
   title: 'A Sociedade do Anel',
   subtitle: 'O Senhor dos Anéis',
   authors: [{ id: 7, name: 'J. R. R. Tolkien' }],
-  publisher: { id: 2, name: 'HarperCollins Brasil' },
+  publishers: [{ id: 2, name: 'HarperCollins Brasil' }],
   series: { id: 3, name: 'O Senhor dos Anéis', position: 1, totalVolumes: 3 },
   genres: [
     { id: 1, name: 'Fantasia' },
@@ -185,14 +185,61 @@ describe('BookPage', () => {
     );
   });
 
-  it('shows where the book sits in its series', async () => {
+  it('shows the genres and the subgenres in rows of their own', async () => {
     await openBook();
 
-    expect(screen.getByRole('link', { name: 'O Senhor dos Anéis' })).toHaveAttribute(
+    const genres = screen.getByRole('list', { name: 'Gêneros' });
+    const subgenres = screen.getByRole('list', { name: 'Subgêneros' });
+    expect(within(genres).getByRole('link').textContent).toBe('Fantasia');
+    expect(within(subgenres).getByRole('link').textContent).toBe('Alta fantasia');
+  });
+
+  it('lists every publisher of a co-edition', async () => {
+    await openBook('/livros/42', {
+      ...FELLOWSHIP,
+      publishers: [
+        { id: 2, name: 'HarperCollins Brasil' },
+        { id: 6, name: 'Martins Fontes' },
+      ],
+    });
+
+    expect(screen.getByText('Editoras')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Martins Fontes' })).toHaveAttribute(
+      'href',
+      '/editoras/6',
+    );
+  });
+
+  it('names the series and the volume beside the authors', async () => {
+    await openBook();
+
+    const byline = screen.getByRole('link', { name: 'J. R. R. Tolkien' }).closest('p')!;
+    expect(within(byline).getByRole('link', { name: 'O Senhor dos Anéis' })).toHaveAttribute(
       'href',
       '/series/3',
     );
-    expect(screen.getByText('Livro 1 de 3')).toBeInTheDocument();
+    expect(byline).toHaveTextContent(/Série:\s*O Senhor dos Anéis\s*· Livro 1/);
+  });
+
+  it('shows the trail from the shelf to the book', async () => {
+    await openBook();
+
+    const trail = screen.getByRole('navigation', { name: 'Trilha de navegação' });
+    expect(within(trail).getByRole('link', { name: 'Estante' })).toHaveAttribute(
+      'href',
+      '/estante',
+    );
+    expect(within(trail).getByText(FELLOWSHIP.title)).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('shows where the book sits in its series', async () => {
+    await openBook();
+
+    expect(within(record()).getByRole('link', { name: 'O Senhor dos Anéis' })).toHaveAttribute(
+      'href',
+      '/series/3',
+    );
+    expect(within(record()).getByText('Livro 1 de 3')).toBeInTheDocument();
   });
 
   it('lists only the details the book has, with the language spelled out', async () => {
@@ -383,6 +430,64 @@ describe('BookPage', () => {
     expect(within(record()).getByText('Relido')).toBeInTheDocument();
   });
 
+  it('opens on Sobre, with the synopsis, and switches to the reading history', async () => {
+    await openBook('/livros/42', FELLOWSHIP, undefined, { readings: [READING, FINISHED] });
+
+    expect(screen.getByRole('tab', { name: 'Sobre' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByText('Uma jornada até a Montanha da Perdição.')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('tab', { name: /Histórico de leitura/ }));
+
+    const history = screen.getByRole('tabpanel');
+    expect(within(history).getByRole('heading', { name: '2ª leitura' })).toBeInTheDocument();
+    expect(within(history).getByRole('heading', { name: '1ª leitura' })).toBeInTheDocument();
+    expect(within(history).getByText('Lendo')).toBeInTheDocument();
+    expect(
+      within(history).getByText(/De 2 de janeiro de 2025 a 10 de fevereiro de 2025/),
+    ).toBeInTheDocument();
+    expect(within(history).getByText('120 de 576 páginas')).toBeInTheDocument();
+    expect(screen.queryByText('Uma jornada até a Montanha da Perdição.')).not.toBeInTheDocument();
+  });
+
+  it('shows the sessions of a reading only when asked', async () => {
+    const { http, harness } = await openBook('/livros/42', FELLOWSHIP, undefined, {
+      readings: [READING],
+    });
+    await userEvent.click(screen.getByRole('tab', { name: /Histórico de leitura/ }));
+
+    const toggle = screen.getByRole('button', { name: 'Ver 5 sessões' });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await userEvent.click(toggle);
+    await vi.waitFor(() => {
+      TestBed.tick();
+      http
+        .expectOne('/api/v1/readings/9/sessions')
+        .flush([{ id: 1, date: '2026-11-03', pagesRead: 40, note: 'Chegaram a Valfenda' }]);
+    });
+    await harness.fixture.whenStable();
+
+    expect(screen.getByRole('button', { name: 'Esconder 5 sessões' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+    expect(screen.getByText('Chegaram a Valfenda')).toBeInTheDocument();
+    expect(screen.getByText('40 páginas')).toBeInTheDocument();
+  });
+
+  it('invites the first reading when the history is empty', async () => {
+    await openBook();
+    await userEvent.click(screen.getByRole('tab', { name: /Histórico de leitura/ }));
+
+    const history = screen.getByRole('tabpanel');
+    expect(
+      within(history).getByText('Você ainda não registrou nenhuma leitura deste livro.'),
+    ).toBeInTheDocument();
+    expect(within(history).getByRole('link', { name: 'Começar a ler' })).toHaveAttribute(
+      'href',
+      '/livros/42/leitura',
+    );
+  });
+
   it('invites a review, without any error, when the book has none', async () => {
     await openBook();
 
@@ -463,6 +568,24 @@ describe('BookPage', () => {
     expect(within(reviewRegion()).getByText('Um clássico que envelhece bem.')).toBeInTheDocument();
   });
 
+  it('takes the rating away with the button, keeping the text', async () => {
+    const { http } = await openBook('/livros/42', FELLOWSHIP, undefined, { review: REVIEW });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Editar resenha' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Tirar nota' }));
+
+    expect(screen.getByRole('slider', { name: 'Nota' })).toHaveAttribute(
+      'aria-valuetext',
+      'Sem nota',
+    );
+    expect(screen.queryByRole('button', { name: 'Tirar nota' })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar resenha' }));
+    const request = http.expectOne({ method: 'PUT', url: '/api/v1/books/42/review' });
+    expect(JSON.parse(JSON.stringify(request.request.body))).toEqual({
+      content: 'Um clássico que envelhece bem.',
+    });
+  });
+
   it('keeps the form open and says why when the review is refused', async () => {
     const { http, harness } = await openBook('/livros/42', FELLOWSHIP, undefined, {
       review: REVIEW,
@@ -521,10 +644,15 @@ describe('BookPage', () => {
     });
     await harness.fixture.whenStable();
 
-    const series = screen.getByRole('region', { name: 'Mais da série' });
+    const series = screen.getByRole('region', { name: 'O Senhor dos Anéis' });
+    expect(within(series).getByText('Da mesma série')).toBeInTheDocument();
     expect(within(series).getByRole('link', { name: /As Duas Torres/ })).toHaveAttribute(
       'href',
       '/livros/43',
+    );
+    expect(within(series).getByRole('link', { name: /Ver série · 2 livros/ })).toHaveAttribute(
+      'href',
+      '/series/3',
     );
     const similar = screen.getByRole('region', { name: 'Você também pode gostar' });
     expect(within(similar).getByRole('link', { name: /O Nome do Vento/ })).toBeInTheDocument();
@@ -540,7 +668,7 @@ describe('BookPage', () => {
     });
     await harness.fixture.whenStable();
 
-    expect(screen.queryByRole('region', { name: 'Mais da série' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'O Senhor dos Anéis' })).not.toBeInTheDocument();
     expect(
       screen.queryByRole('region', { name: 'Você também pode gostar' }),
     ).not.toBeInTheDocument();

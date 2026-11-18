@@ -43,9 +43,10 @@ export class CatalogApi {
       .pipe(map(({ id, name: created }) => ({ id, name: created })));
   }
 
-  createGenre(name: string): Observable<NamedEntry> {
+  /** A genre, or a subgenre of `parentId`. */
+  createGenre(name: string, parentId: number | null = null): Observable<NamedEntry> {
     return this.http
-      .post<NamedEntry>('/api/v1/genres', { name, parentId: null })
+      .post<NamedEntry>('/api/v1/genres', { name, parentId })
       .pipe(map(({ id, name: created }) => ({ id, name: created })));
   }
 }

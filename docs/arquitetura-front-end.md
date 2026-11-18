@@ -20,7 +20,7 @@ frontend/
       ├─ app.ts · app.config.ts · app.routes.ts
       ├─ core/                singletons da aplicação
       │  ├─ api/              tipos gerados, clientes da API, interceptors, ApiError
-      │  ├─ layout/           shell, header, painel de busca, mega-menu de gêneros
+      │  ├─ layout/           shell, header e painel de busca
       │  ├─ theme/            tema claro/escuro
       │  └─ labels/           rótulos em português dos enums
       ├─ shared/
@@ -471,7 +471,7 @@ Quem muda o tema (o toggle do header e a página de Perfil) salva no perfil com 
 | Necessidade | Solução |
 |---|---|
 | Modais (confirmar exclusão, nova lista) | `<dialog>` nativo com `showModal()`: foco preso, Esc e fundo prontos |
-| Painel de busca e mega-menu de gêneros | Popover API nativa |
+| Painel de busca | Popover API nativa |
 | Abas, menu, listbox, combobox (seletores de autor, editora e série) | `@angular/aria`: comportamento e ARIA, sem estilo |
 
 Não entra biblioteca de UI.

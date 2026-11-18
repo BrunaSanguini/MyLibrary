@@ -8,10 +8,25 @@ import { CatalogApi, CatalogKind, NamedEntry } from '@core/api/catalog-api';
 import { GenresApi, GenreTreeResponse } from '@core/api/genres-api';
 import { debounceTime, firstValueFrom } from 'rxjs';
 
-/** Where the options come from: one of the searchable catalogs, or the genre tree. */
-export type PickerSource = CatalogKind | 'genres';
+/**
+ * Where the options come from: one of the searchable catalogs, the genres of the tree, or the
+ * subgenres of the genres in `parents`.
+ */
+export type PickerSource = CatalogKind | 'genres' | 'subgenres';
 
-/** The option that creates what was typed, kept apart from real entries by its id. */
+/** What was picked; a subgenre also says which genre it belongs to. */
+export interface PickedEntry extends NamedEntry {
+  readonly parentId?: number | null;
+}
+
+/** An option that creates what was typed (in a given genre, for a subgenre). */
+interface CreateOption {
+  readonly id: number;
+  readonly label: string;
+  readonly parentId: number | null;
+}
+
+/** The options that create are kept apart from real entries by their negative ids. */
 const CREATE_ID = -1;
 const TYPING_PAUSE = 200;
 const OPTIONS = 8;
@@ -19,7 +34,10 @@ const OPTIONS = 8;
 let nextId = 0;
 
 /**
- * Combobox that picks an author, publisher, series or genre, or creates one on the spot.
+ * Combobox that picks an author, publisher, series, genre or subgenre, or creates one on the spot.
+ *
+ * <p>A subgenre always belongs to a genre: the picker offers only the subgenres of the genres in
+ * `parents`, and creating one asks in which genre it goes when there is more than one.
  *
  * <p>Behaviour and ARIA come from `@angular/aria`; this component adds the search, the "Criar"
  * option and the look. Picking emits the entry and clears the field, so the same picker serves
@@ -41,14 +59,15 @@ export class EntityPicker {
   /** Marks the field as invalid for assistive technology; the form shows the message. */
   readonly invalid = input(false);
   readonly describedBy = input<string>();
+  /** For `subgenres`: the genres of the book, whose subgenres are offered. */
+  readonly parents = input<readonly NamedEntry[]>([]);
 
-  readonly picked = output<NamedEntry>();
+  readonly picked = output<PickedEntry>();
 
   private readonly catalogApi = inject(CatalogApi);
   private readonly genresApi = inject(GenresApi);
 
   protected readonly inputId = `ml-entity-picker-${nextId++}`;
-  protected readonly createId = CREATE_ID;
 
   protected readonly term = signal('');
   protected readonly expanded = signal(false);
@@ -63,33 +82,60 @@ export class EntityPicker {
     },
   );
 
+  private readonly fromTree = computed(() => {
+    const source = this.source();
+    return source === 'genres' || source === 'subgenres';
+  });
+
   private readonly catalog = httpResource<{ content: NamedEntry[] }>(() => {
     const source = this.source();
-    return source === 'genres' || !this.expanded()
+    return source === 'genres' || source === 'subgenres' || !this.expanded()
       ? undefined
       : this.catalogApi.listRequest(source, this.settledTerm().trim(), 0, OPTIONS);
   });
 
   /** The genre tree is small and has no search endpoint, so it is filtered here. */
   private readonly genres = httpResource<GenreTreeResponse[]>(() =>
-    this.source() === 'genres' && this.expanded() ? this.genresApi.treeRequest() : undefined,
+    this.fromTree() && this.expanded() ? this.genresApi.treeRequest() : undefined,
   );
 
-  protected readonly options = computed<readonly NamedEntry[]>(() => {
+  protected readonly options = computed<readonly PickedEntry[]>(() => {
     const excluded = new Set(this.exclude());
-    const entries =
-      this.source() === 'genres'
-        ? flatten(this.genres.value() ?? []).filter((genre) =>
-            normalize(genre.name).includes(normalize(this.term())),
-          )
-        : (this.catalog.value()?.content ?? []);
+    const entries = this.fromTree()
+      ? this.treeEntries().filter((genre) => normalize(genre.name).includes(normalize(this.term())))
+      : (this.catalog.value()?.content ?? []);
     return entries.filter((entry) => !excluded.has(entry.id)).slice(0, OPTIONS);
   });
 
-  /** Offered when the typed name matches no option exactly. */
-  protected readonly canCreate = computed(() => {
-    const typed = normalize(this.term());
-    return typed.length > 0 && !this.options().some((entry) => normalize(entry.name) === typed);
+  private readonly treeEntries = computed<readonly PickedEntry[]>(() => {
+    const tree = this.genres.value() ?? [];
+    if (this.source() === 'genres') {
+      return tree.map(({ id, name }) => ({ id, name, parentId: null }));
+    }
+    const parents = new Set(this.parents().map((parent) => parent.id));
+    return tree
+      .filter((genre) => parents.has(genre.id))
+      .flatMap((genre) =>
+        genre.subgenres.map(({ id, name }) => ({ id, name, parentId: genre.id })),
+      );
+  });
+
+  /** Offered when the typed name matches no option exactly: one per genre, for a subgenre. */
+  protected readonly createOptions = computed<readonly CreateOption[]>(() => {
+    const name = this.term().trim();
+    const typed = normalize(name);
+    if (typed.length === 0 || this.options().some((entry) => normalize(entry.name) === typed)) {
+      return [];
+    }
+    if (this.source() !== 'subgenres') {
+      return [{ id: CREATE_ID, label: `Criar “${name}”`, parentId: null }];
+    }
+    const parents = this.parents();
+    return parents.map((parent, index) => ({
+      id: CREATE_ID - index,
+      label: parents.length > 1 ? `Criar “${name}” em ${parent.name}` : `Criar “${name}”`,
+      parentId: parent.id,
+    }));
   });
 
   constructor() {
@@ -105,7 +151,10 @@ export class EntityPicker {
   private async choose(id: number): Promise<void> {
     this.selection.set([]);
     this.failure.set(undefined);
-    const entry = id === CREATE_ID ? await this.create() : this.options().find((o) => o.id === id);
+    const creating = this.createOptions().find((option) => option.id === id);
+    const entry = creating
+      ? await this.create(creating.parentId)
+      : this.options().find((o) => o.id === id);
     if (entry) {
       this.picked.emit(entry);
       this.term.set('');
@@ -113,16 +162,16 @@ export class EntityPicker {
     }
   }
 
-  private async create(): Promise<NamedEntry | undefined> {
+  private async create(parentId: number | null): Promise<PickedEntry | undefined> {
     const name = this.term().trim();
     const source = this.source();
     this.creating.set(true);
     try {
-      return await firstValueFrom(
-        source === 'genres'
-          ? this.catalogApi.createGenre(name)
-          : this.catalogApi.create(source, name),
-      );
+      if (source === 'genres' || source === 'subgenres') {
+        const created = await firstValueFrom(this.catalogApi.createGenre(name, parentId));
+        return { ...created, parentId };
+      }
+      return await firstValueFrom(this.catalogApi.create(source, name));
     } catch (error) {
       this.failure.set(ApiError.from(error).detail);
       return undefined;
@@ -130,13 +179,6 @@ export class EntityPicker {
       this.creating.set(false);
     }
   }
-}
-
-function flatten(tree: readonly GenreTreeResponse[]): NamedEntry[] {
-  return tree.flatMap((genre) => [
-    { id: genre.id, name: genre.name },
-    ...genre.subgenres.map((subgenre) => ({ id: subgenre.id, name: subgenre.name })),
-  ]);
 }
 
 /** Same idea as the back-end's TextNormalizer: no accents, no case, single spaces. */

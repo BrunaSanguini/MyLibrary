@@ -1,8 +1,19 @@
-@if (series().length > 0) {
+@if (seriesBooks().length > 0) {
   <section aria-labelledby="titulo-serie">
-    <h2 id="titulo-serie">Mais da série</h2>
+    <div class="section-head">
+      <div class="titles">
+        <p class="eyebrow">Da mesma série</p>
+        <h2 id="titulo-serie">{{ series()?.name ?? 'Mais da série' }}</h2>
+      </div>
+      <span class="rule" aria-hidden="true"></span>
+      @if (series(); as current) {
+        <a class="more" [routerLink]="['/series', current.id]">
+          Ver série · {{ seriesCount() }} <ml-icon name="arrow-right" [size]="16" />
+        </a>
+      }
+    </div>
     <ul class="grid">
-      @for (card of series(); track card.id) {
+      @for (card of seriesBooks(); track card.id) {
         <li><ml-book-card [book]="card" /></li>
       }
     </ul>
@@ -11,7 +22,13 @@
 
 @if (similar().length > 0) {
   <section aria-labelledby="titulo-similares">
-    <h2 id="titulo-similares">Você também pode gostar</h2>
+    <div class="section-head">
+      <div class="titles">
+        <p class="eyebrow">Pelos mesmos subgêneros</p>
+        <h2 id="titulo-similares">Você também pode gostar</h2>
+      </div>
+      <span class="rule" aria-hidden="true"></span>
+    </div>
     <ul class="grid">
       @for (card of similar(); track card.id) {
         <li><ml-book-card [book]="card" /></li>

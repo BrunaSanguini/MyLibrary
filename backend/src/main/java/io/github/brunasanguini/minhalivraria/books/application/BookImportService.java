@@ -137,7 +137,8 @@ public class BookImportService {
         cover.ifPresent(content -> book.replaceCover(images.store(ImageKind.COVER, content)));
         book.assignAuthors(
                 source.authors().stream().map(this::authorOf).distinct().toList());
-        book.assignPublisher(publisherOf(source.publisher()));
+        book.assignPublishers(
+                source.publishers().stream().map(this::publisherOf).distinct().toList());
         book.assignGenres(request.genreIdsOrEmpty().stream()
                 .distinct()
                 .map(this::findGenre)
@@ -175,11 +176,9 @@ public class BookImportService {
         return authors.save(new Author(name, source.key()));
     }
 
-    private @Nullable Publisher publisherOf(@Nullable String sourceName) {
-        String name = truncate(sourceName, MAX_NAME);
-        if (name == null) {
-            return null;
-        }
+    /** The publisher the collection already knows by name; otherwise a new one. */
+    private Publisher publisherOf(String sourceName) {
+        String name = Objects.requireNonNull(truncate(sourceName, MAX_NAME));
         return publishers
                 .findByNormalizedName(TextNormalizer.normalize(name))
                 .orElseGet(() -> publishers.save(new Publisher(name)));
@@ -200,7 +199,7 @@ public class BookImportService {
                 book.title(),
                 book.subtitle(),
                 book.authors().stream().map(OpenLibraryAuthor::name).toList(),
-                book.publisher(),
+                book.publishers(),
                 book.pageCount(),
                 book.isbn13(),
                 book.isbn10(),

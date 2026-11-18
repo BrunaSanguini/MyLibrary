@@ -1,0 +1,49 @@
+/* A quiet line above the page title: only the links take the accent when hovered. */
+
+:host {
+  display: block;
+
+  /* The pages that use it start 40px below the header; the trail sits closer to it. */
+  margin: calc(-1 * var(--ml-space-40)) 0 var(--ml-space-24);
+}
+
+ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--ml-color-muted);
+  font-size: 14px;
+}
+
+li {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+}
+
+li + li::before {
+  /* The empty alternative text keeps screen readers from reading the separator. */
+  content: '›' / '';
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  color: var(--ml-color-accent);
+}
+
+[aria-current='page'] {
+  overflow: hidden;
+  max-width: 40ch;
+  color: var(--ml-color-ink);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -138,7 +138,7 @@ Os sub-recursos de favorito e posse são atalhos para os cards e as tags da pág
   "languageCode": "por",
   "synopsis": "...",
   "authorIds": [7],
-  "publisherId": 2,
+  "publisherIds": [2],
   "genreIds": [1, 4],
   "seriesId": 3,
   "seriesPosition": 1,
@@ -147,9 +147,9 @@ Os sub-recursos de favorito e posse são atalhos para os cards e as tags da pág
 }
 ```
 
-Autores, editora, série e gêneros são referenciados por ID. Quando o usuário digita um nome novo no formulário, o front cria o registro antes (`POST /authors`, por exemplo) e usa o ID devolvido.
+Autores, editoras, série e gêneros são referenciados por ID. Quando o usuário digita um nome novo no formulário, o front cria o registro antes (`POST /authors`, por exemplo) e usa o ID devolvido.
 
-Todo livro tem pelo menos um autor (`authorIds` não pode vir vazio). Editora, série e gêneros são opcionais.
+Todo livro tem pelo menos um autor (`authorIds` não pode vir vazio). Editoras (até 10, na ordem impressa no livro), série e gêneros são opcionais.
 
 **`BookDetailResponse`**
 
@@ -159,7 +159,7 @@ Todo livro tem pelo menos um autor (`authorIds` não pode vir vazio). Editora, s
   "title": "A Sociedade do Anel",
   "subtitle": null,
   "authors": [{ "id": 7, "name": "J. R. R. Tolkien" }],
-  "publisher": { "id": 2, "name": "HarperCollins Brasil" },
+  "publishers": [{ "id": 2, "name": "HarperCollins Brasil" }],
   "series": { "id": 3, "name": "O Senhor dos Anéis", "position": 1, "totalVolumes": 3 },
   "genres": [
     { "id": 1, "name": "Fantasia", "parentId": null },
@@ -330,6 +330,7 @@ O front trata `review.not-found` como "sem resenha", sem exibir erro.
 | `GET /stats/overview?year=2026&month=11` | totais do mês e do ano, nota média, releituras, páginas no ano, sequência atual e maior sequência |
 | `GET /stats/daily-pages?from=&to=` | `[{ "date": "2026-11-08", "pages": 25 }]`, só os dias com leitura; período máximo de 366 dias |
 | `GET /stats/books-time?from=&to=` | `[{ "bookId": 42, "title": "...", "coverUrl": "...", "days": 6, "pages": 210 }]` |
+| `GET /stats/calendar?year=2026&month=11` | o mês do calendário: `finished` (leituras terminadas no mês) e `days`, os dias com sessão, início ou fim de leitura (sem sessão, `pages` é 0), cada um com os livros do dia (`pages`, `started`, `finished`, autores e capa) |
 
 O mapa de calor e o "Esta semana" saem do `daily-pages`; a tabela de Ritmo sai do `overview`.
 

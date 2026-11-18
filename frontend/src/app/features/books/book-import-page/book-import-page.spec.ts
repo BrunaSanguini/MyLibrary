@@ -40,7 +40,7 @@ const HOBBIT_PREVIEW = {
   title: 'O Hobbit',
   subtitle: null,
   authors: ['J.R.R. Tolkien'],
-  publisher: 'Harper Collins',
+  publishers: ['Harper Collins'],
   pageCount: 336,
   isbn13: '9788595084742',
   isbn10: '8595084742',
@@ -153,7 +153,7 @@ describe('BookImportPage', () => {
   it('marks a result that is already on the shelf and links to the book', async () => {
     await openResults();
 
-    const results = screen.getByRole('list');
+    const results = screen.getByRole('list', { name: 'Resultados da busca' });
     const annotated = within(results)
       .getByRole('heading', { name: 'The Annotated Hobbit' })
       .closest('li')!;
@@ -368,6 +368,14 @@ describe('BookImportPage', () => {
       'href',
       '/livros/novo',
     );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Buscar pelo título' }));
+    await harness.fixture.whenStable();
+
+    const field = screen.getByLabelText('Título, autor ou ISBN');
+    await vi.waitFor(() => expect(field).toHaveValue(''));
+    expect(field).toHaveFocus();
+    expect(TestBed.inject(Router).url).toBe('/livros/importar');
   });
 
   it('announces that it is searching while the Open Library answers', async () => {

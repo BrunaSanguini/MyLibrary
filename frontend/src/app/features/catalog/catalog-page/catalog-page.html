@@ -55,6 +55,28 @@
         }
       </ul>
     }
+  } @else if (tipo() === 'subgenres') {
+    @if (subgenres().length === 0) {
+      <ml-empty-state
+        title="Nenhum subgênero cadastrado"
+        message="Os subgêneros aparecem aqui quando você os cria no cadastro de um livro, dentro de um gênero."
+      />
+    } @else {
+      <ul class="entries">
+        @for (subgenre of subgenres(); track subgenre.id) {
+          <li class="entry genre-entry">
+            <a class="entry-name" [routerLink]="['/generos', subgenre.id]">{{ subgenre.name }}</a>
+            <p class="entry-count">{{ countOf(subgenre.bookCount) }}</p>
+            <p class="entry-parent">
+              Em
+              <a mlTag="genre" [routerLink]="['/generos', subgenre.parentId]">{{
+                subgenre.parent
+              }}</a>
+            </p>
+          </li>
+        }
+      </ul>
+    }
   } @else if (entries.value()!.content.length === 0) {
     @if (tipo() === 'lists') {
       <ml-empty-state title="Nenhuma lista ainda" message="Crie a primeira na página de listas.">

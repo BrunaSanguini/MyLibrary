@@ -87,8 +87,8 @@ Este catálogo cresce junto com o código: todo `code` novo entra aqui no mesmo 
 |---|---|---|
 | <a id="openlibrary-not-found"></a>`openlibrary.not-found` | 404 | ISBN ou edição não encontrados na Open Library. |
 | <a id="openlibrary-bad-response"></a>`openlibrary.bad-response` | 502 | A Open Library respondeu com erro ou com dados inválidos. |
-| <a id="openlibrary-unavailable"></a>`openlibrary.unavailable` | 503 | Sem conexão com a Open Library. O cadastro manual continua disponível. |
-| <a id="openlibrary-timeout"></a>`openlibrary.timeout` | 504 | A Open Library não respondeu a tempo. |
+| <a id="openlibrary-unavailable"></a>`openlibrary.unavailable` | 503 | Sem conexão com a Open Library (conexão recusada ou endereço não encontrado). O cadastro manual continua disponível. |
+| <a id="openlibrary-timeout"></a>`openlibrary.timeout` | 504 | A Open Library não aceitou a conexão ou não respondeu a tempo. |
 
 ## Erro inesperado
 

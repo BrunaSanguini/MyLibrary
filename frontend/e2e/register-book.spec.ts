@@ -38,6 +38,12 @@ test('registers a book by hand and finds it again', async ({ page }, testInfo) =
   await page.getByRole('option', { name: /^Criar/ }).click();
   await expect(page.getByRole('list', { name: 'Gêneros escolhidos' })).toContainText(genre);
 
+  // And a subgenre inside it, which the book page shows in a row of its own.
+  const subgenre = `Conto ${testInfo.project.name} ${testInfo.retry}`;
+  await page.getByRole('combobox', { name: 'Subgêneros' }).fill(subgenre);
+  await page.getByRole('option', { name: /^Criar/ }).click();
+  await expect(page.getByRole('list', { name: 'Subgêneros escolhidos' })).toContainText(subgenre);
+
   await page.getByLabel('Ano de publicação').fill('1882');
   await page.getByRole('button', { name: 'Salvar livro' }).click();
 
@@ -46,6 +52,7 @@ test('registers a book by hand and finds it again', async ({ page }, testInfo) =
   await expect(page).toHaveURL(/\/livros\/\d+$/);
   await expect(page.getByRole('link', { name: 'Machado de Assis' })).toBeVisible();
   await expect(page.getByText('1882')).toBeVisible();
+  await expect(page.getByRole('list', { name: 'Subgêneros' })).toContainText(subgenre);
 
   // The state tags are toggles and say so.
   const owned = page.getByRole('button', { name: 'Tenho este livro' });
@@ -152,17 +159,31 @@ for (const theme of THEMES) {
         page.getByRole('heading', { name: 'Trilogia Realista', level: 1 }),
       ).toBeVisible();
 
-      const books = page.getByRole('main').getByRole('listitem').getByRole('link');
+      const books = page
+        .getByRole('region', { name: 'Livros da série' })
+        .getByRole('listitem')
+        .getByRole('link');
       await expect(books.nth(0)).toContainText('Memórias Póstumas de Brás Cubas');
       await expect(books.nth(1)).toContainText('Quincas Borba');
       await expect(books.nth(2)).toContainText('Dom Casmurro');
       await expectNoAccessibilityViolations(page);
     });
 
-    test('genre menu, open, has no WCAG 2.1 AA violations', async ({ page }) => {
-      await page.goto('/');
-      await page.getByRole('button', { name: /Gêneros/ }).click();
+    test('reading calendar has no WCAG 2.1 AA violations', async ({ page }) => {
+      await page.goto('/calendario');
+      await expect(page.getByRole('heading', { level: 1 })).toContainText(' de ');
+      await expect(page.getByRole('list', { name: 'Resumo do mês' })).toBeVisible();
+
+      await expectNoAccessibilityViolations(page);
+    });
+
+    test('subgenres tab of the catalog has no WCAG 2.1 AA violations', async ({ page }) => {
+      await page.goto('/catalogos?tipo=subgeneros');
       await expect(page.getByRole('link', { name: 'Realismo' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'Subgêneros' })).toHaveAttribute(
+        'aria-current',
+        'page',
+      );
 
       await expectNoAccessibilityViolations(page);
     });

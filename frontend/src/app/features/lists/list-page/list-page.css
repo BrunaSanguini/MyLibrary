@@ -118,6 +118,50 @@ h2 {
   box-shadow: var(--ml-shadow-soft);
 }
 
+/* A book already read: a gold edge and a warmer card. */
+.book.read {
+  border-left: 5px solid var(--ml-color-gold);
+  background: var(--ml-color-raised);
+}
+
+/* A book still to buy: a dashed outline, without the card's fill. */
+.book.wishlist {
+  border: 1.5px dashed var(--ml-color-accent);
+  background: transparent;
+  box-shadow: none;
+}
+
+.book.read.wishlist {
+  border-left: 5px solid var(--ml-color-gold);
+}
+
+.title-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ml-space-8);
+  align-items: center;
+}
+
+.badge {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: var(--ml-radius-pill);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.badge-read {
+  background: var(--ml-color-gold);
+  color: var(--ml-color-gold-ink);
+}
+
+.badge-wishlist {
+  border: 1.5px solid var(--ml-color-accent);
+  color: var(--ml-color-accent);
+}
+
 .position {
   flex-shrink: 0;
   width: 28px;

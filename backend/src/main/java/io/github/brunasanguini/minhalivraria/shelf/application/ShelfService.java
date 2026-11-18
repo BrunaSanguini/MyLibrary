@@ -9,6 +9,7 @@ import io.github.brunasanguini.minhalivraria.shared.web.PageQuery;
 import io.github.brunasanguini.minhalivraria.shelf.application.BookCardResponse.CardProgressResponse;
 import io.github.brunasanguini.minhalivraria.shelf.application.BookCardResponse.CardSeriesResponse;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -56,6 +57,16 @@ public class ShelfService {
             (select coalesce(sum(rs.pages_read), 0) from reading_session rs
                 join reading r on r.id = rs.reading_id
                 where r.book_id = b.id and r.status = 'IN_PROGRESS')""";
+
+    /** When the reading in progress started. */
+    private static final String STARTED_ON = """
+            (select r.start_date from reading r where r.book_id = b.id and r.status = 'IN_PROGRESS')""";
+
+    /** Read more than once, or a reading the reader marked as a reread. */
+    private static final String REREAD = """
+            case when exists (select 1 from reading r where r.book_id = b.id and r.reread)
+                or (select count(*) from reading r where r.book_id = b.id and r.status = 'FINISHED') > 1
+            then true else false end""";
 
     /** How many subgenres a book shares with the book :id. */
     private static final String SHARED_SUBGENRES = """
@@ -144,9 +155,10 @@ public class ShelfService {
     }
 
     private List<Card> cards(String where, Map<String, Object> params, String orderBy, int limit, long offset) {
-        String sql = "select b.id, b.title, b.cover_image_id, b.ownership, b.favorite, b.page_count,"
+        String sql = "select b.id, b.title, b.cover_image_id, b.ownership, b.favorite, b.page_count, b.published_year,"
                 + " s.id as series_id, s.name as series_name, b.series_position, rv.rating,"
-                + STATUS + " as shelf_status, " + PAGES_IN_PROGRESS + " as pages_in_progress "
+                + STATUS + " as shelf_status, " + PAGES_IN_PROGRESS + " as pages_in_progress, "
+                + STARTED_ON + " as started_on, " + REREAD + " as reread "
                 + FROM_BOOK
                 + where
                 + " order by "
@@ -170,7 +182,10 @@ public class ShelfService {
                             series(
                                     rs.getObject("series_id", Long.class),
                                     rs.getString("series_name"),
-                                    rs.getBigDecimal("series_position")));
+                                    rs.getBigDecimal("series_position")),
+                            rs.getObject("published_year", Short.class),
+                            rs.getObject("started_on", LocalDate.class),
+                            rs.getBoolean("reread"));
                 })
                 .list();
     }
@@ -205,7 +220,10 @@ public class ShelfService {
                         genres.getOrDefault(card.id(), List.of()),
                         card.ownership(),
                         card.favorite(),
-                        card.series()))
+                        card.series(),
+                        card.publishedYear(),
+                        card.startedOn(),
+                        card.reread()))
                 .toList();
     }
 
@@ -259,7 +277,8 @@ public class ShelfService {
             params.put("authorId", filter.authorId());
         }
         if (filter.publisherId() != null) {
-            clauses.add("b.publisher_id = :publisherId");
+            clauses.add("exists (select 1 from book_publisher bp"
+                    + " where bp.book_id = b.id and bp.publisher_id = :publisherId)");
             params.put("publisherId", filter.publisherId());
         }
         if (filter.seriesId() != null) {
@@ -319,5 +338,8 @@ public class ShelfService {
             @Nullable BigDecimal rating,
             Ownership ownership,
             boolean favorite,
-            @Nullable CardSeriesResponse series) {}
+            @Nullable CardSeriesResponse series,
+            @Nullable Short publishedYear,
+            @Nullable LocalDate startedOn,
+            boolean reread) {}
 }

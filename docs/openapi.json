@@ -1948,6 +1948,47 @@
         }
       }
     },
+    "/api/v1/stats/calendar" : {
+      "get" : {
+        "tags" : [ "stats" ],
+        "summary" : "The books read on each day of a month, and the readings finished in it",
+        "description" : "Without year or month, the current ones. Lists the days with a session, a start or an end.",
+        "operationId" : "getReadingCalendar",
+        "parameters" : [ {
+          "name" : "year",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32",
+            "maximum" : 2999,
+            "minimum" : 1900
+          }
+        }, {
+          "name" : "month",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : [ "integer", "null" ],
+            "format" : "int32",
+            "maximum" : 12,
+            "minimum" : 1
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CalendarResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/stats/books-time" : {
       "get" : {
         "tags" : [ "stats" ],
@@ -2710,9 +2751,14 @@
             },
             "minItems" : 1
           },
-          "publisherId" : {
-            "type" : "integer",
-            "format" : "int64"
+          "publisherIds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "integer",
+              "format" : "int64"
+            },
+            "maxItems" : 10,
+            "minItems" : 0
           },
           "genreIds" : {
             "type" : "array",
@@ -2771,8 +2817,11 @@
               "$ref" : "#/components/schemas/BookAuthorResponse"
             }
           },
-          "publisher" : {
-            "$ref" : "#/components/schemas/BookPublisherResponse"
+          "publishers" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BookPublisherResponse"
+            }
           },
           "series" : {
             "$ref" : "#/components/schemas/BookSeriesResponse"
@@ -2828,7 +2877,7 @@
             "format" : "date-time"
           }
         },
-        "required" : [ "authors", "favorite", "genres", "id", "ownership", "title" ]
+        "required" : [ "authors", "favorite", "genres", "id", "ownership", "publishers", "title" ]
       },
       "BookGenreResponse" : {
         "type" : "object",
@@ -3167,6 +3216,78 @@
         },
         "required" : [ "date", "pages" ]
       },
+      "CalendarDayResponse" : {
+        "type" : "object",
+        "properties" : {
+          "date" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "books" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CalendarEntryResponse"
+            }
+          }
+        },
+        "required" : [ "books", "date" ]
+      },
+      "CalendarEntryResponse" : {
+        "type" : "object",
+        "properties" : {
+          "bookId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "authors" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "coverUrl" : {
+            "type" : "string"
+          },
+          "pages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "started" : {
+            "type" : "boolean"
+          },
+          "finished" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "authors", "bookId", "finished", "pages", "started", "title" ]
+      },
+      "CalendarResponse" : {
+        "type" : "object",
+        "properties" : {
+          "year" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "month" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "finished" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "days" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CalendarDayResponse"
+            }
+          }
+        },
+        "required" : [ "days", "finished", "month", "year" ]
+      },
       "BookTimeResponse" : {
         "type" : "object",
         "properties" : {
@@ -3235,9 +3356,20 @@
           },
           "series" : {
             "$ref" : "#/components/schemas/CardSeriesResponse"
+          },
+          "publishedYear" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "startedOn" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "reread" : {
+            "type" : "boolean"
           }
         },
-        "required" : [ "authors", "favorite", "genres", "id", "ownership", "status", "title" ]
+        "required" : [ "authors", "favorite", "genres", "id", "ownership", "reread", "status", "title" ]
       },
       "CardProgressResponse" : {
         "type" : "object",
@@ -3550,8 +3682,11 @@
               "type" : "string"
             }
           },
-          "publisher" : {
-            "type" : "string"
+          "publishers" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "pageCount" : {
             "type" : "integer",
@@ -3581,7 +3716,7 @@
             "format" : "int64"
           }
         },
-        "required" : [ "authors", "editionKey", "title" ]
+        "required" : [ "authors", "editionKey", "publishers", "title" ]
       },
       "PageResponseAuthorResponse" : {
         "type" : "object",

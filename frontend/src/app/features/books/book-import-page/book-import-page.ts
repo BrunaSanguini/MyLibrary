@@ -23,16 +23,17 @@ import {
 } from '@core/api/import-api';
 import { toSearchTerm } from '@core/api/query-params';
 import { BookCover } from '@shared/ui/book-cover/book-cover';
+import { Breadcrumbs } from '@shared/ui/breadcrumbs/breadcrumbs';
 import { Button } from '@shared/ui/button/button';
 import { EmptyState } from '@shared/ui/empty-state/empty-state';
 import { ErrorState } from '@shared/ui/error-state/error-state';
-import { Icon } from '@shared/ui/icon/icon';
 import { Skeleton } from '@shared/ui/skeleton/skeleton';
 import { Tag } from '@shared/ui/tag/tag';
 import { compactIsbn, isValidIsbn10, isValidIsbn13 } from '@shared/validation/isbn';
 import { firstValueFrom } from 'rxjs';
 
 import { EntityPicker } from '../entity-picker/entity-picker';
+import { GenreEntry, GenreFields } from '../genre-fields/genre-fields';
 import {
   emptyClassification,
   importClassificationSchema,
@@ -80,13 +81,14 @@ function failureOf(error: unknown): ImportFailure | undefined {
 @Component({
   selector: 'ml-book-import-page',
   imports: [
+    Breadcrumbs,
     BookCover,
     Button,
     EmptyState,
     EntityPicker,
+    GenreFields,
     ErrorState,
     FormField,
-    Icon,
     RouterLink,
     Skeleton,
     Tag,
@@ -104,6 +106,7 @@ export default class BookImportPage {
   private readonly importApi = inject(ImportApi);
 
   private readonly previewTitle = viewChild<ElementRef<HTMLElement>>('previewTitle');
+  private readonly searchField = viewChild<ElementRef<HTMLInputElement>>('searchField');
 
   protected readonly searchModel = signal({ query: '' });
   protected readonly searchForm = form(this.searchModel, importSearchSchema);
@@ -154,10 +157,6 @@ export default class BookImportPage {
   protected readonly resultsFailure = computed(() => failureOf(this.results.error()));
   protected readonly previewFailure = computed(() => failureOf(this.preview.error()));
 
-  protected readonly genreIds = computed(() =>
-    this.classificationModel().genres.map((genre) => genre.id),
-  );
-
   constructor() {
     // The field shows what the URL searched, also after a reload or the back button.
     effect(() => this.searchModel.set({ query: this.q() ?? '' }));
@@ -192,14 +191,14 @@ export default class BookImportPage {
     });
   }
 
-  protected addGenre(genre: NamedEntry): void {
-    this.classificationForm.genres().value.update((genres) => [...genres, genre]);
+  /** An ISBN the Open Library does not have: clears the search and leaves the field ready for a title. */
+  protected async searchByTitle(): Promise<void> {
+    await this.router.navigate([], { queryParams: {} });
+    this.searchField()?.nativeElement.focus();
   }
 
-  protected removeGenre(id: number): void {
-    this.classificationForm
-      .genres()
-      .value.update((genres) => genres.filter((genre) => genre.id !== id));
+  protected setGenres(genres: GenreEntry[]): void {
+    this.classificationForm.genres().value.set(genres);
   }
 
   /** Leaving a series also clears the position, which means nothing without it. */

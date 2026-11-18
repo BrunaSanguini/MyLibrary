@@ -17,6 +17,7 @@ const card = (id: number, title: string): BookCardResponse => ({
   genres: [],
   ownership: 'OWNED',
   favorite: true,
+  reread: false,
   rating: id === 1 ? 5 : undefined,
 });
 

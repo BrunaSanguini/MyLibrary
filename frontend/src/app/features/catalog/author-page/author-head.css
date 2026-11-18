@@ -1,0 +1,157 @@
+/* The card at the top of the author page: monogram, numbers, series and the covers in a fan. */
+
+.head {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: var(--ml-space-32);
+  align-items: center;
+  min-height: 300px;
+
+  /* The trail above already leaves room; the gap of the page would double it. */
+  margin-top: calc(-1 * var(--ml-space-24));
+  padding: var(--ml-space-40) 48px;
+  overflow: hidden;
+  border: 1px solid var(--ml-color-line);
+  border-radius: 28px;
+  background: var(--ml-color-surface);
+  box-shadow: var(--ml-shadow-soft);
+}
+
+.identity {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+}
+
+.monogram {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 112px;
+  height: 112px;
+  border: 1.5px solid var(--ml-color-gold);
+  border-radius: var(--ml-radius-pill);
+  background: var(--ml-color-raised);
+  color: var(--ml-color-accent);
+  font-family: var(--ml-font-display);
+  font-size: 44px;
+  font-weight: 700;
+}
+
+.identity-text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--ml-color-accent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-family: var(--ml-font-display);
+  font-size: 60px;
+  font-weight: 600;
+  line-height: 0.98;
+}
+
+.kpis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ml-space-8);
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kpi {
+  display: inline-flex;
+  gap: 6px;
+  align-items: baseline;
+  padding: 6px 14px;
+  border: 1px solid var(--ml-color-line);
+  border-radius: var(--ml-radius-pill);
+  background: var(--ml-color-raised);
+  color: var(--ml-color-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.kpi b {
+  color: var(--ml-color-ink);
+  font-family: var(--ml-font-display);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.series {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin: 6px 0 0;
+  color: var(--ml-color-muted);
+  font-size: 14px;
+}
+
+.series-link {
+  padding: 5px 12px;
+  border-radius: var(--ml-radius-pill);
+  background: var(--ml-color-accent);
+  color: var(--ml-color-accent-ink);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.series-link:focus-visible {
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 2px;
+}
+
+.fan {
+  position: relative;
+  height: 260px;
+}
+
+.fan .fan-cover {
+  position: absolute;
+  top: 46px;
+  width: 128px;
+}
+
+.fan .fan-0 {
+  top: 10px;
+  left: calc(50% - 76px);
+  z-index: 2;
+  width: 152px;
+}
+
+.fan .fan-1 {
+  right: 30px;
+  transform: rotate(12deg);
+}
+
+.fan .fan-2 {
+  left: 30px;
+  transform: rotate(-12deg);
+}
+
+@media (width <= 900px) {
+  .head {
+    grid-template-columns: minmax(0, 1fr);
+    padding: var(--ml-space-32);
+  }
+
+  .fan {
+    display: none;
+  }
+}

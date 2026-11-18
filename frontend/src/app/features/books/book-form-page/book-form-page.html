@@ -3,6 +3,19 @@
 } @else if (editing() && !book.hasValue()) {
   <ml-skeleton variant="card" />
 } @else {
+  @if (editing()) {
+    <ml-breadcrumbs
+      [items]="[
+        { label: 'Estante', link: '/estante' },
+        { label: book.value()?.title ?? '', link: '/livros/' + id() },
+        { label: 'Editar' },
+      ]"
+    />
+  } @else {
+    <ml-breadcrumbs
+      [items]="[{ label: 'Estante', link: '/estante' }, { label: 'Cadastrar livro' }]"
+    />
+  }
   <header class="head">
     <p class="eyebrow">{{ editing() ? 'Editar livro' : 'Novo livro' }}</p>
     <h1>{{ editing() ? book.value()?.title : 'Cadastrar livro' }}</h1>
@@ -84,32 +97,7 @@
     <section class="card" aria-labelledby="secao-classificacao">
       <h2 id="secao-classificacao">Classificação</h2>
 
-      <div class="field">
-        <ml-entity-picker
-          source="genres"
-          label="Gêneros"
-          placeholder="Busque ou crie um gênero"
-          [exclude]="genreIds()"
-          (picked)="addGenre($event)"
-        />
-        @if (model().genres.length > 0) {
-          <ul class="chips" aria-label="Gêneros escolhidos">
-            @for (genre of model().genres; track genre.id) {
-              <li class="chip">
-                {{ genre.name }}
-                <button
-                  type="button"
-                  class="chip-remove"
-                  [attr.aria-label]="'Remover gênero ' + genre.name"
-                  (click)="removeGenre(genre.id)"
-                >
-                  <ml-icon name="close" [size]="12" />
-                </button>
-              </li>
-            }
-          </ul>
-        }
-      </div>
+      <ml-genre-fields [genres]="model().genres" (changed)="setGenres($event)" />
 
       <div class="row">
         <div class="field grow">
@@ -147,21 +135,31 @@
       </div>
 
       <div class="field">
-        @if (model().publisherId === null) {
-          <ml-entity-picker
-            source="publishers"
-            label="Editora"
-            placeholder="Busque ou crie uma editora"
-            (picked)="setPublisher($event)"
-          />
+        <ml-entity-picker
+          source="publishers"
+          label="Editoras"
+          placeholder="Busque ou crie uma editora"
+          [exclude]="publisherIds()"
+          (picked)="addPublisher($event)"
+        />
+        @if (model().publishers.length > 0) {
+          <ul class="chips" aria-label="Editoras escolhidas">
+            @for (publisher of model().publishers; track publisher.id) {
+              <li class="chip">
+                {{ publisher.name }}
+                <button
+                  type="button"
+                  class="chip-remove"
+                  [attr.aria-label]="'Remover editora ' + publisher.name"
+                  (click)="removePublisher(publisher.id)"
+                >
+                  <ml-icon name="close" [size]="12" />
+                </button>
+              </li>
+            }
+          </ul>
         } @else {
-          <p class="picked-label">Editora</p>
-          <p class="picked">
-            {{ model().publisherName }}
-            <button type="button" mlButton="link" (click)="setPublisher(undefined)">
-              Trocar editora
-            </button>
-          </p>
+          <p class="hint">Em uma coedição, adicione cada editora na ordem impressa no livro.</p>
         }
       </div>
     </section>
@@ -280,42 +278,20 @@
       <h2 id="secao-imagens">Imagens</h2>
       <p class="hint">JPEG, PNG ou WebP, com até 5 MB. Sem capa, o livro usa uma capa de papel.</p>
 
-      @if (imageError()) {
-        <p class="error" role="alert">{{ imageError() }}</p>
-      }
-
-      <div class="row">
-        <div class="field grow">
-          <label for="capa">Capa</label>
-          <input
-            id="capa"
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            (change)="chooseImage('cover', $event)"
-          />
-          @if (editing() && book.value()?.coverUrl) {
-            <label class="check">
-              <input type="checkbox" (change)="toggleRemoval('cover', $event)" />
-              Remover a capa atual
-            </label>
-          }
-        </div>
-
-        <div class="field grow">
-          <label for="banner">Banner</label>
-          <input
-            id="banner"
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            (change)="chooseImage('banner', $event)"
-          />
-          @if (editing() && book.value()?.bannerUrl) {
-            <label class="check">
-              <input type="checkbox" (change)="toggleRemoval('banner', $event)" />
-              Remover o banner atual
-            </label>
-          }
-        </div>
+      <div class="images">
+        <ml-image-field
+          label="Capa"
+          [currentUrl]="editing() ? (book.value()?.coverUrl ?? undefined) : undefined"
+          (fileChange)="setImage('cover', $event)"
+          (removeChange)="setRemoval('cover', $event)"
+        />
+        <ml-image-field
+          label="Banner"
+          shape="banner"
+          [currentUrl]="editing() ? (book.value()?.bannerUrl ?? undefined) : undefined"
+          (fileChange)="setImage('banner', $event)"
+          (removeChange)="setRemoval('banner', $event)"
+        />
       </div>
     </section>
 

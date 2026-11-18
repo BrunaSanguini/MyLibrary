@@ -15,6 +15,10 @@ const DUNE = {
   id: 42,
   title: 'Duna',
   authors: [{ id: 5, name: 'Frank Herbert' }],
+  publishers: [
+    { id: 3, name: 'Aleph' },
+    { id: 8, name: 'Nova Fronteira' },
+  ],
   genres: [{ id: 1, name: 'Ficção científica' }],
   isbn13: '9788576573135',
   ownership: 'OWNED',
@@ -125,6 +129,7 @@ describe('BookFormPage', () => {
     expect(request.request.body).toMatchObject({
       title: 'Duna (edição revista)',
       authorIds: [5],
+      publisherIds: [3, 8],
       genreIds: [1],
       isbn13: '9788576573135',
       ownership: 'OWNED',
@@ -133,6 +138,19 @@ describe('BookFormPage', () => {
     await harness.fixture.whenStable();
 
     await vi.waitFor(() => expect(TestBed.inject(Router).url).toBe('/livros/42'));
+  });
+
+  it('keeps the publishers of a co-edition in order and takes one out', async () => {
+    const { http } = await openEdit();
+
+    expect(screen.getByRole('list', { name: 'Editoras escolhidas' })).toHaveTextContent(
+      /Aleph\s+Nova Fronteira/,
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Remover editora Aleph' }));
+    await save();
+
+    const body = http.expectOne({ method: 'PUT', url: '/api/v1/books/42' }).request.body;
+    expect(body).toMatchObject({ publisherIds: [8] });
   });
 
   it('sends an emptied optional field as absent, not as empty text', async () => {

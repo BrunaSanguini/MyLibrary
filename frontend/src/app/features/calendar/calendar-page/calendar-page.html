@@ -1,0 +1,154 @@
+<section class="bar" aria-label="Mês do calendário">
+  <div class="month">
+    <div class="titles">
+      <p class="eyebrow">Calendário de leitura</p>
+      <h1>{{ title() }}</h1>
+    </div>
+    <div class="nav">
+      <button class="round" type="button" aria-label="Mês anterior" (click)="previous()">
+        <ml-icon name="chevron-left" [size]="16" />
+      </button>
+      <button class="round" type="button" aria-label="Próximo mês" (click)="next()">
+        <ml-icon name="chevron-right" [size]="16" />
+      </button>
+      <button mlButton="secondary" type="button" class="today" (click)="goToday()">Hoje</button>
+    </div>
+  </div>
+
+  <ul class="stats" aria-label="Resumo do mês">
+    @for (stat of stats(); track stat.label) {
+      <li class="stat">
+        <span class="stat-value">{{ stat.value }}</span>
+        {{ ' ' }}
+        <span class="stat-label">{{ stat.label }}</span>
+      </li>
+    }
+  </ul>
+</section>
+
+<section class="legend" aria-label="Livros lidos no mês">
+  @if (legend().length > 0) {
+    <span class="legend-label">Destacar:</span>
+    @for (book of legend(); track book.id) {
+      <button
+        type="button"
+        class="legend-book"
+        [attr.aria-pressed]="highlighted() === book.id"
+        (click)="toggleHighlight(book.id)"
+      >
+        <span class="legend-spine" aria-hidden="true" [style.background]="book.color"></span>
+        {{ book.title }}
+        <span class="legend-days">{{ book.days }}</span>
+      </button>
+    }
+  } @else if (calendar.hasValue()) {
+    <span class="legend-label">Nenhuma leitura registrada neste mês.</span>
+  }
+</section>
+
+@if (errorMessage()) {
+  <ml-error-state [message]="errorMessage()" (retry)="calendar.reload()" />
+} @else {
+  <section class="calendar" [attr.aria-label]="title()" [attr.aria-busy]="calendar.isLoading()">
+    <div class="weekdays" aria-hidden="true">
+      @for (weekday of weekdays; track weekday) {
+        <span>{{ weekday }}</span>
+      }
+    </div>
+
+    <div class="grid" [style.grid-template-rows]="'repeat(' + rows() + ', minmax(96px, 1fr))'">
+      @for (cell of cells(); track cell.date) {
+        <button
+          type="button"
+          class="day"
+          [class.has]="cell.books.length > 0"
+          [class.out]="!cell.inMonth"
+          [class.future]="cell.future"
+          [class.is-today]="cell.today"
+          [class.dim]="dimmed(cell)"
+          [style.background]="cell.background"
+          [disabled]="cell.future || !cell.inMonth"
+          [attr.aria-pressed]="selected() === cell.date"
+          (click)="pick(cell)"
+        >
+          @if (cell.books.length > 0) {
+            <span class="shade" aria-hidden="true"></span>
+            <span class="covers" aria-hidden="true">
+              @for (book of cell.books.slice(0, 2); track book.bookId; let index = $index) {
+                <ml-book-cover
+                  size="xs"
+                  [class]="'mini mini-' + index + (cell.books.length > 1 ? ' pair' : '')"
+                  [title]="book.title"
+                  [coverUrl]="book.coverUrl"
+                />
+              }
+            </span>
+          }
+          <span class="number"
+            >{{ cell.day }}<span class="ml-visually-hidden">{{ cell.label }}</span>
+            @if (cell.today) {
+              <span class="today-tag">Hoje</span>
+            }
+          </span>
+          @if (cell.flag) {
+            <span class="flag">{{ cell.flag }}</span>
+          }
+          @if (cell.pages > 0) {
+            <span class="pages">{{ cell.pages }} págs</span>
+          }
+        </button>
+      }
+    </div>
+
+    @if (selectedCell(); as cell) {
+      <aside class="details" aria-labelledby="titulo-dia">
+        <div class="details-head">
+          <div>
+            <p class="eyebrow">{{ selectedWeekday() }}</p>
+            <h2 id="titulo-dia">{{ selectedTitle() }}</h2>
+          </div>
+          <button
+            class="round"
+            type="button"
+            aria-label="Fechar detalhes"
+            (click)="selected.set(undefined)"
+          >
+            <ml-icon name="close" [size]="16" />
+          </button>
+        </div>
+
+        @for (entry of cell.books; track entry.bookId) {
+          <div class="entry">
+            <ml-book-cover
+              size="xs"
+              class="entry-cover"
+              aria-hidden="true"
+              [title]="entry.title"
+              [coverUrl]="entry.coverUrl"
+            />
+            <div class="entry-text">
+              <p class="entry-title">{{ entry.title }}</p>
+              <p class="entry-author">{{ entry.authors.join(', ') }}</p>
+              <p class="entry-pages">
+                @if (entry.pages > 0) {
+                  {{ entry.pages }} {{ entry.pages === 1 ? 'página' : 'páginas' }}
+                }
+                @if (flagOf(entry); as flag) {
+                  <span class="entry-flag">{{ flag }}</span>
+                }
+              </p>
+              <a mlButton="link" [routerLink]="['/livros', entry.bookId]"
+                >Abrir livro <ml-icon name="arrow-right" [size]="13"
+              /></a>
+            </div>
+          </div>
+        } @empty {
+          <div class="nothing">
+            <p class="nothing-title">Nenhuma leitura neste dia</p>
+            <p>Leu e esqueceu de marcar? Registre na página do livro.</p>
+          </div>
+        }
+      </aside>
+    }
+  </section>
+}

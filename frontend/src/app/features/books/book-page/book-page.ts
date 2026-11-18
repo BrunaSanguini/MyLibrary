@@ -1,5 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { Component, computed, inject, input, signal, viewChild } from '@angular/core';
+import { Tab, TabContent, TabList, TabPanel, Tabs } from '@angular/aria/tabs';
 import { Router, RouterLink } from '@angular/router';
 import { ApiError } from '@core/api/api-error';
 import { BookDetailResponse, BooksApi } from '@core/api/books-api';
@@ -8,6 +9,7 @@ import { NO_REVIEW, ReadingApi, ReadingResponse, ReviewResponse } from '@core/ap
 import { Ownership } from '@core/api/shelf-api';
 import { HasUnsavedChanges } from '@core/routing/unsaved-changes-guard';
 import { BookCover } from '@shared/ui/book-cover/book-cover';
+import { Breadcrumbs } from '@shared/ui/breadcrumbs/breadcrumbs';
 import { Button } from '@shared/ui/button/button';
 import { ConfirmDialog } from '@shared/ui/confirm-dialog/confirm-dialog';
 import { EmptyState } from '@shared/ui/empty-state/empty-state';
@@ -17,6 +19,7 @@ import { Skeleton } from '@shared/ui/skeleton/skeleton';
 import { Tag } from '@shared/ui/tag/tag';
 import { firstValueFrom, Observable } from 'rxjs';
 
+import { ReadingHistory } from '../reading-history/reading-history';
 import { ReadingSheet } from '../reading-sheet/reading-sheet';
 import { RelatedBooks } from '../related-books/related-books';
 import { ReviewEditor } from '../review-editor/review-editor';
@@ -41,17 +44,24 @@ const LANGUAGES: Readonly<Record<string, string>> = {
 @Component({
   selector: 'ml-book-page',
   imports: [
+    Breadcrumbs,
     BookCover,
     Button,
     ConfirmDialog,
     EmptyState,
     ErrorState,
     Icon,
+    ReadingHistory,
     ReadingSheet,
     RelatedBooks,
     ReviewEditor,
     RouterLink,
     Skeleton,
+    Tab,
+    TabContent,
+    TabList,
+    TabPanel,
+    Tabs,
     Tag,
   ],
   templateUrl: './book-page.html',
@@ -110,6 +120,22 @@ export default class BookPage implements HasUnsavedChanges {
     () => this.id() === undefined || this.error()?.code === 'book.not-found',
   );
   protected readonly errorMessage = computed(() => this.error()?.detail);
+
+  /** "1", or "2,5" for a volume between two others. */
+  protected readonly seriesPosition = computed(() =>
+    this.book.value()?.series?.position.toLocaleString('pt-BR'),
+  );
+
+  /** Sobre (synopsis and details) or Histórico de leitura. */
+  protected readonly tab = signal<string | undefined>('sobre');
+
+  /** The classification in two rows: the genres, then the subgenres inside them. */
+  protected readonly genres = computed(
+    () => this.book.value()?.genres.filter((genre) => genre.parentId == null) ?? [],
+  );
+  protected readonly subgenres = computed(
+    () => this.book.value()?.genres.filter((genre) => genre.parentId != null) ?? [],
+  );
 
   protected readonly authorNames = computed(() =>
     (this.book.value()?.authors ?? []).map((author) => author.name).join(', '),

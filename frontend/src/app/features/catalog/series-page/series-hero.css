@@ -1,0 +1,143 @@
+/* The dark hero of the series page, with the covers in a fan. */
+
+/* The hero spans the whole window and starts right under the header, as on the Home. */
+.hero {
+  position: relative;
+  margin: calc(-1 * var(--ml-space-56)) calc(50% - 50vw) 0;
+  padding-bottom: var(--ml-space-40);
+  overflow: hidden;
+  background: var(--ml-color-series-night);
+  color: var(--ml-color-hero-ink);
+}
+
+.glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    60% 70% at 50% 30%,
+    var(--ml-color-series-glow) 0%,
+    var(--ml-color-series-glow-warm) 45%,
+    transparent 75%
+  );
+}
+
+.hero-inner {
+  position: relative;
+  max-width: var(--ml-content-width);
+  margin: 0 auto;
+  padding: var(--ml-space-24) var(--ml-space-32) 0;
+}
+
+.back {
+  display: inline-flex;
+  gap: var(--ml-space-8);
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--ml-space-16) 0 var(--ml-space-12);
+  border: 1px solid var(--ml-color-hero-chip-line);
+  border-radius: var(--ml-radius-pill);
+  background: var(--ml-color-hero-chip);
+  color: var(--ml-color-hero-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.back:focus-visible {
+  outline: 2px solid var(--ml-color-hero-gold);
+  outline-offset: 2px;
+}
+
+/* Up to three covers: the first volume in the middle, the others tilted behind it. */
+.fan {
+  position: relative;
+  height: 290px;
+  margin-top: var(--ml-space-8);
+}
+
+.fan .fan-cover {
+  position: absolute;
+  top: 64px;
+  width: 150px;
+}
+
+.fan .fan-0 {
+  top: 20px;
+  left: calc(50% - 88px);
+  z-index: 2;
+  width: 176px;
+  box-shadow: var(--ml-shadow-fan);
+}
+
+.fan .fan-1 {
+  left: calc(50% + 40px);
+  transform: rotate(9deg);
+}
+
+.fan .fan-2 {
+  left: calc(50% - 190px);
+  transform: rotate(-9deg);
+}
+
+.hero-text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  margin-top: var(--ml-space-16);
+  text-align: center;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--ml-color-hero-gold);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-family: var(--ml-font-display);
+  font-size: 64px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.authors {
+  margin: 0;
+  color: var(--ml-color-hero-soft-ink);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ml-space-8);
+  justify-content: center;
+  margin: var(--ml-space-8) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  padding: 6px 14px;
+  border: 1px solid var(--ml-color-hero-chip-line);
+  border-radius: var(--ml-radius-pill);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.chip-gold {
+  border-color: var(--ml-color-hero-gold);
+  background: var(--ml-color-hero-gold);
+  color: var(--ml-color-gold-ink);
+}

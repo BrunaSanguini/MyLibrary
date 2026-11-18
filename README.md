@@ -133,7 +133,7 @@ cd frontend && npm ci   # dependências da interface
 
 | Para | Comando |
 |---|---|
-| Rodar a API (perfil `dev`, dados em `backend/.local-data/`) | `cd backend && ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev` |
+| Rodar a API (perfil `dev`, dados em `backend/.local-data/`) | `cd backend && ./mvnw spring-boot:run -Pskip-frontend -Dspring-boot.run.profiles=dev` (o `skip-frontend` evita que o Maven reinstale o `node_modules` enquanto o `npm start` roda) |
 | Rodar a interface (`http://localhost:4200`, com proxy para a API) | `cd frontend && npm start` |
 | Gerar o jar completo | `cd backend && ./mvnw package -DskipTests` → `java -jar target/minha-livraria.jar` |
 | Testes do back-end | `cd backend && ./mvnw verify` |

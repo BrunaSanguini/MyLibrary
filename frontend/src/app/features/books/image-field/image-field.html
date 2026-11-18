@@ -1,0 +1,61 @@
+<label class="label" [for]="id">{{ label() }}</label>
+
+<div
+  class="area"
+  tabindex="0"
+  role="group"
+  [class.banner]="shape() === 'banner'"
+  [class.dragging]="dragging()"
+  [attr.aria-label]="label() + ': cole, arraste ou escolha uma imagem'"
+  [attr.aria-describedby]="id + '-dica'"
+  (paste)="paste($event)"
+  (dragover)="dragOver($event)"
+  (dragleave)="dragging.set(false)"
+  (drop)="drop($event)"
+>
+  @if (preview(); as url) {
+    <img class="preview" [src]="url" [alt]="'Prévia: ' + label()" />
+  } @else {
+    <span class="placeholder" aria-hidden="true">Sem imagem</span>
+  }
+
+  <div class="controls">
+    <p class="hint" [id]="id + '-dica'">Clique aqui e cole com Ctrl+V, ou arraste uma imagem.</p>
+    <div class="buttons">
+      @if (canReadClipboard) {
+        <button mlButton="secondary" type="button" (click)="pasteFromClipboard()">
+          Colar imagem
+        </button>
+      }
+      <button mlButton="secondary" type="button" (click)="fileField.click()">
+        Escolher arquivo
+      </button>
+      <input
+        #fileField
+        class="ml-visually-hidden"
+        type="file"
+        tabindex="-1"
+        accept="image/jpeg,image/png,image/webp"
+        [id]="id"
+        (change)="chooseFromField($event)"
+      />
+    </div>
+    @if (file(); as chosen) {
+      <p class="chosen" role="status">
+        Nova imagem: {{ pasted() ? 'colada da área de transferência' : chosen.name }}
+        <button mlButton="link" type="button" (click)="undo()">Desfazer</button>
+      </p>
+    }
+  </div>
+</div>
+
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+}
+
+@if (currentUrl() && !file()) {
+  <label class="check">
+    <input type="checkbox" (change)="toggleRemoval($event)" />
+    Remover {{ shape() === 'cover' ? 'a capa atual' : 'o banner atual' }}
+  </label>
+}

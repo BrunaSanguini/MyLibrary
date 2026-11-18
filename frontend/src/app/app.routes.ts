@@ -42,6 +42,11 @@ export const routes: Routes = [
     title: 'Perfil',
   },
   {
+    path: 'calendario',
+    loadComponent: () => import('@features/calendar/calendar-page/calendar-page'),
+    title: 'Calendário de leitura',
+  },
+  {
     path: 'catalogos',
     loadComponent: () => import('@features/catalog/catalog-page/catalog-page'),
     title: 'Catálogos',
@@ -55,8 +60,7 @@ export const routes: Routes = [
   },
   {
     path: 'autores/:id',
-    loadComponent: () => import('@features/catalog/group-page/group-page'),
-    data: { kind: 'authors' },
+    loadComponent: () => import('@features/catalog/author-page/author-page'),
     title: 'Autor',
   },
   {
@@ -67,8 +71,7 @@ export const routes: Routes = [
   },
   {
     path: 'series/:id',
-    loadComponent: () => import('@features/catalog/group-page/group-page'),
-    data: { kind: 'series' },
+    loadComponent: () => import('@features/catalog/series-page/series-page'),
     title: 'Série',
   },
   {

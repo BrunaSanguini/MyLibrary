@@ -85,7 +85,8 @@ class BookImportServiceTest {
 
     @AfterEach
     void emptyTheCollection() {
-        for (String table : List.of("book_author", "book_genre", "book", "author", "publisher", "series", "image")) {
+        for (String table : List.of(
+                "book_author", "book_genre", "book_publisher", "book", "author", "publisher", "series", "image")) {
             jdbc.sql("delete from " + table).update();
         }
         jdbc.sql("delete from genre where parent_id is not null").update();
@@ -105,7 +106,9 @@ class BookImportServiceTest {
 
         assertThat(imported.title()).isEqualTo("O Hobbit");
         assertThat(imported.authors()).singleElement().extracting("name").isEqualTo("J.R.R. Tolkien");
-        assertThat(imported.publisher()).isNotNull().extracting("name").isEqualTo("Harper Collins");
+        assertThat(imported.publishers())
+                .extracting(BookDetailResponse.BookPublisherResponse::name)
+                .containsExactly("Harper Collins", "HarperCollins Brasil");
         assertThat(imported.isbn13()).isEqualTo("9788595084742");
         assertThat(imported.isbn10()).isEqualTo("8595084742");
         assertThat(imported.pageCount()).isEqualTo(336);
@@ -144,9 +147,10 @@ class BookImportServiceTest {
         BookDetailResponse imported = service.importEdition(importOf(EDITION));
 
         assertThat(imported.authors()).singleElement().extracting("id").isEqualTo(tolkien);
-        assertThat(imported.publisher()).isNotNull().extracting("id").isEqualTo(harper);
+        assertThat(imported.publishers().getFirst().id()).isEqualTo(harper);
         assertThat(count("author")).isEqualTo(1);
-        assertThat(count("publisher")).isEqualTo(1);
+        // "HarperCollins Brasil", the second publisher of the edition, is another name.
+        assertThat(count("publisher")).isEqualTo(2);
     }
 
     @Test
@@ -254,7 +258,7 @@ class BookImportServiceTest {
         assertThat(preview.editionKey()).isEqualTo(EDITION);
         assertThat(preview.title()).isEqualTo("O Hobbit");
         assertThat(preview.authors()).containsExactly("J.R.R. Tolkien");
-        assertThat(preview.publisher()).isEqualTo("Harper Collins");
+        assertThat(preview.publishers()).containsExactly("Harper Collins", "HarperCollins Brasil");
         assertThat(preview.coverUrl()).isEqualTo(COVERS + "/b/id/" + COVER_ID + "-M.jpg");
         assertThat(preview.libraryBookId()).isNull();
         assertThat(count("book")).isZero();
@@ -299,7 +303,7 @@ class BookImportServiceTest {
                 "O Hobbit",
                 null,
                 List.of(new OpenLibraryAuthor("OL26320A", "J.R.R. Tolkien")),
-                "Harper Collins",
+                List.of("Harper Collins", "HarperCollins Brasil"),
                 336,
                 "9788595084742",
                 "8595084742",
@@ -317,7 +321,7 @@ class BookImportServiceTest {
                 "The Hobbit",
                 "or there and back again",
                 List.of(new OpenLibraryAuthor("OL26320A", "J.R.R. Tolkien")),
-                "Houghton Mifflin",
+                List.of("Houghton Mifflin"),
                 320,
                 "9780618260300",
                 "0618260307",

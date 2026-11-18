@@ -6,7 +6,7 @@ Modelo de domínio e banco da Minha Livraria. As decisões e as alternativas des
 
 | Módulo | Tabelas | Responsabilidade |
 |---|---|---|
-| `books` | `book`, `author`, `book_author`, `publisher`, `series`, `genre`, `book_genre` | Catálogo: livros, autores, editoras, séries, gêneros e subgêneros |
+| `books` | `book`, `author`, `book_author`, `publisher`, `book_publisher`, `series`, `genre`, `book_genre` | Catálogo: livros, autores, editoras, séries, gêneros e subgêneros |
 | `reading` | `reading`, `reading_session`, `review` | Leituras, progresso, nota e resenha |
 | `lists` | `book_list`, `book_list_item` | Listas de livros |
 | `goals` | `goal` | Metas de leitura |
@@ -23,7 +23,8 @@ Dois módulos não têm tabelas:
 
 ```mermaid
 erDiagram
-    PUBLISHER |o--o{ BOOK : "publica"
+    BOOK ||--o{ BOOK_PUBLISHER : "tem"
+    PUBLISHER ||--o{ BOOK_PUBLISHER : "publica"
     SERIES |o--o{ BOOK : "agrupa"
     BOOK ||--o{ BOOK_AUTHOR : "tem"
     AUTHOR ||--o{ BOOK_AUTHOR : "escreve"
@@ -50,7 +51,6 @@ erDiagram
         varchar synopsis
         varchar ownership
         boolean favorite
-        bigint publisher_id FK
         bigint series_id FK
         decimal series_position
         bigint cover_image_id FK
@@ -69,6 +69,11 @@ erDiagram
         bigint book_id PK, FK
         bigint author_id PK, FK
         smallint author_order
+    }
+    BOOK_PUBLISHER {
+        bigint book_id PK, FK
+        bigint publisher_id PK, FK
+        int publisher_order
     }
     PUBLISHER {
         bigint id PK
@@ -168,7 +173,6 @@ As colunas de auditoria (`created_at`, `updated_at`) foram omitidas do diagrama.
 | `synopsis` | `VARCHAR(10000)` | opcional |
 | `ownership` | `VARCHAR(10)` | `OWNED` (Tenho), `WISHLIST` ou `NONE`; padrão `NONE` |
 | `favorite` | `BOOLEAN` | padrão `false`; alimenta o carrossel de favoritos |
-| `publisher_id` | `BIGINT` | FK `publisher`, `ON DELETE SET NULL` |
 | `series_id` / `series_position` | `BIGINT` / `DECIMAL(4,1)` | FK `series`; preenchidos juntos ou nulos juntos (`CHECK`); posição maior que zero (aceita 2,5) |
 | `cover_image_id` / `banner_image_id` | `BIGINT` | FK `image`, `ON DELETE SET NULL` |
 | `ol_work_key` / `ol_edition_key` | `VARCHAR(32)` | chaves da Open Library; `ol_edition_key` único |
@@ -181,6 +185,8 @@ Os dígitos verificadores do ISBN são validados no serviço.
 **`book_author`**: chave (`book_id`, `author_id`) e `author_order`, para manter a ordem dos autores na capa. Remover o livro remove os vínculos.
 
 **`publisher`**: `name` e `normalized_name` (único). Na importação, a editora é reaproveitada pelo nome normalizado. Assim, "Rocco" não vira duas editoras.
+
+**`book_publisher`**: chave (`book_id`, `publisher_id`) e `publisher_order`. Um livro pode ter mais de uma editora (coedição), na ordem impressa no livro. Remover o livro remove os vínculos. Excluir uma editora a tira dos livros antes (o livro fica com as outras, sem buraco na ordem). Até a versão 1.0 o livro tinha uma editora só (`book.publisher_id`); a migração `V8` passou cada uma para esta tabela.
 
 **`series`**: `name`, `normalized_name` (único) e `total_volumes` (opcional, para a barra "2 de 3"). Excluir uma série limpa `series_id` e `series_position` dos livros na mesma transação, então nenhum livro fica com posição sem série.
 

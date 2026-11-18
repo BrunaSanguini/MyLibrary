@@ -9,6 +9,9 @@ type Schemas = components['schemas'];
 export type StatsOverview = Schemas['StatsOverviewResponse'];
 export type DailyPages = Schemas['DailyPagesResponse'];
 export type BookTime = Schemas['BookTimeResponse'];
+export type ReadingCalendar = Schemas['CalendarResponse'];
+export type CalendarDay = Schemas['CalendarDayResponse'];
+export type CalendarEntry = Schemas['CalendarEntryResponse'];
 
 /** The API answers 400 for a longer period. */
 export const LONGEST_STATS_PERIOD = 366;
@@ -23,6 +26,11 @@ export class StatsApi {
   /** Only the days with reading come back. */
   dailyPagesRequest(from: IsoDate, to: IsoDate): HttpResourceRequest {
     return { url: '/api/v1/stats/daily-pages', params: { from, to } };
+  }
+
+  /** The days of the month with a session and the books of each one. */
+  calendarRequest(year: number, month: number): HttpResourceRequest {
+    return { url: '/api/v1/stats/calendar', params: { year, month } };
   }
 
   /** The books with more days first. */

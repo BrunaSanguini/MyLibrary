@@ -150,7 +150,7 @@ class BookControllerTest {
                                 {
                                   "title": "A Sociedade do Anel",
                                   "authorIds": [7],
-                                  "publisherId": 2,
+                                  "publisherIds": [2, 5],
                                   "genreIds": [1, 4],
                                   "seriesId": 3,
                                   "seriesPosition": 1.5,
@@ -163,6 +163,7 @@ class BookControllerTest {
         ArgumentCaptor<BookRequest> request = ArgumentCaptor.forClass(BookRequest.class);
         then(service).should().update(eq(42L), request.capture());
         assertThat(request.getValue().authorIds()).containsExactly(7L);
+        assertThat(request.getValue().publisherIds()).containsExactly(2L, 5L);
         assertThat(request.getValue().genreIds()).containsExactly(1L, 4L);
         assertThat(request.getValue().seriesPosition()).isEqualByComparingTo("1.5");
         assertThat(request.getValue().ownershipOrDefault()).isEqualTo(Ownership.WISHLIST);
@@ -260,7 +261,7 @@ class BookControllerTest {
                 "A Sociedade do Anel",
                 null,
                 List.of(new BookAuthorResponse(7, "J. R. R. Tolkien")),
-                null,
+                List.of(),
                 null,
                 List.of(),
                 "9788595084742",

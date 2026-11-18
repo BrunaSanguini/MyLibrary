@@ -1,0 +1,77 @@
+/* Histórico de leitura: one card per reading, the sessions opening inside it. */
+
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ml-space-16);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entry {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ml-space-12);
+  padding: var(--ml-space-24);
+  border: 1px solid var(--ml-color-line);
+  border-radius: var(--ml-radius-lg);
+  background: var(--ml-color-surface);
+}
+
+.entry-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ml-space-12);
+}
+
+h3 {
+  margin: 0;
+  font-family: var(--ml-font-display);
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.period,
+.empty {
+  margin: 0;
+  color: var(--ml-color-muted);
+  font-size: 15px;
+}
+
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  max-width: 420px;
+  font-size: 14px;
+}
+
+.sessions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+.sessions li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ml-space-12);
+}
+
+.session-date {
+  min-width: 64px;
+  font-weight: 700;
+}
+
+.note {
+  color: var(--ml-color-muted);
+  font-style: italic;
+}

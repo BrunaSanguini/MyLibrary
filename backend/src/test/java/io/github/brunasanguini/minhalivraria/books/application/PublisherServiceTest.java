@@ -3,8 +3,11 @@ package io.github.brunasanguini.minhalivraria.books.application;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.github.brunasanguini.minhalivraria.books.application.BookDetailResponse.BookPublisherResponse;
 import io.github.brunasanguini.minhalivraria.shared.error.ConflictException;
 import io.github.brunasanguini.minhalivraria.shared.error.NotFoundException;
+import jakarta.persistence.EntityManager;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,6 +21,15 @@ class PublisherServiceTest {
 
     @Autowired
     private PublisherService service;
+
+    @Autowired
+    private BookService books;
+
+    @Autowired
+    private AuthorService authors;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Test
     void shouldRefuseANameThatDiffersOnlyInCaseAndAccents() {
@@ -59,5 +71,38 @@ class PublisherServiceTest {
         service.delete(id);
 
         assertThatThrownBy(() -> service.get(id)).isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void shouldKeepTheOtherPublishersOfABookInOrderWhenOneIsDeleted() {
+        long author = authors.create(new AuthorRequest("Machado de Assis")).id();
+        long garnier = service.create(new PublisherRequest("Garnier")).id();
+        long laemmert = service.create(new PublisherRequest("Laemmert")).id();
+        long globo = service.create(new PublisherRequest("Globo")).id();
+        long book = books.create(new BookRequest(
+                        "Dom Casmurro",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        List.of(author),
+                        List.of(garnier, laemmert, globo),
+                        null,
+                        null,
+                        null,
+                        null,
+                        null))
+                .id();
+
+        service.delete(laemmert);
+        entityManager.flush();
+        entityManager.clear();
+
+        assertThat(books.get(book).publishers())
+                .extracting(BookPublisherResponse::name)
+                .containsExactly("Garnier", "Globo");
     }
 }

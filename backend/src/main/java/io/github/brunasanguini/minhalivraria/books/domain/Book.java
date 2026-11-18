@@ -88,9 +88,14 @@ public class Book extends AuditedEntity {
     @OrderColumn(name = "author_order")
     private List<Author> authors = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "publisher_id")
-    private @Nullable Publisher publisher;
+    /** More than one in a co-edition; in the order printed on the book. */
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "book_publisher",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "publisher_id"))
+    @OrderColumn(name = "publisher_order")
+    private List<Publisher> publishers = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -135,8 +140,14 @@ public class Book extends AuditedEntity {
         this.authors = new ArrayList<>(authors);
     }
 
-    public void assignPublisher(@Nullable Publisher publisher) {
-        this.publisher = publisher;
+    /** Keeps the order the publishers are printed in. */
+    public void assignPublishers(List<Publisher> publishers) {
+        this.publishers = new ArrayList<>(publishers);
+    }
+
+    /** Takes a publisher that is about to be deleted out of the book, closing the gap in the order. */
+    public void removePublisher(long publisherId) {
+        publishers.removeIf(publisher -> publisher.id() == publisherId);
     }
 
     public void assignGenres(Collection<Genre> genres) {
@@ -245,8 +256,8 @@ public class Book extends AuditedEntity {
         return List.copyOf(authors);
     }
 
-    public @Nullable Publisher publisher() {
-        return publisher;
+    public List<Publisher> publishers() {
+        return List.copyOf(publishers);
     }
 
     public Set<Genre> genres() {

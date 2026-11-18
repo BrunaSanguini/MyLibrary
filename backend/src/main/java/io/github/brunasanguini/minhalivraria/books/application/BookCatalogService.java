@@ -2,6 +2,7 @@ package io.github.brunasanguini.minhalivraria.books.application;
 
 import io.github.brunasanguini.minhalivraria.books.BookCatalog;
 import io.github.brunasanguini.minhalivraria.books.BookSummary;
+import io.github.brunasanguini.minhalivraria.books.domain.Author;
 import io.github.brunasanguini.minhalivraria.books.domain.Book;
 import io.github.brunasanguini.minhalivraria.books.domain.BookRepository;
 import io.github.brunasanguini.minhalivraria.images.ImageUrls;
@@ -39,6 +40,11 @@ class BookCatalogService implements BookCatalog {
 
     private static BookSummary toSummary(Book book) {
         Long cover = book.coverImageId();
-        return new BookSummary(book.id(), book.title(), book.pageCount(), cover == null ? null : ImageUrls.of(cover));
+        return new BookSummary(
+                book.id(),
+                book.title(),
+                book.pageCount(),
+                cover == null ? null : ImageUrls.of(cover),
+                book.authors().stream().map(Author::name).toList());
     }
 }

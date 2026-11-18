@@ -67,8 +67,22 @@ export const LISTS_TAB = {
   path: '/listas',
 } as const;
 
-export type CatalogTab = GroupKind | typeof LISTS_TAB.kind;
+/**
+ * The subgenres on their own, next to the genres: the same tree, read from the other end. Each
+ * subgenre has the page of a genre (/generos/:id), which also lists its books.
+ */
+export const SUBGENRES_TAB = {
+  kind: 'subgenres',
+  tab: 'subgeneros',
+  plural: 'Subgêneros',
+  path: '/generos',
+} as const;
+
+export type CatalogTab = GroupKind | typeof LISTS_TAB.kind | typeof SUBGENRES_TAB.kind;
 
 export function toCatalogTab(tab: unknown): CatalogTab {
-  return tab === LISTS_TAB.tab ? LISTS_TAB.kind : toGroupKind(tab);
+  if (tab === LISTS_TAB.tab) {
+    return LISTS_TAB.kind;
+  }
+  return tab === SUBGENRES_TAB.tab ? SUBGENRES_TAB.kind : toGroupKind(tab);
 }

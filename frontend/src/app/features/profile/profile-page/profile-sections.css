@@ -40,6 +40,12 @@ h3 {
   color: var(--ml-color-muted);
 }
 
+.month-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ml-space-12);
+}
+
 .pill {
   display: inline-flex;
   align-items: center;

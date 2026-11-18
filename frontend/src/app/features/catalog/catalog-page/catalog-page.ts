@@ -14,7 +14,14 @@ import { Paginator } from '@shared/ui/paginator/paginator';
 import { Skeleton } from '@shared/ui/skeleton/skeleton';
 import { Tag } from '@shared/ui/tag/tag';
 
-import { GROUP_KINDS, GROUPS, isListed, LISTS_TAB, toCatalogTab } from '../catalog-kinds';
+import {
+  GROUP_KINDS,
+  GROUPS,
+  isListed,
+  LISTS_TAB,
+  SUBGENRES_TAB,
+  toCatalogTab,
+} from '../catalog-kinds';
 
 /** A page of authors, publishers, series or lists: they all share name, count and covers. */
 interface EntryPage {
@@ -45,14 +52,41 @@ export default class CatalogPage {
   private readonly genresApi = inject(GenresApi);
   private readonly listsApi = inject(ListsApi);
 
-  protected readonly tabs = [...GROUP_KINDS.map((kind) => ({ kind, ...GROUPS[kind] })), LISTS_TAB];
+  /** Gêneros, Subgêneros, then the other groups and the lists. */
+  protected readonly tabs = [
+    { kind: 'genres' as const, ...GROUPS.genres },
+    SUBGENRES_TAB,
+    ...GROUP_KINDS.filter((kind) => kind !== 'genres').map((kind) => ({ kind, ...GROUPS[kind] })),
+    LISTS_TAB,
+  ];
   protected readonly group = computed(() => {
     const kind = this.tipo();
-    return kind === LISTS_TAB.kind ? LISTS_TAB : GROUPS[kind];
+    if (kind === LISTS_TAB.kind) {
+      return LISTS_TAB;
+    }
+    return kind === SUBGENRES_TAB.kind ? SUBGENRES_TAB : GROUPS[kind];
   });
 
+  /** Genres and subgenres come from the same tree. */
+  private readonly fromTree = computed(
+    () => this.tipo() === 'genres' || this.tipo() === SUBGENRES_TAB.kind,
+  );
+
   protected readonly genres = httpResource<GenreTreeResponse[]>(() =>
-    this.tipo() === 'genres' ? this.genresApi.treeRequest() : undefined,
+    this.fromTree() ? this.genresApi.treeRequest() : undefined,
+  );
+
+  /** Every subgenre with its genre, in name order. */
+  protected readonly subgenres = computed(() =>
+    (this.genres.value() ?? [])
+      .flatMap((genre) =>
+        genre.subgenres.map((subgenre) => ({
+          ...subgenre,
+          parentId: genre.id,
+          parent: genre.name,
+        })),
+      )
+      .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR')),
   );
 
   protected readonly entries = httpResource<EntryPage>(() => {
@@ -60,15 +94,17 @@ export default class CatalogPage {
     if (kind === LISTS_TAB.kind) {
       return this.listsApi.listRequest(this.page());
     }
-    return isListed(kind) ? this.catalogApi.listRequest(kind, undefined, this.page()) : undefined;
+    return kind !== SUBGENRES_TAB.kind && isListed(kind)
+      ? this.catalogApi.listRequest(kind, undefined, this.page())
+      : undefined;
   });
 
   protected readonly loading = computed(() =>
-    this.tipo() === 'genres' ? !this.genres.hasValue() : !this.entries.hasValue(),
+    this.fromTree() ? !this.genres.hasValue() : !this.entries.hasValue(),
   );
 
   protected readonly errorMessage = computed(() => {
-    const error: unknown = this.tipo() === 'genres' ? this.genres.error() : this.entries.error();
+    const error: unknown = this.fromTree() ? this.genres.error() : this.entries.error();
     return error === undefined ? undefined : ApiError.from(error).detail;
   });
 

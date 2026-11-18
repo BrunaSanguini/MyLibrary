@@ -14,10 +14,27 @@ const AUTHORS = {
   ],
 };
 
-async function renderPicker(source: PickerSource = 'authors', exclude: number[] = []) {
+const FANTASY = { id: 1, name: 'Fantasia' };
+const NOVEL = { id: 5, name: 'Romance' };
+const TREE = [
+  {
+    id: 1,
+    name: 'Fantasia',
+    bookCount: 0,
+    subgenres: [{ id: 2, name: 'Alta fantasia', bookCount: 0 }],
+  },
+  { id: 5, name: 'Romance', bookCount: 0, subgenres: [{ id: 6, name: 'Realismo', bookCount: 0 }] },
+  { id: 3, name: 'Sátira', bookCount: 0, subgenres: [] },
+];
+
+async function renderPicker(
+  source: PickerSource = 'authors',
+  exclude: number[] = [],
+  parents: { id: number; name: string }[] = [],
+) {
   const picked = vi.fn();
   const result = await render(EntityPicker, {
-    inputs: { source, label: 'Autor', exclude },
+    inputs: { source, label: 'Autor', exclude, parents },
     on: { picked },
     providers: [provideHttpClient(), provideHttpClientTesting()],
   });
@@ -139,23 +156,60 @@ describe('EntityPicker', () => {
     expect(picked).not.toHaveBeenCalled();
   });
 
-  it('filters the genre tree here, subgenres included', async () => {
+  it('offers only the genres in the genre field', async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     const { http, fixture } = await renderPicker('genres');
 
-    await user.type(screen.getByRole('combobox', { name: 'Autor' }), 'fantasia');
-    await answer(http, fixture, '/api/v1/genres', [
-      {
-        id: 1,
-        name: 'Fantasia',
-        bookCount: 0,
-        subgenres: [{ id: 2, name: 'Alta fantasia', bookCount: 0 }],
-      },
-      { id: 3, name: 'Sátira', bookCount: 0, subgenres: [] },
-    ]);
+    await user.type(screen.getByRole('combobox', { name: 'Autor' }), 'fanta');
+    await answer(http, fixture, '/api/v1/genres', TREE);
 
     expect(screen.getByRole('option', { name: 'Fantasia' })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Alta fantasia' })).not.toBeInTheDocument();
+  });
+
+  it('offers only the subgenres of the chosen genres, and says which genre they belong to', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    const { http, fixture, picked } = await renderPicker('subgenres', [], [FANTASY]);
+
+    await user.type(screen.getByRole('combobox', { name: 'Autor' }), 'a');
+    await answer(http, fixture, '/api/v1/genres', TREE);
+
     expect(screen.getByRole('option', { name: 'Alta fantasia' })).toBeInTheDocument();
-    expect(screen.queryByRole('option', { name: 'Sátira' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Realismo' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('option', { name: 'Alta fantasia' }));
+    await fixture.whenStable();
+    expect(picked).toHaveBeenCalledWith({ id: 2, name: 'Alta fantasia', parentId: 1 });
+  });
+
+  it('creates a subgenre inside the only chosen genre', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    const { http, fixture, picked } = await renderPicker('subgenres', [], [FANTASY]);
+
+    await user.type(screen.getByRole('combobox', { name: 'Autor' }), 'Fantasia urbana');
+    await answer(http, fixture, '/api/v1/genres', TREE);
+    await user.click(screen.getByRole('option', { name: 'Criar “Fantasia urbana”' }));
+    TestBed.tick();
+    const creation = http.expectOne({ method: 'POST', url: '/api/v1/genres' });
+    expect(creation.request.body).toEqual({ name: 'Fantasia urbana', parentId: 1 });
+    creation.flush({ id: 20, name: 'Fantasia urbana', parentId: 1, bookCount: 0 });
+    await settle(fixture);
+
+    expect(picked).toHaveBeenCalledWith({ id: 20, name: 'Fantasia urbana', parentId: 1 });
+  });
+
+  it('asks in which genre a new subgenre goes when the book has more than one', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    const { http, fixture } = await renderPicker('subgenres', [], [FANTASY, NOVEL]);
+
+    await user.type(screen.getByRole('combobox', { name: 'Autor' }), 'Distopia');
+    await answer(http, fixture, '/api/v1/genres', TREE);
+
+    expect(
+      screen.getByRole('option', { name: 'Criar “Distopia” em Fantasia' }),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole('option', { name: 'Criar “Distopia” em Romance' }));
+    TestBed.tick();
+    const creation = http.expectOne({ method: 'POST', url: '/api/v1/genres' });
+    expect(creation.request.body).toEqual({ name: 'Distopia', parentId: 5 });
   });
 });

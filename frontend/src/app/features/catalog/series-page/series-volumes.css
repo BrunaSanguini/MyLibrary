@@ -1,0 +1,141 @@
+/* The volumes of the series, in reading order. */
+
+.volumes {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.volumes-head {
+  display: flex;
+  gap: var(--ml-space-16);
+  align-items: center;
+  justify-content: space-between;
+}
+
+h2 {
+  margin: 0;
+  font-family: var(--ml-font-display);
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.volumes-head .sort {
+  min-height: 44px;
+  padding: 0 18px;
+  font-size: 14px;
+}
+
+.volume-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.volume {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
+  gap: 20px;
+  align-items: center;
+  padding: 14px 18px 14px 14px;
+  border: 1px solid var(--ml-color-line);
+  border-radius: 22px;
+  background: var(--ml-color-surface);
+  box-shadow: var(--ml-shadow-soft);
+  transition: transform 0.2s ease;
+}
+
+.volume:hover {
+  transform: translateX(4px);
+}
+
+.volume-cover {
+  position: relative;
+  display: block;
+}
+
+.volume-number {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--ml-radius-pill);
+  background: var(--ml-color-gold);
+  color: var(--ml-color-gold-ink);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.volume-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.volume-title {
+  color: var(--ml-color-ink);
+  font-family: var(--ml-font-display);
+  font-size: 25px;
+  font-weight: 600;
+  line-height: 1.1;
+  text-decoration: none;
+}
+
+.volume-title:hover {
+  color: var(--ml-color-accent);
+  text-decoration: underline;
+}
+
+.volume-meta,
+.volume-state {
+  margin: 0;
+  color: var(--ml-color-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.volume-state {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.favorite {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--ml-radius-pill);
+  background: transparent;
+  color: var(--ml-color-muted);
+  cursor: pointer;
+}
+
+.favorite.on {
+  background: var(--ml-color-accent-tint);
+  color: var(--ml-color-accent);
+}
+
+.favorite:focus-visible {
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .volume {
+    transition: none;
+  }
+
+  .volume:hover {
+    transform: none;
+  }
+}

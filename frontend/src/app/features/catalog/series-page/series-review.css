@@ -1,0 +1,37 @@
+/* The review of one volume, in Minhas resenhas. */
+
+.review {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ml-space-8);
+  padding: 18px 20px;
+  border: 1px solid var(--ml-color-line);
+  border-radius: 16px;
+  background: var(--ml-color-raised);
+}
+
+.review-head {
+  display: flex;
+  gap: var(--ml-space-12);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+h3 {
+  margin: 0;
+  font-family: var(--ml-font-display);
+  font-size: 21px;
+  font-weight: 600;
+}
+
+.excerpt {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  font-family: var(--ml-font-display);
+  font-size: 18px;
+  font-style: italic;
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}

@@ -127,7 +127,7 @@ public class BookService {
 
     private void applyCatalog(Book book, BookRequest request) {
         book.assignAuthors(authorsOf(request.authorIds()));
-        book.assignPublisher(publisherOf(request.publisherId()));
+        book.assignPublishers(publishersOf(request.publisherIdsOrEmpty()));
         book.assignGenres(genresOf(request.genreIdsOrEmpty()));
         book.assignSeries(seriesOf(request.seriesId()), request.seriesPosition());
     }
@@ -172,10 +172,12 @@ public class BookService {
         return genres.findById(id).orElseThrow(() -> new NotFoundException("genre.not-found"));
     }
 
-    private @Nullable Publisher publisherOf(@Nullable Long id) {
-        return id == null
-                ? null
-                : publishers.findById(id).orElseThrow(() -> new NotFoundException("publisher.not-found"));
+    private List<Publisher> publishersOf(List<Long> ids) {
+        return ids.stream().distinct().map(this::findPublisher).toList();
+    }
+
+    private Publisher findPublisher(long id) {
+        return publishers.findById(id).orElseThrow(() -> new NotFoundException("publisher.not-found"));
     }
 
     private @Nullable Series seriesOf(@Nullable Long id) {
@@ -200,7 +202,9 @@ public class BookService {
                 book.authors().stream()
                         .map(author -> new BookAuthorResponse(author.id(), author.name()))
                         .toList(),
-                publisherResponse(book.publisher()),
+                book.publishers().stream()
+                        .map(publisher -> new BookPublisherResponse(publisher.id(), publisher.name()))
+                        .toList(),
                 seriesResponse(book.series(), book.seriesPosition()),
                 book.genres().stream()
                         .map(genre -> new BookGenreResponse(genre.id(), genre.name(), genre.parentId()))
@@ -219,10 +223,6 @@ public class BookService {
                 openLibraryResponse(book.olWorkKey(), book.olEditionKey()),
                 book.createdAt(),
                 book.updatedAt());
-    }
-
-    private static @Nullable BookPublisherResponse publisherResponse(@Nullable Publisher publisher) {
-        return publisher == null ? null : new BookPublisherResponse(publisher.id(), publisher.name());
     }
 
     private static @Nullable BookSeriesResponse seriesResponse(@Nullable Series found, @Nullable BigDecimal position) {

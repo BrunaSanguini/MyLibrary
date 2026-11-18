@@ -18,6 +18,7 @@ import io.github.brunasanguini.minhalivraria.shelf.application.ShelfFilter;
 import io.github.brunasanguini.minhalivraria.shelf.application.ShelfService;
 import io.github.brunasanguini.minhalivraria.shelf.application.ShelfStatus;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -187,6 +188,9 @@ class ShelfControllerTest {
                 List.of("Alta fantasia"),
                 Ownership.OWNED,
                 true,
-                new CardSeriesResponse(3, "O Senhor dos Anéis", new BigDecimal("1.0")));
+                new CardSeriesResponse(3, "O Senhor dos Anéis", new BigDecimal("1.0")),
+                (short) 1954,
+                LocalDate.of(2026, 11, 1),
+                false);
     }
 }

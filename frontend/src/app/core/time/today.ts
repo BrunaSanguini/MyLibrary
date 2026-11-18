@@ -38,10 +38,16 @@ const DAY_MONTH_YEAR = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' });
 const DAY_MONTH = new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' });
 const WEEKDAY = new Intl.DateTimeFormat('pt-BR', { weekday: 'short' });
 const WEEKDAY_LONG = new Intl.DateTimeFormat('pt-BR', { weekday: 'long' });
+const NUMERIC = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' });
 
 /** `8 de novembro de 2026`. */
 export function formatLongDate(date: IsoDate): string {
   return DAY_MONTH_YEAR.format(parseIsoDate(date));
+}
+
+/** `08/11/2026`. */
+export function formatNumericDate(date: IsoDate): string {
+  return NUMERIC.format(parseIsoDate(date));
 }
 
 /** `8 de nov.` */

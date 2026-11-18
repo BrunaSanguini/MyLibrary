@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { problemDetailsInterceptor } from '@core/api/problem-details-interceptor';
-import { screen } from '@testing-library/angular';
+import { screen, within } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -60,6 +60,35 @@ const orderOfBooks = () =>
   Array.from(document.querySelectorAll('ol.books a.title')).map((link) => link.textContent.trim());
 
 describe('ListPage', () => {
+  it('marks the books already read and the ones in the wishlist', async () => {
+    const opened = await open();
+    opened.http.expectOne('/api/v1/lists/4').flush(LIST);
+    opened.http
+      .expectOne((request) => request.url === '/api/v1/shelf/books')
+      .flush({
+        content: [
+          { ...card(1, 'A Sociedade do Anel'), status: 'READ' },
+          { ...card(2, 'O Hobbit'), ownership: 'WISHLIST' },
+          card(3, 'Duna'),
+        ],
+        page: 0,
+        size: 100,
+        totalElements: 3,
+        totalPages: 1,
+      });
+    await opened.harness.fixture.whenStable();
+
+    const row = (title: string) => screen.getByRole('link', { name: title }).closest('li')!;
+    expect(row('A Sociedade do Anel')).toHaveClass('read');
+    expect(
+      within(row('A Sociedade do Anel')).getByText('Lido', { selector: '.badge' }),
+    ).toBeInTheDocument();
+    expect(row('O Hobbit')).toHaveClass('wishlist');
+    expect(within(row('O Hobbit')).getByText('Wishlist')).toBeInTheDocument();
+    expect(row('Duna')).not.toHaveClass('read');
+    expect(row('Duna')).not.toHaveClass('wishlist');
+  });
+
   it('shows the list and its books in the order of the list', async () => {
     await openWithBooks();
 

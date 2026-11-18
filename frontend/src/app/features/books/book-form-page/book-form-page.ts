@@ -7,6 +7,7 @@ import { BookDetailResponse, BookImage, BooksApi } from '@core/api/books-api';
 import { NamedEntry } from '@core/api/catalog-api';
 import { toId } from '@core/api/query-params';
 import { HasUnsavedChanges } from '@core/routing/unsaved-changes-guard';
+import { Breadcrumbs } from '@shared/ui/breadcrumbs/breadcrumbs';
 import { Button } from '@shared/ui/button/button';
 import { ErrorState } from '@shared/ui/error-state/error-state';
 import { Icon } from '@shared/ui/icon/icon';
@@ -14,6 +15,8 @@ import { Skeleton } from '@shared/ui/skeleton/skeleton';
 import { firstValueFrom } from 'rxjs';
 
 import { EntityPicker } from '../entity-picker/entity-picker';
+import { GenreEntry, GenreFields } from '../genre-fields/genre-fields';
+import { ImageField } from '../image-field/image-field';
 import {
   bookFormOf,
   bookFormSchema,
@@ -21,9 +24,6 @@ import {
   emptyBookForm,
   SERVER_FIELDS,
 } from './book-form';
-
-const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const IMAGE_LIMIT = 5 * 1024 * 1024;
 
 /**
  * Registers a book by hand and edits one, on the same form.
@@ -35,7 +35,18 @@ const IMAGE_LIMIT = 5 * 1024 * 1024;
  */
 @Component({
   selector: 'ml-book-form-page',
-  imports: [Button, EntityPicker, ErrorState, FormField, Icon, RouterLink, Skeleton],
+  imports: [
+    Breadcrumbs,
+    Button,
+    EntityPicker,
+    ErrorState,
+    FormField,
+    GenreFields,
+    ImageField,
+    Icon,
+    RouterLink,
+    Skeleton,
+  ],
   templateUrl: './book-form-page.html',
   styleUrls: ['../book-fields.css', './book-form-page.css'],
 })
@@ -64,7 +75,6 @@ export default class BookFormPage implements HasUnsavedChanges {
   protected readonly bannerFile = signal<File | undefined>(undefined);
   protected readonly removeCover = signal(false);
   protected readonly removeBanner = signal(false);
-  protected readonly imageError = signal<string | undefined>(undefined);
 
   /** Pickers and files change the model from code, which the form does not count as dirty. */
   private readonly changedOutsideFields = signal(false);
@@ -72,7 +82,9 @@ export default class BookFormPage implements HasUnsavedChanges {
   private filled = false;
 
   protected readonly authorIds = computed(() => this.model().authors.map((author) => author.id));
-  protected readonly genreIds = computed(() => this.model().genres.map((genre) => genre.id));
+  protected readonly publisherIds = computed(() =>
+    this.model().publishers.map((publisher) => publisher.id),
+  );
 
   protected readonly loadError = computed(() => {
     const error: unknown = this.book.error();
@@ -111,21 +123,22 @@ export default class BookFormPage implements HasUnsavedChanges {
     this.bookForm.authors().markAsTouched();
   }
 
-  protected addGenre(genre: NamedEntry): void {
-    this.change(() => this.bookForm.genres().value.update((genres) => [...genres, genre]));
+  protected setGenres(genres: GenreEntry[]): void {
+    this.change(() => this.bookForm.genres().value.set(genres));
   }
 
-  protected removeGenre(id: number): void {
+  protected addPublisher(publisher: NamedEntry): void {
     this.change(() =>
-      this.bookForm.genres().value.update((genres) => genres.filter((g) => g.id !== id)),
+      this.bookForm.publishers().value.update((publishers) => [...publishers, publisher]),
     );
   }
 
-  protected setPublisher(publisher: NamedEntry | undefined): void {
-    this.change(() => {
-      this.bookForm.publisherId().value.set(publisher?.id ?? null);
-      this.bookForm.publisherName().value.set(publisher?.name ?? '');
-    });
+  protected removePublisher(id: number): void {
+    this.change(() =>
+      this.bookForm
+        .publishers()
+        .value.update((publishers) => publishers.filter((p) => p.id !== id)),
+    );
   }
 
   /** Leaving a series also clears the position, which means nothing without it. */
@@ -139,26 +152,12 @@ export default class BookFormPage implements HasUnsavedChanges {
     });
   }
 
-  protected chooseImage(image: BookImage, event: Event): void {
-    const field = event.target as HTMLInputElement;
-    const file = field.files?.[0];
-    this.imageError.set(undefined);
-    if (file && !IMAGE_TYPES.includes(file.type)) {
-      this.imageError.set('Use uma imagem JPEG, PNG ou WebP.');
-      field.value = '';
-      return;
-    }
-    if (file && file.size > IMAGE_LIMIT) {
-      this.imageError.set('A imagem pode ter até 5 MB.');
-      field.value = '';
-      return;
-    }
+  protected setImage(image: BookImage, file: File | undefined): void {
     this.change(() => (image === 'cover' ? this.coverFile : this.bannerFile).set(file));
   }
 
-  protected toggleRemoval(image: BookImage, event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
-    this.change(() => (image === 'cover' ? this.removeCover : this.removeBanner).set(checked));
+  protected setRemoval(image: BookImage, remove: boolean): void {
+    this.change(() => (image === 'cover' ? this.removeCover : this.removeBanner).set(remove));
   }
 
   protected async save(event: Event): Promise<void> {

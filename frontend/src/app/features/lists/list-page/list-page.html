@@ -53,7 +53,12 @@
         } @else {
           <ol class="books">
             @for (book of inOrder; track book.id; let index = $index) {
-              <li class="book" [attr.data-book]="book.id">
+              <li
+                class="book"
+                [attr.data-book]="book.id"
+                [class.read]="book.status === 'READ'"
+                [class.wishlist]="book.ownership === 'WISHLIST'"
+              >
                 <span class="position" aria-hidden="true">{{ index + 1 }}</span>
                 <ml-book-cover
                   size="xs"
@@ -62,7 +67,19 @@
                   [coverUrl]="book.coverUrl ?? undefined"
                 />
                 <div class="text">
-                  <a class="title" [routerLink]="['/livros', book.id]">{{ book.title }}</a>
+                  <div class="title-row">
+                    <a class="title" [routerLink]="['/livros', book.id]">{{ book.title }}</a>
+                    @if (book.status === 'READ') {
+                      <span class="badge badge-read">
+                        <ml-icon name="check" [size]="13" /> Lido
+                      </span>
+                    }
+                    @if (book.ownership === 'WISHLIST') {
+                      <span class="badge badge-wishlist">
+                        <ml-icon name="wishlist" [size]="13" /> Wishlist
+                      </span>
+                    }
+                  </div>
                   <p class="meta">
                     {{ book.authors.join(', ') }} · {{ statusLabels[book.status] }}
                   </p>

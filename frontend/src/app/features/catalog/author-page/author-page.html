@@ -1,0 +1,133 @@
+@if (notFound()) {
+  <ml-empty-state
+    icon="search"
+    title="Autor não encontrado"
+    message="Este autor não está no seu acervo. Ele pode ter sido excluído."
+  >
+    <a mlButton="primary" routerLink="/catalogos" [queryParams]="{ tipo: 'autores' }"
+      >Ver os autores</a
+    >
+  </ml-empty-state>
+} @else if (errorMessage()) {
+  <ml-error-state [message]="errorMessage()" (retry)="retry()" />
+} @else if (author.hasValue() && books.hasValue()) {
+  <ml-breadcrumbs [items]="crumbs()" />
+
+  <section class="head" aria-labelledby="titulo-autor">
+    <div class="identity">
+      <span class="monogram" aria-hidden="true">{{ monogram() }}</span>
+      <div class="identity-text">
+        <p class="eyebrow">Autor</p>
+        <h1 id="titulo-autor">{{ author.value().name }}</h1>
+        <ul class="kpis" aria-label="Este autor no acervo">
+          @for (kpi of kpis(); track kpi.label) {
+            <li class="kpi">
+              <b>{{ kpi.value }}</b> {{ kpi.label }}
+            </li>
+          }
+        </ul>
+        @if (series().length > 0) {
+          <p class="series">
+            {{ series().length === 1 ? 'Série:' : 'Séries:' }}
+            @for (entry of series(); track entry.id) {
+              <a class="series-link" [routerLink]="['/series', entry.id]"
+                >{{ entry.name }} · {{ entry.count }}</a
+              >
+            }
+          </p>
+        }
+      </div>
+    </div>
+
+    @if (fan().length > 0) {
+      <div class="fan" aria-hidden="true">
+        @for (book of fan(); track book.id; let index = $index) {
+          <ml-book-cover
+            size="md"
+            [class]="'fan-cover fan-' + index"
+            [title]="book.title"
+            [author]="book.authors.join(', ')"
+            [coverUrl]="book.coverUrl"
+          />
+        }
+      </div>
+    }
+  </section>
+
+  <div class="toolbar">
+    <div class="filters" role="group" aria-label="Filtrar por status">
+      @for (option of filters(); track option.id) {
+        <button
+          type="button"
+          class="filter"
+          [attr.aria-pressed]="filter() === option.id"
+          (click)="filter.set(option.id)"
+        >
+          {{ option.label }} <span class="filter-count">{{ option.count }}</span>
+        </button>
+      }
+    </div>
+    <button
+      mlButton="secondary"
+      type="button"
+      class="sort"
+      [attr.aria-pressed]="newestFirst()"
+      (click)="newestFirst.set(!newestFirst())"
+    >
+      {{ newestFirst() ? 'Mais recentes primeiro' : 'Ordem de publicação' }}
+      <ml-icon name="chevron-down" [size]="14" />
+    </button>
+  </div>
+
+  @if (visible().length === 0) {
+    <p class="empty">Nenhum livro deste autor com esse status.</p>
+  } @else {
+    <ul class="books" aria-label="Livros do autor">
+      @for (book of visible(); track book.id) {
+        <li>
+          <a class="book" [routerLink]="['/livros', book.id]">
+            <ml-book-cover
+              size="sm"
+              aria-hidden="true"
+              [title]="book.title"
+              [author]="book.authors.join(', ')"
+              [coverUrl]="book.coverUrl"
+            />
+            <span class="book-text">
+              <span class="book-title">{{ book.title }}</span>
+              <span class="book-meta">{{ metaOf(book) }}</span>
+              @if (book.rating) {
+                <span class="book-rating">
+                  <ml-rating-stars [value]="book.rating" />
+                  <span aria-hidden="true">{{ ratingText(book.rating) }}</span>
+                </span>
+              }
+              @if (book.status === 'READING' && book.progress) {
+                <span class="book-progress">
+                  <span class="book-progress-head">
+                    <span class="book-percent">{{ book.progress.percent }}%</span>
+                    @if (startedOn(book); as started) {
+                      <span class="book-started">Começou em {{ started }}</span>
+                    }
+                  </span>
+                  <ml-progress-bar
+                    [value]="book.progress.percent"
+                    [label]="'Progresso de ' + book.title"
+                  />
+                </span>
+              }
+              @if (sealOf(book); as seal) {
+                <span class="seal" [class.seal-read]="book.status === 'READ'">{{ seal }}</span>
+              }
+            </span>
+          </a>
+        </li>
+      }
+    </ul>
+  }
+} @else {
+  <div class="loading" aria-hidden="true">
+    <ml-skeleton variant="card" />
+    <ml-skeleton variant="card" />
+  </div>
+}

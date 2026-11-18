@@ -44,3 +44,15 @@ input[type='file'] {
   margin-top: var(--ml-space-8);
   font-size: 13px;
 }
+
+.images {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: var(--ml-space-24);
+}
+
+@media (width <= 760px) {
+  .images {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
