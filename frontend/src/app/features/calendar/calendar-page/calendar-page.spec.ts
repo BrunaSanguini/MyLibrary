@@ -81,7 +81,7 @@ describe('CalendarPage', () => {
     // 1 November 2026 is a Sunday: the first week starts on 26 October.
     expect(cells[0]).toHaveAccessibleName('26 de outubro');
     expect(day(/^3 de novembro/)).toHaveAccessibleName(
-      '3 de novembro: O Nome do Vento, 18 páginas; O Olho do Mundo, 24 páginas',
+      '3 de novembro: O Nome do Vento, 18 páginas; O Olho do Mundo, 24 páginas Início 42 págs',
     );
     expect(within(day(/^3 de novembro/)).getByText('Início')).toBeInTheDocument();
     expect(within(day(/^5 de novembro/)).getByText('Fim')).toBeInTheDocument();

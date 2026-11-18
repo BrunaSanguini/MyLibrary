@@ -67,8 +67,7 @@
           [class.is-today]="cell.today"
           [class.dim]="dimmed(cell)"
           [style.background]="cell.background"
-          [disabled]="cell.future"
-          [attr.aria-label]="cell.label"
+          [disabled]="cell.future || !cell.inMonth"
           [attr.aria-pressed]="selected() === cell.date"
           (click)="pick(cell)"
         >
@@ -85,17 +84,17 @@
               }
             </span>
           }
-          <span class="number" aria-hidden="true"
-            >{{ cell.day }}
+          <span class="number"
+            >{{ cell.day }}<span class="ml-visually-hidden">{{ cell.label }}</span>
             @if (cell.today) {
               <span class="today-tag">Hoje</span>
             }
           </span>
           @if (cell.flag) {
-            <span class="flag" aria-hidden="true">{{ cell.flag }}</span>
+            <span class="flag">{{ cell.flag }}</span>
           }
           @if (cell.books.length > 0) {
-            <span class="pages" aria-hidden="true">{{ cell.pages }} págs</span>
+            <span class="pages">{{ cell.pages }} págs</span>
           }
         </button>
       }

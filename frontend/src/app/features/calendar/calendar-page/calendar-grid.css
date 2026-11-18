@@ -43,8 +43,11 @@
   box-shadow: var(--ml-shadow-day);
 }
 
+/* Days of the months around: no fill and muted numbers, without lowering the contrast. */
 .day.out {
-  opacity: 0.42;
+  border-color: transparent;
+  background: transparent;
+  cursor: default;
 }
 
 .day.future {
@@ -127,6 +130,7 @@
   color: var(--ml-color-hero-ink);
 }
 
+.out .number,
 .future .number {
   color: var(--ml-color-muted);
 }

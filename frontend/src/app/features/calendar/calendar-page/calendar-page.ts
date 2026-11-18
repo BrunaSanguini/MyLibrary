@@ -129,7 +129,7 @@ export default class CalendarPage {
       const inMonth = moment.getMonth() === month - 1;
       const books = inMonth ? (this.byDate().get(date) ?? []) : [];
       const pages = books.reduce((sum, book) => sum + book.pages, 0);
-      const name = `${moment.getDate()} de ${MONTHS[moment.getMonth()]}`;
+      const monthOf = `de ${MONTHS[moment.getMonth()]}`;
       cells.push({
         date,
         day: moment.getDate(),
@@ -144,10 +144,11 @@ export default class CalendarPage {
             ? 'Fim'
             : undefined,
         background: backgroundOf(books),
+        // Read after the number of the day, which is on the screen: " de novembro: O Hobbit, 20 páginas".
         label:
           books.length > 0
-            ? `${name}: ${books.map((book) => `${book.title}, ${book.pages} páginas`).join('; ')}`
-            : name,
+            ? ` ${monthOf}: ${books.map((book) => `${book.title}, ${book.pages} páginas`).join('; ')}`
+            : ` ${monthOf}`,
       });
     }
     return cells;
@@ -224,7 +225,7 @@ export default class CalendarPage {
   }
 
   protected pick(cell: Cell): void {
-    if (cell.future) {
+    if (cell.future || !cell.inMonth) {
       return;
     }
     this.selected.update((date) => (date === cell.date ? undefined : cell.date));
