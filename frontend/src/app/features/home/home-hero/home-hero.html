@@ -3,6 +3,7 @@
     <img class="art" [src]="art" alt="" />
   }
   <div class="veil" aria-hidden="true"></div>
+  <div class="veil-top" aria-hidden="true"></div>
   <span class="corner top-left" aria-hidden="true"></span>
   <span class="corner top-right" aria-hidden="true"></span>
   <span class="corner bottom-left" aria-hidden="true"></span>
@@ -67,25 +68,31 @@
         </div>
       </div>
 
-      @if (books().length > 1) {
-        <div class="pager">
-          <p class="position" aria-live="polite">
-            <span class="ml-visually-hidden">Destaque </span>{{ position().current }}
-            <span>/ {{ position().total }}</span>
-          </p>
-          <span class="dots" aria-hidden="true">
-            @for (item of books(); track item.id; let at = $index) {
-              <span [class.on]="at === index()"></span>
-            }
-          </span>
-          <button class="ghost" type="button" aria-label="Destaque anterior" (click)="step(-1)">
-            <ml-icon name="chevron-left" [size]="18" />
-          </button>
-          <button class="gold" type="button" aria-label="Próximo destaque" (click)="step(1)">
-            <ml-icon name="chevron-right" [size]="18" />
-          </button>
-        </div>
-      }
+      <div class="foot">
+        <a class="scroll-hint" href="#favoritos" (click)="toFavorites($event)">
+          Role para ver os favoritos
+          <ml-icon class="bob" name="chevron-down" [size]="18" />
+        </a>
+        @if (books().length > 1) {
+          <div class="pager">
+            <p class="position" aria-live="polite">
+              <span class="ml-visually-hidden">Destaque </span>{{ position().current }}
+              <span>/ {{ position().total }}</span>
+            </p>
+            <span class="dots" aria-hidden="true">
+              @for (item of books(); track item.id; let at = $index) {
+                <span [class.on]="at === index()"></span>
+              }
+            </span>
+            <button class="ghost" type="button" aria-label="Destaque anterior" (click)="step(-1)">
+              <ml-icon name="chevron-left" [size]="18" />
+            </button>
+            <button class="gold" type="button" aria-label="Próximo destaque" (click)="step(1)">
+              <ml-icon name="chevron-right" [size]="18" />
+            </button>
+          </div>
+        }
+      </div>
     } @else if (!loading()) {
       <div class="side welcome">
         <p class="ml-eyebrow eyebrow">
