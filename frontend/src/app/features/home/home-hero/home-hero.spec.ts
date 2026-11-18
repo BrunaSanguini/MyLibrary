@@ -92,6 +92,19 @@ describe('HomeHero', () => {
     ).toBeInTheDocument();
   });
 
+  it('scrolls down to the favorites without leaving the page', async () => {
+    const favorites = document.createElement('section');
+    favorites.id = 'favoritos';
+    favorites.scrollIntoView = vi.fn();
+    document.body.append(favorites);
+    await setup([card(1, 'O Hobbit')]);
+
+    await userEvent.click(screen.getByRole('link', { name: /Role para ver os favoritos/ }));
+
+    expect(favorites.scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
+    favorites.remove();
+  });
+
   it('does not quote a book without review', async () => {
     const { view, http } = await setup([card(1, 'O Hobbit')]);
     TestBed.tick();
