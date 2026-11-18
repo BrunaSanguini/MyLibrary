@@ -36,7 +36,7 @@ class ReadingStatsQueries {
     /** The pages of each book on each day of the period, the day's biggest reading first. */
     List<DayBook> pagesPerDayAndBook(LocalDate from, LocalDate to) {
         return jdbc.sql("""
-                        SELECT s.session_date AS day,
+                        SELECT s.session_date AS session_day,
                                r.book_id AS book_id,
                                SUM(s.pages_read) AS pages,
                                MAX(CASE WHEN r.start_date = s.session_date THEN 1 ELSE 0 END) AS started,
@@ -51,7 +51,7 @@ class ReadingStatsQueries {
                 .param("from", from)
                 .param("to", to)
                 .query((row, number) -> new DayBook(
-                        row.getObject("day", LocalDate.class),
+                        row.getObject("session_day", LocalDate.class),
                         row.getLong("book_id"),
                         row.getInt("pages"),
                         row.getInt("started") == 1,
