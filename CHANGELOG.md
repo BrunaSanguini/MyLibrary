@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.0](https://github.com/BrunaSanguini/MyLibrary/compare/v1.0.0...v1.1.0) (2026-11-18)
+
+
+### Funcionalidades
+
+* **books:** melhora o cadastro e a página do livro ([#68](https://github.com/BrunaSanguini/MyLibrary/issues/68)) ([36539fa](https://github.com/BrunaSanguini/MyLibrary/commit/36539faf345d86ef3d9c40828a0da59353993b8c))
+* **frontend:** página inicial com o destaque em tela cheia sob o header ([#70](https://github.com/BrunaSanguini/MyLibrary/issues/70)) ([3ca6566](https://github.com/BrunaSanguini/MyLibrary/commit/3ca656660e76abb8746b4bdf07bf6264bad7e83a))
+
 ## [1.0.0](https://github.com/BrunaSanguini/MyLibrary/compare/v0.8.0...v1.0.0) (2026-11-17)
 
 
