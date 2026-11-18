@@ -169,6 +169,14 @@ for (const theme of THEMES) {
       await expectNoAccessibilityViolations(page);
     });
 
+    test('reading calendar has no WCAG 2.1 AA violations', async ({ page }) => {
+      await page.goto('/calendario');
+      await expect(page.getByRole('heading', { level: 1 })).toContainText(' de ');
+      await expect(page.getByRole('list', { name: 'Resumo do mês' })).toBeVisible();
+
+      await expectNoAccessibilityViolations(page);
+    });
+
     test('subgenres tab of the catalog has no WCAG 2.1 AA violations', async ({ page }) => {
       await page.goto('/catalogos?tipo=subgeneros');
       await expect(page.getByRole('link', { name: 'Realismo' })).toBeVisible();

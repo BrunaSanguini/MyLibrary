@@ -42,6 +42,11 @@ export const routes: Routes = [
     title: 'Perfil',
   },
   {
+    path: 'calendario',
+    loadComponent: () => import('@features/calendar/calendar-page/calendar-page'),
+    title: 'Calendário de leitura',
+  },
+  {
     path: 'catalogos',
     loadComponent: () => import('@features/catalog/catalog-page/catalog-page'),
     title: 'Catálogos',

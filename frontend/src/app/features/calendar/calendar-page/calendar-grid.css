@@ -1,0 +1,169 @@
+/* The grid of the month: each day painted with its books, the pages at the corner. */
+
+.calendar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ml-space-8);
+}
+
+.weekdays,
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--ml-space-8);
+}
+
+.weekdays span {
+  padding: 0 6px;
+  color: var(--ml-color-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.day {
+  position: relative;
+  min-width: 0;
+  min-height: 96px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--ml-color-line);
+  border-radius: 16px;
+  background: var(--ml-color-surface);
+  color: var(--ml-color-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.day.has {
+  border-color: transparent;
+  box-shadow: var(--ml-shadow-day);
+}
+
+.day.out {
+  opacity: 0.42;
+}
+
+.day.future {
+  border-style: dashed;
+  background: transparent;
+  cursor: default;
+}
+
+.day.is-today {
+  border: 2.5px solid var(--ml-color-accent);
+}
+
+.day[aria-pressed='true'] {
+  border: 2.5px solid var(--ml-color-gold);
+}
+
+.day.dim {
+  opacity: 0.22;
+}
+
+.day:focus-visible {
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 2px;
+}
+
+.shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    var(--ml-color-day-shade-top),
+    var(--ml-color-day-shade-bottom)
+  );
+}
+
+.covers {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0 8px;
+}
+
+.covers .mini {
+  width: auto;
+  height: 74%;
+  box-shadow: var(--ml-shadow-mini-cover);
+}
+
+.covers .mini.pair.mini-0 {
+  z-index: 2;
+  transform: rotate(-6deg);
+}
+
+.covers .mini.pair.mini-1 {
+  margin-left: -18px;
+  transform: rotate(6deg);
+}
+
+.number {
+  position: absolute;
+  top: var(--ml-space-8);
+  left: var(--ml-space-8);
+  z-index: 3;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 var(--ml-space-8);
+  border-radius: var(--ml-radius-pill);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.has .number {
+  background: var(--ml-color-day-number);
+  color: var(--ml-color-hero-ink);
+}
+
+.future .number {
+  color: var(--ml-color-muted);
+}
+
+.is-today:not(.has) .number {
+  background: var(--ml-color-accent);
+  color: var(--ml-color-accent-ink);
+}
+
+.today-tag {
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.flag {
+  position: absolute;
+  top: var(--ml-space-8);
+  right: var(--ml-space-8);
+  z-index: 3;
+  padding: 3px var(--ml-space-8);
+  border-radius: var(--ml-radius-pill);
+  background: var(--ml-color-hero-gold);
+  color: var(--ml-color-gold-ink);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.pages {
+  position: absolute;
+  right: var(--ml-space-8);
+  bottom: 6px;
+  z-index: 3;
+  color: var(--ml-color-hero-ink);
+  font-size: 12px;
+  font-weight: 700;
+  text-shadow: 0 1px 4px var(--ml-color-day-shade-bottom);
+}

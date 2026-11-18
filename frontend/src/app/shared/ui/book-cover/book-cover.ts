@@ -38,6 +38,11 @@ export class BookCover {
   );
 }
 
+/** The colour of the placeholder of a title, for the places that paint with it (the calendar). */
+export function bookColorOf(title: string): string {
+  return `var(--ml-color-book-${PLACEHOLDER_COLORS[hashOf(title)]})`;
+}
+
 /** Small, stable string hash: the same title always lands on the same colour. */
 function hashOf(title: string): number {
   let hash = 0;
