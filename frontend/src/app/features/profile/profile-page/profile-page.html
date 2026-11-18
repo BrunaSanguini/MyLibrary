@@ -44,7 +44,6 @@
         >
           <ml-icon name="edit" [size]="16" /> Editar perfil
         </button>
-        <a mlButton="secondary" routerLink="/calendario">Ver calendário</a>
         @if (profile()?.avatarUrl) {
           <button
             mlButton="secondary"
@@ -86,7 +85,10 @@
       <h2 id="titulo-mes">{{ monthName() }} · em andamento</h2>
       <p>{{ monthLine() }}</p>
     </div>
-    <a class="pill" routerLink="/metas">Ver metas</a>
+    <div class="month-links">
+      <a class="pill" routerLink="/calendario">Ver calendário</a>
+      <a class="pill" routerLink="/metas">Ver metas</a>
+    </div>
   </section>
 
   <div class="columns">
