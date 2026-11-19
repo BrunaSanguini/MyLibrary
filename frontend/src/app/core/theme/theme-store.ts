@@ -1,6 +1,6 @@
-import { computed, DestroyRef, DOCUMENT, effect, inject, Injectable, signal } from '@angular/core';
+import { computed, DOCUMENT, effect, inject, Injectable, signal } from '@angular/core';
 
-/** Theme chosen in the profile. SYSTEM follows the operating system. */
+/** Theme chosen in the profile. SYSTEM comes from profiles saved before the dark default and counts as DARK. */
 export type ThemePreference = 'LIGHT' | 'DARK' | 'SYSTEM';
 
 /** Theme applied to the page, as the data-theme attribute of <html>. */
@@ -20,11 +20,9 @@ function readStorage(document: Document): Storage | undefined {
   }
 }
 
-export function resolveTheme(preference: ThemePreference, systemDark: boolean): Theme {
-  if (preference === 'SYSTEM') {
-    return systemDark ? 'dark' : 'light';
-  }
-  return preference === 'DARK' ? 'dark' : 'light';
+/** The dark theme ("noite arcana") is the default: only an explicit LIGHT opens the light one. */
+export function resolveTheme(preference: ThemePreference): Theme {
+  return preference === 'LIGHT' ? 'light' : 'dark';
 }
 
 /**
@@ -35,22 +33,12 @@ export function resolveTheme(preference: ThemePreference, systemDark: boolean): 
 export class ThemeStore {
   private readonly document = inject(DOCUMENT);
   private readonly storage = readStorage(this.document);
-  private readonly systemQuery = this.document.defaultView?.matchMedia(
-    '(prefers-color-scheme: dark)',
-  );
-  private readonly systemDark = signal(this.systemQuery?.matches ?? false);
   private readonly preferenceState = signal<ThemePreference>(this.readCachedPreference());
 
   readonly preference = this.preferenceState.asReadonly();
-  readonly resolved = computed(() => resolveTheme(this.preference(), this.systemDark()));
+  readonly resolved = computed(() => resolveTheme(this.preference()));
 
   constructor() {
-    const onSystemChange = (event: MediaQueryListEvent) => this.systemDark.set(event.matches);
-    this.systemQuery?.addEventListener('change', onSystemChange);
-    inject(DestroyRef).onDestroy(() =>
-      this.systemQuery?.removeEventListener('change', onSystemChange),
-    );
-
     effect(() => {
       this.document.documentElement.dataset['theme'] = this.resolved();
     });
@@ -68,9 +56,9 @@ export class ThemeStore {
   private readCachedPreference(): ThemePreference {
     try {
       const cached = this.storage?.getItem(THEME_STORAGE_KEY);
-      return PREFERENCES.find((preference) => preference === cached) ?? 'SYSTEM';
+      return PREFERENCES.find((preference) => preference === cached) ?? 'DARK';
     } catch {
-      return 'SYSTEM';
+      return 'DARK';
     }
   }
 }

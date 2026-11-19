@@ -51,7 +51,7 @@ describe('Header', () => {
     const http = TestBed.inject(HttpTestingController);
     http.expectOne('/api/v1/profile').flush({ displayName: 'Bru', theme: 'LIGHT' });
 
-    await user.click(screen.getByRole('button', { name: 'Usar tema escuro' }));
+    await user.click(await screen.findByRole('button', { name: 'Usar tema escuro' }));
 
     expect(await screen.findByRole('button', { name: 'Usar tema claro' })).toBeInTheDocument();
     expect(document.documentElement.dataset['theme']).toBe('dark');
@@ -68,7 +68,7 @@ describe('Header', () => {
     const http = TestBed.inject(HttpTestingController);
     http.expectOne('/api/v1/profile').flush({ theme: 'LIGHT' });
 
-    await user.click(screen.getByRole('button', { name: 'Usar tema escuro' }));
+    await user.click(await screen.findByRole('button', { name: 'Usar tema escuro' }));
     http
       .expectOne({ method: 'PUT', url: '/api/v1/profile' })
       .flush(null, { status: 503, statusText: 'Unavailable' });
