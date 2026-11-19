@@ -26,18 +26,21 @@ export class ProfileForm implements OnInit {
   protected readonly themes: readonly { value: ThemePreference; label: string }[] = [
     { value: 'LIGHT', label: 'Claro' },
     { value: 'DARK', label: 'Escuro' },
-    { value: 'SYSTEM', label: 'Igual ao do sistema' },
   ];
 
   protected readonly failure = signal<string | undefined>(undefined);
-  protected readonly model = signal<ProfileModel>({ displayName: '', theme: 'SYSTEM' });
+  protected readonly model = signal<ProfileModel>({ displayName: '', theme: 'DARK' });
   protected readonly profileForm = form(this.model, (profile) => {
     maxLength(profile.displayName, 80, { message: 'O nome tem no máximo 80 caracteres.' });
   });
 
   ngOnInit(): void {
     const profile = this.profiles.profile();
-    this.model.set({ displayName: profile?.displayName ?? '', theme: profile?.theme ?? 'SYSTEM' });
+    // Profiles saved with SYSTEM open as the dark theme, so the form shows it that way.
+    this.model.set({
+      displayName: profile?.displayName ?? '',
+      theme: profile?.theme === 'LIGHT' ? 'LIGHT' : 'DARK',
+    });
   }
 
   protected errorOf(field: FieldTree<unknown>): string | undefined {

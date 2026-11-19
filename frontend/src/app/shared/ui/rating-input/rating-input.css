@@ -25,7 +25,7 @@
   top: 0;
   left: 0;
   overflow: hidden;
-  color: var(--ml-color-gold);
+  color: var(--ml-color-gold-text);
 }
 
 /* The input is there for the pointer, the keyboard and assistive technology; the stars are what shows. */

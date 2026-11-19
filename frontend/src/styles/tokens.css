@@ -1,10 +1,12 @@
 /*
- * Design tokens of the Minha Livraria design system.
+ * Design tokens of the Minha Livraria design system (Arcana: "noite arcana" dark theme and
+ * "pergaminho" light theme).
  * This is the only file with fixed colors: components use the tokens (enforced by Stylelint).
  */
 
 :root {
-  /* Typography: display (Cormorant Garamond) for book content, body (Mulish) for the interface. */
+  /* Typography: titles in Cinzel, phrases and book content in Cormorant Garamond italic, interface in Mulish. */
+  --ml-font-title: 'Cinzel Variable', 'Georgia', serif;
   --ml-font-display: 'Cormorant Garamond Variable', 'Georgia', serif;
   --ml-font-body: 'Mulish Variable', system-ui, sans-serif;
 
@@ -29,18 +31,18 @@
   /* Layout: desktop only, 1240px content on a 1440px reference page. */
   --ml-content-width: 1240px;
 
-  /* Same in both themes: text and buttons over the hero art. */
-  --ml-color-hero-night: #1e3a4c;
-  --ml-color-hero-gold: #f4d27a;
-  --ml-color-hero-ink: #f7ead4;
-  --ml-color-hero-soft-ink: #e9d7b8;
-  --ml-color-hero-veil: rgb(8 14 18 / 90%);
-  --ml-color-hero-veil-mid: rgb(8 14 18 / 72%);
-  --ml-color-hero-veil-light: rgb(8 14 18 / 55%);
-  --ml-color-hero-veil-clear: rgb(8 14 18 / 0%);
-  --ml-color-hero-chip: rgb(247 234 212 / 12%);
-  --ml-color-hero-chip-line: rgb(247 234 212 / 45%);
-  --ml-color-hero-corner: rgb(244 210 122 / 70%);
+  /* Same in both themes: text and buttons over the hero art, which is always dark. */
+  --ml-color-hero-night: #0c1024;
+  --ml-color-hero-gold: #e7c477;
+  --ml-color-hero-ink: #f2e6cc;
+  --ml-color-hero-soft-ink: #e5d8bc;
+  --ml-color-hero-veil: rgb(12 16 36 / 90%);
+  --ml-color-hero-veil-mid: rgb(12 16 36 / 72%);
+  --ml-color-hero-veil-light: rgb(12 16 36 / 55%);
+  --ml-color-hero-veil-clear: rgb(12 16 36 / 0%);
+  --ml-color-hero-chip: rgb(242 230 204 / 12%);
+  --ml-color-hero-chip-line: rgb(242 230 204 / 45%);
+  --ml-color-hero-corner: rgb(212 166 69 / 70%);
 
   /* Glow behind the covers of the series page and the shadow of the cover in front. */
   --ml-color-series-glow: rgb(46 107 79 / 55%);
@@ -48,12 +50,12 @@
   --ml-shadow-fan: 0 22px 40px rgb(0 0 0 / 45%);
 
   /* Days of the reading calendar painted with the colour of the books. */
-  --ml-color-day-shade-top: rgb(10 6 4 / 18%);
-  --ml-color-day-shade-bottom: rgb(10 6 4 / 50%);
-  --ml-color-day-number: rgb(14 9 6 / 62%);
-  --ml-shadow-day: 0 8px 20px rgb(30 18 10 / 18%);
+  --ml-color-day-shade-top: rgb(12 16 36 / 18%);
+  --ml-color-day-shade-bottom: rgb(12 16 36 / 50%);
+  --ml-color-day-number: rgb(12 16 36 / 62%);
+  --ml-shadow-day: 0 8px 20px rgb(21 27 54 / 18%);
   --ml-shadow-mini-cover: 0 8px 18px rgb(0 0 0 / 45%);
-  --ml-shadow-popover: 0 24px 60px rgb(20 10 5 / 35%);
+  --ml-shadow-popover: 0 24px 60px rgb(21 27 54 / 35%);
 
   /* Placeholder covers, when the Open Library has no cover. */
   --ml-color-book-emerald: #2e6b4f;
@@ -65,63 +67,94 @@
   --ml-color-book-sand: #eecb8a;
 
   /* Covers: inner spine plus shadow. */
-  --ml-shadow-book: inset 9px 0 0 rgb(0 0 0 / 20%), 0 10px 22px rgb(30 18 10 / 22%);
+  --ml-shadow-book: inset 9px 0 0 rgb(0 0 0 / 20%), 0 10px 22px rgb(21 27 54 / 22%);
 }
 
-/* The light theme is also the default, so the page has colors even without data-theme. */
+/* The dark theme ("noite arcana") is also the default, so the page has colors even without data-theme. */
 :root,
-[data-theme='light'] {
-  color-scheme: light;
-
-  /* Light theme: parchment and burgundy. */
-  --ml-color-bg: #f6e4c6;
-  --ml-color-surface: #fff7ea;
-  --ml-color-raised: #f4ddb6;
-  --ml-color-ink: #2a1912;
-  --ml-color-muted: #6b4630;
-  --ml-color-line: #e2bc82;
-  --ml-color-accent: #a62b22;
-  --ml-color-accent-ink: #fff7ea;
-  --ml-color-gold: #c48a1a;
-  --ml-color-gold-ink: #2a1912;
-  --ml-color-accent-tint: #f6dccf;
-  --ml-color-series-night: #2a1912;
-  --ml-color-shimmer: rgb(255 255 255 / 70%);
-  --ml-color-backdrop: rgb(42 25 18 / 55%);
-  --ml-color-glass: rgb(255 247 234 / 74%);
-  --ml-shadow-soft: 0 14px 36px rgb(140 70 20 / 12%);
-
-  /* Heat map of the profile: no reading, then four levels of pages. */
-  --ml-color-heat-0: #f4ddb6;
-  --ml-color-heat-1: #e8bb93;
-  --ml-color-heat-2: #d2896a;
-  --ml-color-heat-3: #ba4d3c;
-  --ml-color-heat-4: #a62b22;
-}
-
 [data-theme='dark'] {
   color-scheme: dark;
 
-  /* Dark theme: coffee and terracotta. */
-  --ml-color-bg: #1b120e;
-  --ml-color-surface: #2a1b14;
-  --ml-color-raised: #3a261c;
-  --ml-color-ink: #f7ead4;
-  --ml-color-muted: #d6b892;
-  --ml-color-line: #5e3e2a;
-  --ml-color-accent: #ee7a5c;
-  --ml-color-accent-ink: #1b120e;
-  --ml-color-gold: #ebb94c;
-  --ml-color-gold-ink: #1b120e;
-  --ml-color-accent-tint: #3e211a;
-  --ml-color-series-night: #120c09;
+  --ml-color-bg: #0c1024;
+  --ml-color-surface: #151b36;
+  --ml-color-raised: #1e2650;
+  --ml-color-ink: #f2e6cc;
+  --ml-color-muted: #cfc3a6;
+  --ml-color-line: rgb(212 166 69 / 28%);
+  --ml-color-glass-line: rgb(212 166 69 / 45%);
+  --ml-color-accent: #ff4f8b;
+  --ml-color-accent-ink: #0c1024;
+  --ml-color-accent-tint: #321d3c;
+  --ml-color-gold: #d4a645;
+  --ml-color-gold-ink: #0c1024;
+  --ml-color-gold-text: #d4a645;
+  --ml-color-lilac: #b9a4ff;
+  --ml-color-lilac-ink: #0c1024;
+  --ml-color-star: #f2e6cc;
+  --ml-color-abandoned: #e8946a;
+  --ml-color-series-night: #0c1024;
   --ml-color-shimmer: rgb(255 255 255 / 10%);
-  --ml-color-backdrop: rgb(0 0 0 / 65%);
-  --ml-color-glass: rgb(42 27 20 / 62%);
-  --ml-shadow-soft: 0 14px 36px rgb(0 0 0 / 35%);
-  --ml-color-heat-0: #3a261c;
-  --ml-color-heat-1: #6b3a2c;
-  --ml-color-heat-2: #9e4e3c;
-  --ml-color-heat-3: #c9644c;
-  --ml-color-heat-4: #ee7a5c;
+  --ml-color-backdrop: rgb(12 16 36 / 70%);
+  --ml-color-glass: rgb(21 27 54 / 74%);
+
+  /* Shadows and glows: the glows only exist in the dark theme. */
+  --ml-shadow-soft: 0 14px 36px rgb(0 0 0 / 40%);
+  --ml-shadow-raised: 0 18px 44px rgb(0 0 0 / 50%);
+  --ml-shadow-frame: inset 0 0 0 5px #151b36, inset 0 0 0 6px rgb(212 166 69 / 22%);
+  --ml-glow: 0 0 20px rgb(255 79 139 / 35%);
+  --ml-glow-gold: 0 0 10px rgb(212 166 69 / 70%);
+  --ml-glow-ring: drop-shadow(0 0 6px rgb(255 79 139 / 70%));
+  --ml-glow-cover: 0 0 30px rgb(255 79 139 / 25%);
+  --ml-gradient-fade: linear-gradient(180deg, rgb(12 16 36 / 0%) 0%, #0c1024 100%);
+
+  /* Heat map of the profile: no reading, then four levels of pages. */
+  --ml-color-heat-0: #1e2650;
+  --ml-color-heat-1: #56305f;
+  --ml-color-heat-2: #8e3b6e;
+  --ml-color-heat-3: #c7457c;
+  --ml-color-heat-4: #ff4f8b;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+
+  /* Light theme ("pergaminho"). */
+  --ml-color-bg: #f2e6cc;
+  --ml-color-surface: #fbf4e4;
+  --ml-color-raised: #eadbb8;
+  --ml-color-ink: #151b36;
+  --ml-color-muted: #4a4560;
+  --ml-color-line: rgb(168 122 30 / 40%);
+  --ml-color-glass-line: rgb(168 122 30 / 50%);
+  --ml-color-accent: #ba1557;
+  --ml-color-accent-ink: #fbf4e4;
+  --ml-color-accent-tint: #f8e6df;
+  --ml-color-gold: #a87a1e;
+  --ml-color-gold-ink: #0c1024;
+  --ml-color-gold-text: #7e5a12;
+  --ml-color-lilac: #5b45c2;
+  --ml-color-lilac-ink: #fbf4e4;
+  --ml-color-star: #151b36;
+  --ml-color-abandoned: #9a4a1e;
+  --ml-color-series-night: #0c1024;
+  --ml-color-shimmer: rgb(255 255 255 / 70%);
+  --ml-color-backdrop: rgb(21 27 54 / 55%);
+  --ml-color-glass: rgb(251 244 228 / 80%);
+
+  /* Shadows: soft, and without glows. */
+  --ml-shadow-soft: 0 14px 36px rgb(21 27 54 / 12%);
+  --ml-shadow-raised: 0 18px 44px rgb(21 27 54 / 22%);
+  --ml-shadow-frame: inset 0 0 0 5px #fbf4e4, inset 0 0 0 6px rgb(168 122 30 / 25%);
+  --ml-glow: none;
+  --ml-glow-gold: none;
+  --ml-glow-ring: none;
+  --ml-glow-cover: 0 12px 26px rgb(21 27 54 / 25%);
+  --ml-gradient-fade: linear-gradient(180deg, rgb(242 230 204 / 0%) 0%, #f2e6cc 100%);
+
+  /* Heat map of the profile: from parchment to magenta. */
+  --ml-color-heat-0: #eadbb8;
+  --ml-color-heat-1: #e0aaa1;
+  --ml-color-heat-2: #d67a8a;
+  --ml-color-heat-3: #cc4972;
+  --ml-color-heat-4: #c2185b;
 }

@@ -17,14 +17,19 @@ body {
 
   /* The Home hero spans the whole window; the scroll bar must not add a horizontal scroll. */
   overflow-x: clip;
+
+  /* The theme changes with a fade. */
+  transition:
+    background-color 0.3s,
+    color 0.3s;
 }
 
 h1,
 h2,
 h3 {
   margin: 0;
-  font-family: var(--ml-font-display);
-  font-weight: 600;
+  font-family: var(--ml-font-title);
+  font-weight: 700;
 }
 
 h1 {
@@ -68,14 +73,15 @@ textarea {
   outline-offset: 3px;
 }
 
-/* Label above titles: always uppercase and in the accent color. */
+/* Label above titles: always uppercase, in Cinzel and in the gold text color. */
 .ml-eyebrow {
+  font-family: var(--ml-font-title);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 16px;
-  letter-spacing: 2.4px;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
-  color: var(--ml-color-accent);
+  color: var(--ml-color-gold-text);
 }
 
 @media (prefers-reduced-motion: reduce) {

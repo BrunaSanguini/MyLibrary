@@ -1,6 +1,6 @@
 # Arquitetura do front-end
 
-Como o código do front-end (Angular 22) é organizado, com exemplos. As decisões e as alternativas descartadas estão no [ADR-0006](adr/0006-arquitetura-do-front-end.md). A identidade visual vem do design system da Minha Livraria (dark academia, Cormorant Garamond e Mulish, tema claro e escuro).
+Como o código do front-end (Angular 22) é organizado, com exemplos. As decisões e as alternativas descartadas estão no [ADR-0006](adr/0006-arquitetura-do-front-end.md). A identidade visual vem do design system da Minha Livraria (Arcana: dark academia, Cinzel, Cormorant Garamond e Mulish, tema escuro "noite arcana" e tema claro "pergaminho").
 
 ## Estrutura de pastas
 
@@ -359,6 +359,7 @@ Os valores vêm do design system da Minha Livraria. Todos os tokens têm o prefi
 
 ```css
 :root {
+  --ml-font-title: 'Cinzel Variable', Georgia, serif;
   --ml-font-display: 'Cormorant Garamond Variable', Georgia, serif;
   --ml-font-body: 'Mulish Variable', system-ui, sans-serif;
 
@@ -378,23 +379,25 @@ Os valores vêm do design system da Minha Livraria. Todos os tokens têm o prefi
 }
 
 :root,
-[data-theme='light'] {
-  color-scheme: light;
+[data-theme='dark'] {
+  color-scheme: dark;
   --ml-color-bg: /* valor do design system */;
   --ml-color-surface: /* ... */;
   --ml-color-ink: /* ... */;
   --ml-color-accent: /* ... */;
-  /* raised, muted, line, accent-ink, gold, glass, hero-*, book-* */
+  /* raised, muted, line, accent-ink, gold, gold-text, lilac, glass, glow, hero-*, book-* */
 }
 
-[data-theme='dark'] {
-  color-scheme: dark;
-  /* os mesmos tokens com os valores do tema escuro */
+[data-theme='light'] {
+  color-scheme: light;
+  /* os mesmos tokens com os valores do tema claro; os brilhos (glow) viram none */
 }
 ```
 
-- O tema claro também fica em `:root`. Mesmo sem o atributo `data-theme`, a página sempre tem cores.
+- O tema escuro também fica em `:root`. Mesmo sem o atributo `data-theme`, a página sempre tem cores.
 - O `color-scheme` faz o navegador ajustar barras de rolagem e controles nativos ao tema.
+- `gold` é para bordas, fios de progresso e ornamentos; texto dourado usa `gold-text`, que no tema claro é mais escuro para passar no contraste AA.
+- O `accent` do tema claro (`#ba1557`) é um tom mais escuro que o da spec de design (`#c2185b`), para o texto em `accent` sobre `raised` chegar a 4,5:1.
 
 - Os componentes **só usam tokens**. O Stylelint barra cor fixa fora do `tokens.css` com as regras `color-no-hex`, `color-named` e `function-disallowed-list` (`rgb()`, `hsl()` e afins). As regras valem também nos atalhos, como `border: 1px solid var(--ml-color-line)`.
 - As regras visuais do design system valem no código:
@@ -405,7 +408,7 @@ Os valores vêm do design system da Minha Livraria. Todos os tokens têm o prefi
 
 ### Tema
 
-O `<html>` recebe `data-theme="light"` ou `"dark"`. O `ThemeStore` guarda a preferência do perfil (`LIGHT`, `DARK` ou `SYSTEM`) e resolve o tema aplicado.
+O `<html>` recebe `data-theme="light"` ou `"dark"`. O `ThemeStore` guarda a preferência do perfil e resolve o tema aplicado. O tema escuro é o padrão: só `LIGHT` abre o tema claro, e o valor `SYSTEM`, que perfis antigos ainda têm, conta como escuro. O app não acompanha mais o tema do sistema operacional.
 
 Como todo estado global, ele expõe só leitura. A preferência muda pelo método `setPreference`:
 
@@ -413,21 +416,12 @@ Como todo estado global, ele expõe só leitura. A preferência muda pelo métod
 @Injectable({ providedIn: 'root' })
 export class ThemeStore {
   private readonly document = inject(DOCUMENT);
-  private readonly systemQuery = matchMedia('(prefers-color-scheme: dark)');
-  private readonly systemDark = signal(this.systemQuery.matches);
   private readonly preferenceState = signal<ThemePreference>(readCachedPreference());
 
   readonly preference = this.preferenceState.asReadonly();
-  readonly resolved = computed(() => {
-    const preference = this.preference();
-    if (preference === 'SYSTEM') {
-      return this.systemDark() ? 'dark' : 'light';
-    }
-    return preference === 'DARK' ? 'dark' : 'light';
-  });
+  readonly resolved = computed(() => (this.preference() === 'LIGHT' ? 'light' : 'dark'));
 
   constructor() {
-    this.systemQuery.addEventListener('change', (event) => this.systemDark.set(event.matches));
     effect(() => {
       this.document.documentElement.dataset['theme'] = this.resolved();
     });
@@ -443,27 +437,24 @@ export class ThemeStore {
 Quem muda o tema (o toggle do header e a página de Perfil) salva no perfil com `PUT /profile` e depois chama `setPreference`. Ao carregar o perfil, o app também chama `setPreference` com o valor oficial.
 
 **Sem "piscar" ao abrir:**
-- O `localStorage` guarda a **preferência**, não o tema resolvido. Assim, quem usa `SYSTEM` acompanha o sistema operacional mesmo que ele tenha mudado desde a última visita.
-- Um script mínimo no `<head>` do `index.html` resolve o tema antes da primeira pintura. Na primeira visita, sem nada guardado, ele trata a preferência como `SYSTEM`.
+- O `localStorage` guarda a **preferência**, não o tema resolvido.
+- Um script mínimo no `<head>` do `index.html` resolve o tema antes da primeira pintura. Na primeira visita, sem nada guardado, ele abre o tema escuro.
 
 ```html
 <script>
   (() => {
-    let preference = 'SYSTEM';
+    let preference = 'DARK';
     try {
-      preference = localStorage.getItem('ml-theme-preference') ?? 'SYSTEM';
+      preference = localStorage.getItem('ml-theme-preference') ?? 'DARK';
     } catch {}
-    const dark =
-      preference === 'DARK' ||
-      (preference !== 'LIGHT' && matchMedia('(prefers-color-scheme: dark)').matches);
-    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    document.documentElement.dataset.theme = preference === 'LIGHT' ? 'light' : 'dark';
   })();
 </script>
 ```
 
 ### Fontes e ícones
 
-- **Fontes:** `@fontsource-variable/cormorant-garamond` e `@fontsource-variable/mulish`, importadas no `styles.css`. O build copia os arquivos `.woff2`, então nada depende de CDN.
+- **Fontes:** `@fontsource-variable/cinzel` (títulos), `@fontsource-variable/cormorant-garamond` (frases e conteúdo dos livros) e `@fontsource-variable/mulish` (interface), importadas no `styles.css`. O build copia os arquivos `.woff2`, então nada depende de CDN.
 - **Ícones:** componente `ml-icon` com SVGs locais (traço de 1,5 a 1,7 px, pontas arredondadas, `currentColor`). Botões só com ícone têm 44×44 px e `aria-label`. Não há biblioteca de ícones.
 
 ## Acessibilidade e sobreposições

@@ -26,7 +26,7 @@ async function profileTheme(request: APIRequestContext): Promise<string> {
 test.afterEach(async ({ request }) => {
   const response = await request.get('/api/v1/profile');
   const { displayName } = (await response.json()) as { displayName?: string };
-  await request.put('/api/v1/profile', { headers: WRITE, data: { displayName, theme: 'SYSTEM' } });
+  await request.put('/api/v1/profile', { headers: WRITE, data: { displayName, theme: 'DARK' } });
   await request.delete('/api/v1/profile/avatar', { headers: WRITE });
 });
 
@@ -36,41 +36,42 @@ test('keeps the theme chosen in the header, in this window and in a new one', as
 }) => {
   await page.goto('/');
   await expect(page.getByRole('link', { name: 'Meu perfil' })).toBeVisible();
-  await page.getByRole('button', { name: 'Usar tema escuro' }).click();
+  // The dark theme is the default, whatever the operating system uses.
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await expect.poll(() => profileTheme(page.request)).toBe('DARK');
+  await page.getByRole('button', { name: 'Usar tema claro' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await expect.poll(() => profileTheme(page.request)).toBe('LIGHT');
 
-  // The copy in the browser paints the theme before Angular starts: no flash of the light one.
+  // The copy in the browser paints the theme before Angular starts: no flash of the dark one.
   const themeAtFirstPaint = page
     .waitForEvent('domcontentloaded')
     .then(() => page.evaluate(() => document.documentElement.dataset['theme']));
   await page.reload();
-  expect(await themeAtFirstPaint).toBe('dark');
-  await expect(page.getByRole('button', { name: 'Usar tema claro' })).toBeVisible();
+  expect(await themeAtFirstPaint).toBe('light');
+  await expect(page.getByRole('button', { name: 'Usar tema escuro' })).toBeVisible();
 
-  // A new window has nothing saved in the browser and still opens dark: it came from the profile.
-  const other = await browser.newContext({ colorScheme: 'light' });
+  // A new window has nothing saved in the browser and still opens light: it came from the profile.
+  const other = await browser.newContext({ colorScheme: 'dark' });
   const fresh = await other.newPage();
   await fresh.goto('/');
-  await expect(fresh.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(fresh.locator('html')).toHaveAttribute('data-theme', 'light');
   await other.close();
 });
 
 test('changes the name and the theme on the profile page', async ({ page }) => {
-  await page.emulateMedia({ colorScheme: 'light' });
   await page.goto('/perfil');
   await page.getByRole('button', { name: 'Editar perfil' }).click();
   await page.getByLabel('Nome').fill('Leitora de Teste');
-  await page.getByRole('radio', { name: 'Escuro' }).check();
+  await page.getByRole('radio', { name: 'Claro' }).check();
   await page.getByRole('button', { name: 'Salvar perfil' }).click();
 
   await expect(page.getByRole('heading', { level: 1, name: 'Leitora de Teste' })).toBeVisible();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await expect(page.getByRole('link', { name: 'Meu perfil' })).toHaveText('L');
 
   await page.reload();
   await expect(page.getByRole('heading', { level: 1, name: 'Leitora de Teste' })).toBeVisible();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
 });
 
 test('changes the avatar, refuses a file that is not an image and removes it', async ({ page }) => {

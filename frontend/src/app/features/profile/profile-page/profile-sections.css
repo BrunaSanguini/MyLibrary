@@ -107,7 +107,7 @@ h3 {
 }
 
 .rating {
-  color: var(--ml-color-gold);
+  color: var(--ml-color-gold-text);
   font-weight: 700;
   white-space: nowrap;
 }
