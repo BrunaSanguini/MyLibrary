@@ -34,7 +34,7 @@ describe('ListCards', () => {
     ]);
 
     const link = await screen.findByRole('link', { name: /Clássicos para reler/ });
-    expect(link).toHaveAttribute('href', '/listas/4');
+    expect(link).toHaveAttribute('href', '/lista/4');
     expect(link).toHaveTextContent('5 livros');
     expect(link).toHaveTextContent('1 lido');
   });

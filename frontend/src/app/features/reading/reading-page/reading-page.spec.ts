@@ -65,9 +65,9 @@ async function open({
     providers: [
       provideRouter(
         [
-          { path: 'livros/:id/leitura', component: ReadingPage },
-          { path: 'livros/:id/editar', children: [] },
-          { path: 'livros/:id', children: [] },
+          { path: 'livro/:id/leitura', component: ReadingPage },
+          { path: 'livro/:id/editar', children: [] },
+          { path: 'livro/:id', children: [] },
           { path: 'estante', children: [] },
         ],
         withComponentInputBinding(),
@@ -78,7 +78,7 @@ async function open({
     ],
   });
   const harness = await RouterTestingHarness.create();
-  await harness.navigateByUrl('/livros/42/leitura');
+  await harness.navigateByUrl('/livro/42/leitura');
   const http = TestBed.inject(HttpTestingController);
   TestBed.tick();
   http.expectOne('/api/v1/books/42').flush(book);
@@ -262,7 +262,7 @@ describe('ReadingPage', () => {
     request.flush({ ...READING, status: 'FINISHED', endDate: NOV_8 });
     await harness.fixture.whenStable();
 
-    await vi.waitFor(() => expect(TestBed.inject(Router).url).toBe('/livros/42'));
+    await vi.waitFor(() => expect(TestBed.inject(Router).url).toBe('/livro/42'));
   });
 
   it('abandons the reading with its own action', async () => {
@@ -275,7 +275,7 @@ describe('ReadingPage', () => {
       .flush({ ...READING, status: 'ABANDONED', endDate: NOV_8 });
     await harness.fixture.whenStable();
 
-    await vi.waitFor(() => expect(TestBed.inject(Router).url).toBe('/livros/42'));
+    await vi.waitFor(() => expect(TestBed.inject(Router).url).toBe('/livro/42'));
   });
 
   it('refuses to finish before the reading started', async () => {
@@ -307,7 +307,7 @@ describe('ReadingPage', () => {
         'A data da sessão precisa ficar no período.',
       ),
     );
-    expect(TestBed.inject(Router).url).toBe('/livros/42/leitura');
+    expect(TestBed.inject(Router).url).toBe('/livro/42/leitura');
   });
 
   it('offers to start a reading today when the book has none in progress', async () => {
@@ -361,7 +361,7 @@ describe('ReadingPage', () => {
     request.flush({ ...FINISHED, startDate: null, endDate: '2019-07-01' });
     await harness.fixture.whenStable();
 
-    await vi.waitFor(() => expect(TestBed.inject(Router).url).toBe('/livros/42'));
+    await vi.waitFor(() => expect(TestBed.inject(Router).url).toBe('/livro/42'));
   });
 
   it('asks for the end of a reading that is already over', async () => {
@@ -404,7 +404,7 @@ describe('ReadingPage', () => {
     expect(screen.getByRole('heading', { name: 'Falta o número de páginas' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Editar o livro' })).toHaveAttribute(
       'href',
-      '/livros/42/editar',
+      '/livro/42/editar',
     );
     expect(screen.queryByRole('button', { name: 'Salvar sessão' })).not.toBeInTheDocument();
     expect(
@@ -427,7 +427,7 @@ describe('ReadingPage', () => {
     TestBed.configureTestingModule({
       providers: [
         provideRouter(
-          [{ path: 'livros/:id/leitura', component: ReadingPage }],
+          [{ path: 'livro/:id/leitura', component: ReadingPage }],
           withComponentInputBinding(),
         ),
         provideHttpClient(withInterceptors([problemDetailsInterceptor])),
@@ -435,7 +435,7 @@ describe('ReadingPage', () => {
       ],
     });
     const harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl('/livros/42/leitura');
+    await harness.navigateByUrl('/livro/42/leitura');
     const http = TestBed.inject(HttpTestingController);
     TestBed.tick();
     const missing = { code: 'book.not-found', detail: 'O livro solicitado não existe.' };

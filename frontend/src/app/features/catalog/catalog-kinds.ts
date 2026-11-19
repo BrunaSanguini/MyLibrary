@@ -10,7 +10,7 @@ interface GroupInfo {
   readonly tab: string;
   readonly plural: string;
   readonly singular: string;
-  /** First segment of the page of one group, as in /autores/7. */
+  /** First segment of the page of one group, as in /autor/7. */
   readonly path: string;
   /** Filter of the shelf listing that brings the books of the group. */
   readonly filter: keyof Pick<ShelfFilter, 'genreId' | 'authorId' | 'publisherId' | 'seriesId'>;
@@ -28,7 +28,7 @@ export const GROUPS: Readonly<Record<GroupKind, GroupInfo>> = {
     tab: 'autores',
     plural: 'Autores',
     singular: 'Autor',
-    path: '/autores',
+    path: '/autor',
     filter: 'authorId',
   },
   publishers: {
@@ -42,7 +42,7 @@ export const GROUPS: Readonly<Record<GroupKind, GroupInfo>> = {
     tab: 'series',
     plural: 'Séries',
     singular: 'Série',
-    path: '/series',
+    path: '/serie',
     filter: 'seriesId',
   },
 };
@@ -58,13 +58,13 @@ export function toGroupKind(tab: unknown): GroupKind {
 
 /**
  * The lists are the grouping the reader makes by hand. They get a tab on /catalogos next to the
- * other four, but their page is /listas/:id, which lets the books be reordered.
+ * other four, but their page is /lista/:id, which lets the books be reordered.
  */
 export const LISTS_TAB = {
   kind: 'lists',
   tab: 'listas',
   plural: 'Listas',
-  path: '/listas',
+  path: '/lista',
 } as const;
 
 /**

@@ -36,12 +36,12 @@ export class Header {
   /** The Home has no area besides itself: "/" is a prefix of every address. */
   protected readonly menu: readonly MenuItem[] = [
     { path: '/', label: 'Home', areas: [] },
-    { path: '/estante', label: 'Minha Estante', areas: ['/estante', '/livros'] },
-    { path: '/listas', label: 'Listas', areas: ['/listas'] },
+    { path: '/estante', label: 'Minha Estante', areas: ['/estante', '/livro'] },
+    { path: '/listas', label: 'Listas', areas: ['/listas', '/lista'] },
     {
       path: '/catalogos',
       label: 'Catálogos',
-      areas: ['/catalogos', '/autores', '/series', '/generos', '/editoras'],
+      areas: ['/catalogos', '/autor', '/serie', '/generos', '/editoras'],
     },
     { path: '/calendario', label: 'Calendário', areas: ['/calendario'] },
   ];

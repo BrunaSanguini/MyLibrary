@@ -27,7 +27,7 @@ describe('BookCard', () => {
     const link = screen.getByRole('link', {
       name: 'A Sociedade do Anel J. R. R. Tolkien Nota 5 de 5 576 páginas',
     });
-    expect(link).toHaveAttribute('href', '/livros/42');
+    expect(link).toHaveAttribute('href', '/livro/42');
   });
 
   it('joins several authors into one line', async () => {

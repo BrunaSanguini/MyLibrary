@@ -98,7 +98,7 @@ describe('CalendarPage', () => {
     expect(within(details).getByText('Começou')).toBeInTheDocument();
     expect(within(details).getAllByRole('link', { name: /Abrir livro/ })[0]).toHaveAttribute(
       'href',
-      '/livros/1',
+      '/livro/1',
     );
     await userEvent.click(within(details).getByRole('button', { name: 'Fechar detalhes' }));
     expect(screen.queryByRole('complementary')).not.toBeInTheDocument();

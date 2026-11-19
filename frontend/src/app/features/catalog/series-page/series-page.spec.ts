@@ -42,13 +42,13 @@ const TREE = [
 async function open(books = BOOKS) {
   TestBed.configureTestingModule({
     providers: [
-      provideRouter([{ path: 'series/:id', component: SeriesPage }], withComponentInputBinding()),
+      provideRouter([{ path: 'serie/:id', component: SeriesPage }], withComponentInputBinding()),
       provideHttpClient(withInterceptors([problemDetailsInterceptor])),
       provideHttpClientTesting(),
     ],
   });
   const harness = await RouterTestingHarness.create();
-  await harness.navigateByUrl('/series/3');
+  await harness.navigateByUrl('/serie/3');
   const http = TestBed.inject(HttpTestingController);
   TestBed.tick();
   http.expectOne('/api/v1/series/3').flush(SERIES);
@@ -145,13 +145,13 @@ describe('SeriesPage', () => {
   it('says so when the series does not exist', async () => {
     TestBed.configureTestingModule({
       providers: [
-        provideRouter([{ path: 'series/:id', component: SeriesPage }], withComponentInputBinding()),
+        provideRouter([{ path: 'serie/:id', component: SeriesPage }], withComponentInputBinding()),
         provideHttpClient(withInterceptors([problemDetailsInterceptor])),
         provideHttpClientTesting(),
       ],
     });
     const harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl('/series/99');
+    await harness.navigateByUrl('/serie/99');
     const http = TestBed.inject(HttpTestingController);
     TestBed.tick();
     http

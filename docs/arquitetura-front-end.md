@@ -42,7 +42,6 @@ Cada componente tem a própria pasta, com `.ts`, `.html`, `.css` e `.spec.ts`:
 
 ```
 features/books/
-├─ books.routes.ts
 ├─ book-page/
 ├─ book-form-page/
 ├─ book-import-page/
@@ -301,30 +300,34 @@ O `changeOrigin` reescreve o header `Host` para `127.0.0.1`, que o filtro de seg
 
 ## Rotas
 
-As rotas são texto visível na barra do navegador, então ficam em português. A API continua em inglês.
+As rotas são texto visível na barra do navegador, então ficam em português. A API continua em inglês. A listagem fica no plural e a página de um item no singular (ADR-0009).
 
 | Rota | Tela |
 |---|---|
 | `/` | Home |
 | `/estante` | Minha Estante (filtros na URL) |
-| `/livros/novo` | cadastro manual |
-| `/livros/importar` | importação da Open Library |
-| `/livros/:id` | página do livro |
-| `/livros/:id/editar` | edição |
-| `/livros/:id/leitura` | Registrar leitura |
-| `/catalogos` | Catálogos |
-| `/autores/:id` · `/series/:id` · `/editoras/:id` · `/generos/:id` | páginas de agrupamento |
-| `/listas` · `/listas/:id` | Listas |
+| `/estante/novo` | cadastro manual |
+| `/estante/importar` | importação da Open Library |
+| `/livro/:id` | página do livro |
+| `/livro/:id/editar` | edição |
+| `/livro/:id/leitura` | Registrar leitura |
+| `/listas` · `/lista/:id` | Listas |
+| `/catalogos` (`?tipo=`) | Catálogos |
+| `/autor/:id` · `/serie/:id` · `/editoras/:id` · `/generos/:id` | páginas de agrupamento |
+| `/calendario` | Calendário de leitura |
 | `/metas` | Gerenciar metas |
 | `/perfil` | Perfil |
 | `**` | Página não encontrada |
+
+As rotas da versão anterior (`/livros/…`, `/listas/:id`, `/autores/:id`, `/series/:id`) continuam abrindo: o `app.routes.ts` as redireciona para as novas, mantendo o `:id`, a query string e o fragmento.
 
 ```ts
 export const routes: Routes = [
   { path: '', loadComponent: () => import('@features/home/home-page/home-page'), title: 'Início' },
   { path: 'estante', loadComponent: () => import('@features/shelf/shelf-page/shelf-page'), title: 'Minha Estante' },
-  { path: 'livros', loadChildren: () => import('@features/books/books.routes') },
+  { path: 'livro/:id', loadComponent: () => import('@features/books/book-page/book-page'), title: 'Livro' },
   // ...
+  { path: 'livros/:id', redirectTo: 'livro/:id', pathMatch: 'full' },
   { path: '**', loadComponent: () => import('@features/not-found/not-found-page/not-found-page'), title: 'Página não encontrada' },
 ];
 ```

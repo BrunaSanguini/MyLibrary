@@ -30,9 +30,9 @@ function configure() {
     providers: [
       provideRouter(
         [
-          { path: 'livros/novo', component: BookFormPage },
-          { path: 'livros/:id/editar', component: BookFormPage },
-          { path: 'livros/:id', children: [] },
+          { path: 'estante/novo', component: BookFormPage },
+          { path: 'livro/:id/editar', component: BookFormPage },
+          { path: 'livro/:id', children: [] },
         ],
         withComponentInputBinding(),
       ),
@@ -45,7 +45,7 @@ function configure() {
 async function openNew() {
   configure();
   const harness = await RouterTestingHarness.create();
-  await harness.navigateByUrl('/livros/novo');
+  await harness.navigateByUrl('/estante/novo');
   await harness.fixture.whenStable();
   return { harness, http: TestBed.inject(HttpTestingController) };
 }
@@ -53,7 +53,7 @@ async function openNew() {
 async function openEdit() {
   configure();
   const harness = await RouterTestingHarness.create();
-  await harness.navigateByUrl('/livros/42/editar');
+  await harness.navigateByUrl('/livro/42/editar');
   const http = TestBed.inject(HttpTestingController);
   TestBed.tick();
   http.expectOne('/api/v1/books/42').flush(DUNE);
@@ -137,7 +137,7 @@ describe('BookFormPage', () => {
     request.flush({ ...DUNE, title: 'Duna (edição revista)' });
     await harness.fixture.whenStable();
 
-    await vi.waitFor(() => expect(TestBed.inject(Router).url).toBe('/livros/42'));
+    await vi.waitFor(() => expect(TestBed.inject(Router).url).toBe('/livro/42'));
   });
 
   it('keeps the publishers of a co-edition in order and takes one out', async () => {
@@ -201,7 +201,7 @@ describe('BookFormPage', () => {
         'Já existe um livro com este ISBN-13 no acervo.',
       ),
     );
-    expect(TestBed.inject(Router).url).toBe('/livros/42/editar');
+    expect(TestBed.inject(Router).url).toBe('/livro/42/editar');
   });
 
   it('knows about unsaved changes only after something changes', async () => {

@@ -112,7 +112,7 @@ export class SearchPanel {
   /** Enter opens the highlighted book, or the full shelf when nothing is highlighted. */
   protected submit(): void {
     const book = this.books()[this.highlighted()];
-    const target = book ? ['/livros', book.id] : ['/estante'];
+    const target = book ? ['/livro', book.id] : ['/estante'];
     const queryParams = book ? {} : { q: this.term().trim() || null };
     this.open.set(false);
     void this.router.navigate(target, { queryParams });

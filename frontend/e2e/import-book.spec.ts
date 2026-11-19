@@ -46,7 +46,7 @@ test('imports a book from the Open Library and finds it on the shelf', async ({ 
   const search = page.getByRole('searchbox', { name: 'Título, autor ou ISBN' });
   await search.fill('hobbit');
   await search.press('Enter');
-  await expect(page).toHaveURL(/\/livros\/importar\?q=hobbit$/);
+  await expect(page).toHaveURL(/\/estante\/importar\?q=hobbit$/);
   await expect(page.getByRole('heading', { name: 'Resultados', level: 2 })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'O Hobbit', level: 3 })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'The Hobbit', level: 3 })).toBeVisible();
@@ -66,7 +66,7 @@ test('imports a book from the Open Library and finds it on the shelf', async ({ 
   await page.getByRole('button', { name: 'Importar livro' }).click();
 
   // The import lands on the page of the new book, with the cover downloaded to the app.
-  await expect(page).toHaveURL(/\/livros\/\d+$/);
+  await expect(page).toHaveURL(/\/livro\/\d+$/);
   await expect(page.getByRole('heading', { name: 'O Hobbit', level: 1 })).toBeVisible();
   await expect(page.getByRole('link', { name: 'J.R.R. Tolkien' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Tenho este livro' })).toHaveAttribute(
@@ -88,7 +88,7 @@ test('imports a book from the Open Library and finds it on the shelf', async ({ 
 
 test('says the book is already on the shelf instead of importing it twice', async ({ page }) => {
   // By title, the result points to the book of the collection.
-  await page.goto('/livros/importar?q=hobbit');
+  await page.goto('/estante/importar?q=hobbit');
   const results = page.getByRole('list').filter({ hasText: 'The Hobbit' });
   await expect(results.getByText('Já está na sua estante')).toBeVisible();
   await expect(page.getByRole('link', { name: 'Ver detalhes de O Hobbit' })).toHaveCount(0);
@@ -108,7 +108,7 @@ test('says the book is already on the shelf instead of importing it twice', asyn
 test('points to the manual form when there is no connection to the Open Library', async ({
   page,
 }) => {
-  await page.goto('/livros/importar');
+  await page.goto('/estante/importar');
   const search = page.getByRole('searchbox', { name: 'Título, autor ou ISBN' });
   await search.fill('sem conexao');
   await search.press('Enter');
@@ -124,7 +124,7 @@ test('points to the manual form when there is no connection to the Open Library'
 });
 
 test('says so when the Open Library takes too long to answer', async ({ page }) => {
-  await page.goto('/livros/importar?q=lenta');
+  await page.goto('/estante/importar?q=lenta');
 
   // The app waits, tries again twice and only then gives up, which takes a few seconds.
   await expect(page.getByRole('status')).toContainText('Buscando na Open Library');
@@ -137,7 +137,7 @@ test('says so when the Open Library takes too long to answer', async ({ page }) 
 });
 
 test('finds nothing and offers the manual form', async ({ page }) => {
-  await page.goto('/livros/importar?q=um livro que ninguem escreveu');
+  await page.goto('/estante/importar?q=um livro que ninguem escreveu');
 
   await expect(page.getByRole('heading', { name: 'Nenhum livro encontrado' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Cadastrar manualmente' })).toBeVisible();
@@ -147,21 +147,21 @@ for (const theme of THEMES) {
   test(`import page has no WCAG 2.1 AA violations in ${theme} theme`, async ({ page }) => {
     await useTheme(page, theme);
 
-    await page.goto('/livros/importar');
+    await page.goto('/estante/importar');
     await expect(page.getByRole('heading', { name: 'O que você quer importar?' })).toBeVisible();
     await expectNoAccessibilityViolations(page);
 
-    await page.goto('/livros/importar?q=hobbit');
+    await page.goto('/estante/importar?q=hobbit');
     await expect(page.getByRole('heading', { name: 'Resultados', level: 2 })).toBeVisible();
     await expectNoAccessibilityViolations(page);
 
     // The other edition is never imported, so its preview always shows the classification form.
-    await page.goto('/livros/importar?q=hobbit&edicao=OL7604539M');
+    await page.goto('/estante/importar?q=hobbit&edicao=OL7604539M');
     await expect(page.getByRole('heading', { name: 'The Hobbit', level: 2 })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Importar livro' })).toBeVisible();
     await expectNoAccessibilityViolations(page);
 
-    await page.goto('/livros/importar?q=sem conexao');
+    await page.goto('/estante/importar?q=sem conexao');
     await expect(page.getByRole('alert')).toBeVisible();
     await expectNoAccessibilityViolations(page);
   });

@@ -45,6 +45,6 @@ describe('AuthorCards', () => {
           .join(' '),
       ),
     ).toEqual(['Tolkien 6 livros', 'Austen 3 livros', 'Rothfuss 2 livros', 'Assis 1 livro']);
-    expect(links[0]).toHaveAttribute('href', '/autores/3');
+    expect(links[0]).toHaveAttribute('href', '/autor/3');
   });
 });

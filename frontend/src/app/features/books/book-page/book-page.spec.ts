@@ -123,11 +123,11 @@ const REVIEW = {
 };
 
 /**
- * Opens /livros/:id and answers its three requests: the book, with the given body or failure, its
+ * Opens /livro/:id and answers its three requests: the book, with the given body or failure, its
  * readings and its review (none of either, unless the test says otherwise).
  */
 async function openBook(
-  url = '/livros/42',
+  url = '/livro/42',
   body: object = FELLOWSHIP,
   failure?: { status: number; statusText: string },
   reading: { readings?: object[]; review?: object } = {},
@@ -136,8 +136,8 @@ async function openBook(
     providers: [
       provideRouter(
         [
-          { path: 'livros/:id', component: BookPage },
-          { path: 'livros/:id/leitura', children: [] },
+          { path: 'livro/:id', component: BookPage },
+          { path: 'livro/:id/leitura', children: [] },
           { path: 'estante', children: [] },
         ],
         withComponentInputBinding(),
@@ -173,7 +173,7 @@ describe('BookPage', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'J. R. R. Tolkien' })).toHaveAttribute(
       'href',
-      '/autores/7',
+      '/autor/7',
     );
     expect(screen.getByRole('link', { name: 'HarperCollins Brasil' })).toHaveAttribute(
       'href',
@@ -195,7 +195,7 @@ describe('BookPage', () => {
   });
 
   it('lists every publisher of a co-edition', async () => {
-    await openBook('/livros/42', {
+    await openBook('/livro/42', {
       ...FELLOWSHIP,
       publishers: [
         { id: 2, name: 'HarperCollins Brasil' },
@@ -216,7 +216,7 @@ describe('BookPage', () => {
     const byline = screen.getByRole('link', { name: 'J. R. R. Tolkien' }).closest('p')!;
     expect(within(byline).getByRole('link', { name: 'O Senhor dos Anéis' })).toHaveAttribute(
       'href',
-      '/series/3',
+      '/serie/3',
     );
     expect(byline).toHaveTextContent(/Série:\s*O Senhor dos Anéis\s*· Livro 1/);
   });
@@ -237,7 +237,7 @@ describe('BookPage', () => {
 
     expect(within(record()).getByRole('link', { name: 'O Senhor dos Anéis' })).toHaveAttribute(
       'href',
-      '/series/3',
+      '/serie/3',
     );
     expect(within(record()).getByText('Livro 1 de 3')).toBeInTheDocument();
   });
@@ -275,7 +275,7 @@ describe('BookPage', () => {
   });
 
   it('turns ownership off when the pressed tag is clicked again', async () => {
-    const { http } = await openBook('/livros/42', { ...FELLOWSHIP, ownership: 'WISHLIST' });
+    const { http } = await openBook('/livro/42', { ...FELLOWSHIP, ownership: 'WISHLIST' });
 
     await userEvent.click(screen.getByRole('button', { name: 'Wishlist' }));
 
@@ -323,7 +323,7 @@ describe('BookPage', () => {
 
     expect(screen.getByRole('link', { name: 'Editar informações' })).toHaveAttribute(
       'href',
-      '/livros/42/editar',
+      '/livro/42/editar',
     );
   });
 
@@ -355,7 +355,7 @@ describe('BookPage', () => {
 
   it('says the book is not in the collection when the API answers 404', async () => {
     await openBook(
-      '/livros/42',
+      '/livro/42',
       { code: 'book.not-found', detail: 'O livro solicitado não existe.' },
       { status: 404, statusText: 'Not Found' },
     );
@@ -369,7 +369,7 @@ describe('BookPage', () => {
 
   it('offers to try again on any other failure', async () => {
     await openBook(
-      '/livros/42',
+      '/livro/42',
       { code: 'internal.error', detail: 'Algo deu errado. Tente de novo.' },
       { status: 500, statusText: 'Server Error' },
     );
@@ -386,12 +386,12 @@ describe('BookPage', () => {
     expect(within(record()).queryByText('Relido')).not.toBeInTheDocument();
     expect(within(record()).getByRole('link', { name: 'Começar a ler' })).toHaveAttribute(
       'href',
-      '/livros/42/leitura',
+      '/livro/42/leitura',
     );
   });
 
   it('shows the reading in progress with its start, pages and progress', async () => {
-    await openBook('/livros/42', FELLOWSHIP, undefined, { readings: [READING] });
+    await openBook('/livro/42', FELLOWSHIP, undefined, { readings: [READING] });
 
     expect(within(record()).getByText('Lendo')).toBeInTheDocument();
     expect(within(record()).getByText('1 de novembro de 2026')).toBeInTheDocument();
@@ -402,7 +402,7 @@ describe('BookPage', () => {
   });
 
   it('shows a finished book with its dates, the rating and how many times it was read', async () => {
-    await openBook('/livros/42', FELLOWSHIP, undefined, { readings: [FINISHED], review: REVIEW });
+    await openBook('/livro/42', FELLOWSHIP, undefined, { readings: [FINISHED], review: REVIEW });
 
     expect(within(record()).getByText('Lido')).toBeInTheDocument();
     expect(within(record()).getByText('2 de janeiro de 2025')).toBeInTheDocument();
@@ -414,7 +414,7 @@ describe('BookPage', () => {
   });
 
   it('seals as reread a book finished more than once', async () => {
-    await openBook('/livros/42', FELLOWSHIP, undefined, {
+    await openBook('/livro/42', FELLOWSHIP, undefined, {
       readings: [FINISHED, { ...FINISHED, id: 7, endDate: '2019-07-01' }],
     });
 
@@ -423,7 +423,7 @@ describe('BookPage', () => {
   });
 
   it('seals as reread a reading marked as one', async () => {
-    await openBook('/livros/42', FELLOWSHIP, undefined, {
+    await openBook('/livro/42', FELLOWSHIP, undefined, {
       readings: [{ ...READING, reread: true }],
     });
 
@@ -431,7 +431,7 @@ describe('BookPage', () => {
   });
 
   it('opens on Sobre, with the synopsis, and switches to the reading history', async () => {
-    await openBook('/livros/42', FELLOWSHIP, undefined, { readings: [READING, FINISHED] });
+    await openBook('/livro/42', FELLOWSHIP, undefined, { readings: [READING, FINISHED] });
 
     expect(screen.getByRole('tab', { name: 'Sobre' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('Uma jornada até a Montanha da Perdição.')).toBeInTheDocument();
@@ -450,7 +450,7 @@ describe('BookPage', () => {
   });
 
   it('shows the sessions of a reading only when asked', async () => {
-    const { http, harness } = await openBook('/livros/42', FELLOWSHIP, undefined, {
+    const { http, harness } = await openBook('/livro/42', FELLOWSHIP, undefined, {
       readings: [READING],
     });
     await userEvent.click(screen.getByRole('tab', { name: /Histórico de leitura/ }));
@@ -484,7 +484,7 @@ describe('BookPage', () => {
     ).toBeInTheDocument();
     expect(within(history).getByRole('link', { name: 'Começar a ler' })).toHaveAttribute(
       'href',
-      '/livros/42/leitura',
+      '/livro/42/leitura',
     );
   });
 
@@ -501,7 +501,7 @@ describe('BookPage', () => {
   });
 
   it('shows the saved review', async () => {
-    await openBook('/livros/42', FELLOWSHIP, undefined, { review: REVIEW });
+    await openBook('/livro/42', FELLOWSHIP, undefined, { review: REVIEW });
 
     expect(within(reviewRegion()).getByText('Um clássico que envelhece bem.')).toBeInTheDocument();
     expect(within(reviewRegion()).getByRole('img', { name: 'Nota 4,5 de 5' })).toBeInTheDocument();
@@ -550,7 +550,7 @@ describe('BookPage', () => {
   });
 
   it('starts the edit from the saved review and gives up on cancel', async () => {
-    await openBook('/livros/42', FELLOWSHIP, undefined, { review: REVIEW });
+    await openBook('/livro/42', FELLOWSHIP, undefined, { review: REVIEW });
 
     await userEvent.click(screen.getByRole('button', { name: 'Editar resenha' }));
 
@@ -569,7 +569,7 @@ describe('BookPage', () => {
   });
 
   it('takes the rating away with the button, keeping the text', async () => {
-    const { http } = await openBook('/livros/42', FELLOWSHIP, undefined, { review: REVIEW });
+    const { http } = await openBook('/livro/42', FELLOWSHIP, undefined, { review: REVIEW });
 
     await userEvent.click(screen.getByRole('button', { name: 'Editar resenha' }));
     await userEvent.click(screen.getByRole('button', { name: 'Tirar nota' }));
@@ -587,7 +587,7 @@ describe('BookPage', () => {
   });
 
   it('keeps the form open and says why when the review is refused', async () => {
-    const { http, harness } = await openBook('/livros/42', FELLOWSHIP, undefined, {
+    const { http, harness } = await openBook('/livro/42', FELLOWSHIP, undefined, {
       review: REVIEW,
     });
 
@@ -606,7 +606,7 @@ describe('BookPage', () => {
   });
 
   it('deletes the review and goes back to the invitation', async () => {
-    const { http, harness } = await openBook('/livros/42', FELLOWSHIP, undefined, {
+    const { http, harness } = await openBook('/livro/42', FELLOWSHIP, undefined, {
       review: REVIEW,
     });
 
@@ -648,11 +648,11 @@ describe('BookPage', () => {
     expect(within(series).getByText('Da mesma série')).toBeInTheDocument();
     expect(within(series).getByRole('link', { name: /As Duas Torres/ })).toHaveAttribute(
       'href',
-      '/livros/43',
+      '/livro/43',
     );
     expect(within(series).getByRole('link', { name: /Ver série · 2 livros/ })).toHaveAttribute(
       'href',
-      '/series/3',
+      '/serie/3',
     );
     const similar = screen.getByRole('region', { name: 'Você também pode gostar' });
     expect(within(similar).getByRole('link', { name: /O Nome do Vento/ })).toBeInTheDocument();

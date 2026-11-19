@@ -46,7 +46,7 @@ async function open() {
       provideRouter(
         [
           { path: 'listas', component: ListsPage },
-          { path: 'listas/:id', component: ListStub },
+          { path: 'lista/:id', component: ListStub },
         ],
         withComponentInputBinding(),
       ),
@@ -68,7 +68,7 @@ describe('ListsPage', () => {
 
     expect(screen.getByRole('link', { name: 'Para as férias' })).toHaveAttribute(
       'href',
-      '/listas/4',
+      '/lista/4',
     );
     expect(screen.getByText('Leituras leves')).toBeInTheDocument();
     expect(screen.getByText('1 lido de 4')).toBeInTheDocument();
@@ -98,6 +98,6 @@ describe('ListsPage', () => {
     http.expectOne({ method: 'POST', url: '/api/v1/lists' }).flush({ ...LISTS.content[1], id: 9 });
     await harness.fixture.whenStable();
 
-    await vi.waitFor(() => expect(TestBed.inject(Router).url).toBe('/listas/9'));
+    await vi.waitFor(() => expect(TestBed.inject(Router).url).toBe('/lista/9'));
   });
 });

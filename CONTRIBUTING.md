@@ -162,7 +162,7 @@ Segue o [style guide oficial](https://angular.dev/style-guide).
 | Guards, interceptors e pipes | tipo no nome do arquivo | `profile-guard.ts`, `reading-time-pipe.ts` |
 | Seletores | prefixo `ml-` | `<ml-book-card>` |
 | Pastas | por feature, uma pasta por componente | `features/books/book-page/` |
-| Rotas | português, kebab-case | `/livros/:id/editar` |
+| Rotas | português, kebab-case; listagem no plural e página de um item no singular | `/estante`, `/livro/:id/editar` |
 | Tokens de CSS | prefixo `--ml-` | `--ml-color-accent`, `--ml-space-16` |
 
 Estrutura, estado, API tipada, estilos e tema em [`docs/arquitetura-front-end.md`](docs/arquitetura-front-end.md).
