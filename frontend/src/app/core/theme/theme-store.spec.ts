@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { resolveTheme, THEME_STORAGE_KEY, ThemeStore } from './theme-store';
 
@@ -15,6 +15,12 @@ describe('resolveTheme', () => {
 });
 
 describe('ThemeStore', () => {
+  // The first-visit tests need an empty storage, whatever ran before in the same environment.
+  beforeEach(() => {
+    localStorage.clear();
+    delete document.documentElement.dataset['theme'];
+  });
+
   afterEach(() => {
     localStorage.clear();
     delete document.documentElement.dataset['theme'];
