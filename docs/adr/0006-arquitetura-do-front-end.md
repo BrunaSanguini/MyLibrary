@@ -1,6 +1,6 @@
 # ADR-0006: Arquitetura do front-end
 
-- **Status:** Aceito
+- **Status:** Parcialmente substituído por [ADR-0009](0009-identidade-ex-libru-tema-e-rotas.md) (item 12: tema; item 8: forma das rotas)
 - **Data:** 2026-11-08
 
 ## Contexto
