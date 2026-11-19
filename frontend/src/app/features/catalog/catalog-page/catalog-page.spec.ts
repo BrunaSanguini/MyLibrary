@@ -89,13 +89,10 @@ describe('CatalogPage', () => {
 
     expect(screen.getByRole('link', { name: 'Machado de Assis' })).toHaveAttribute(
       'href',
-      '/autores/7',
+      '/autor/7',
     );
     expect(screen.getByText('3 livros')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Lima Barreto' })).toHaveAttribute(
-      'href',
-      '/autores/8',
-    );
+    expect(screen.getByRole('link', { name: 'Lima Barreto' })).toHaveAttribute('href', '/autor/8');
   });
 
   it('asks the right catalog for each tab', async () => {
@@ -157,7 +154,7 @@ describe('CatalogPage', () => {
     expect(screen.getByRole('link', { name: 'Listas' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('link', { name: 'Para as férias' })).toHaveAttribute(
       'href',
-      '/listas/4',
+      '/lista/4',
     );
     expect(screen.getByText('2 livros')).toBeInTheDocument();
   });

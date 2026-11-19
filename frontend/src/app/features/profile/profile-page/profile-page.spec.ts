@@ -108,7 +108,7 @@ describe('ProfilePage', () => {
     expect(within(reading).getByText('Dias seguidos').nextElementSibling).toHaveTextContent('6');
     expect(within(reading).getByRole('link', { name: 'A Sociedade do Anel' })).toHaveAttribute(
       'href',
-      '/livros/1',
+      '/livro/1',
     );
     expect(within(reading).getByText('O Hobbit · 6 dias')).toBeInTheDocument();
     const reviews = screen.getByRole('region', { name: 'Últimas resenhas' });

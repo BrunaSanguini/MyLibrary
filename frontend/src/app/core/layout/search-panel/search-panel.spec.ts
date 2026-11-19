@@ -124,7 +124,7 @@ describe('SearchPanel', () => {
 
     expect(screen.getByRole('link', { name: /A Sociedade do Anel/ })).toHaveAttribute(
       'href',
-      '/livros/42',
+      '/livro/42',
     );
     expect(screen.getByText('J. R. R. Tolkien')).toBeInTheDocument();
   });
@@ -138,7 +138,7 @@ describe('SearchPanel', () => {
 
     await user.keyboard('{ArrowDown}{ArrowDown}{Enter}');
 
-    expect(navigate).toHaveBeenCalledWith(['/livros', 7], { queryParams: {} });
+    expect(navigate).toHaveBeenCalledWith(['/livro', 7], { queryParams: {} });
   });
 
   it('goes to the shelf with the term when nothing is highlighted', async () => {

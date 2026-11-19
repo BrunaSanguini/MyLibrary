@@ -60,7 +60,7 @@ export default class ListsPage {
   }
 
   protected open(list: BookListResponse): void {
-    void this.router.navigate(['/listas', list.id]);
+    void this.router.navigate(['/lista', list.id]);
   }
 
   protected changePage(page: number): void {

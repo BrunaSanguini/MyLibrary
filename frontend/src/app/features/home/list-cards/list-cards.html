@@ -16,7 +16,7 @@
     <ul class="cards three">
       @for (list of page.value().content; track list.id) {
         <li>
-          <a class="card" [routerLink]="['/listas', list.id]">
+          <a class="card" [routerLink]="['/lista', list.id]">
             <span class="fan" aria-hidden="true">
               @for (cover of list.coverUrls; track cover) {
                 <ml-book-cover size="xs" [title]="list.name" [coverUrl]="cover" />

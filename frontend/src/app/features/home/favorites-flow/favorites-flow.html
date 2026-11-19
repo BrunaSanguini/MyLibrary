@@ -46,7 +46,7 @@
 
   @if (current(); as book) {
     <div class="caption" [attr.aria-live]="moving() ? 'off' : 'polite'">
-      <a class="title" [routerLink]="['/livros', book.id]">{{ book.title }}</a>
+      <a class="title" [routerLink]="['/livro', book.id]">{{ book.title }}</a>
       <p class="author">{{ book.authors.join(', ') }}</p>
       @if (detail.value()?.synopsis; as synopsis) {
         <p class="synopsis">{{ synopsis }}</p>

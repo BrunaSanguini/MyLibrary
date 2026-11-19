@@ -104,7 +104,7 @@
           <ul class="rows">
             @for (review of latest; track review.bookId) {
               <li>
-                <a class="row" [routerLink]="['/livros', review.bookId]">
+                <a class="row" [routerLink]="['/livro', review.bookId]">
                   <ml-book-cover
                     size="xs"
                     aria-hidden="true"
@@ -156,7 +156,7 @@
         @for (book of bars(); track book.bookId) {
           <div class="bar-row">
             <p class="bar-text">
-              <a [routerLink]="['/livros', book.bookId]">{{ book.title }}</a>
+              <a [routerLink]="['/livro', book.bookId]">{{ book.title }}</a>
               <span>{{ plural(book.days, 'dia', 'dias') }}</span>
             </p>
             <span class="bar" aria-hidden="true"><span [style.width.%]="book.share"></span></span>

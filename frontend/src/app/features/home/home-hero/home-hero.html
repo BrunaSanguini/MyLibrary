@@ -57,11 +57,11 @@
           <blockquote>{{ quote }}</blockquote>
         }
         <div class="actions">
-          <a class="primary" [routerLink]="['/livros', book.id]">
+          <a class="primary" [routerLink]="['/livro', book.id]">
             Abrir livro <ml-icon name="arrow-right" [size]="16" />
           </a>
           @if (excerpt()) {
-            <a class="secondary" [routerLink]="['/livros', book.id]" fragment="titulo-resenha">
+            <a class="secondary" [routerLink]="['/livro', book.id]" fragment="titulo-resenha">
               Ler minha resenha
             </a>
           }
@@ -104,7 +104,7 @@
         </p>
         <div class="actions start">
           <a class="primary" routerLink="/estante">Ir para a estante</a>
-          <a class="secondary" routerLink="/livros/novo">Cadastrar livro</a>
+          <a class="secondary" routerLink="/estante/novo">Cadastrar livro</a>
         </div>
       </div>
     } @else {

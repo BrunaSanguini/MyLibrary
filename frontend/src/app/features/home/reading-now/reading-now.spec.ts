@@ -61,7 +61,7 @@ describe('ReadingNow', () => {
     expect(reading).toHaveTextContent('página 196 de 656');
     expect(screen.getByRole('link', { name: 'Atualizar progresso' })).toHaveAttribute(
       'href',
-      '/livros/5/leitura',
+      '/livro/5/leitura',
     );
 
     await userEvent.click(screen.getByRole('button', { name: 'Próxima leitura' }));

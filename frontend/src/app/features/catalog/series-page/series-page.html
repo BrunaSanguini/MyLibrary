@@ -142,7 +142,7 @@
             <li class="volume">
               <a
                 class="volume-cover"
-                [routerLink]="['/livros', book.id]"
+                [routerLink]="['/livro', book.id]"
                 tabindex="-1"
                 aria-hidden="true"
               >
@@ -155,7 +155,7 @@
                 />
               </a>
               <div class="volume-text">
-                <a class="volume-title" [routerLink]="['/livros', book.id]">
+                <a class="volume-title" [routerLink]="['/livro', book.id]">
                   <span class="ml-visually-hidden">Livro {{ positionOf(book) }}: </span
                   >{{ book.title }}
                 </a>

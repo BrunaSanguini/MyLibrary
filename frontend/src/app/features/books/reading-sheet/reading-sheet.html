@@ -27,7 +27,7 @@
     <div>
       <dt>Série</dt>
       <dd>
-        <a [routerLink]="['/series', series.id]">{{ series.name }}</a>
+        <a [routerLink]="['/serie', series.id]">{{ series.name }}</a>
         <span class="detail">{{ seriesPlace() }}</span>
       </dd>
     </div>
@@ -63,7 +63,7 @@
   </div>
 }
 
-<a mlButton="primary" [routerLink]="['/livros', book().id, 'leitura']">
+<a mlButton="primary" [routerLink]="['/livro', book().id, 'leitura']">
   <ml-icon name="reading" [size]="16" />
   {{ action() }}
 </a>
