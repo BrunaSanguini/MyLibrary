@@ -18,7 +18,7 @@
     <ul class="cards four">
       @for (author of authors(); track author.id) {
         <li>
-          <a class="card" [routerLink]="['/autores', author.id]">
+          <a class="card" [routerLink]="['/autor', author.id]">
             <span class="fan" aria-hidden="true">
               @for (cover of author.coverUrls.slice(0, 3); track cover) {
                 <ml-book-cover size="xs" [title]="author.name" [coverUrl]="cover" />

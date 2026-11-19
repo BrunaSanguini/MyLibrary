@@ -50,7 +50,7 @@ describe('ShelfPage', () => {
     expect(screen.getByRole('heading', { name: 'Minha Estante', level: 1 })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /A Sociedade do Anel/ })).toHaveAttribute(
       'href',
-      '/livros/42',
+      '/livro/42',
     );
   });
 
@@ -150,7 +150,7 @@ describe('ShelfPage', () => {
     const links = screen.getAllByRole('link', { name: 'Adicionar livro' });
     expect(links).toHaveLength(2);
     for (const link of links) {
-      expect(link).toHaveAttribute('href', '/livros/novo');
+      expect(link).toHaveAttribute('href', '/estante/novo');
     }
   });
 

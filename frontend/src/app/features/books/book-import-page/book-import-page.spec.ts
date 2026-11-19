@@ -69,9 +69,9 @@ async function open(url: string) {
     providers: [
       provideRouter(
         [
-          { path: 'livros/importar', component: BookImportPage },
-          { path: 'livros/novo', children: [] },
-          { path: 'livros/:id', children: [] },
+          { path: 'estante/importar', component: BookImportPage },
+          { path: 'estante/novo', children: [] },
+          { path: 'livro/:id', children: [] },
         ],
         withComponentInputBinding(),
       ),
@@ -86,14 +86,14 @@ async function open(url: string) {
 }
 
 async function openResults() {
-  const page = await open('/livros/importar?q=hobbit');
+  const page = await open('/estante/importar?q=hobbit');
   page.http.expectOne(get(SEARCH, { q: 'hobbit' })).flush([HOBBIT_CANDIDATE, ANNOTATED_CANDIDATE]);
   await page.harness.fixture.whenStable();
   return page;
 }
 
 async function openPreview(preview: object = HOBBIT_PREVIEW) {
-  const page = await open('/livros/importar?q=hobbit&edicao=OL29823759M');
+  const page = await open('/estante/importar?q=hobbit&edicao=OL29823759M');
   page.http.expectOne(get(PREVIEW, { editionKey: 'OL29823759M' })).flush(preview);
   await page.harness.fixture.whenStable();
   return page;
@@ -104,33 +104,33 @@ const importButton = () => screen.getByRole('button', { name: 'Importar livro' }
 
 describe('BookImportPage', () => {
   it('waits for a search before calling the Open Library', async () => {
-    const { http } = await open('/livros/importar');
+    const { http } = await open('/estante/importar');
 
     expect(screen.getByRole('heading', { name: 'O que você quer importar?' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Prefiro cadastrar manualmente' })).toHaveAttribute(
       'href',
-      '/livros/novo',
+      '/estante/novo',
     );
     http.expectNone(() => true);
   });
 
   it('asks for some text before searching', async () => {
-    const { http } = await open('/livros/importar');
+    const { http } = await open('/estante/importar');
 
     await userEvent.click(screen.getByRole('button', { name: 'Buscar' }));
 
     expect(screen.getByText('Digite um título, um autor ou um ISBN.')).toBeInTheDocument();
     expect(searchBox()).toHaveAttribute('aria-describedby', 'erro-busca');
-    expect(TestBed.inject(Router).url).toBe('/livros/importar');
+    expect(TestBed.inject(Router).url).toBe('/estante/importar');
     http.expectNone(() => true);
   });
 
   it('puts the search in the address and lists what the Open Library found', async () => {
-    const { http, harness } = await open('/livros/importar');
+    const { http, harness } = await open('/estante/importar');
 
     await userEvent.type(searchBox(), '  hobbit ');
     await userEvent.click(screen.getByRole('button', { name: 'Buscar' }));
-    await vi.waitFor(() => expect(TestBed.inject(Router).url).toBe('/livros/importar?q=hobbit'));
+    await vi.waitFor(() => expect(TestBed.inject(Router).url).toBe('/estante/importar?q=hobbit'));
     TestBed.tick();
     http.expectOne(get(SEARCH, { q: 'hobbit' })).flush([HOBBIT_CANDIDATE, ANNOTATED_CANDIDATE]);
     await harness.fixture.whenStable();
@@ -140,7 +140,7 @@ describe('BookImportPage', () => {
     expect(screen.getByText(/J\.R\.R\. Tolkien, Douglas A\. Anderson/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Ver detalhes de O Hobbit' })).toHaveAttribute(
       'href',
-      '/livros/importar?q=hobbit&edicao=OL29823759M',
+      '/estante/importar?q=hobbit&edicao=OL29823759M',
     );
   });
 
@@ -161,24 +161,24 @@ describe('BookImportPage', () => {
     expect(within(annotated).getByText('Já está na sua estante')).toBeInTheDocument();
     expect(
       within(annotated).getByRole('link', { name: 'Abrir o livro The Annotated Hobbit' }),
-    ).toHaveAttribute('href', '/livros/7');
+    ).toHaveAttribute('href', '/livro/7');
     expect(within(annotated).queryByRole('link', { name: /Ver detalhes/ })).not.toBeInTheDocument();
   });
 
   it('says so when the search finds nothing', async () => {
-    const { http, harness } = await open('/livros/importar?q=xyzzy');
+    const { http, harness } = await open('/estante/importar?q=xyzzy');
     http.expectOne(get(SEARCH, { q: 'xyzzy' })).flush([]);
     await harness.fixture.whenStable();
 
     expect(screen.getByRole('heading', { name: 'Nenhum livro encontrado' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Cadastrar manualmente' })).toHaveAttribute(
       'href',
-      '/livros/novo',
+      '/estante/novo',
     );
   });
 
   it('goes straight to the edition when the text is an ISBN', async () => {
-    const { http, harness } = await open('/livros/importar?q=978-85-9508-474-2');
+    const { http, harness } = await open('/estante/importar?q=978-85-9508-474-2');
 
     http.expectNone((request) => request.url === SEARCH);
     http.expectOne(get(PREVIEW, { isbn: '9788595084742' })).flush(HOBBIT_PREVIEW);
@@ -190,14 +190,14 @@ describe('BookImportPage', () => {
   });
 
   it('searches by title when the digits are not a valid ISBN', async () => {
-    const { http } = await open('/livros/importar?q=9788595084740');
+    const { http } = await open('/estante/importar?q=9788595084740');
 
     http.expectNone((request) => request.url === PREVIEW);
     http.expectOne(get(SEARCH, { q: '9788595084740' })).flush([]);
   });
 
   it('ignores an edition in the address that is not an Open Library key', async () => {
-    const { http } = await open('/livros/importar?q=hobbit&edicao=../works/OL1W');
+    const { http } = await open('/estante/importar?q=hobbit&edicao=../works/OL1W');
 
     http.expectNone((request) => request.url === PREVIEW);
     http.expectOne(get(SEARCH, { q: 'hobbit' })).flush([]);
@@ -216,7 +216,7 @@ describe('BookImportPage', () => {
     expect(within(preview).getByText(/Bilbo Bolseiro era um dos mais/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Voltar aos resultados' })).toHaveAttribute(
       'href',
-      '/livros/importar?q=hobbit',
+      '/estante/importar?q=hobbit',
     );
   });
 
@@ -235,7 +235,7 @@ describe('BookImportPage', () => {
     request.flush({ id: 42, title: 'O Hobbit' });
     await harness.fixture.whenStable();
 
-    await vi.waitFor(() => expect(TestBed.inject(Router).url).toBe('/livros/42'));
+    await vi.waitFor(() => expect(TestBed.inject(Router).url).toBe('/livro/42'));
   });
 
   it('refuses a position without a series before sending anything', async () => {
@@ -254,7 +254,7 @@ describe('BookImportPage', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Já está na sua estante');
     expect(screen.getByRole('link', { name: 'Abrir o livro' })).toHaveAttribute(
       'href',
-      '/livros/42',
+      '/livro/42',
     );
     expect(screen.queryByRole('button', { name: 'Importar livro' })).not.toBeInTheDocument();
   });
@@ -284,12 +284,12 @@ describe('BookImportPage', () => {
 
     expect(screen.getByRole('link', { name: 'Abrir o livro' })).toHaveAttribute(
       'href',
-      '/livros/42',
+      '/livro/42',
     );
   });
 
   it('points to the manual form when there is no connection to the Open Library', async () => {
-    const { http, harness } = await open('/livros/importar?q=hobbit');
+    const { http, harness } = await open('/estante/importar?q=hobbit');
     http
       .expectOne(get(SEARCH, { q: 'hobbit' }))
       .flush(UNAVAILABLE, { status: 503, statusText: 'Service Unavailable' });
@@ -300,12 +300,12 @@ describe('BookImportPage', () => {
     expect(failure).toHaveTextContent(UNAVAILABLE.detail);
     expect(within(failure).getByRole('link', { name: 'Cadastrar manualmente' })).toHaveAttribute(
       'href',
-      '/livros/novo',
+      '/estante/novo',
     );
   });
 
   it('searches again when asked to try again', async () => {
-    const { http, harness } = await open('/livros/importar?q=hobbit');
+    const { http, harness } = await open('/estante/importar?q=hobbit');
     http
       .expectOne(get(SEARCH, { q: 'hobbit' }))
       .flush(UNAVAILABLE, { status: 503, statusText: 'Service Unavailable' });
@@ -320,7 +320,7 @@ describe('BookImportPage', () => {
   });
 
   it('points to the manual form when the Open Library takes too long on a preview', async () => {
-    const { http, harness } = await open('/livros/importar?edicao=OL29823759M');
+    const { http, harness } = await open('/estante/importar?edicao=OL29823759M');
     http
       .expectOne(get(PREVIEW, { editionKey: 'OL29823759M' }))
       .flush(
@@ -337,7 +337,7 @@ describe('BookImportPage', () => {
   });
 
   it('does not blame the Open Library for a failure of the app itself', async () => {
-    const { http, harness } = await open('/livros/importar?q=hobbit');
+    const { http, harness } = await open('/estante/importar?q=hobbit');
     http
       .expectOne(get(SEARCH, { q: 'hobbit' }))
       .flush(
@@ -352,7 +352,7 @@ describe('BookImportPage', () => {
   });
 
   it('says the ISBN is not at the Open Library and offers the manual form', async () => {
-    const { http, harness } = await open('/livros/importar?q=9788595084742');
+    const { http, harness } = await open('/estante/importar?q=9788595084742');
     http
       .expectOne(get(PREVIEW, { isbn: '9788595084742' }))
       .flush(
@@ -366,7 +366,7 @@ describe('BookImportPage', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Cadastrar manualmente' })).toHaveAttribute(
       'href',
-      '/livros/novo',
+      '/estante/novo',
     );
 
     await userEvent.click(screen.getByRole('button', { name: 'Buscar pelo título' }));
@@ -375,11 +375,11 @@ describe('BookImportPage', () => {
     const field = screen.getByLabelText('Título, autor ou ISBN');
     await vi.waitFor(() => expect(field).toHaveValue(''));
     expect(field).toHaveFocus();
-    expect(TestBed.inject(Router).url).toBe('/livros/importar');
+    expect(TestBed.inject(Router).url).toBe('/estante/importar');
   });
 
   it('announces that it is searching while the Open Library answers', async () => {
-    const { http } = await open('/livros/importar?q=hobbit');
+    const { http } = await open('/estante/importar?q=hobbit');
 
     expect(screen.getByRole('status')).toHaveTextContent('Buscando na Open Library…');
     http.expectOne(get(SEARCH, { q: 'hobbit' })).flush([]);

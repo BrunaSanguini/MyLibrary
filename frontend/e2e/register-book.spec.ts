@@ -49,7 +49,7 @@ test('registers a book by hand and finds it again', async ({ page }, testInfo) =
 
   // Saving lands on the page of the new book.
   await expect(page.getByRole('heading', { name: title, level: 1 })).toBeVisible();
-  await expect(page).toHaveURL(/\/livros\/\d+$/);
+  await expect(page).toHaveURL(/\/livro\/\d+$/);
   await expect(page.getByRole('link', { name: 'Machado de Assis' })).toBeVisible();
   await expect(page.getByText('1882')).toBeVisible();
   await expect(page.getByRole('list', { name: 'Subgêneros' })).toContainText(subgenre);
@@ -135,7 +135,7 @@ for (const theme of THEMES) {
     });
 
     test('book form has no WCAG 2.1 AA violations, errors included', async ({ page }) => {
-      await page.goto('/livros/novo');
+      await page.goto('/estante/novo');
       await page.getByRole('button', { name: 'Salvar livro' }).click();
       await expect(page.getByText('Informe o título.')).toBeVisible();
 

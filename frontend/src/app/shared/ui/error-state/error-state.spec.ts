@@ -39,7 +39,7 @@ describe('ErrorState', () => {
   it('shows another way forward after the retry button', async () => {
     await render(
       `<ml-error-state title="Não foi possível buscar na Open Library">
-        <a href="/livros/novo">Cadastrar manualmente</a>
+        <a href="/estante/novo">Cadastrar manualmente</a>
       </ml-error-state>`,
       { imports: [ErrorState] },
     );

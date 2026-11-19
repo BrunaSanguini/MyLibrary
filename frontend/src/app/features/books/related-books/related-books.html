@@ -7,7 +7,7 @@
       </div>
       <span class="rule" aria-hidden="true"></span>
       @if (series(); as current) {
-        <a class="more" [routerLink]="['/series', current.id]">
+        <a class="more" [routerLink]="['/serie', current.id]">
           Ver série · {{ seriesCount() }} <ml-icon name="arrow-right" [size]="16" />
         </a>
       }

@@ -82,12 +82,12 @@ test('a finished reading moves the goal of the month', async ({ page }) => {
   );
 
   // The reading is finished on its page, the way a person does it.
-  await page.goto(`/livros/${bookId}/leitura`);
+  await page.goto(`/livro/${bookId}/leitura`);
   await page.getByRole('button', { name: 'Começar leitura' }).click();
   // The day it ends starts as today once the reading is on screen.
   await expect(page.getByLabel('Dia do término')).not.toHaveValue('');
   await page.getByRole('button', { name: 'Concluir leitura' }).click();
-  await expect(page).toHaveURL(new RegExp(`/livros/${bookId}$`));
+  await expect(page).toHaveURL(new RegExp(`/livro/${bookId}$`));
 
   // Back on /metas, the goal counts this book. At least: tests running beside this one may
   // finish readings of their own in the same month.

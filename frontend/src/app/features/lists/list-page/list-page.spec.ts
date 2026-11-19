@@ -32,10 +32,10 @@ const card = (id: number, title: string) => ({
 
 const BOOKS = [card(1, 'A Sociedade do Anel'), card(2, 'O Hobbit'), card(3, 'Duna')];
 
-async function open(url = '/listas/4') {
+async function open(url = '/lista/4') {
   TestBed.configureTestingModule({
     providers: [
-      provideRouter([{ path: 'listas/:id', component: ListPage }], withComponentInputBinding()),
+      provideRouter([{ path: 'lista/:id', component: ListPage }], withComponentInputBinding()),
       provideHttpClient(withInterceptors([problemDetailsInterceptor])),
       provideHttpClientTesting(),
     ],

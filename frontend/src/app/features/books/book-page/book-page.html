@@ -33,7 +33,7 @@
         <p class="authors">
           <span>
             @for (author of current.authors; track author.id; let last = $last) {
-              <a [routerLink]="['/autores', author.id]">{{ author.name }}</a
+              <a [routerLink]="['/autor', author.id]">{{ author.name }}</a
               >{{ last ? '' : ', ' }}
             }
           </span>
@@ -41,7 +41,7 @@
             <span class="divider" aria-hidden="true"></span>
             <span class="series">
               <span class="ml-visually-hidden">Série:</span>
-              <a [routerLink]="['/series', series.id]">{{ series.name }}</a>
+              <a [routerLink]="['/serie', series.id]">{{ series.name }}</a>
               <span class="volume">· Livro {{ seriesPosition() }}</span>
             </span>
           }
@@ -189,7 +189,7 @@
       </div>
 
       <div class="actions">
-        <a mlButton="secondary" [routerLink]="['/livros', current.id, 'editar']">
+        <a mlButton="secondary" [routerLink]="['/livro', current.id, 'editar']">
           <ml-icon name="edit" [size]="16" />
           Editar informações
         </a>

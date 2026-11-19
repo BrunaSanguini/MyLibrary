@@ -30,7 +30,7 @@
           <p class="series">
             {{ series().length === 1 ? 'Série:' : 'Séries:' }}
             @for (entry of series(); track entry.id) {
-              <a class="series-link" [routerLink]="['/series', entry.id]"
+              <a class="series-link" [routerLink]="['/serie', entry.id]"
                 >{{ entry.name }} · {{ entry.count }}</a
               >
             }
@@ -85,7 +85,7 @@
     <ul class="books" aria-label="Livros do autor">
       @for (book of visible(); track book.id) {
         <li>
-          <a class="book" [routerLink]="['/livros', book.id]">
+          <a class="book" [routerLink]="['/livro', book.id]">
             <ml-book-cover
               size="sm"
               aria-hidden="true"

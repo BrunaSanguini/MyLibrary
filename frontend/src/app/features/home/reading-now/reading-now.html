@@ -24,7 +24,7 @@
     <p class="loading" aria-hidden="true"></p>
   } @else if (current(); as book) {
     <article class="card" [attr.aria-label]="book.title">
-      <a class="cover" [routerLink]="['/livros', book.id]" tabindex="-1" aria-hidden="true">
+      <a class="cover" [routerLink]="['/livro', book.id]" tabindex="-1" aria-hidden="true">
         <ml-book-cover
           size="sm"
           [title]="book.title"
@@ -50,8 +50,8 @@
         </p>
         <ml-progress-bar [value]="percent()" [label]="'Progresso de ' + book.title" />
         <div class="actions">
-          <a class="primary" [routerLink]="['/livros', book.id, 'leitura']">Atualizar progresso</a>
-          <a class="secondary" [routerLink]="['/livros', book.id]">Abrir livro</a>
+          <a class="primary" [routerLink]="['/livro', book.id, 'leitura']">Atualizar progresso</a>
+          <a class="secondary" [routerLink]="['/livro', book.id]">Abrir livro</a>
         </div>
       </div>
     </article>

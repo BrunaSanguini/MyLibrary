@@ -68,7 +68,7 @@
                 />
                 <div class="text">
                   <div class="title-row">
-                    <a class="title" [routerLink]="['/livros', book.id]">{{ book.title }}</a>
+                    <a class="title" [routerLink]="['/livro', book.id]">{{ book.title }}</a>
                     @if (book.status === 'READ') {
                       <span class="badge badge-read">
                         <ml-icon name="check" [size]="13" /> Lido

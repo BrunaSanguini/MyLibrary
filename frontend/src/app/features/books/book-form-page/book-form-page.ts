@@ -51,7 +51,7 @@ import {
   styleUrls: ['../book-fields.css', './book-form-page.css'],
 })
 export default class BookFormPage implements HasUnsavedChanges {
-  /** Route parameter of `/livros/:id/editar`; absent on `/livros/novo`. */
+  /** Route parameter of `/livro/:id/editar`; absent on `/estante/novo`. */
   readonly id = input(undefined, { transform: toId });
 
   private readonly router = inject(Router);
@@ -173,7 +173,7 @@ export default class BookFormPage implements HasUnsavedChanges {
         this.createdId.set(this.id() === undefined ? saved.id : undefined);
         await this.saveImages(saved.id);
         this.saved.set(true);
-        await this.router.navigate(['/livros', saved.id]);
+        await this.router.navigate(['/livro', saved.id]);
         return undefined;
       } catch (error) {
         return this.serverErrors(ApiError.from(error));

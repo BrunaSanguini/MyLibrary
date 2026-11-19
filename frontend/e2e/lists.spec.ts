@@ -103,7 +103,7 @@ for (const theme of THEMES) {
     await expect(page.getByRole('link', { name: `Acessível ${run}` })).toBeVisible();
     await expectNoAccessibilityViolations(page);
 
-    await page.goto(`/listas/${id}`);
+    await page.goto(`/lista/${id}`);
     await page.getByLabel('Buscar na estante').fill(run);
     await page.getByRole('button', { name: `Adicionar Delta ${run} à lista` }).click();
     await page.getByRole('button', { name: `Adicionar Épsilon ${run} à lista` }).click();

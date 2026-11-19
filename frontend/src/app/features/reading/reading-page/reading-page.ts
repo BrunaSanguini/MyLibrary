@@ -265,7 +265,7 @@ export default class ReadingPage implements HasUnsavedChanges {
           this.readings.reload();
         } else {
           // A reading that is already over has nothing to follow here.
-          await this.router.navigate(['/livros', bookId]);
+          await this.router.navigate(['/livro', bookId]);
         }
       });
       return undefined;
@@ -315,7 +315,7 @@ export default class ReadingPage implements HasUnsavedChanges {
     }
     await this.send(async () => {
       await firstValueFrom(request(this.periodModel().endDate));
-      await this.router.navigate(['/livros', reading.bookId]);
+      await this.router.navigate(['/livro', reading.bookId]);
     });
   }
 

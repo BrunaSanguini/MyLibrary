@@ -41,13 +41,13 @@ test('reads a book from the first page to the review', async ({ page }) => {
   const bookId = await createBook(page.request, title, 400);
 
   // A book never read wants to be read.
-  await page.goto(`/livros/${bookId}`);
+  await page.goto(`/livro/${bookId}`);
   const sheet = page.getByRole('region', { name: 'Ficha de leitura' });
   await expect(sheet).toContainText('Quero ler');
   await sheet.getByRole('link', { name: 'Começar a ler' }).click();
 
   // Starting the reading opens the page that follows it.
-  await expect(page).toHaveURL(new RegExp(`/livros/${bookId}/leitura$`));
+  await expect(page).toHaveURL(new RegExp(`/livro/${bookId}/leitura$`));
   await expect(page.getByRole('heading', { name: 'Nova leitura' })).toBeVisible();
   await page.getByRole('button', { name: 'Começar leitura' }).click();
   await expect(ring(page)).toHaveAttribute('aria-valuenow', '0');
@@ -81,7 +81,7 @@ test('reads a book from the first page to the review', async ({ page }) => {
 
   // Finishing goes back to the book, now read.
   await page.getByRole('button', { name: 'Concluir leitura' }).click();
-  await expect(page).toHaveURL(new RegExp(`/livros/${bookId}$`));
+  await expect(page).toHaveURL(new RegExp(`/livro/${bookId}$`));
   await expect(sheet).toContainText('Lido');
   await expect(sheet.getByRole('link', { name: 'Registrar leitura' })).toBeVisible();
 
@@ -116,7 +116,7 @@ test('refuses what the book does not have and keeps what was typed', async ({ pa
     data: { status: 'IN_PROGRESS', startDate: today() },
   });
 
-  await page.goto(`/livros/${bookId}/leitura`);
+  await page.goto(`/livro/${bookId}/leitura`);
   await page.getByLabel('Quantas páginas você leu?').fill('121');
   await page.getByRole('button', { name: 'Salvar sessão' }).click();
 
@@ -131,7 +131,7 @@ for (const theme of THEMES) {
     const bookId = await createBook(page.request, `Acessível ${theme} ${Date.now()}`, 300);
 
     // The form that starts a reading.
-    await page.goto(`/livros/${bookId}/leitura`);
+    await page.goto(`/livro/${bookId}/leitura`);
     await expect(page.getByRole('heading', { name: 'Nova leitura' })).toBeVisible();
     await expectNoAccessibilityViolations(page);
 
@@ -145,14 +145,14 @@ for (const theme of THEMES) {
       headers: WRITE,
       data: { date: today(), pagesRead: 75, note: 'Uma anotação.' },
     });
-    await page.goto(`/livros/${bookId}/leitura`);
+    await page.goto(`/livro/${bookId}/leitura`);
     await expect(ring(page)).toHaveAttribute('aria-valuenow', '25');
     await page.getByRole('button', { name: 'Salvar sessão' }).click();
     await expect(page.getByText('Informe quantas páginas você leu.')).toBeVisible();
     await expectNoAccessibilityViolations(page);
 
     // The book page with the reading sheet, and the review being written.
-    await page.goto(`/livros/${bookId}`);
+    await page.goto(`/livro/${bookId}`);
     await expect(page.getByRole('region', { name: 'Ficha de leitura' })).toContainText('Lendo');
     await page.getByRole('button', { name: 'Escrever resenha' }).click();
     await page.getByRole('slider', { name: 'Nota' }).focus();

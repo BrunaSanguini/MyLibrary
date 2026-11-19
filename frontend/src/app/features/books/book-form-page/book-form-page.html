@@ -7,7 +7,7 @@
     <ml-breadcrumbs
       [items]="[
         { label: 'Estante', link: '/estante' },
-        { label: book.value()?.title ?? '', link: '/livros/' + id() },
+        { label: book.value()?.title ?? '', link: '/livro/' + id() },
         { label: 'Editar' },
       ]"
     />
@@ -22,7 +22,7 @@
     @if (!editing()) {
       <p class="lead">
         Prefere trazer os dados prontos?
-        <a mlButton="link" routerLink="/livros/importar">Importar da Open Library</a>
+        <a mlButton="link" routerLink="/estante/importar">Importar da Open Library</a>
       </p>
     }
   </header>
@@ -296,7 +296,7 @@
     </section>
 
     <div class="actions">
-      <a mlButton="secondary" [routerLink]="editing() ? ['/livros', id()] : ['/estante']"
+      <a mlButton="secondary" [routerLink]="editing() ? ['/livro', id()] : ['/estante']"
         >Cancelar</a
       >
       <button mlButton="primary" type="submit" [disabled]="bookForm().submitting()">

@@ -43,10 +43,10 @@ const BOOKS = [
   card(3, 'As Duas Torres', 1954, 'READ', lotr(2)),
 ];
 
-async function open(url = '/autores/7') {
+async function open(url = '/autor/7') {
   TestBed.configureTestingModule({
     providers: [
-      provideRouter([{ path: 'autores/:id', component: AuthorPage }], withComponentInputBinding()),
+      provideRouter([{ path: 'autor/:id', component: AuthorPage }], withComponentInputBinding()),
       provideHttpClient(withInterceptors([problemDetailsInterceptor])),
       provideHttpClientTesting(),
     ],
@@ -85,7 +85,7 @@ describe('AuthorPage', () => {
     expect(kpis).toHaveTextContent('4,8 nota média');
     expect(screen.getByRole('link', { name: 'O Senhor dos Anéis · 2' })).toHaveAttribute(
       'href',
-      '/series/3',
+      '/serie/3',
     );
   });
 
@@ -130,7 +130,7 @@ describe('AuthorPage', () => {
   });
 
   it('says so when the author is not in the collection', async () => {
-    const { http } = await open('/autores/99');
+    const { http } = await open('/autor/99');
     http
       .expectOne('/api/v1/authors/99')
       .flush({ code: 'author.not-found' }, { status: 404, statusText: 'Not Found' });

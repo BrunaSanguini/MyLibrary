@@ -40,7 +40,7 @@
             <a
               class="result"
               [class.highlighted]="highlighted() === index"
-              [routerLink]="['/livros', book.id]"
+              [routerLink]="['/livro', book.id]"
               (click)="close()"
               (keydown.arrowdown)="moveHighlight(1, $event)"
               (keydown.arrowup)="moveHighlight(-1, $event)"

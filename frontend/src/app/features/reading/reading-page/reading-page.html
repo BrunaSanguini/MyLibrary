@@ -12,7 +12,7 @@
   <ml-breadcrumbs
     [items]="[
       { label: 'Estante', link: '/estante' },
-      { label: currentBook.title, link: ['/livros', currentBook.id] },
+      { label: currentBook.title, link: ['/livro', currentBook.id] },
       { label: 'Registrar leitura' },
     ]"
   />
@@ -24,7 +24,7 @@
       @if (startedOn()) {
         Leitura iniciada em {{ startedOn() }}.
       }
-      <a mlButton="link" [routerLink]="['/livros', currentBook.id]">Voltar ao livro</a>
+      <a mlButton="link" [routerLink]="['/livro', currentBook.id]">Voltar ao livro</a>
     </p>
   </header>
 
@@ -52,7 +52,7 @@
           Para registrar sessões e acompanhar o progresso, o livro precisa do número de páginas.
         </p>
         <div class="actions">
-          <a mlButton="secondary" [routerLink]="['/livros', currentBook.id, 'editar']">
+          <a mlButton="secondary" [routerLink]="['/livro', currentBook.id, 'editar']">
             Editar o livro
           </a>
         </div>

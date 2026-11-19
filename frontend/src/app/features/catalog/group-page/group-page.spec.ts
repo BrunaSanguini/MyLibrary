@@ -37,8 +37,8 @@ async function open(url: string) {
     providers: [
       provideRouter(
         [
-          { path: 'autores/:id', component: GroupPage, data: { kind: 'authors' } },
-          { path: 'series/:id', component: GroupPage, data: { kind: 'series' } },
+          { path: 'autor/:id', component: GroupPage, data: { kind: 'authors' } },
+          { path: 'serie/:id', component: GroupPage, data: { kind: 'series' } },
           { path: 'generos/:id', component: GroupPage, data: { kind: 'genres' } },
         ],
         withComponentInputBinding(),
@@ -57,7 +57,7 @@ const isShelf = (request: { url: string }) => request.url === '/api/v1/shelf/boo
 
 describe('GroupPage', () => {
   it('shows the author with the books of the collection', async () => {
-    const { harness, http } = await open('/autores/7');
+    const { harness, http } = await open('/autor/7');
     http.expectOne('/api/v1/authors/7').flush({ id: 7, name: 'Machado de Assis' });
     const shelf = http.expectOne(isShelf);
     shelf.flush(page([QUINCAS]));
@@ -66,14 +66,11 @@ describe('GroupPage', () => {
     expect(shelf.request.params.get('authorId')).toBe('7');
     expect(screen.getByRole('heading', { name: 'Machado de Assis', level: 1 })).toBeInTheDocument();
     expect(screen.getByText('Autor')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Quincas Borba/ })).toHaveAttribute(
-      'href',
-      '/livros/2',
-    );
+    expect(screen.getByRole('link', { name: /Quincas Borba/ })).toHaveAttribute('href', '/livro/2');
   });
 
   it('lists a series in reading order', async () => {
-    const { http } = await open('/series/1');
+    const { http } = await open('/serie/1');
 
     const shelf = http.expectOne(isShelf);
 
@@ -82,7 +79,7 @@ describe('GroupPage', () => {
   });
 
   it('leaves the other groupings in the default order of the shelf', async () => {
-    const { http } = await open('/autores/7');
+    const { http } = await open('/autor/7');
 
     expect(http.expectOne(isShelf).request.params.has('sort')).toBe(false);
   });
@@ -129,7 +126,7 @@ describe('GroupPage', () => {
   });
 
   it('says so when the author does not exist', async () => {
-    const { harness, http } = await open('/autores/404');
+    const { harness, http } = await open('/autor/404');
     http
       .expectOne('/api/v1/authors/404')
       .flush(
@@ -145,7 +142,7 @@ describe('GroupPage', () => {
   });
 
   it('asks nothing for an id that is not a number', async () => {
-    const { harness, http } = await open('/autores/abc');
+    const { harness, http } = await open('/autor/abc');
     await harness.fixture.whenStable();
 
     http.expectNone(isShelf);
@@ -155,7 +152,7 @@ describe('GroupPage', () => {
   });
 
   it('says when the group has no book yet', async () => {
-    const { harness, http } = await open('/autores/7');
+    const { harness, http } = await open('/autor/7');
     http.expectOne('/api/v1/authors/7').flush({ id: 7, name: 'Machado de Assis' });
     http.expectOne(isShelf).flush(page([]));
     await harness.fixture.whenStable();
@@ -164,7 +161,7 @@ describe('GroupPage', () => {
   });
 
   it('paginates a long group', async () => {
-    const { harness, http } = await open('/autores/7');
+    const { harness, http } = await open('/autor/7');
     http.expectOne('/api/v1/authors/7').flush({ id: 7, name: 'Machado de Assis' });
     http.expectOne(isShelf).flush(page([QUINCAS], 3));
     await harness.fixture.whenStable();
@@ -173,7 +170,7 @@ describe('GroupPage', () => {
   });
 
   it('offers to try again when the listing fails', async () => {
-    const { harness, http } = await open('/autores/7');
+    const { harness, http } = await open('/autor/7');
     http.expectOne('/api/v1/authors/7').flush({ id: 7, name: 'Machado de Assis' });
     http
       .expectOne(isShelf)

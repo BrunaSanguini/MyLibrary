@@ -218,7 +218,7 @@ export default class BookImportPage {
         const imported = await firstValueFrom(
           this.importApi.importEdition(importRequestOf(editionKey, this.classificationModel())),
         );
-        await this.router.navigate(['/livros', imported.id]);
+        await this.router.navigate(['/livro', imported.id]);
       } catch (error) {
         const apiError = ApiError.from(error);
         this.importError.set(apiError.detail);

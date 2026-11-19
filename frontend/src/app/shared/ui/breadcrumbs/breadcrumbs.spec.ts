@@ -12,7 +12,7 @@ import { Breadcrumbs, Crumb } from './breadcrumbs';
 class Host {
   readonly items: Crumb[] = [
     { label: 'Estante', link: '/estante' },
-    { label: 'Dom Casmurro', link: ['/livros', 42] },
+    { label: 'Dom Casmurro', link: ['/livro', 42] },
     { label: 'Editar' },
   ];
 }
@@ -25,7 +25,7 @@ describe('Breadcrumbs', () => {
     const links = within(trail).getAllByRole('link');
     expect(links.map((link) => link.textContent)).toEqual(['Estante', 'Dom Casmurro']);
     expect(links[0]).toHaveAttribute('href', '/estante');
-    expect(links[1]).toHaveAttribute('href', '/livros/42');
+    expect(links[1]).toHaveAttribute('href', '/livro/42');
     expect(within(trail).getByText('Editar')).toHaveAttribute('aria-current', 'page');
     expect(within(trail).getAllByRole('listitem')).toHaveLength(3);
   });
