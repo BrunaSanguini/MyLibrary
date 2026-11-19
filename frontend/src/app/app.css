@@ -23,7 +23,7 @@
 .content {
   max-width: var(--ml-content-width);
   margin: 0 auto;
-  padding: var(--ml-space-56) var(--ml-space-32) var(--ml-space-72);
+  padding: var(--ml-space-56) var(--ml-space-32) var(--ml-space-56);
 }
 
 .content:focus {
@@ -41,40 +41,4 @@
 
 :host(.over-hero) .content {
   padding-top: 0;
-}
-
-/* The signature at the end of every page, between two small gold ornaments. */
-.footer {
-  display: flex;
-  gap: var(--ml-space-12);
-  align-items: center;
-  justify-content: center;
-  padding: 0 var(--ml-space-32) var(--ml-space-40);
-  color: var(--ml-color-muted);
-}
-
-.footer p {
-  margin: 0;
-  font-family: var(--ml-font-display);
-  font-size: 18px;
-  font-style: italic;
-}
-
-.ornament {
-  position: relative;
-  width: 22px;
-  height: 1.5px;
-  background: var(--ml-color-gold);
-}
-
-.ornament::after {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--ml-color-gold);
-  content: '';
-  transform: translate(-50%, -50%);
 }

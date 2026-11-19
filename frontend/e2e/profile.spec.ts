@@ -38,7 +38,9 @@ test('keeps the theme chosen in the header, in this window and in a new one', as
   await expect(page.getByRole('link', { name: 'Meu perfil' })).toBeVisible();
   // The dark theme is the default, whatever the operating system uses.
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await page.getByRole('button', { name: 'Usar tema claro' }).click();
+  const themeToggle = page.getByRole('button', { name: 'Alternar tema claro e escuro' });
+  await expect(themeToggle).toHaveAttribute('aria-pressed', 'true');
+  await themeToggle.click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await expect.poll(() => profileTheme(page.request)).toBe('LIGHT');
 
@@ -48,7 +50,7 @@ test('keeps the theme chosen in the header, in this window and in a new one', as
     .then(() => page.evaluate(() => document.documentElement.dataset['theme']));
   await page.reload();
   expect(await themeAtFirstPaint).toBe('light');
-  await expect(page.getByRole('button', { name: 'Usar tema escuro' })).toBeVisible();
+  await expect(themeToggle).toHaveAttribute('aria-pressed', 'false');
 
   // A new window has nothing saved in the browser and still opens light: it came from the profile.
   const other = await browser.newContext({ colorScheme: 'dark' });

@@ -1,0 +1,17 @@
+:host {
+  display: inline-block;
+  color: var(--ml-color-ink);
+  font-family: var(--ml-font-title);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.dot {
+  color: var(--ml-color-accent);
+}
+
+.gold {
+  color: var(--ml-color-gold-text);
+}

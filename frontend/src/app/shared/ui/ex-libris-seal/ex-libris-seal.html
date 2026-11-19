@@ -1,0 +1,21 @@
+<svg
+  [attr.width]="size()"
+  [attr.height]="size()"
+  viewBox="0 0 110 110"
+  fill="none"
+  aria-hidden="true"
+  focusable="false"
+  [style.transform]="'rotate(' + rotation() + 'deg)'"
+>
+  <defs>
+    <path [attr.id]="arcId" d="M55 55m-41 0a41 41 0 1 1 82 0a41 41 0 1 1-82 0" />
+  </defs>
+  <circle class="disc" cx="55" cy="55" r="53" />
+  <circle class="ring" cx="55" cy="55" r="30" />
+  <text class="motto">
+    <textPath [attr.href]="'#' + arcId" textLength="256" lengthAdjust="spacing">
+      {{ motto }}
+    </textPath>
+  </text>
+  <path class="star" d="M55 40L58.2 51.8L70 55L58.2 58.2L55 70L51.8 58.2L40 55L51.8 51.8Z" />
+</svg>

@@ -28,7 +28,7 @@ describe('AppTitleStrategy', () => {
 
     await harness.navigateByUrl('/estante');
 
-    expect(TestBed.inject(Title).getTitle()).toBe('Minha Estante · Minha Livraria');
+    expect(TestBed.inject(Title).getTitle()).toBe('Minha Estante · Ex·Libru');
   });
 
   it('uses only the app name when the page has no title', async () => {
@@ -36,6 +36,6 @@ describe('AppTitleStrategy', () => {
 
     await harness.navigateByUrl('/sem-titulo');
 
-    expect(TestBed.inject(Title).getTitle()).toBe('Minha Livraria');
+    expect(TestBed.inject(Title).getTitle()).toBe('Ex·Libru');
   });
 });

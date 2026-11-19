@@ -3,6 +3,7 @@
   padding: var(--ml-space-24) var(--ml-space-32) 0;
 }
 
+/* The glass pill: 66 px high, the header with its margin is 90 px. */
 .bar {
   display: flex;
   align-items: center;
@@ -10,11 +11,11 @@
   gap: var(--ml-space-24);
   max-width: var(--ml-content-width);
   margin: 0 auto;
-  padding: 10px 12px 10px 24px;
-  border: 1px solid var(--ml-color-line);
+  padding: 10px 12px 10px 22px;
+  border: 1px solid var(--ml-color-glass-line);
   border-radius: var(--ml-radius-pill);
   background: var(--ml-color-glass);
-  box-shadow: var(--ml-shadow-soft);
+  box-shadow: var(--ml-shadow-raised);
   backdrop-filter: blur(14px) saturate(1.2);
 }
 
@@ -26,26 +27,11 @@
   text-decoration: none;
 }
 
-.logo-mark .ornament {
-  stroke: var(--ml-color-gold);
-}
-
-.logo-mark .book {
-  stroke: var(--ml-color-accent);
-}
-
 .wordmark {
-  font-family: var(--ml-font-display);
-  font-size: 25px;
-  font-weight: 600;
-  line-height: 1;
+  font-size: 20px;
 }
 
-.wordmark-first {
-  font-style: italic;
-  font-weight: 500;
-}
-
+/* Cinzel draws the lowercase as small capitals, so the labels are written as usual. */
 .menu {
   display: flex;
   gap: 28px;
@@ -54,25 +40,35 @@
   list-style: none;
 
   a {
+    position: relative;
     display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    font-size: 15px;
+    padding: 8px 0 4px;
+    border-bottom: 1px solid transparent;
+    font-family: var(--ml-font-title);
+    font-size: 14px;
     font-weight: 600;
-    line-height: 22px;
+    line-height: 20px;
+    letter-spacing: 0.08em;
     text-decoration: none;
-    opacity: 0.8;
+    opacity: 0.85;
+    transition: opacity 0.2s;
+
+    /* The text is 32 px high; the area to click and touch is 44 px. */
+    &::before {
+      position: absolute;
+      inset: -6px -4px;
+      content: '';
+    }
 
     &:hover {
       opacity: 1;
     }
-  }
 
-  .active {
-    color: var(--ml-color-accent);
-    text-decoration: underline 1.5px;
-    text-underline-offset: 6px;
-    opacity: 1;
+    &[aria-current='page'] {
+      border-bottom-color: var(--ml-color-gold);
+      color: var(--ml-color-gold-text);
+      opacity: 1;
+    }
   }
 }
 
@@ -91,6 +87,7 @@
   border: 0;
   border-radius: var(--ml-radius-pill);
   background: transparent;
+  color: var(--ml-color-gold-text);
   cursor: pointer;
 
   &:hover {
@@ -101,27 +98,23 @@
 .avatar {
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   margin-left: var(--ml-space-4);
   overflow: hidden;
-  border: 1.5px solid var(--ml-color-gold);
+  border: 2px solid var(--ml-color-gold);
   border-radius: var(--ml-radius-pill);
-  background: var(--ml-color-raised);
-  color: var(--ml-color-ink);
-  font-family: var(--ml-font-display);
-  font-size: 20px;
-  font-weight: 600;
+  background: var(--ml-color-lilac);
+  color: var(--ml-color-lilac-ink);
+  font-family: var(--ml-font-title);
+  font-size: 19px;
+  font-weight: 700;
   text-decoration: none;
 
-  &:hover,
-  &.active {
-    border-color: var(--ml-color-accent);
-  }
-
-  &:focus-visible {
+  /* On the profile page the avatar gets one more ring, outside the gold border. */
+  &[aria-current='page'] {
     outline: 2px solid var(--ml-color-accent);
-    outline-offset: 2px;
+    outline-offset: 3px;
   }
 
   img {

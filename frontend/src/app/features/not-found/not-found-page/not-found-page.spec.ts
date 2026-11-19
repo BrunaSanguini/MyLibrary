@@ -22,6 +22,6 @@ describe('NotFoundPage', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: 'Página não encontrada' })).toBeVisible();
     expect(screen.getByRole('link', { name: 'Voltar para o início' })).toHaveAttribute('href', '/');
-    expect(TestBed.inject(Title).getTitle()).toBe('Página não encontrada · Minha Livraria');
+    expect(TestBed.inject(Title).getTitle()).toBe('Página não encontrada · Ex·Libru');
   });
 });

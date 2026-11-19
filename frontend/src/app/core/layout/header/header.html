@@ -1,47 +1,16 @@
 <header class="bar">
-  <a class="logo" routerLink="/">
-    <svg
-      class="logo-mark"
-      width="34"
-      height="34"
-      viewBox="0 0 34 34"
-      fill="none"
-      aria-hidden="true"
-    >
-      <circle class="ornament" cx="17" cy="17" r="16" stroke-width="1" />
-      <path
-        class="book"
-        d="M7 11.5c3.3-1.6 6.7-1.6 10 0v12c-3.3-1.6-6.7-1.6-10 0z"
-        stroke-width="1.6"
-        stroke-linejoin="round"
-      />
-      <path
-        class="book"
-        d="M17 11.5c3.3-1.6 6.7-1.6 10 0v12c-3.3-1.6-6.7-1.6-10 0z"
-        stroke-width="1.6"
-        stroke-linejoin="round"
-      />
-      <path
-        class="ornament"
-        d="M21 11v6.5l1.6-1.3 1.6 1.3V11.2"
-        stroke-width="1.4"
-        stroke-linejoin="round"
-      />
-    </svg>
-    <span class="wordmark"><span class="wordmark-first">Minha</span> Livraria</span>
+  <a class="logo" routerLink="/" aria-label="Ex·Libru, início">
+    <ml-crest [width]="28" />
+    <ml-wordmark class="wordmark" />
   </a>
 
   <nav aria-label="Principal">
     <ul class="menu">
       @for (item of menu; track item.path) {
         <li>
-          <a
-            [routerLink]="item.path"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: item.exact }"
-            ariaCurrentWhenActive="page"
-            >{{ item.label }}</a
-          >
+          <a [routerLink]="item.path" [attr.aria-current]="isCurrent(item) ? 'page' : null">{{
+            item.label
+          }}</a>
         </li>
       }
     </ul>
@@ -53,7 +22,8 @@
     <button
       type="button"
       class="icon-button"
-      [attr.aria-label]="dark() ? 'Usar tema claro' : 'Usar tema escuro'"
+      aria-label="Alternar tema claro e escuro"
+      [attr.aria-pressed]="dark()"
       (click)="toggleTheme()"
     >
       <ml-icon [name]="dark() ? 'sun' : 'moon'" />
@@ -62,9 +32,8 @@
     <a
       class="avatar"
       routerLink="/perfil"
-      routerLinkActive="active"
-      ariaCurrentWhenActive="page"
       aria-label="Meu perfil"
+      [attr.aria-current]="profileActive() ? 'page' : null"
     >
       @if (avatarUrl(); as url) {
         <img [src]="url" alt="" />

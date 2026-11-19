@@ -2,11 +2,12 @@ import { Component, ElementRef, inject, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map } from 'rxjs';
+import { Footer } from '@core/layout/footer/footer';
 import { Header } from '@core/layout/header/header';
 
 @Component({
   selector: 'ml-root',
-  imports: [RouterOutlet, Header],
+  imports: [RouterOutlet, Header, Footer],
   templateUrl: './app.html',
   styleUrl: './app.css',
   host: { '[class.over-hero]': 'home()' },

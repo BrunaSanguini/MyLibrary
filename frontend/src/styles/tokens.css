@@ -44,6 +44,12 @@
   --ml-color-hero-chip-line: rgb(242 230 204 / 45%);
   --ml-color-hero-corner: rgb(212 166 69 / 70%);
 
+  /* The crest and the ex-libris seal keep the same colors in both themes. */
+  --ml-color-crest-night: #151b36;
+  --ml-color-crest-gold: #d4a645;
+  --ml-color-crest-paper: #f2e6cc;
+  --ml-color-crest-star: #ff4f8b;
+
   /* Glow behind the covers of the series page and the shadow of the cover in front. */
   --ml-color-series-glow: rgb(46 107 79 / 55%);
   --ml-color-series-glow-warm: rgb(160 86 30 / 25%);
