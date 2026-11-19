@@ -122,6 +122,8 @@ erDiagram
         varchar name
         varchar normalized_name UK
         varchar description
+        varchar color
+        boolean pinned
     }
     BOOK_LIST_ITEM {
         bigint book_list_id PK, FK
@@ -223,7 +225,11 @@ No máximo uma leitura `IN_PROGRESS` por livro. A regra fica no serviço e, como
 
 ### `lists`
 
-**`book_list`**: `name` (`VARCHAR(120)`), `normalized_name` (único) e `description` (`VARCHAR(1000)`).
+**`book_list`**: `name` (`VARCHAR(120)`), `normalized_name` (único), `description` (`VARCHAR(1000)`), `color` e `pinned`.
+- `color` é uma das seis cores do design (`FOREST`, `PLUM`, `NIGHT`, `RUST`, `SEAL`, `MOSS`), com `CHECK` na migration; sem escolha, a lista é `PLUM` (ameixa).
+- `pinned` marca a lista fixada na página Listas. Só uma lista fica fixada: o serviço desafixa a anterior antes de fixar a nova, porque o H2 não tem índice único parcial.
+- As listas criadas antes da migração `V9` ficam ameixa e sem fixar.
+- Fixar e desafixar não mexem em `updated_at`. Ele muda ao editar a lista e ao adicionar, remover ou reordenar livros.
 
 **`book_list_item`**: chave (`book_list_id`, `book_id`), `item_order` e `added_at`. Excluir a lista ou o livro remove o item.
 

@@ -9,6 +9,7 @@ import io.github.brunasanguini.minhalivraria.books.application.AuthorService;
 import io.github.brunasanguini.minhalivraria.books.application.BookRequest;
 import io.github.brunasanguini.minhalivraria.books.application.BookService;
 import io.github.brunasanguini.minhalivraria.images.ImageSamples;
+import io.github.brunasanguini.minhalivraria.lists.domain.ListColor;
 import io.github.brunasanguini.minhalivraria.reading.ReadingStatus;
 import io.github.brunasanguini.minhalivraria.reading.application.ReadingRequest;
 import io.github.brunasanguini.minhalivraria.reading.application.ReadingService;
@@ -20,13 +21,16 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.List;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -40,6 +44,7 @@ class BookListServiceTest {
 
     private static final Path DATA_DIR = tempDataDir();
     private static final PageRequest BY_NAME = PageRequest.of(0, 20, Sort.by("normalizedName"));
+    private static final OffsetDateTime LONG_AGO = OffsetDateTime.parse("2020-01-01T00:00:00Z");
 
     @DynamicPropertySource
     static void dataDir(DynamicPropertyRegistry registry) {
@@ -64,13 +69,14 @@ class BookListServiceTest {
     @Autowired
     private JdbcClient jdbc;
 
+    private long tolkien;
     private long fellowship;
     private long hobbit;
     private long dune;
 
     @BeforeEach
     void books() {
-        long tolkien = authors.create(new AuthorRequest("J. R. R. Tolkien")).id();
+        tolkien = authors.create(new AuthorRequest("J. R. R. Tolkien")).id();
         fellowship = book("A Sociedade do Anel", tolkien);
         hobbit = book("O Hobbit", tolkien);
         dune = book("Duna", tolkien);
@@ -78,7 +84,7 @@ class BookListServiceTest {
 
     @Test
     void shouldCreateAnEmptyList() {
-        BookListResponse list = lists.create(new BookListRequest("Para as férias", "Leituras leves"));
+        BookListResponse list = lists.create(new BookListRequest("Para as férias", "Leituras leves", null));
 
         assertThat(list.name()).isEqualTo("Para as férias");
         assertThat(list.description()).isEqualTo("Leituras leves");
@@ -86,14 +92,30 @@ class BookListServiceTest {
         assertThat(list.readCount()).isZero();
         assertThat(list.coverUrls()).isEmpty();
         assertThat(list.updatedAt()).isNotNull();
+        assertThat(list.color()).isEqualTo(ListColor.PLUM);
+        assertThat(list.pinned()).isFalse();
+        assertThat(list.wishlistCount()).isZero();
+        assertThat(list.status()).isEqualTo(ListStatus.NOT_STARTED);
+    }
+
+    @Test
+    void shouldKeepTheColorUntilAnotherOneIsChosen() {
+        BookListResponse rust = lists.create(new BookListRequest("Clássicos", null, ListColor.RUST));
+
+        BookListResponse described = lists.update(rust.id(), new BookListRequest("Clássicos", "Os de sempre", null));
+        BookListResponse repainted = lists.update(rust.id(), new BookListRequest("Clássicos", null, ListColor.SEAL));
+
+        assertThat(rust.color()).isEqualTo(ListColor.RUST);
+        assertThat(described.color()).isEqualTo(ListColor.RUST);
+        assertThat(repainted.color()).isEqualTo(ListColor.SEAL);
     }
 
     @Test
     void shouldRefuseTwoListsWithTheSameNameIgnoringCaseAndAccents() {
-        lists.create(new BookListRequest("Para as férias", null));
+        lists.create(new BookListRequest("Para as férias", null, null));
 
         assertCode(
-                () -> lists.create(new BookListRequest("PARA AS FERIAS", null)),
+                () -> lists.create(new BookListRequest("PARA AS FERIAS", null, null)),
                 ConflictException.class,
                 "list.name-duplicated");
     }
@@ -101,15 +123,16 @@ class BookListServiceTest {
     @Test
     void shouldRenameAListAndRefuseTheNameOfAnotherOne() {
         long vacation =
-                lists.create(new BookListRequest("Para as férias", null)).id();
-        long classics = lists.create(new BookListRequest("Clássicos", null)).id();
+                lists.create(new BookListRequest("Para as férias", null, null)).id();
+        long classics = lists.create(new BookListRequest("Clássicos", null, null)).id();
 
-        BookListResponse renamed = lists.update(vacation, new BookListRequest("Para as Férias", "Agora com descrição"));
+        BookListResponse renamed =
+                lists.update(vacation, new BookListRequest("Para as Férias", "Agora com descrição", null));
 
         assertThat(renamed.name()).isEqualTo("Para as Férias");
         assertThat(renamed.description()).isEqualTo("Agora com descrição");
         assertCode(
-                () -> lists.update(classics, new BookListRequest("para as ferias", null)),
+                () -> lists.update(classics, new BookListRequest("para as ferias", null, null)),
                 ConflictException.class,
                 "list.name-duplicated");
     }
@@ -219,11 +242,11 @@ class BookListServiceTest {
     @Test
     void shouldListTheCardsByNameWithTheirCounts() {
         long vacation = listWith(fellowship, hobbit);
-        lists.create(new BookListRequest("Clássicos", null));
+        lists.create(new BookListRequest("Clássicos", null, null));
         readings.create(hobbit, new ReadingRequest(ReadingStatus.FINISHED, null, LocalDate.parse("2025-03-10"), null));
         entityManager.flush();
 
-        List<BookListResponse> cards = lists.search(BY_NAME).getContent();
+        List<BookListResponse> cards = lists.search(ListFilter.none(), BY_NAME).getContent();
 
         assertThat(cards).extracting(BookListResponse::name).containsExactly("Clássicos", "Para as férias");
         assertThat(cards.get(0).bookCount()).isZero();
@@ -234,7 +257,158 @@ class BookListServiceTest {
 
     @Test
     void shouldAnswerAnEmptyPageWhenThereAreNoLists() {
-        assertThat(lists.search(BY_NAME).getTotalElements()).isZero();
+        assertThat(lists.search(ListFilter.none(), BY_NAME).getTotalElements()).isZero();
+    }
+
+    @Test
+    void shouldCountTheBooksOnTheWishlistInTheTotal() {
+        long wanted = book("Mistborn", tolkien, Ownership.WISHLIST);
+        long list = listWith(fellowship, wanted);
+
+        BookListResponse response = lists.get(list);
+
+        assertThat(response.bookCount()).isEqualTo(2);
+        assertThat(response.wishlistCount()).isEqualTo(1);
+    }
+
+    @Test
+    void shouldTellHowFarTheReadingOfEachListIs() {
+        long notStarted = listNamed("Para depois", dune);
+        long inProgress = listNamed("Aventuras", fellowship, hobbit);
+        long completed = listNamed("Clássicos");
+        lists.addBook(completed, hobbit);
+        finish(hobbit);
+        entityManager.flush();
+
+        assertThat(lists.get(notStarted).status()).isEqualTo(ListStatus.NOT_STARTED);
+        assertThat(lists.get(inProgress).status()).isEqualTo(ListStatus.IN_PROGRESS);
+        assertThat(lists.get(completed).status()).isEqualTo(ListStatus.COMPLETED);
+    }
+
+    @Test
+    void shouldFilterTheCardsByNameStatusAndPinned() {
+        listNamed("Aventuras", fellowship, hobbit);
+        long classics = listNamed("Clássicos", dune);
+        listNamed("Para depois", fellowship);
+        finish(hobbit);
+        finish(dune);
+        entityManager.flush();
+        lists.pin(classics);
+
+        assertThat(names(new ListFilter(null, ListStatus.IN_PROGRESS, null))).containsExactly("Aventuras");
+        assertThat(names(new ListFilter(null, ListStatus.COMPLETED, null))).containsExactly("Clássicos");
+        assertThat(names(new ListFilter(null, ListStatus.NOT_STARTED, null))).containsExactly("Para depois");
+        assertThat(names(new ListFilter("AVENTURA", null, null))).containsExactly("Aventuras");
+        assertThat(names(new ListFilter("classicos", null, null))).containsExactly("Clássicos");
+        assertThat(names(new ListFilter("  ", null, null))).hasSize(3);
+        assertThat(names(new ListFilter(null, null, true))).containsExactly("Clássicos");
+        assertThat(names(new ListFilter(null, null, false))).containsExactly("Aventuras", "Para depois");
+        assertThat(names(new ListFilter(null, ListStatus.COMPLETED, false))).isEmpty();
+    }
+
+    @Test
+    void shouldPageTheCardsAfterFiltering() {
+        listNamed("A", fellowship);
+        listNamed("B", hobbit);
+        listNamed("C", dune);
+
+        Page<BookListResponse> second = lists.search(ListFilter.none(), byName(1, 2));
+        Page<BookListResponse> beyond = lists.search(ListFilter.none(), byName(5, 2));
+
+        assertThat(second.getContent()).extracting(BookListResponse::name).containsExactly("C");
+        assertThat(second.getTotalElements()).isEqualTo(3);
+        assertThat(beyond.getContent()).isEmpty();
+        assertThat(beyond.getTotalElements()).isEqualTo(3);
+    }
+
+    @Test
+    void shouldPinOneListAtATime() {
+        long first = lists.create(new BookListRequest("Primeira", null, null)).id();
+        long second = lists.create(new BookListRequest("Segunda", null, null)).id();
+
+        lists.pin(first);
+        lists.pin(second);
+        lists.pin(second);
+
+        assertThat(lists.get(first).pinned()).isFalse();
+        assertThat(lists.get(second).pinned()).isTrue();
+
+        lists.unpin(second);
+        lists.unpin(second);
+
+        assertThat(lists.get(second).pinned()).isFalse();
+        assertThat(names(new ListFilter(null, null, true))).isEmpty();
+    }
+
+    @Test
+    void shouldRefusePinningOrUnpinningAnUnknownList() {
+        assertCode(() -> lists.pin(9_999), NotFoundException.class, "list.not-found");
+        assertCode(() -> lists.unpin(9_999), NotFoundException.class, "list.not-found");
+    }
+
+    @Test
+    void shouldMoveUpdatedAtWhenABookIsAddedRemovedOrMoved() {
+        long list = listWith(fellowship, hobbit);
+        Instant longAgo = LONG_AGO.toInstant();
+
+        longAgo(list);
+        lists.addBook(list, dune);
+        assertThat(updatedAt(list)).isAfter(longAgo);
+
+        longAgo(list);
+        lists.removeBook(list, dune);
+        assertThat(updatedAt(list)).isAfter(longAgo);
+
+        longAgo(list);
+        lists.reorder(list, List.of(hobbit, fellowship));
+        assertThat(updatedAt(list)).isAfter(longAgo);
+    }
+
+    @Test
+    void shouldMoveUpdatedAtWhenTheListIsEdited() {
+        long list = listWith(fellowship);
+
+        longAgo(list);
+        lists.update(list, new BookListRequest("Para as férias", "Agora com descrição", null));
+
+        assertThat(updatedAt(list)).isAfter(LONG_AGO.toInstant());
+    }
+
+    @Test
+    void shouldKeepUpdatedAtWhenNothingChangedInTheList() {
+        long list = listWith(fellowship);
+
+        longAgo(list);
+        lists.addBook(list, fellowship);
+        lists.removeBook(list, dune);
+
+        assertThat(updatedAt(list)).isEqualTo(LONG_AGO.toInstant());
+    }
+
+    @Test
+    void shouldKeepUpdatedAtWhenPinningAndUnpinning() {
+        long list = listWith(fellowship);
+
+        longAgo(list);
+        lists.pin(list);
+        lists.unpin(list);
+
+        assertThat(updatedAt(list)).isEqualTo(LONG_AGO.toInstant());
+    }
+
+    @Test
+    void shouldSortTheCardsByTheLastChange() {
+        long old = listNamed("Antiga", fellowship);
+        long recent = listNamed("Recente", hobbit);
+
+        longAgo(old);
+        lists.addBook(recent, dune);
+        entityManager.clear();
+
+        Page<BookListResponse> cards =
+                lists.search(ListFilter.none(), PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "updatedAt")));
+
+        assertThat(cards.getContent()).extracting(BookListResponse::name).containsExactly("Recente", "Antiga");
     }
 
     @Test
@@ -261,12 +435,50 @@ class BookListServiceTest {
     }
 
     private long listWith(long... bookIds) {
-        long list = lists.create(new BookListRequest("Para as férias", null)).id();
+        return listNamed("Para as férias", bookIds);
+    }
+
+    private long listNamed(String name, long... bookIds) {
+        long list = lists.create(new BookListRequest(name, null, null)).id();
         for (long bookId : bookIds) {
             lists.addBook(list, bookId);
         }
         entityManager.flush();
         return list;
+    }
+
+    private void finish(long book) {
+        readings.create(book, new ReadingRequest(ReadingStatus.FINISHED, null, LocalDate.parse("2025-03-10"), null));
+    }
+
+    private static PageRequest byName(int page, int size) {
+        return PageRequest.of(page, size, Sort.by("normalizedName"));
+    }
+
+    private List<String> names(ListFilter filter) {
+        entityManager.flush();
+        entityManager.clear();
+        return lists.search(filter, BY_NAME).getContent().stream()
+                .map(BookListResponse::name)
+                .toList();
+    }
+
+    /** Puts the last change of the list far in the past, to see whether an operation moves it. */
+    private void longAgo(long list) {
+        entityManager.flush();
+        jdbc.sql("update book_list set updated_at = ? where id = ?")
+                .param(LONG_AGO)
+                .param(list)
+                .update();
+    }
+
+    private Instant updatedAt(long list) {
+        entityManager.flush();
+        return jdbc.sql("select updated_at from book_list where id = ?")
+                .param(list)
+                .query(OffsetDateTime.class)
+                .single()
+                .toInstant();
     }
 
     private List<Long> order(long list) {
@@ -281,6 +493,10 @@ class BookListServiceTest {
     }
 
     private long book(String title, long author) {
+        return book(title, author, Ownership.OWNED);
+    }
+
+    private long book(String title, long author, Ownership ownership) {
         return books.create(new BookRequest(
                         title,
                         null,
@@ -295,7 +511,7 @@ class BookListServiceTest {
                         null,
                         null,
                         null,
-                        Ownership.OWNED,
+                        ownership,
                         false))
                 .id();
     }

@@ -458,7 +458,7 @@
       },
       "put" : {
         "tags" : [ "lists" ],
-        "description" : "A name already in use: 409 list.name-duplicated.",
+        "description" : "A name already in use: 409 list.name-duplicated. Without a color, the list keeps its own.",
         "operationId" : "updateList",
         "parameters" : [ {
           "name" : "id",
@@ -536,6 +536,48 @@
           },
           "required" : true
         },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/lists/{id}/pin" : {
+      "put" : {
+        "tags" : [ "lists" ],
+        "summary" : "Pins the list on the Lists page",
+        "description" : "Only one list is pinned: the one pinned before is unpinned. Idempotent. Pinning does not change updatedAt.",
+        "operationId" : "pinList",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "lists" ],
+        "summary" : "Unpins the list",
+        "description" : "Idempotent.",
+        "operationId" : "unpinList",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "OK"
@@ -1478,9 +1520,33 @@
       "get" : {
         "tags" : [ "lists" ],
         "summary" : "Lists, as cards",
-        "description" : "Sorting: name (default, asc) and updatedAt. The books of a list come from GET /shelf/books?listId={id}&sort=listOrder,asc.",
+        "description" : "q ignores case and accents and matches the name. status is how far the reading of the list is. pinned=true is the pinned list and pinned=false are all the others. Sorting: name (default, asc) and updatedAt. The books of a list come from GET /shelf/books?listId={id}&sort=listOrder,asc.",
         "operationId" : "searchLists",
         "parameters" : [ {
+          "name" : "q",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0
+          }
+        }, {
+          "name" : "status",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "NOT_STARTED", "IN_PROGRESS", "COMPLETED" ]
+          }
+        }, {
+          "name" : "pinned",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : [ "boolean", "null" ]
+          }
+        }, {
           "name" : "page",
           "in" : "query",
           "required" : false,
@@ -1522,7 +1588,7 @@
       },
       "post" : {
         "tags" : [ "lists" ],
-        "description" : "A name already in use: 409 list.name-duplicated.",
+        "description" : "A name already in use: 409 list.name-duplicated. Without a color, the list is plum.",
         "operationId" : "createList",
         "requestBody" : {
           "content" : {
@@ -2571,6 +2637,10 @@
             "type" : "string",
             "maxLength" : 1000,
             "minLength" : 0
+          },
+          "color" : {
+            "type" : "string",
+            "enum" : [ "FOREST", "PLUM", "NIGHT", "RUST", "SEAL", "MOSS" ]
           }
         },
         "required" : [ "name" ]
@@ -2588,6 +2658,13 @@
           "description" : {
             "type" : "string"
           },
+          "color" : {
+            "type" : "string",
+            "enum" : [ "FOREST", "PLUM", "NIGHT", "RUST", "SEAL", "MOSS" ]
+          },
+          "pinned" : {
+            "type" : "boolean"
+          },
           "bookCount" : {
             "type" : "integer",
             "format" : "int32"
@@ -2595,6 +2672,14 @@
           "readCount" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "wishlistCount" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "NOT_STARTED", "IN_PROGRESS", "COMPLETED" ]
           },
           "coverUrls" : {
             "type" : "array",
@@ -2607,7 +2692,7 @@
             "format" : "date-time"
           }
         },
-        "required" : [ "bookCount", "coverUrls", "id", "name", "readCount", "updatedAt" ]
+        "required" : [ "bookCount", "color", "coverUrls", "id", "name", "pinned", "readCount", "status", "updatedAt", "wishlistCount" ]
       },
       "ListOrderRequest" : {
         "type" : "object",

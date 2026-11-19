@@ -343,17 +343,31 @@ O mapa de calor e o "Esta semana" saem do `daily-pages`; a tabela de Ritmo sai d
 
 | Método e rota | Corpo | Resposta |
 |---|---|---|
-| `GET /lists` | paginado, `sort=name` ou `updatedAt` | `200` `PageResponse` de cards com `bookCount`, `readCount` e até três `coverUrls` |
-| `POST /lists` | `{ "name": "...", "description": "..." }` | `201`; `409` (`list.name-duplicated`) se outra lista já tiver o nome, ignorando maiúsculas e acentos |
+| `GET /lists` | `q`, `status`, `pinned`; paginado, `sort=name` ou `updatedAt` | `200` `PageResponse` de cards (campos abaixo) |
+| `POST /lists` | `{ "name": "...", "description": "...", "color": "RUST" }` | `201`; `409` (`list.name-duplicated`) se outra lista já tiver o nome, ignorando maiúsculas e acentos |
 | `GET /lists/{id}` · `PUT /lists/{id}` · `DELETE /lists/{id}` | | `200` / `200` / `204` |
+| `PUT /lists/{id}/pin` · `DELETE /lists/{id}/pin` | | `204`; fixa a lista (desafixando a que estava fixada) / desafixa; os dois são idempotentes |
 | `PUT /lists/{id}/books/{bookId}` | | `204`; adiciona no fim e é idempotente |
 | `DELETE /lists/{id}/books/{bookId}` | | `204`; também idempotente |
 | `PUT /lists/{id}/order` | `{ "bookIds": [5, 2, 9] }` | `204`; `422` (`list.invalid-order`) se não tiver exatamente os livros da lista, cada um uma vez |
 
 Os livros de uma lista vêm de `GET /shelf/books?listId={id}&sort=listOrder,asc`. `listOrder` sem `listId` devolve `400` (`request.invalid-sort`).
 
+**Filtros de `GET /lists`**, todos opcionais e combinados com E:
+- `q` ignora maiúsculas e acentos e procura no nome (até 200 caracteres).
+- `status` é `NOT_STARTED`, `IN_PROGRESS` ou `COMPLETED`.
+- `pinned=true` devolve só a lista fixada; `pinned=false`, todas as outras.
+
+`totalElements` já vem filtrado, então um filtro com `size=1` serve de contador.
+
+**Campos do card:** `id`, `name`, `description`, `color`, `pinned`, `bookCount`, `readCount`, `wishlistCount`, `status`, até três `coverUrls` e `updatedAt`.
+
+- `color` é `FOREST`, `PLUM`, `NIGHT`, `RUST`, `SEAL` ou `MOSS`. Sem cor, a lista nova é `PLUM` e uma lista editada mantém a que tinha.
 - `readCount` conta os livros com ao menos uma leitura concluída.
+- `wishlistCount` conta os livros da lista que estão na wishlist. Eles entram em `bookCount`.
+- `status` vem de `readCount` e `bookCount`: nenhum livro lido (ou lista vazia) é `NOT_STARTED`; todos lidos é `COMPLETED`; o resto é `IN_PROGRESS`.
 - `coverUrls` traz as capas dos três primeiros livros com capa, na ordem da lista.
+- `updatedAt` muda ao editar a lista e ao adicionar, remover ou reordenar livros; fixar e desafixar não mudam.
 - Excluir a lista não exclui os livros; excluir um livro o tira de todas as listas.
 
 ## Metas (`goals`)

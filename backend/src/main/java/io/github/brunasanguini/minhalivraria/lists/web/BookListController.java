@@ -3,15 +3,19 @@ package io.github.brunasanguini.minhalivraria.lists.web;
 import io.github.brunasanguini.minhalivraria.lists.application.BookListRequest;
 import io.github.brunasanguini.minhalivraria.lists.application.BookListResponse;
 import io.github.brunasanguini.minhalivraria.lists.application.BookListService;
+import io.github.brunasanguini.minhalivraria.lists.application.ListFilter;
 import io.github.brunasanguini.minhalivraria.lists.application.ListOrderRequest;
+import io.github.brunasanguini.minhalivraria.lists.application.ListStatus;
 import io.github.brunasanguini.minhalivraria.shared.web.PageQuery;
 import io.github.brunasanguini.minhalivraria.shared.web.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import java.net.URI;
 import java.util.Map;
 import java.util.function.Function;
+import org.jspecify.annotations.Nullable;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +26,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "lists", description = "Lists of books made by the user")
@@ -41,11 +46,19 @@ class BookListController {
     @Operation(
             operationId = "searchLists",
             summary = "Lists, as cards",
-            description = "Sorting: name (default, asc) and updatedAt. The books of a list come from"
+            description = "q ignores case and accents and matches the name. status is how far the reading of the list"
+                    + " is. pinned=true is the pinned list and pinned=false are all the others. Sorting: name"
+                    + " (default, asc) and updatedAt. The books of a list come from"
                     + " GET /shelf/books?listId={id}&sort=listOrder,asc.")
     @GetMapping
-    PageResponse<BookListResponse> search(@Valid @ParameterObject PageQuery page) {
-        return PageResponse.of(service.search(page.toPageable(SORT_FIELDS, BY_NAME)), Function.identity());
+    PageResponse<BookListResponse> search(
+            @RequestParam(required = false) @Size(max = 200) @Nullable String q,
+            @RequestParam(required = false) @Nullable ListStatus status,
+            @RequestParam(required = false) @Nullable Boolean pinned,
+            @Valid @ParameterObject PageQuery page) {
+        return PageResponse.of(
+                service.search(new ListFilter(q, status, pinned), page.toPageable(SORT_FIELDS, BY_NAME)),
+                Function.identity());
     }
 
     @Operation(operationId = "getList")
@@ -54,7 +67,9 @@ class BookListController {
         return service.get(id);
     }
 
-    @Operation(operationId = "createList", description = "A name already in use: 409 list.name-duplicated.")
+    @Operation(
+            operationId = "createList",
+            description = "A name already in use: 409 list.name-duplicated. Without a color, the list is plum.")
     @PostMapping
     ResponseEntity<BookListResponse> create(@Valid @RequestBody BookListRequest request) {
         BookListResponse created = service.create(request);
@@ -62,7 +77,9 @@ class BookListController {
                 .body(created);
     }
 
-    @Operation(operationId = "updateList", description = "A name already in use: 409 list.name-duplicated.")
+    @Operation(
+            operationId = "updateList",
+            description = "A name already in use: 409 list.name-duplicated. Without a color, the list keeps its own.")
     @PutMapping("/{id}")
     BookListResponse update(@PathVariable long id, @Valid @RequestBody BookListRequest request) {
         return service.update(id, request);
@@ -72,6 +89,24 @@ class BookListController {
     @DeleteMapping("/{id}")
     ResponseEntity<Void> delete(@PathVariable long id) {
         service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            operationId = "pinList",
+            summary = "Pins the list on the Lists page",
+            description = "Only one list is pinned: the one pinned before is unpinned. Idempotent. Pinning does not"
+                    + " change updatedAt.")
+    @PutMapping("/{id}/pin")
+    ResponseEntity<Void> pin(@PathVariable long id) {
+        service.pin(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(operationId = "unpinList", summary = "Unpins the list", description = "Idempotent.")
+    @DeleteMapping("/{id}/pin")
+    ResponseEntity<Void> unpin(@PathVariable long id) {
+        service.unpin(id);
         return ResponseEntity.noContent().build();
     }
 

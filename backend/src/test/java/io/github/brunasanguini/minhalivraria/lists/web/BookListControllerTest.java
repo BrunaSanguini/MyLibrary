@@ -3,6 +3,7 @@ package io.github.brunasanguini.minhalivraria.lists.web;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willThrow;
@@ -11,6 +12,9 @@ import io.github.brunasanguini.minhalivraria.WebSliceTest;
 import io.github.brunasanguini.minhalivraria.lists.application.BookListRequest;
 import io.github.brunasanguini.minhalivraria.lists.application.BookListResponse;
 import io.github.brunasanguini.minhalivraria.lists.application.BookListService;
+import io.github.brunasanguini.minhalivraria.lists.application.ListFilter;
+import io.github.brunasanguini.minhalivraria.lists.application.ListStatus;
+import io.github.brunasanguini.minhalivraria.lists.domain.ListColor;
 import io.github.brunasanguini.minhalivraria.shared.error.BusinessRuleException;
 import io.github.brunasanguini.minhalivraria.shared.error.ConflictException;
 import io.github.brunasanguini.minhalivraria.shared.error.NotFoundException;
@@ -39,8 +43,12 @@ class BookListControllerTest {
             7,
             "Para as férias",
             "Leituras leves",
+            ListColor.PLUM,
+            false,
             3,
             1,
+            1,
+            ListStatus.IN_PROGRESS,
             List.of("/api/v1/images/a.webp"),
             Instant.parse("2026-11-01T12:00:00Z"));
 
@@ -52,7 +60,7 @@ class BookListControllerTest {
 
     @Test
     void shouldListTheCardsSortedByNameByDefault() {
-        given(service.search(any())).willReturn(new PageImpl<>(List.of(VACATION), PageRequest.of(0, 20), 1));
+        given(service.search(any(), any())).willReturn(new PageImpl<>(List.of(VACATION), PageRequest.of(0, 20), 1));
 
         assertThat(mvc.get().uri("/api/v1/lists")).hasStatusOk().bodyJson().isLenientlyEqualTo("""
                         {
@@ -61,8 +69,12 @@ class BookListControllerTest {
                               "id": 7,
                               "name": "Para as férias",
                               "description": "Leituras leves",
+                              "color": "PLUM",
+                              "pinned": false,
                               "bookCount": 3,
                               "readCount": 1,
+                              "wishlistCount": 1,
+                              "status": "IN_PROGRESS",
                               "coverUrls": ["/api/v1/images/a.webp"],
                               "updatedAt": "2026-11-01T12:00:00Z"
                             }
@@ -72,19 +84,41 @@ class BookListControllerTest {
                         """);
 
         ArgumentCaptor<Pageable> pageable = ArgumentCaptor.forClass(Pageable.class);
-        then(service).should().search(pageable.capture());
+        then(service).should().search(eq(ListFilter.none()), pageable.capture());
         assertThat(pageable.getValue().getSort()).isEqualTo(Sort.by("normalizedName"));
     }
 
     @Test
     void shouldSortByTheLastChange() {
-        given(service.search(any())).willReturn(new PageImpl<>(List.of(), PageRequest.of(0, 20), 0));
+        given(service.search(any(), any())).willReturn(new PageImpl<>(List.of(), PageRequest.of(0, 20), 0));
 
         assertThat(mvc.get().uri("/api/v1/lists?sort=updatedAt,desc")).hasStatusOk();
 
         ArgumentCaptor<Pageable> pageable = ArgumentCaptor.forClass(Pageable.class);
-        then(service).should().search(pageable.capture());
+        then(service).should().search(any(), pageable.capture());
         assertThat(pageable.getValue().getSort()).isEqualTo(Sort.by(Sort.Direction.DESC, "updatedAt"));
+    }
+
+    @Test
+    void shouldPassTheFiltersOfTheListing() {
+        given(service.search(any(), any())).willReturn(new PageImpl<>(List.of(), PageRequest.of(0, 20), 0));
+
+        assertThat(mvc.get().uri("/api/v1/lists?q=ferias&status=COMPLETED&pinned=false"))
+                .hasStatusOk();
+
+        then(service).should().search(eq(new ListFilter("ferias", ListStatus.COMPLETED, false)), any());
+    }
+
+    @Test
+    void shouldRefuseAStatusThatDoesNotExist() {
+        assertThat(mvc.get().uri("/api/v1/lists?status=PAUSED")).hasStatus(HttpStatus.BAD_REQUEST);
+        then(service).shouldHaveNoInteractions();
+    }
+
+    @Test
+    void shouldRefuseASearchTermThatIsTooLong() {
+        assertThat(mvc.get().uri("/api/v1/lists?q=" + "a".repeat(201))).hasStatus(HttpStatus.BAD_REQUEST);
+        then(service).shouldHaveNoInteractions();
     }
 
     @Test
@@ -110,7 +144,7 @@ class BookListControllerTest {
 
     @Test
     void shouldAnswerANewListWith201AndItsLocation() {
-        given(service.create(new BookListRequest("Para as férias", "Leituras leves")))
+        given(service.create(new BookListRequest("Para as férias", "Leituras leves", null)))
                 .willReturn(VACATION);
 
         assertThat(post("/api/v1/lists", """
@@ -121,6 +155,24 @@ class BookListControllerTest {
                 .bodyJson()
                 .extractingPath("$.id")
                 .isEqualTo(7);
+    }
+
+    @Test
+    void shouldCreateAListWithTheChosenColor() {
+        given(service.create(new BookListRequest("Para as férias", null, ListColor.RUST)))
+                .willReturn(VACATION);
+
+        assertThat(post("/api/v1/lists", """
+                        { "name": "Para as férias", "color": "RUST" }
+                        """)).hasStatus(HttpStatus.CREATED);
+    }
+
+    @Test
+    void shouldRefuseAColorOutsideThePalette() {
+        assertThat(post("/api/v1/lists", """
+                        { "name": "Para as férias", "color": "NEON" }
+                        """)).hasStatus(HttpStatus.BAD_REQUEST);
+        then(service).shouldHaveNoInteractions();
     }
 
     @Test
@@ -151,7 +203,7 @@ class BookListControllerTest {
 
     @Test
     void shouldUpdateAList() {
-        given(service.update(7, new BookListRequest("Para as férias", null))).willReturn(VACATION);
+        given(service.update(7, new BookListRequest("Para as férias", null, null))).willReturn(VACATION);
 
         assertThat(put("/api/v1/lists/7", """
                         { "name": "Para as férias" }
@@ -168,6 +220,28 @@ class BookListControllerTest {
                 .hasStatus(HttpStatus.NO_CONTENT);
 
         then(service).should().delete(7);
+    }
+
+    @Test
+    void shouldPinAndUnpinAListWith204() {
+        assertThat(mvc.put().uri("/api/v1/lists/7/pin").header(REQUESTED_BY, MINHA_LIVRARIA))
+                .hasStatus(HttpStatus.NO_CONTENT);
+        assertThat(mvc.delete().uri("/api/v1/lists/7/pin").header(REQUESTED_BY, MINHA_LIVRARIA))
+                .hasStatus(HttpStatus.NO_CONTENT);
+
+        then(service).should().pin(7);
+        then(service).should().unpin(7);
+    }
+
+    @Test
+    void shouldAnswer404WhenPinningAnUnknownList() {
+        willThrow(new NotFoundException("list.not-found")).given(service).pin(99);
+
+        assertThat(mvc.put().uri("/api/v1/lists/99/pin").header(REQUESTED_BY, MINHA_LIVRARIA))
+                .hasStatus(HttpStatus.NOT_FOUND)
+                .bodyJson()
+                .extractingPath("$.code")
+                .isEqualTo("list.not-found");
     }
 
     @Test
