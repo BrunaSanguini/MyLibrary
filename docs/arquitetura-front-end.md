@@ -20,11 +20,12 @@ frontend/
       ├─ app.ts · app.config.ts · app.routes.ts
       ├─ core/                singletons da aplicação
       │  ├─ api/              tipos gerados, clientes da API, interceptors, ApiError
-      │  ├─ layout/           shell, header e painel de busca
+      │  ├─ layout/           header, rodapé e painel de busca
       │  ├─ theme/            tema claro/escuro
       │  └─ labels/           rótulos em português dos enums
       ├─ shared/
-      │  └─ ui/               componentes visuais sem regra de negócio
+      │  ├─ ui/               componentes visuais sem regra de negócio (brasão, selo, wordmark…)
+      │  └─ format/           formatação sem regra de negócio, como os numerais romanos
       └─ features/
          ├─ home/
          ├─ shelf/            Minha Estante
@@ -330,7 +331,7 @@ export const routes: Routes = [
 
 Os componentes de página usam `export default` para permitir o `loadComponent` sem `.then()`.
 
-- **Título da aba:** um `TitleStrategy` monta "Minha Estante · Minha Livraria".
+- **Título da aba:** um `TitleStrategy` monta "Minha Estante · Ex·Libru". O nome na tela é Ex·Libru; o repositório, o zip e o token continuam "Minha Livraria".
 - **View transitions:** a capa "voa" do card para a página do livro. Em navegadores sem suporte, a navegação acontece sem animação.
 - **Rolagem:** restaurada ao voltar.
 - **Alterações não salvas:** um guard (`canDeactivate`) avisa antes de sair dos formulários de livro, resenha e sessão.

@@ -1,0 +1,31 @@
+:host {
+  display: block;
+}
+
+.footer {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: center;
+  max-width: var(--ml-content-width);
+  margin: 0 auto;
+  padding: var(--ml-space-24) var(--ml-space-32) var(--ml-space-40);
+  color: var(--ml-color-muted);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.name {
+  font-size: 16px;
+  letter-spacing: 0.08em;
+}
+
+.motto {
+  font-family: var(--ml-font-display);
+  font-size: 17px;
+  font-style: italic;
+}

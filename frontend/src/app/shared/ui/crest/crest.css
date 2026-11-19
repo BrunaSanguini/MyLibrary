@@ -1,0 +1,28 @@
+:host {
+  display: inline-flex;
+  flex: none;
+}
+
+svg {
+  display: block;
+}
+
+.shield {
+  fill: var(--ml-color-crest-night);
+  stroke: var(--ml-color-crest-gold);
+  stroke-width: 7;
+  stroke-linejoin: round;
+}
+
+.orbit {
+  stroke: var(--ml-color-crest-gold);
+  stroke-width: 4;
+}
+
+.star {
+  fill: var(--ml-color-crest-star);
+}
+
+.book {
+  fill: var(--ml-color-crest-paper);
+}
