@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.0](https://github.com/BrunaSanguini/MyLibrary/compare/v1.1.0...v1.2.0) (2026-11-19)
+
+
+### Funcionalidades
+
+* **frontend:** header, rodapé e selo ex-libris com o nome Ex·Libru ([#73](https://github.com/BrunaSanguini/MyLibrary/issues/73)) ([5b571f2](https://github.com/BrunaSanguini/MyLibrary/commit/5b571f29b84d06f957aeb6d2dd51450bf277e762))
+* **frontend:** troca a paleta pela Arcana, com tema escuro padrão ([#71](https://github.com/BrunaSanguini/MyLibrary/issues/71)) ([b774f7f](https://github.com/BrunaSanguini/MyLibrary/commit/b774f7f5acabb6aac9cf0b1626cae2ed05924dd3))
+
 ## [1.1.0](https://github.com/BrunaSanguini/MyLibrary/compare/v1.0.0...v1.1.0) (2026-11-18)
 
 
