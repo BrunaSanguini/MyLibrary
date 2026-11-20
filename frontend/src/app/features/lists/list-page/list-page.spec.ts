@@ -16,6 +16,10 @@ const LIST = {
   description: 'Leituras leves',
   bookCount: 3,
   readCount: 1,
+  wishlistCount: 0,
+  status: 'IN_PROGRESS',
+  color: 'PLUM',
+  pinned: false,
   coverUrls: [],
   updatedAt: '2026-11-01T12:00:00Z',
 };

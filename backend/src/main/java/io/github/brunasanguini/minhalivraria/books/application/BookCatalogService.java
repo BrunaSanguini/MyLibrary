@@ -45,6 +45,7 @@ class BookCatalogService implements BookCatalog {
                 book.title(),
                 book.pageCount(),
                 cover == null ? null : ImageUrls.of(cover),
-                book.authors().stream().map(Author::name).toList());
+                book.authors().stream().map(Author::name).toList(),
+                book.ownership());
     }
 }
