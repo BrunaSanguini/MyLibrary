@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/BrunaSanguini/MyLibrary/compare/v1.4.0...v1.5.0) (2026-11-20)
+
+
+### Funcionalidades
+
+* **lists:** detalhe da lista pela spec, com fixar, desfazer e painel… ([#80](https://github.com/BrunaSanguini/MyLibrary/issues/80)) ([7b77dca](https://github.com/BrunaSanguini/MyLibrary/commit/7b77dcae0f6bdd9ddb67645083fc5c96de934c40))
+
 ## [1.4.0](https://github.com/BrunaSanguini/MyLibrary/compare/v1.3.0...v1.4.0) (2026-11-20)
 
 
