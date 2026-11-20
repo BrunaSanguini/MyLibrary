@@ -49,7 +49,8 @@ import org.springframework.transaction.annotation.Transactional;
 class ShelfServiceTest {
 
     private static final PageQuery FIRST_PAGE = new PageQuery(null, null, null);
-    private static final ShelfFilter EVERYTHING = new ShelfFilter(null, null, null, null, null, null, null, null, null, null);
+    private static final ShelfFilter EVERYTHING =
+            new ShelfFilter(null, null, null, null, null, null, null, null, null, null);
     private static final Path DATA_DIR = tempDataDir();
 
     @DynamicPropertySource
@@ -166,7 +167,7 @@ class ShelfServiceTest {
 
     @Test
     void shouldFindTheWholeShelfByDefault() {
-        List<Long> found = ids(new ShelfFilter(null, null, null, null, null, null, null, null, null, null));
+        List<Long> found = ids(EVERYTHING);
 
         assertThat(found).containsExactlyInAnyOrder(fellowship, hobbit, dune);
     }
@@ -226,37 +227,37 @@ class ShelfServiceTest {
 
     @Test
     void shouldCombineFiltersWithAnd() {
-        List<Long> found =
-                ids(new ShelfFilter("tolkien", null, Ownership.OWNED, false, null, fantasy, tolkien, harper, null, null));
+        ShelfFilter filter =
+                new ShelfFilter("tolkien", null, Ownership.OWNED, false, null, fantasy, tolkien, harper, null, null);
+        List<Long> found = ids(filter);
 
         assertThat(found).containsExactly(hobbit);
     }
 
     @Test
     void shouldSortByTitleIgnoringAccents() {
-        List<Long> found = ids(new ShelfFilter(null, null, null, null, null, null, null, null, null, null), "title,asc");
+        List<Long> found = ids(EVERYTHING, "title,asc");
 
         assertThat(found).containsExactly(fellowship, dune, hobbit);
     }
 
     @Test
     void shouldSortByTheFirstAuthor() {
-        List<Long> found = ids(new ShelfFilter(null, null, null, null, null, null, null, null, null, null), "author,asc");
+        List<Long> found = ids(EVERYTHING, "author,asc");
 
         assertThat(found).startsWith(dune);
     }
 
     @Test
     void shouldSortByNewestFirstByDefault() {
-        List<Long> found = ids(new ShelfFilter(null, null, null, null, null, null, null, null, null, null));
+        List<Long> found = ids(EVERYTHING);
 
         assertThat(found).containsExactly(dune, hobbit, fellowship);
     }
 
     @Test
     void shouldPutBooksWithoutASeriesPositionLast() {
-        List<Long> found =
-                ids(new ShelfFilter(null, null, null, null, null, null, null, null, null, null), "seriesPosition,asc");
+        List<Long> found = ids(EVERYTHING, "seriesPosition,asc");
 
         assertThat(found).startsWith(fellowship);
     }
