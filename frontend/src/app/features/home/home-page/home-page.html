@@ -1,4 +1,4 @@
-<ml-home-hero [books]="featured()" [loading]="favorites.isLoading()" />
+<ml-home-hero [books]="featured()" [loading]="heroLoading()" />
 
 @if (favoriteBooks().length > 0) {
   <ml-favorites-flow [books]="favoriteBooks()" />
@@ -9,8 +9,8 @@
   </section>
 }
 
-@if (goals.hasValue()) {
-  <ml-home-goals [goals]="goals.value()" [year]="year()" />
+@if (shownGoals(); as goals) {
+  <ml-home-goals [goals]="goals" [year]="year()" />
 }
 
 @defer (on viewport) {

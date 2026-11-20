@@ -27,6 +27,7 @@ describe('routes', () => {
       ['/listas/4', '/lista/4'],
       ['/autores/7', '/autor/7'],
       ['/series/3', '/serie/3'],
+      ['/metas', '/configuracoes?aba=metas'],
     ])('send %s to %s', async (old, current) => {
       const { url } = await navigate(old);
 
@@ -59,6 +60,7 @@ describe('routes', () => {
       ['/generos/2', 'generos/:id'],
       ['/editoras/5', 'editoras/:id'],
       ['/catalogos?tipo=autores', 'catalogos'],
+      ['/configuracoes?aba=destaques', 'configuracoes'],
     ])('open %s as %s, with no redirect', async (url, route) => {
       const result = await navigate(url);
 

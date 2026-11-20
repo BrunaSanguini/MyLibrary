@@ -1,6 +1,6 @@
 import { HttpClient, HttpResourceRequest } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { EMPTY, expand, map, Observable, reduce } from 'rxjs';
 
 import { components } from './schema';
 
@@ -9,6 +9,10 @@ type Schemas = components['schemas'];
 export type AuthorResponse = Schemas['AuthorResponse'];
 export type PublisherResponse = Schemas['PublisherResponse'];
 export type SeriesResponse = Schemas['SeriesResponse'];
+type AuthorsPage = Schemas['PageResponseAuthorResponse'];
+
+/** The API serves at most this many items per page. */
+const LARGEST_PAGE = 100;
 
 /** The three catalogs that are searched by name and paginated; genres are a tree (GenresApi). */
 export type CatalogKind = 'authors' | 'publishers' | 'series';
@@ -41,6 +45,34 @@ export class CatalogApi {
     return this.http
       .post<NamedEntry>(`/api/v1/${kind}`, { name })
       .pipe(map(({ id, name: created }) => ({ id, name: created })));
+  }
+
+  /**
+   * Every author or publisher, by name, walking the pages until the last one: Configurações lists
+   * them all and filters as the reader types.
+   */
+  all(kind: 'authors' | 'publishers'): Observable<(AuthorResponse | PublisherResponse)[]> {
+    const pageOf = (page: number) =>
+      this.http.get<AuthorsPage>(`/api/v1/${kind}`, {
+        params: { page, size: LARGEST_PAGE, sort: 'name,asc' },
+      });
+    return pageOf(0).pipe(
+      expand((current) =>
+        current.page + 1 < current.totalPages ? pageOf(current.page + 1) : EMPTY,
+      ),
+      map((current) => current.content),
+      reduce((all, content) => [...all, ...content], [] as AuthorResponse[]),
+    );
+  }
+
+  /** An author or a publisher with books is refused by the API (author.has-books). */
+  delete(kind: CatalogKind, id: number): Observable<void> {
+    return this.http.delete<void>(`/api/v1/${kind}/${id}`);
+  }
+
+  /** A genre with subgenres is refused by the API (genre.has-subgenres): they go first. */
+  deleteGenre(id: number): Observable<void> {
+    return this.http.delete<void>(`/api/v1/genres/${id}`);
   }
 
   /** A genre, or a subgenre of `parentId`. */

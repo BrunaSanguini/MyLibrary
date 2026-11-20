@@ -1,0 +1,180 @@
+<div class="layout">
+  <nav class="kinds" aria-label="Tipos de cadastro">
+    <ul>
+      @for (item of kinds; track item.id) {
+        <li>
+          <button
+            type="button"
+            class="kind"
+            [attr.aria-current]="item.id === kind() ? 'true' : null"
+            (click)="select(item.id)"
+          >
+            <span>{{ item.label }}</span>
+            <span class="kind-count">{{ counts()[item.id] }}</span>
+          </button>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <section class="panel" aria-labelledby="titulo-cadastro">
+    <h2 id="titulo-cadastro">{{ info().label }}</h2>
+    <p class="help">{{ info().help }}</p>
+
+    <div class="flash-region" role="status">
+      @if (flash(); as message) {
+        <div class="flash" [attr.data-kind]="message.kind">
+          <p>{{ message.text }}</p>
+          <button
+            type="button"
+            class="dismiss"
+            aria-label="Fechar aviso"
+            (click)="flash.set(undefined)"
+          >
+            <ml-icon name="close" [size]="16" />
+          </button>
+        </div>
+      }
+    </div>
+
+    @if (kind() === 'livros') {
+      <div class="create">
+        <p class="create-title">Adicionar livro</p>
+        <p class="create-text">
+          Os livros são cadastrados pela Minha Estante, com capa, autores e gêneros.
+        </p>
+        <a mlButton routerLink="/estante/novo"
+          ><ml-icon name="plus" [size]="16" /> Adicionar livro</a
+        >
+      </div>
+    } @else {
+      <form
+        class="create"
+        novalidate
+        [attr.aria-label]="'Criar ' + info().one"
+        (submit)="create($event)"
+      >
+        <p class="create-title" aria-hidden="true">Criar {{ info().one }}</p>
+        <div class="fields">
+          <label class="field">
+            <span class="label">Nome {{ info().feminine ? 'da' : 'do' }} {{ info().one }}</span>
+            <input
+              #nameField
+              class="control"
+              type="text"
+              autocomplete="off"
+              [placeholder]="info().placeholder"
+              [value]="name()"
+              [attr.aria-invalid]="nameError() ? 'true' : null"
+              [attr.aria-describedby]="nameError() ? 'erro-cadastro' : null"
+              (input)="typeName($event)"
+            />
+          </label>
+          @if (kind() === 'subgeneros') {
+            <label class="field">
+              <span class="label">Pertence ao gênero</span>
+              <select class="control" (change)="chooseParent($event)">
+                <option value="" [selected]="parentId() === undefined">Escolha um gênero</option>
+                @for (genre of genres(); track genre.id) {
+                  <option [value]="genre.id" [selected]="parentId() === genre.id">
+                    {{ genre.name }}
+                  </option>
+                }
+              </select>
+            </label>
+          }
+          @if (kind() === 'listas') {
+            <label class="field">
+              <span class="label">Descrição · opcional</span>
+              <input
+                class="control"
+                type="text"
+                autocomplete="off"
+                placeholder="Do que essa lista fala?"
+                [value]="description()"
+                (input)="typeDescription($event)"
+              />
+            </label>
+          }
+          <button mlButton type="submit" class="submit" [disabled]="busy()">
+            Criar {{ info().one }}
+          </button>
+        </div>
+        @if (nameError()) {
+          <p id="erro-cadastro" class="error" role="alert">{{ nameError() }}</p>
+        }
+      </form>
+    }
+
+    <div class="tools">
+      <label class="filter">
+        <span class="ml-visually-hidden">Filtrar {{ info().many }}</span>
+        <ml-icon name="search" [size]="16" />
+        <input
+          class="filter-input"
+          type="search"
+          autocomplete="off"
+          [placeholder]="'Filtrar ' + info().many"
+          [value]="filter()"
+          (input)="typeFilter($event)"
+        />
+      </label>
+      <p class="count">{{ countText() }}</p>
+    </div>
+
+    @if (loadError()) {
+      <p class="error" role="alert">{{ loadError() }}</p>
+    } @else if (loading()) {
+      <p class="loading" aria-hidden="true"></p>
+    } @else if (visible().length === 0) {
+      <p class="none">
+        @if (filter().trim()) {
+          Nada encontrado para “{{ filter().trim() }}”.
+        } @else {
+          Nada cadastrado ainda.
+        }
+      </p>
+    } @else {
+      <ul class="rows" [attr.aria-label]="info().label">
+        @for (row of visible(); track row.id) {
+          <li class="row">
+            <div class="text">
+              @if (row.link) {
+                <a class="name" [routerLink]="row.link">{{ row.name }}</a>
+              } @else {
+                <span class="name">{{ row.name }}</span>
+              }
+              <span class="usage">
+                @if (row.parent) {
+                  Pertence a {{ row.parent }} ·
+                }
+                {{ row.usage }}
+              </span>
+            </div>
+            @if (row.books > 0) {
+              <span class="in-use">Em uso</span>
+            }
+            <button
+              type="button"
+              class="delete"
+              [attr.aria-disabled]="row.books > 0 ? 'true' : null"
+              [attr.aria-label]="'Excluir ' + row.name"
+              (click)="askToDelete(row)"
+            >
+              Excluir
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>
+
+<ml-confirm-dialog
+  #deleteDialog
+  [title]="dialogTitle()"
+  [message]="dialogMessage()"
+  [confirmLabel]="deleteLabel()"
+  [busy]="busy()"
+  (confirmed)="delete()"
+/>

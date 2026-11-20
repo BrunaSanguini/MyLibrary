@@ -1,0 +1,53 @@
+<ml-breadcrumbs [items]="crumbs" />
+
+<header class="head">
+  <p class="eyebrow"><span aria-hidden="true">✦</span> Ajustes da sua biblioteca</p>
+  <h1>Configurações</h1>
+  <p class="lead">Cadastros, destaques da Home e metas. Tudo fica guardado só neste computador.</p>
+</header>
+
+<div class="tabs" role="tablist" aria-label="Seções das configurações">
+  @for (tab of tabs; track tab.id) {
+    <button
+      type="button"
+      role="tab"
+      class="tab"
+      [id]="'aba-' + tab.id"
+      aria-controls="painel-configuracoes"
+      [attr.aria-selected]="aba() === tab.id"
+      [tabindex]="aba() === tab.id ? 0 : -1"
+      (click)="select(tab.id)"
+      (keydown)="moveTab($event)"
+    >
+      {{ tab.label }}
+    </button>
+  }
+</div>
+
+<div
+  id="painel-configuracoes"
+  class="panel"
+  role="tabpanel"
+  [attr.aria-labelledby]="'aba-' + aba()"
+>
+  @switch (aba()) {
+    @case ('destaques') {
+      <ml-featured-settings />
+    }
+    @case ('metas') {
+      <ml-goals-settings />
+    }
+    @default {
+      <ml-registry [kind]="cadastro()" (kindChange)="changeKind($event)" />
+    }
+  }
+</div>
+
+<ml-confirm-dialog
+  #discardDialog
+  title="Descartar alterações?"
+  message="O que você mudou nesta aba ainda não foi salvo."
+  confirmLabel="Descartar alterações"
+  cancelLabel="Continuar editando"
+  (confirmed)="discard()"
+/>

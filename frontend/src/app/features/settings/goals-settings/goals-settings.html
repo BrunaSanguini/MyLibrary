@@ -1,0 +1,96 @@
+<section class="intro" aria-labelledby="titulo-metas">
+  <h2 id="titulo-metas">Suas metas de leitura</h2>
+  <p>
+    Escolha quais metas aparecem na Home e quanto você quer em cada uma. O ano e o mês seguem a data
+    do computador: hoje é {{ todayText }}.
+  </p>
+</section>
+
+@if (goals.error()) {
+  <p class="failure" role="alert">Não foi possível carregar as metas agora.</p>
+} @else if (!goals.hasValue()) {
+  <p class="loading" aria-hidden="true"></p>
+} @else {
+  <div class="grid">
+    @for (kind of kinds; track kind.id) {
+      <article class="goal" [attr.aria-labelledby]="'meta-' + kind.id">
+        <div class="goal-head">
+          <h3 [id]="'meta-' + kind.id">{{ kind.title }}</h3>
+          @if (!kind.locked) {
+            <button
+              type="button"
+              role="switch"
+              class="switch"
+              [attr.aria-checked]="drafts()[kind.id].on"
+              [attr.aria-labelledby]="'meta-' + kind.id"
+              (click)="toggle(kind)"
+            >
+              <span class="knob" aria-hidden="true"></span>
+            </button>
+          }
+        </div>
+        <p class="description">{{ kind.description }}</p>
+
+        @if (drafts()[kind.id].on) {
+          <div class="field">
+            <label [for]="'valor-' + kind.id">{{ kind.field }}</label>
+            <div class="input-row">
+              <input
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                [id]="'valor-' + kind.id"
+                [value]="drafts()[kind.id].value"
+                [attr.aria-invalid]="tried() && errorOf(kind) ? 'true' : null"
+                [attr.aria-describedby]="tried() && errorOf(kind) ? 'erro-' + kind.id : null"
+                (input)="type(kind, $event)"
+              />
+              <span class="unit">{{ kind.unit }}</span>
+            </div>
+            @if (tried() && errorOf(kind); as error) {
+              <p class="error" role="alert" [id]="'erro-' + kind.id">{{ error }}</p>
+            }
+          </div>
+          @if (previewOf(kind); as preview) {
+            <div class="preview">
+              <p>Com esta meta: {{ preview.text }}</p>
+              <ml-progress-bar
+                size="thread"
+                [value]="preview.percent"
+                [label]="'Prévia de ' + kind.title"
+              />
+            </div>
+          }
+          @if (kind.locked) {
+            <p class="note">Fica sempre ligada: é o anel principal da Home.</p>
+          }
+        } @else {
+          <p class="note">Meta desligada: não aparece na Home.</p>
+        }
+      </article>
+    }
+  </div>
+
+  <div class="status" role="status">
+    @if (flash()) {
+      <p class="flash">{{ flash() }}</p>
+    }
+  </div>
+  @if (failure()) {
+    <p class="failure" role="alert">{{ failure() }}</p>
+  }
+
+  <div class="actions">
+    <button
+      mlButton="secondary"
+      type="button"
+      [disabled]="!dirty() || saving()"
+      (click)="discardChanges()"
+    >
+      Descartar alterações
+    </button>
+    <button mlButton type="button" class="save" [disabled]="saving()" (click)="save()">
+      Salvar metas
+    </button>
+  </div>
+}

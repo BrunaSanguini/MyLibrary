@@ -1,4 +1,5 @@
-import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { Router, Routes } from '@angular/router';
 import { unsavedChangesGuard } from '@core/routing/unsaved-changes-guard';
 
 /**
@@ -57,9 +58,18 @@ export const routes: Routes = [
     title: 'Lista',
   },
   {
+    path: 'configuracoes',
+    loadComponent: () => import('@features/settings/settings-page/settings-page'),
+    // Destaques and Metas are saved with a button.
+    canDeactivate: [unsavedChangesGuard],
+    title: 'Configurações',
+  },
+  // The goals moved into Configurações; the old address opens their tab.
+  {
     path: 'metas',
-    loadComponent: () => import('@features/goals/goals-page/goals-page'),
-    title: 'Metas',
+    pathMatch: 'full',
+    redirectTo: () =>
+      inject(Router).createUrlTree(['/configuracoes'], { queryParams: { aba: 'metas' } }),
   },
   {
     path: 'perfil',

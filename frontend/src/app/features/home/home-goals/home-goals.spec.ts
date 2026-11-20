@@ -13,6 +13,7 @@ const BOOKS: GoalResponse = {
   target: 12,
   current: 3,
   percent: 25,
+  enabled: true,
 };
 const PAGES: GoalResponse = {
   id: 2,
@@ -22,6 +23,7 @@ const PAGES: GoalResponse = {
   target: 4000,
   current: 1240,
   percent: 31,
+  enabled: true,
 };
 const MONTH: GoalResponse = {
   id: 3,
@@ -32,6 +34,7 @@ const MONTH: GoalResponse = {
   target: 2,
   current: 1,
   percent: 50,
+  enabled: true,
 };
 
 describe('HomeGoals', () => {
@@ -48,14 +51,20 @@ describe('HomeGoals', () => {
       '31% concluído',
     );
     expect(screen.getByRole('article', { name: 'Livros em novembro' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Gerenciar metas/ })).toHaveAttribute('href', '/metas');
+    expect(screen.getByRole('link', { name: /Gerenciar metas/ })).toHaveAttribute(
+      'href',
+      '/configuracoes?aba=metas',
+    );
   });
 
   it('invites to create a goal when the year has none', async () => {
     await render(HomeGoals, { inputs: { goals: [], year: 2026 }, providers: [provideRouter([])] });
 
     expect(screen.getByText(/Nenhuma meta para 2026/)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Criar uma meta/ })).toHaveAttribute('href', '/metas');
+    expect(screen.getByRole('link', { name: /Criar uma meta/ })).toHaveAttribute(
+      'href',
+      '/configuracoes?aba=metas',
+    );
   });
 
   it('says what is left, or that the goal was reached', () => {

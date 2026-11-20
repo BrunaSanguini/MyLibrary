@@ -91,7 +91,10 @@ describe('ProfilePage', () => {
       'href',
       '/calendario',
     );
-    expect(screen.getByRole('link', { name: 'Ver metas' })).toHaveAttribute('href', '/metas');
+    expect(screen.getByRole('link', { name: 'Ver metas' })).toHaveAttribute(
+      'href',
+      '/configuracoes?aba=metas',
+    );
     expect(screen.getByText('1 livro terminado até agora.')).toBeInTheDocument();
     expect(
       screen.getByText('Suas resenhas aparecem aqui depois que você avaliar um livro.'),

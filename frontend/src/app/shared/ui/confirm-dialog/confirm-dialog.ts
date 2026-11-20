@@ -2,6 +2,9 @@ import { Component, ElementRef, input, output, viewChild } from '@angular/core';
 
 import { Button } from '../button/button';
 
+/** Each dialog names itself with an id of its own, so two on one page do not clash. */
+let nextId = 0;
+
 /**
  * Confirmation of something that cannot be undone, on a native `<dialog>`.
  *
@@ -24,6 +27,8 @@ export class ConfirmDialog {
   readonly busy = input(false);
 
   readonly confirmed = output<void>();
+
+  protected readonly titleId = `ml-confirm-title-${nextId++}`;
 
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
 
