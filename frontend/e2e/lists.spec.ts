@@ -32,11 +32,20 @@ test('builds a list and reorders it without the mouse', async ({ page }) => {
   await createBooks(page.request, run, ['Alfa', 'Beta', 'Gama']);
   const name = `Para as férias ${run}`;
 
-  // A new list opens right away, empty.
+  // The form opens under the title; the new list stays on the page, at the top, and says so.
   await page.goto('/listas');
-  await page.getByLabel('Nome').fill(name);
+  await page.getByRole('button', { name: 'Nova lista' }).click();
+  await page.getByLabel('Nome da lista').fill(name);
   await page.getByLabel(/Descrição/).fill('Leituras leves.');
+  await page.getByRole('radio', { name: 'Azul noite' }).click();
   await page.getByRole('button', { name: 'Criar lista' }).click();
+  await expect(page.getByRole('status')).toContainText(`Lista “${name}” criada.`);
+  await expect(page.getByRole('form', { name: 'Criar nova lista' })).toBeHidden();
+  const card = page.getByRole('link', { name });
+  await expect(card).toBeVisible();
+
+  // The card opens the list, still empty.
+  await card.click();
   await expect(page.getByRole('heading', { level: 1, name })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Esta lista está vazia' })).toBeVisible();
 
@@ -50,7 +59,7 @@ test('builds a list and reorders it without the mouse', async ({ page }) => {
   await expect(page.getByText('Já está na lista')).toHaveCount(3);
   const books = page.locator('ol.books a.title');
   await expect(books).toHaveText([`Alfa ${run}`, `Beta ${run}`, `Gama ${run}`]);
-  await expect(page.getByText('0 lidos de 3')).toBeVisible();
+  await expect(page.getByText('0 de 3 lidos')).toBeVisible();
 
   // Gama goes to the top by the keyboard alone: Tab to its button, then Enter twice.
   const up = page.getByRole('button', { name: `Mover Gama ${run} para cima` });
@@ -68,8 +77,11 @@ test('builds a list and reorders it without the mouse', async ({ page }) => {
   await page.reload();
   await expect(books).toHaveText([`Gama ${run}`, `Alfa ${run}`, `Beta ${run}`]);
 
-  // The card on /listas and the tab on /catalogos show the list.
+  // The card on /listas, under "Não iniciadas", and the tab on /catalogos show the list.
   await page.goto('/listas');
+  await expect(page.getByRole('link', { name })).toBeVisible();
+  await page.getByRole('tab', { name: /Não iniciadas/ }).click();
+  await expect(page).toHaveURL(/filtro=nao/);
   await expect(page.getByRole('link', { name })).toBeVisible();
   await page.goto('/catalogos?tipo=listas');
   await expect(page.getByRole('link', { name })).toBeVisible();
@@ -81,11 +93,12 @@ test('refuses a second list with the same name', async ({ page }) => {
   expect(created.ok()).toBe(true);
 
   await page.goto('/listas');
-  await page.getByLabel('Nome').fill(name.toUpperCase());
+  await page.getByRole('button', { name: 'Nova lista' }).click();
+  await page.getByLabel('Nome da lista').fill(name.toUpperCase());
   await page.getByRole('button', { name: 'Criar lista' }).click();
 
   await expect(page.getByRole('alert')).toContainText('Já existe uma lista com este nome.');
-  await expect(page.getByLabel('Nome')).toHaveValue(name.toUpperCase());
+  await expect(page.getByLabel('Nome da lista')).toHaveValue(name.toUpperCase());
 });
 
 for (const theme of THEMES) {
@@ -101,6 +114,11 @@ for (const theme of THEMES) {
 
     await page.goto('/listas');
     await expect(page.getByRole('link', { name: `Acessível ${run}` })).toBeVisible();
+    await page.mouse.move(0, 0);
+    await expectNoAccessibilityViolations(page);
+
+    await page.getByRole('button', { name: 'Nova lista' }).click();
+    await expect(page.getByRole('form', { name: 'Criar nova lista' })).toBeVisible();
     await expectNoAccessibilityViolations(page);
 
     await page.goto(`/lista/${id}`);

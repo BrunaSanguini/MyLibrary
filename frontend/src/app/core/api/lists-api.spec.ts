@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 
-import { ListsApi, readCountOf } from './lists-api';
+import { ListsApi, readCountOf, statusLabelOf } from './lists-api';
 
 const card = (id: number) => ({
   id,
@@ -18,12 +18,59 @@ const card = (id: number) => ({
 
 describe('readCountOf', () => {
   it.each([
-    [0, 0, 'Nenhum livro ainda'],
-    [3, 0, '0 lidos de 3'],
-    [3, 1, '1 lido de 3'],
-    [5, 2, '2 lidos de 5'],
+    [0, 0, '0 de 0 lidos'],
+    [3, 0, '0 de 3 lidos'],
+    [3, 1, '1 de 3 lidos'],
+    [5, 2, '2 de 5 lidos'],
   ])('describes %i books with %i read', (bookCount, readCount, text) => {
     expect(readCountOf({ bookCount, readCount })).toBe(text);
+  });
+});
+
+describe('statusLabelOf', () => {
+  it.each([
+    ['NOT_STARTED', 'Não iniciada'],
+    ['IN_PROGRESS', 'Em andamento'],
+    ['COMPLETED', 'Concluída'],
+  ] as const)('writes %s as "%s"', (status, label) => {
+    expect(statusLabelOf(status)).toBe(label);
+  });
+});
+
+describe('ListsApi requests', () => {
+  function api(): ListsApi {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    return TestBed.inject(ListsApi);
+  }
+
+  it('asks for the cards by the last change, leaving the pinned list out', () => {
+    expect(api().cardsRequest()).toEqual({
+      url: '/api/v1/lists',
+      params: { pinned: false, page: 0, size: 100, sort: 'updatedAt,desc' },
+    });
+  });
+
+  it('narrows the cards by status', () => {
+    expect(api().cardsRequest({ status: 'COMPLETED' }).params).toMatchObject({
+      pinned: false,
+      status: 'COMPLETED',
+    });
+  });
+
+  it('counts with a page of one card, with or without a status', () => {
+    const lists = api();
+
+    expect(lists.countRequest()).toEqual({
+      url: '/api/v1/lists',
+      params: { pinned: false, size: 1 },
+    });
+    expect(lists.countRequest('NOT_STARTED').params).toEqual({
+      pinned: false,
+      status: 'NOT_STARTED',
+      size: 1,
+    });
   });
 });
 

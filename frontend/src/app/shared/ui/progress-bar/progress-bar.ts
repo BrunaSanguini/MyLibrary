@@ -22,8 +22,11 @@ import { Component, computed, input } from '@angular/core';
 export class ProgressBar {
   readonly value = input.required<number>();
   readonly label = input('Progresso de leitura');
-  /** `sm` is the 6px bar of the compact card; `md` the 8px one of the listing. */
-  readonly size = input<'sm' | 'md'>('md');
+  /**
+   * `sm` is the 6px bar of the compact card; `md` the 8px one of the listing; `thread` the 2px gold
+   * line of the lists.
+   */
+  readonly size = input<'sm' | 'md' | 'thread'>('md');
 
   protected readonly percentage = computed(() =>
     Math.round(Math.min(Math.max(this.value(), 0), 100)),

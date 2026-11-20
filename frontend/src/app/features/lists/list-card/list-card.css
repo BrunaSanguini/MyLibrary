@@ -1,0 +1,140 @@
+/* A list card: the frame of the design system, a fan of covers and a thread of progress. */
+
+:host {
+  display: block;
+}
+
+.card {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  gap: var(--ml-space-16);
+  box-sizing: border-box;
+  height: 100%;
+  padding: 22px;
+  border: 1px solid var(--ml-color-glass-line);
+  border-radius: var(--ml-radius-md);
+  background: var(--ml-color-surface);
+  box-shadow: var(--ml-shadow-frame), var(--ml-shadow-soft);
+  transition: transform 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.top {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+}
+
+h2 {
+  margin: 0;
+  font-family: var(--ml-font-title);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+/* The link covers the card, so a click anywhere opens the list. */
+h2 a {
+  color: var(--ml-color-ink);
+  text-decoration: none;
+}
+
+h2 a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--ml-radius-md);
+}
+
+h2 a:focus-visible {
+  outline: none;
+}
+
+h2 a:focus-visible::after {
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 3px;
+}
+
+.description {
+  display: -webkit-box;
+  margin: var(--ml-space-8) 0 0;
+  overflow: hidden;
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-display);
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ml-space-8);
+  margin-top: auto;
+}
+
+.line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ml-space-12);
+}
+
+.count {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--ml-color-lilac);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.status {
+  margin: 0;
+  font-family: var(--ml-font-title);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.status[data-status='NOT_STARTED'] {
+  color: var(--ml-color-muted);
+}
+
+.status[data-status='IN_PROGRESS'] {
+  color: var(--ml-color-accent);
+}
+
+.status[data-status='COMPLETED'] {
+  color: var(--ml-color-gold-text);
+}
+
+.updated {
+  margin: 0;
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-display);
+  font-size: 15px;
+  font-style: italic;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+
+  .card:hover {
+    transform: none;
+  }
+}

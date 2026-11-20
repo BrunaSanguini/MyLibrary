@@ -1,0 +1,22 @@
+<article class="card">
+  <div class="top">
+    <ml-list-covers [name]="list().name" [color]="list().color" [coverUrls]="list().coverUrls" />
+    <div class="text">
+      <h2>
+        <a [routerLink]="['/lista', list().id]">{{ list().name }}</a>
+      </h2>
+      <p class="description">{{ list().description || 'Sem descrição por enquanto.' }}</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="line">
+      <p class="count"><ml-icon name="shelf" [size]="14" /> {{ readCount() }}</p>
+      <p class="status" [attr.data-status]="list().status">{{ statusLabel() }}</p>
+    </div>
+    <ml-progress-bar size="thread" [value]="percent()" [label]="'Livros lidos de ' + list().name" />
+    <p class="updated">
+      atualizada <time [attr.datetime]="list().updatedAt">{{ updated() }}</time>
+    </p>
+  </div>
+</article>

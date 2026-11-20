@@ -1,43 +1,65 @@
-<form class="form" aria-labelledby="titulo-lista" novalidate (submit)="save($event)">
-  <h2 id="titulo-lista">{{ list() ? 'Editar lista' : 'Nova lista' }}</h2>
-
-  @if (failure()) {
-    <p class="failure" role="alert">{{ failure() }}</p>
-  }
-
+<form
+  class="form"
+  [attr.aria-label]="list() ? 'Editar lista' : 'Criar nova lista'"
+  novalidate
+  (submit)="save($event)"
+  (keydown.escape)="cancelled.emit()"
+>
   <div class="field">
-    <label for="nome-lista">Nome</label>
+    <label for="nome-lista">Nome da lista</label>
     <input
+      #nameField
       id="nome-lista"
       type="text"
       autocomplete="off"
+      placeholder="Ex.: Lidos no inverno"
       [formField]="listForm.name"
-      [attr.aria-describedby]="errorOf(listForm.name) ? 'erro-nome-lista' : null"
+      [attr.aria-invalid]="nameError() ? 'true' : null"
+      [attr.aria-describedby]="nameError() || failure() ? 'erro-lista' : null"
+      (input)="failure.set(undefined)"
     />
-    @if (errorOf(listForm.name); as message) {
-      <p id="erro-nome-lista" class="error">{{ message }}</p>
-    }
   </div>
 
   <div class="field">
-    <label for="descricao-lista">Descrição <span class="optional">(opcional)</span></label>
-    <textarea
+    <label for="descricao-lista">Descrição (opcional)</label>
+    <input
       id="descricao-lista"
-      rows="2"
+      type="text"
+      autocomplete="off"
+      class="description"
+      placeholder="Do que essa lista fala?"
       [formField]="listForm.description"
-      [attr.aria-describedby]="errorOf(listForm.description) ? 'erro-descricao-lista' : null"
-    ></textarea>
-    @if (errorOf(listForm.description); as message) {
-      <p id="erro-descricao-lista" class="error">{{ message }}</p>
-    }
+      [attr.aria-invalid]="descriptionError() ? 'true' : null"
+      [attr.aria-describedby]="descriptionError() ? 'erro-lista' : null"
+    />
   </div>
 
   <div class="actions">
-    @if (list()) {
-      <button mlButton="secondary" type="button" (click)="cancelled.emit()">Cancelar</button>
-    }
+    <button mlButton="secondary" type="button" (click)="cancelled.emit()">Cancelar</button>
     <button mlButton="primary" type="submit" [disabled]="listForm().submitting()">
       {{ listForm().submitting() ? 'Salvando…' : list() ? 'Salvar lista' : 'Criar lista' }}
     </button>
+  </div>
+
+  <div class="colors">
+    <span class="label">Cor da capa</span>
+    <div class="swatches" role="radiogroup" aria-label="Cor da capa da lista">
+      @for (option of colors; track option.id) {
+        <button
+          type="button"
+          role="radio"
+          class="swatch"
+          [attr.aria-checked]="color() === option.id"
+          [attr.aria-label]="option.label"
+          [tabindex]="color() === option.id ? 0 : -1"
+          [style.background]="option.color"
+          (click)="pick(option.id)"
+          (keydown)="moveColor($event)"
+        ></button>
+      }
+    </div>
+    @if (message(); as text) {
+      <p id="erro-lista" class="message" role="alert">{{ text }}</p>
+    }
   </div>
 </form>

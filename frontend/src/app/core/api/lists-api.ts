@@ -10,6 +10,17 @@ type Schemas = components['schemas'];
 export type BookListResponse = Schemas['BookListResponse'];
 export type BookListRequest = Schemas['BookListRequest'];
 export type ListsPage = Schemas['PageResponseBookListResponse'];
+/** How far the reading of a list is: no book read, some of them, or all of them. */
+export type ListStatus = BookListResponse['status'];
+/** The cover colour of a list, one of the six of the design system. */
+export type ListColor = BookListResponse['color'];
+
+/** What the cards of the Listas page can be narrowed by; the pinned list never is one of them. */
+export interface ListCardsFilter {
+  readonly status?: ListStatus;
+  readonly page?: number;
+  readonly size?: number;
+}
 
 /** The API serves at most this many items per page. */
 const LARGEST_PAGE = 100;
@@ -23,6 +34,32 @@ export class ListsApi {
   listRequest(page = 0, size = 24, sort: 'name' | 'updatedAt' = 'name'): HttpResourceRequest {
     const params = { page, size, ...(sort === 'updatedAt' ? { sort: 'updatedAt,desc' } : {}) };
     return { url: '/api/v1/lists', params };
+  }
+
+  /**
+   * The cards of the Listas page: the lists changed last first, without the pinned one, which has a
+   * place of its own on the page. The API caps a page at 100.
+   */
+  cardsRequest({
+    status,
+    page = 0,
+    size = LARGEST_PAGE,
+  }: ListCardsFilter = {}): HttpResourceRequest {
+    return {
+      url: '/api/v1/lists',
+      params: { pinned: false, ...(status ? { status } : {}), page, size, sort: 'updatedAt,desc' },
+    };
+  }
+
+  /**
+   * How many cards a filter has. One card per page is enough: the answer is `totalElements`, which
+   * comes already filtered, so the tabs count without bringing every list.
+   */
+  countRequest(status?: ListStatus): HttpResourceRequest {
+    return {
+      url: '/api/v1/lists',
+      params: { pinned: false, ...(status ? { status } : {}), size: 1 },
+    };
   }
 
   oneRequest(id: number): HttpResourceRequest {
@@ -76,9 +113,16 @@ export class ListsApi {
 
 /** `2 de 5 lidos`, the line every card of a list shows. */
 export function readCountOf(list: Pick<BookListResponse, 'bookCount' | 'readCount'>): string {
-  if (list.bookCount === 0) {
-    return 'Nenhum livro ainda';
-  }
-  const read = list.readCount === 1 ? '1 lido' : `${list.readCount} lidos`;
-  return `${read} de ${list.bookCount}`;
+  return `${list.readCount} de ${list.bookCount} lidos`;
+}
+
+const STATUS_LABELS: Readonly<Record<ListStatus, string>> = {
+  NOT_STARTED: 'Não iniciada',
+  IN_PROGRESS: 'Em andamento',
+  COMPLETED: 'Concluída',
+};
+
+/** `Em andamento`; the card writes it in capitals. */
+export function statusLabelOf(status: ListStatus): string {
+  return STATUS_LABELS[status];
 }

@@ -74,6 +74,10 @@
 
   /* Covers: inner spine plus shadow. */
   --ml-shadow-book: inset 9px 0 0 rgb(0 0 0 / 20%), 0 10px 22px rgb(21 27 54 / 22%);
+
+  /* The little covers of the fan on a list card: a thinner spine, and a shadow for the one in front. */
+  --ml-shadow-spine: inset 4px 0 0 rgb(0 0 0 / 20%);
+  --ml-shadow-spine-front: inset 4px 0 0 rgb(0 0 0 / 20%), 0 8px 18px rgb(0 0 0 / 35%);
 }
 
 /* The dark theme ("noite arcana") is also the default, so the page has colors even without data-theme. */

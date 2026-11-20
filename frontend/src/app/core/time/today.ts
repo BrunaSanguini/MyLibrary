@@ -78,3 +78,9 @@ export const CURRENT_HOUR = new InjectionToken<() => number>('CURRENT_HOUR', {
   providedIn: 'root',
   factory: () => () => new Date().getHours(),
 });
+
+/** The moment now, as a function so a page left open keeps asking. Tests replace it like TODAY. */
+export const NOW = new InjectionToken<() => Date>('NOW', {
+  providedIn: 'root',
+  factory: () => () => new Date(),
+});
