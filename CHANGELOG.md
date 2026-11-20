@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/BrunaSanguini/MyLibrary/compare/v1.3.0...v1.4.0) (2026-11-20)
+
+
+### Funcionalidades
+
+* **lists:** listas especiais, lista fixada e listas da Home pela spec ([#78](https://github.com/BrunaSanguini/MyLibrary/issues/78)) ([30bb8eb](https://github.com/BrunaSanguini/MyLibrary/commit/30bb8eba1884d68df65a1ee13d1a519d23cc70f5))
+
 ## [1.3.0](https://github.com/BrunaSanguini/MyLibrary/compare/v1.2.0...v1.3.0) (2026-11-20)
 
 
