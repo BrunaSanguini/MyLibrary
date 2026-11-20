@@ -229,7 +229,8 @@ public class BookListService {
     }
 
     private static int readCountOf(List<BookListItem> ofList, Set<Long> read) {
-        return (int) ofList.stream().filter(item -> read.contains(item.bookId())).count();
+        return (int)
+                ofList.stream().filter(item -> read.contains(item.bookId())).count();
     }
 
     private static ListStatus statusOf(List<BookListItem> ofList, Set<Long> read) {

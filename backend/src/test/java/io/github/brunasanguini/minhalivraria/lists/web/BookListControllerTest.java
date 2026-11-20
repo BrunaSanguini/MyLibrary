@@ -203,7 +203,8 @@ class BookListControllerTest {
 
     @Test
     void shouldUpdateAList() {
-        given(service.update(7, new BookListRequest("Para as férias", null, null))).willReturn(VACATION);
+        given(service.update(7, new BookListRequest("Para as férias", null, null)))
+                .willReturn(VACATION);
 
         assertThat(put("/api/v1/lists/7", """
                         { "name": "Para as férias" }

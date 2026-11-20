@@ -263,7 +263,8 @@ class ShelfServiceTest {
 
     @Test
     void shouldFilterByListAndFollowTheOrderOfTheList() {
-        long list = lists.create(new BookListRequest("Para as férias", null, null)).id();
+        long list =
+                lists.create(new BookListRequest("Para as férias", null, null)).id();
         lists.addBook(list, dune);
         lists.addBook(list, fellowship);
         long other = lists.create(new BookListRequest("Clássicos", null, null)).id();
@@ -279,7 +280,8 @@ class ShelfServiceTest {
 
     @Test
     void shouldCombineTheListWithTheOtherFilters() {
-        long list = lists.create(new BookListRequest("Para as férias", null, null)).id();
+        long list =
+                lists.create(new BookListRequest("Para as férias", null, null)).id();
         lists.addBook(list, dune);
         lists.addBook(list, fellowship);
         entityManager.flush();

@@ -124,7 +124,8 @@ class BookListServiceTest {
     void shouldRenameAListAndRefuseTheNameOfAnotherOne() {
         long vacation =
                 lists.create(new BookListRequest("Para as férias", null, null)).id();
-        long classics = lists.create(new BookListRequest("Clássicos", null, null)).id();
+        long classics =
+                lists.create(new BookListRequest("Clássicos", null, null)).id();
 
         BookListResponse renamed =
                 lists.update(vacation, new BookListRequest("Para as Férias", "Agora com descrição", null));

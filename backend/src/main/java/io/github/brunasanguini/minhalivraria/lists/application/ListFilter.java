@@ -9,7 +9,10 @@ import org.jspecify.annotations.Nullable;
  * @param status how far the reading of the list is
  * @param pinned {@code true} for the pinned list only, {@code false} for all the others
  */
-public record ListFilter(@Nullable String q, @Nullable ListStatus status, @Nullable Boolean pinned) {
+public record ListFilter(
+        @Nullable String q,
+        @Nullable ListStatus status,
+        @Nullable Boolean pinned) {
 
     /** No filter at all. */
     public static ListFilter none() {
