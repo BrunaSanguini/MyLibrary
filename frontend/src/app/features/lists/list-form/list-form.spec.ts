@@ -125,14 +125,19 @@ describe('ListForm', () => {
 
   it('refuses a name of more than 60 characters and a description of more than 140', async () => {
     const { http } = await setup();
+    // Pasting, not typing: a key at a time over 200 characters is slow enough to time out.
+    const fill = async (label: string | RegExp, text: string) => {
+      await userEvent.click(screen.getByLabelText(label));
+      await userEvent.paste(text);
+    };
 
-    await userEvent.type(screen.getByLabelText('Nome da lista'), 'n'.repeat(61));
+    await fill('Nome da lista', 'n'.repeat(61));
     await userEvent.click(screen.getByRole('button', { name: 'Criar lista' }));
     expect(screen.getByRole('alert')).toHaveTextContent('O nome tem no máximo 60 caracteres.');
 
     await userEvent.clear(screen.getByLabelText('Nome da lista'));
-    await userEvent.type(screen.getByLabelText('Nome da lista'), 'n'.repeat(60));
-    await userEvent.type(screen.getByLabelText(/Descrição/), 'd'.repeat(141));
+    await fill('Nome da lista', 'n'.repeat(60));
+    await fill(/Descrição/, 'd'.repeat(141));
     await userEvent.click(screen.getByRole('button', { name: 'Criar lista' }));
     expect(screen.getByRole('alert')).toHaveTextContent(
       'A descrição tem no máximo 140 caracteres.',
