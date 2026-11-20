@@ -1,4 +1,12 @@
-@if (notFound()) {
+@if (deleted(); as name) {
+  <ml-empty-state
+    icon="trash"
+    title="Lista excluída"
+    [message]="'“' + name + '” foi apagada. Os livros dela continuam na sua estante.'"
+  >
+    <a mlButton routerLink="/listas">Voltar às listas</a>
+  </ml-empty-state>
+} @else if (notFound()) {
   <ml-empty-state
     icon="search"
     title="Lista não encontrada"
@@ -9,131 +17,221 @@
 } @else if (errorMessage()) {
   <ml-error-state [message]="errorMessage()" (retry)="retry()" />
 } @else if (list.hasValue()) {
-  <header class="head">
-    <p class="eyebrow"><a routerLink="/listas">Listas</a></p>
-    <h1>{{ list.value().name }}</h1>
-    @if (list.value().description) {
-      <p class="lead">{{ list.value().description }}</p>
-    }
-    <p class="count">{{ readCountOf(list.value()) }}</p>
-    <div class="head-actions">
-      <button mlButton="secondary" type="button" [disabled]="editing()" (click)="editing.set(true)">
-        <ml-icon name="edit" [size]="16" /> Editar lista
-      </button>
-      <button mlButton="secondary" type="button" (click)="deleteDialog.open()">
-        <ml-icon name="trash" [size]="16" /> Excluir lista
-      </button>
-    </div>
-  </header>
+  <ml-breadcrumbs [items]="crumbs()" />
 
-  @if (editing()) {
-    <ml-list-form
-      class="edit"
-      [list]="list.value()"
-      (saved)="onSaved()"
-      (cancelled)="editing.set(false)"
-    />
+  @switch (panel()) {
+    @case ('editar') {
+      <h1 class="ml-visually-hidden">{{ list.value().name }}</h1>
+      <ml-list-form
+        class="edit"
+        [list]="list.value()"
+        (saved)="onSaved()"
+        (cancelled)="closePanel()"
+      />
+    }
+    @case ('adicionar') {
+      <h1 class="ml-visually-hidden">{{ list.value().name }}</h1>
+      <ml-book-adder
+        [listId]="list.value().id"
+        [inList]="inList()"
+        (added)="onAdded($event)"
+        (done)="closePanel()"
+      />
+    }
+    @default {
+      <section class="about" aria-labelledby="titulo-lista">
+        <ml-list-covers
+          size="pinned"
+          [name]="list.value().name"
+          [color]="list.value().color"
+          [coverUrls]="list.value().coverUrls"
+        />
+        <div class="body">
+          <p class="eyebrow">
+            <span aria-hidden="true">✦</span>
+            {{ list.value().pinned ? 'Lista fixada' : 'Lista' }}
+          </p>
+          <h1 id="titulo-lista">{{ list.value().name }}</h1>
+          @if (list.value().description) {
+            <p class="description">{{ list.value().description }}</p>
+          }
+
+          <div class="progress">
+            <p class="numbers">
+              <span>{{ readCountOf(list.value()) }}</span>
+              <span class="percent">{{ percent() }}%</span>
+            </p>
+            <div class="thread">
+              <ml-progress-bar
+                size="thread"
+                [value]="percent()"
+                [label]="'Livros lidos de ' + list.value().name"
+              />
+              @if (percent() > 0) {
+                <span
+                  class="star"
+                  aria-hidden="true"
+                  [style.left]="'calc(' + percent() + '% - 7px)'"
+                  >✦</span
+                >
+              }
+            </div>
+          </div>
+          <p class="meta">{{ meta() }}</p>
+
+          <div class="actions">
+            <button
+              mlButton
+              type="button"
+              class="add"
+              data-action="adicionar"
+              (click)="openPanel('adicionar')"
+            >
+              <ml-icon name="plus" [size]="16" /> Adicionar livros
+            </button>
+            <button
+              mlButton="secondary"
+              type="button"
+              class="gold"
+              data-action="editar"
+              (click)="openPanel('editar')"
+            >
+              <ml-icon name="edit" [size]="16" /> Editar lista
+            </button>
+            <button
+              mlButton="secondary"
+              type="button"
+              class="gold pin"
+              [attr.aria-pressed]="list.value().pinned"
+              [disabled]="pinning()"
+              (click)="togglePin()"
+            >
+              <span aria-hidden="true">{{ list.value().pinned ? '★' : '☆' }}</span>
+              {{ list.value().pinned ? 'Fixada na página Listas' : 'Fixar na página Listas' }}
+            </button>
+            <button type="button" class="danger" (click)="deleteDialog.open()">
+              Excluir lista
+            </button>
+          </div>
+        </div>
+      </section>
+    }
   }
+
+  <div class="bar" [class.empty]="!announcement()">
+    <p class="announcement" role="status">{{ announcement() }}</p>
+    @if (undo(); as last) {
+      <button
+        type="button"
+        class="undo"
+        [attr.aria-label]="'Desfazer: ' + last.label"
+        (click)="runUndo()"
+      >
+        Desfazer
+      </button>
+    }
+  </div>
 
   @if (failure()) {
     <p class="failure" role="alert">{{ failure() }}</p>
   }
 
-  <p class="announcement" role="status">{{ announcement() }}</p>
-
-  <div class="layout">
-    <section aria-labelledby="titulo-livros">
-      <h2 id="titulo-livros">Livros da lista</h2>
-      @if (books(); as inOrder) {
-        @if (inOrder.length === 0) {
-          <ml-empty-state
-            title="Esta lista está vazia"
-            message="Busque um livro da estante ao lado para começar."
-          />
-        } @else {
-          <ol class="books">
-            @for (book of inOrder; track book.id; let index = $index) {
-              <li
-                class="book"
-                [attr.data-book]="book.id"
-                [class.read]="book.status === 'READ'"
-                [class.wishlist]="book.ownership === 'WISHLIST'"
-              >
-                <span class="position" aria-hidden="true">{{ index + 1 }}</span>
-                <ml-book-cover
-                  size="xs"
-                  aria-hidden="true"
-                  [title]="book.title"
-                  [coverUrl]="book.coverUrl ?? undefined"
-                />
-                <div class="text">
-                  <div class="title-row">
-                    <a class="title" [routerLink]="['/livro', book.id]">{{ book.title }}</a>
-                    @if (book.status === 'READ') {
-                      <span class="badge badge-read">
-                        <ml-icon name="check" [size]="13" /> Lido
-                      </span>
-                    }
-                    @if (book.ownership === 'WISHLIST') {
-                      <span class="badge badge-wishlist">
-                        <ml-icon name="wishlist" [size]="13" /> Wishlist
-                      </span>
-                    }
-                  </div>
-                  <p class="meta">
-                    {{ book.authors.join(', ') }} · {{ statusLabels[book.status] }}
-                  </p>
-                </div>
-                <div class="row-actions">
-                  <button
-                    class="icon-button"
-                    type="button"
-                    data-move="up"
-                    [attr.aria-label]="'Mover ' + book.title + ' para cima'"
-                    [disabled]="$first"
-                    (click)="move(index, 'up')"
-                  >
-                    <ml-icon name="arrow-up" [size]="18" />
-                  </button>
-                  <button
-                    class="icon-button"
-                    type="button"
-                    data-move="down"
-                    [attr.aria-label]="'Mover ' + book.title + ' para baixo'"
-                    [disabled]="$last"
-                    (click)="move(index, 'down')"
-                  >
-                    <ml-icon name="arrow-down" [size]="18" />
-                  </button>
-                  <button
-                    class="icon-button"
-                    type="button"
-                    [attr.aria-label]="'Remover ' + book.title + ' da lista'"
-                    (click)="remove(book)"
-                  >
-                    <ml-icon name="close" [size]="18" />
-                  </button>
-                </div>
-              </li>
-            }
-          </ol>
+  <section class="books-section" aria-labelledby="titulo-livros">
+    <div class="books-head">
+      <h2 id="titulo-livros">
+        Livros da lista
+        @if (books(); as inOrder) {
+          <span aria-hidden="true">·</span> {{ inOrder.length }}
         }
-      } @else {
-        <ul class="books" aria-hidden="true">
-          @for (placeholder of placeholders; track placeholder) {
-            <li><ml-skeleton variant="card" /></li>
-          }
-        </ul>
-      }
-    </section>
+      </h2>
+      <p class="hint">A ordem é sua: use ↑ e ↓ para reorganizar.</p>
+    </div>
 
-    <ml-book-adder [listId]="list.value().id" [inList]="inList()" (added)="onAdded($event)" />
-  </div>
+    @if (books(); as inOrder) {
+      @if (inOrder.length === 0) {
+        <div class="empty">
+          <p class="empty-title">Esta lista ainda está vazia</p>
+          <p class="empty-text">Escolha na sua biblioteca os livros que fazem parte dela.</p>
+          @if (panel() !== 'adicionar') {
+            <button mlButton type="button" (click)="openPanel('adicionar')">
+              <ml-icon name="plus" [size]="16" /> Adicionar livros
+            </button>
+          }
+        </div>
+      } @else {
+        <ol class="books">
+          @for (book of inOrder; track book.id; let index = $index) {
+            <li class="book" [attr.data-book]="book.id">
+              <span class="position" aria-hidden="true">{{ toRoman(index + 1) }}</span>
+              <ml-book-cover
+                size="xs"
+                aria-hidden="true"
+                [title]="book.title"
+                [coverUrl]="book.coverUrl ?? undefined"
+              />
+              <a class="title-link" [routerLink]="['/livro', book.id]">
+                <span class="title">{{ book.title }}</span>
+                <span class="authors">{{ book.authors.join(', ') }}</span>
+              </a>
+              <span class="genre">{{ book.genres[0] ?? '' }}</span>
+              <span class="pill" [attr.data-kind]="pillOf(book).kind">{{
+                pillOf(book).label
+              }}</span>
+              <span class="rating">
+                @if (ratingOf(book) === '—') {
+                  <span aria-hidden="true">—</span>
+                  <span class="ml-visually-hidden">sem nota</span>
+                } @else {
+                  {{ ratingOf(book) }}
+                }
+              </span>
+              <div class="row-actions">
+                <button
+                  class="move"
+                  type="button"
+                  data-move="up"
+                  [attr.aria-label]="'Mover ' + book.title + ' para cima'"
+                  [disabled]="$first"
+                  (click)="move(index, 'up')"
+                >
+                  <ml-icon name="arrow-up" [size]="18" />
+                </button>
+                <button
+                  class="move"
+                  type="button"
+                  data-move="down"
+                  [attr.aria-label]="'Mover ' + book.title + ' para baixo'"
+                  [disabled]="$last"
+                  (click)="move(index, 'down')"
+                >
+                  <ml-icon name="arrow-down" [size]="18" />
+                </button>
+                <button
+                  class="remove"
+                  type="button"
+                  [attr.aria-label]="'Remover ' + book.title + ' da lista'"
+                  (click)="remove(book)"
+                >
+                  Remover
+                </button>
+              </div>
+            </li>
+          }
+        </ol>
+      }
+    } @else {
+      <ul class="books" aria-hidden="true">
+        @for (placeholder of placeholders; track placeholder) {
+          <li><ml-skeleton variant="card" /></li>
+        }
+      </ul>
+    }
+  </section>
 
   <ml-confirm-dialog
     #deleteDialog
-    title="Excluir esta lista?"
-    message="Os livros continuam na sua estante; só a lista deixa de existir."
+    [title]="'Excluir “' + list.value().name + '”?'"
+    message="A lista será apagada. Os livros dela continuam na sua estante, apenas deixam de fazer parte desta lista."
     confirmLabel="Excluir lista"
     [busy]="deleting()"
     (confirmed)="delete()"

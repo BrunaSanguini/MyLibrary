@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
-import { HttpResourceRequest } from '@angular/common/http';
+import { HttpClient, HttpResourceRequest } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { EMPTY, expand, map, Observable, reduce } from 'rxjs';
 
 import { BookCardData } from '@shared/ui/book-card/book-card';
 
@@ -52,8 +53,13 @@ export interface ShelfFilter {
   readonly size?: number;
 }
 
+/** The API serves at most this many items per page. */
+const LARGEST_PAGE = 100;
+
 @Injectable({ providedIn: 'root' })
 export class ShelfApi {
+  private readonly http = inject(HttpClient);
+
   /**
    * Request for `httpResource`, which re-fetches whenever the filters change.
    *
@@ -62,6 +68,24 @@ export class ShelfApi {
    */
   booksRequest(filter: ShelfFilter): HttpResourceRequest {
     return { url: '/api/v1/shelf/books', params: paramsOf(filter) };
+  }
+
+  /**
+   * Every book of the shelf, by title, walking the pages until the last one. For the panel that
+   * adds books to a list, which shows the whole library and filters it as the reader types.
+   */
+  allBooks(): Observable<BookCardResponse[]> {
+    const pageOf = (page: number) =>
+      this.http.get<ShelfPage>('/api/v1/shelf/books', {
+        params: { sort: 'title,asc', page, size: LARGEST_PAGE },
+      });
+    return pageOf(0).pipe(
+      expand((current) =>
+        current.page + 1 < current.totalPages ? pageOf(current.page + 1) : EMPTY,
+      ),
+      map((current) => current.content),
+      reduce((all, content) => [...all, ...content], [] as BookCardResponse[]),
+    );
   }
 
   /** The other books of the series and the ones with subgenres in common. */

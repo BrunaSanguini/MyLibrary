@@ -1,28 +1,38 @@
 <section class="adder" aria-labelledby="titulo-adicionar">
-  <h2 id="titulo-adicionar">Adicionar livros</h2>
+  <div class="head">
+    <div>
+      <p class="eyebrow"><span aria-hidden="true">✦</span> Adicionar livros</p>
+      <h2 id="titulo-adicionar">Escolha na sua biblioteca os livros que fazem parte dela.</h2>
+    </div>
+    <button mlButton type="button" class="done" (click)="done.emit()">Concluir</button>
+  </div>
 
-  <label for="busca-lista">Buscar na estante</label>
-  <input
-    id="busca-lista"
-    type="search"
-    autocomplete="off"
-    placeholder="Título, autor ou ISBN"
-    aria-describedby="dica-busca-lista"
-    [value]="term()"
-    (input)="type($event)"
-  />
-  <p id="dica-busca-lista" class="hint">Digite pelo menos duas letras.</p>
+  <label class="search">
+    <span class="ml-visually-hidden">Buscar na estante</span>
+    <ml-icon name="search" [size]="18" />
+    <input
+      #searchField
+      id="busca-lista"
+      type="search"
+      autocomplete="off"
+      placeholder="Buscar por título ou autor"
+      [value]="term()"
+      (input)="type($event)"
+      (keydown.escape)="done.emit()"
+    />
+  </label>
 
   @if (failure()) {
     <p class="failure" role="alert">{{ failure() }}</p>
   }
 
-  @if (books(); as found) {
-    @if (found.length === 0) {
-      <p class="none" role="status">Nenhum livro da estante com esse termo.</p>
-    } @else {
-      <ul class="results" aria-label="Livros encontrados">
-        @for (book of found; track book.id) {
+  @if (libraryError()) {
+    <p class="failure" role="alert">{{ libraryError() }}</p>
+  } @else if (library.hasValue()) {
+    <p class="count">{{ availableCount() }} · os que já estão na lista não aparecem aqui</p>
+    @if (found().length > 0) {
+      <ul class="results" aria-label="Livros disponíveis">
+        @for (book of found(); track book.id) {
           <li class="result">
             <ml-book-cover
               size="xs"
@@ -34,22 +44,25 @@
               <p class="title">{{ book.title }}</p>
               <p class="authors">{{ book.authors.join(', ') }}</p>
             </div>
-            @if (inList().has(book.id)) {
-              <span class="already">Já está na lista</span>
-            } @else {
-              <button
-                mlButton="secondary"
-                type="button"
-                [attr.aria-label]="'Adicionar ' + book.title + ' à lista'"
-                [disabled]="adding() === book.id"
-                (click)="add(book)"
-              >
-                Adicionar
-              </button>
-            }
+            <button
+              mlButton="secondary"
+              type="button"
+              class="add"
+              [attr.aria-label]="'Adicionar ' + book.title + ' à lista'"
+              [disabled]="adding() === book.id"
+              (click)="add(book)"
+            >
+              <ml-icon name="plus" [size]="15" /> Adicionar
+            </button>
           </li>
         }
       </ul>
+    } @else if (term().trim() !== '') {
+      <p class="none">Nenhum livro encontrado para “{{ term().trim() }}”.</p>
+    } @else {
+      <p class="none">Todos os livros da biblioteca já estão nesta lista.</p>
     }
+  } @else {
+    <p class="count" aria-hidden="true">Carregando a biblioteca…</p>
   }
 </section>

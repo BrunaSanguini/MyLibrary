@@ -110,6 +110,15 @@ export class ListsApi {
     return this.http.delete<void>(`/api/v1/lists/${id}/books/${bookId}`);
   }
 
+  /** Only one list is pinned at a time: pinning this one unpins the one that was. */
+  pin(id: number): Observable<void> {
+    return this.http.put<void>(`/api/v1/lists/${id}/pin`, null);
+  }
+
+  unpin(id: number): Observable<void> {
+    return this.http.delete<void>(`/api/v1/lists/${id}/pin`);
+  }
+
   /** `bookIds` has to be exactly the books of the list, each one once. */
   reorder(id: number, bookIds: readonly number[]): Observable<void> {
     return this.http.put<void>(`/api/v1/lists/${id}/order`, { bookIds });

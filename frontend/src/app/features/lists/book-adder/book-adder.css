@@ -1,74 +1,124 @@
-/* The search that adds books to a list. */
+/* The panel that adds books to a list: it takes the place of the card about the list. */
 
 .adder {
   display: flex;
+  position: relative;
   flex-direction: column;
-  padding: var(--ml-space-24);
-  border: 1px solid var(--ml-color-line);
-  border-radius: var(--ml-radius-lg);
+  gap: var(--ml-space-16);
+  padding: 34px 44px;
+  border: 1px solid var(--ml-color-glass-line);
+  border-radius: var(--ml-radius-md);
   background: var(--ml-color-surface);
-  box-shadow: var(--ml-shadow-soft);
+  box-shadow: var(--ml-shadow-frame), var(--ml-shadow-soft);
+}
+
+.adder::before {
+  content: '✦' / '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  padding: 0 7px;
+  transform: translateX(-50%);
+  background: var(--ml-color-bg);
+  color: var(--ml-color-gold);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ml-space-24);
+}
+
+.eyebrow {
+  margin: 0 0 var(--ml-space-8);
+  color: var(--ml-color-gold-text);
+  font-family: var(--ml-font-title);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
 }
 
 h2 {
-  margin: 0 0 var(--ml-space-16);
+  margin: 0;
   font-family: var(--ml-font-display);
-  font-size: 30px;
-  font-weight: 600;
-  line-height: 1.2;
+  font-size: 24px;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.3;
 }
 
-label {
-  margin: 0 0 6px;
-  font-size: 13px;
-  font-weight: 700;
+.done {
+  flex: none;
+  box-shadow: var(--ml-glow);
 }
 
-input {
-  box-sizing: border-box;
-  width: 100%;
-  min-height: 44px;
+.search {
+  display: flex;
+  align-items: center;
+  gap: var(--ml-space-12);
+  max-width: 560px;
+  min-height: 48px;
   padding: 0 var(--ml-space-16);
-  border: 1.5px solid var(--ml-color-line);
+  border: 1.5px solid var(--ml-color-glass-line);
   border-radius: var(--ml-radius-pill);
-  background: var(--ml-color-surface);
-  color: var(--ml-color-ink);
-  font-family: var(--ml-font-body);
-  font-size: 15px;
+  background: var(--ml-color-raised);
+  color: var(--ml-color-muted);
 }
 
-input:focus-visible {
+.search:focus-within {
   border-color: var(--ml-color-accent);
   outline: 2px solid var(--ml-color-accent);
   outline-offset: 2px;
 }
 
-.hint,
-.none {
-  margin: 6px 0 0;
-  color: var(--ml-color-muted);
-  font-size: 13px;
-}
-
-.none {
-  margin-top: var(--ml-space-16);
+input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ml-color-ink);
+  font-family: var(--ml-font-body);
   font-size: 15px;
 }
 
-.failure {
-  margin: var(--ml-space-16) 0 0;
-  padding: var(--ml-space-12) var(--ml-space-16);
-  border: 1.5px solid var(--ml-color-accent);
+input:focus {
+  outline: none;
+}
+
+.count,
+.none {
+  margin: 0;
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-display);
+  font-size: 17px;
+  font-style: italic;
+}
+
+.none {
+  padding: var(--ml-space-24);
+  border: 1.5px dashed var(--ml-color-glass-line);
   border-radius: var(--ml-radius-md);
-  background: var(--ml-color-accent-tint);
-  font-weight: 600;
+  text-align: center;
+}
+
+.failure {
+  margin: 0;
+  color: var(--ml-color-accent);
+  font-weight: 700;
 }
 
 .results {
-  display: flex;
-  flex-direction: column;
-  margin: var(--ml-space-16) 0 0;
-  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: var(--ml-space-12);
+  max-height: 440px;
+  margin: 0;
+  padding: 2px;
+  overflow-y: auto;
   list-style: none;
 }
 
@@ -76,8 +126,10 @@ input:focus-visible {
   display: flex;
   align-items: center;
   gap: var(--ml-space-12);
-  padding: var(--ml-space-12) 0;
-  border-top: 1px solid var(--ml-color-line);
+  padding: 10px 14px;
+  border: 1px solid var(--ml-color-line);
+  border-radius: 14px;
+  background: var(--ml-color-bg);
 }
 
 .text {
@@ -87,19 +139,36 @@ input:focus-visible {
 
 .title {
   margin: 0;
+  font-family: var(--ml-font-title);
+  font-size: 15px;
   font-weight: 700;
-  line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
 .authors {
   margin: 2px 0 0;
   color: var(--ml-color-muted);
-  font-size: 13px;
+  font-family: var(--ml-font-display);
+  font-size: 16px;
+  font-style: italic;
 }
 
-.already {
-  flex-shrink: 0;
-  color: var(--ml-color-muted);
-  font-size: 13px;
-  font-weight: 600;
+.ml-button.add {
+  flex: none;
+  min-height: 44px;
+  padding: 0 var(--ml-space-16);
+  border-color: var(--ml-color-gold);
+  color: var(--ml-color-gold-text);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+@media (width <= 700px) {
+  .adder {
+    padding: 28px 20px;
+  }
+
+  .head {
+    flex-direction: column;
+  }
 }
