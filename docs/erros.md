@@ -69,6 +69,9 @@ Este catálogo cresce junto com o código: todo `code` novo entra aqui no mesmo 
 | <a id="list-not-found"></a>`list.not-found` | 404 | Lista inexistente. |
 | <a id="list-name-duplicated"></a>`list.name-duplicated` | 409 | Já existe uma lista com o mesmo nome normalizado. |
 | <a id="list-invalid-order"></a>`list.invalid-order` | 422 | A nova ordem não contém exatamente os livros da lista. |
+| <a id="featured-not-found"></a>`featured.not-found` | 404 | A posição de destaque não tem livro. |
+| <a id="featured-duplicated-book"></a>`featured.duplicated-book` | 422 | O mesmo livro em dois destaques. |
+| <a id="featured-book-not-owned"></a>`featured.book-not-owned` | 422 | Destaque com um livro que não está na estante (wishlist ou sem posse). |
 | <a id="goal-not-found"></a>`goal.not-found` | 404 | Meta inexistente. |
 | <a id="goal-duplicated"></a>`goal.duplicated` | 409 | Já existe meta do mesmo tipo e período. |
 | <a id="goal-invalid-period"></a>`goal.invalid-period` | 422 | Período inválido para o tipo (ex.: releituras por mês) ou mês ausente numa meta mensal. |

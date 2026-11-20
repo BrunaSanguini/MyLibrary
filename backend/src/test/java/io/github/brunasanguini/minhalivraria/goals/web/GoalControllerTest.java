@@ -30,7 +30,7 @@ class GoalControllerTest {
     private static final String REQUESTED_BY = "X-Requested-By";
     private static final String MINHA_LIVRARIA = "minha-livraria";
     private static final GoalResponse BOOKS_OF_2026 =
-            new GoalResponse(5, GoalType.BOOKS, GoalPeriod.YEAR, 2026, null, 24, 6, 25);
+            new GoalResponse(5, GoalType.BOOKS, GoalPeriod.YEAR, 2026, null, 24, 6, 25, true);
 
     @Autowired
     private MockMvcTester mvc;
@@ -55,7 +55,8 @@ class GoalControllerTest {
                             "month": null,
                             "target": 24,
                             "current": 6,
-                            "percent": 25
+                            "percent": 25,
+                            "enabled": true
                           }
                         ]
                         """);
@@ -130,8 +131,8 @@ class GoalControllerTest {
 
     @Test
     void shouldChangeTheTarget() {
-        given(service.changeTarget(5, 30))
-                .willReturn(new GoalResponse(5, GoalType.BOOKS, GoalPeriod.YEAR, 2026, null, 30, 6, 20));
+        given(service.update(5, 30, null))
+                .willReturn(new GoalResponse(5, GoalType.BOOKS, GoalPeriod.YEAR, 2026, null, 30, 6, 20, true));
 
         assertThat(mvc.put()
                         .uri("/api/v1/goals/5")
@@ -147,8 +148,26 @@ class GoalControllerTest {
     }
 
     @Test
+    void shouldTurnTheGoalOff() {
+        given(service.update(5, 30, false))
+                .willReturn(new GoalResponse(5, GoalType.BOOKS, GoalPeriod.YEAR, 2026, null, 30, 6, 20, false));
+
+        assertThat(mvc.put()
+                        .uri("/api/v1/goals/5")
+                        .header(REQUESTED_BY, MINHA_LIVRARIA)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                { "target": 30, "enabled": false }
+                                """))
+                .hasStatusOk()
+                .bodyJson()
+                .extractingPath("$.enabled")
+                .isEqualTo(false);
+    }
+
+    @Test
     void shouldAnswer404ForAnUnknownGoal() {
-        given(service.changeTarget(99, 30)).willThrow(new NotFoundException("goal.not-found"));
+        given(service.update(99, 30, null)).willThrow(new NotFoundException("goal.not-found"));
 
         assertThat(mvc.put()
                         .uri("/api/v1/goals/99")

@@ -95,6 +95,11 @@
   }
 }
 
+.settings[aria-current='page'] {
+  border: 1px solid var(--ml-color-gold);
+  background: var(--ml-color-raised);
+}
+
 .avatar {
   display: grid;
   place-items: center;

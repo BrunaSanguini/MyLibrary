@@ -33,7 +33,7 @@ frontend/
          ├─ reading/          Registrar leitura
          ├─ catalogs/         Catálogos e páginas de autor, série, editora e gênero
          ├─ lists/
-         ├─ goals/
+         ├─ settings/         Configurações: cadastros, destaques da Home e metas
          ├─ profile/
          └─ not-found/
 ```
@@ -315,11 +315,11 @@ As rotas são texto visível na barra do navegador, então ficam em português. 
 | `/catalogos` (`?tipo=`) | Catálogos |
 | `/autor/:id` · `/serie/:id` · `/editoras/:id` · `/generos/:id` | páginas de agrupamento |
 | `/calendario` | Calendário de leitura |
-| `/metas` | Gerenciar metas |
+| `/configuracoes` (`?aba=`, `?cadastro=`) | Configurações: cadastros, destaques da Home e metas |
 | `/perfil` | Perfil |
 | `**` | Página não encontrada |
 
-As rotas da versão anterior (`/livros/…`, `/listas/:id`, `/autores/:id`, `/series/:id`) continuam abrindo: o `app.routes.ts` as redireciona para as novas, mantendo o `:id`, a query string e o fragmento.
+As rotas da versão anterior (`/livros/…`, `/listas/:id`, `/autores/:id`, `/series/:id`, `/metas`) continuam abrindo: o `app.routes.ts` as redireciona para as novas, mantendo o `:id`, a query string e o fragmento.
 
 ```ts
 export const routes: Routes = [
@@ -341,7 +341,7 @@ Os componentes de página usam `export default` para permitir o `loadComponent` 
 
 ## Formulários
 
-- **Signal Forms** em todos os formulários: livro, importação, resenha, sessão, metas e perfil.
+- **Signal Forms** nos formulários de livro, importação, resenha, sessão e perfil. As abas de Configurações usam sinais simples: cada uma é um rascunho salvo de uma vez com o botão dela.
 - **Validação espelhando o back:**
   - campos obrigatórios e tamanhos máximos;
   - dígito verificador do ISBN (em `shared`, com os mesmos casos de teste do back);

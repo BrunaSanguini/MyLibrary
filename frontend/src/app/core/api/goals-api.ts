@@ -27,9 +27,12 @@ export class GoalsApi {
     return this.http.post<GoalResponse>('/api/v1/goals', request);
   }
 
-  /** The target is the only thing that changes in a goal. */
-  changeTarget(id: number, target: number): Observable<GoalResponse> {
-    return this.http.put<GoalResponse>(`/api/v1/goals/${id}`, { target });
+  /** The target is what changes in a goal, and whether it is on; without `enabled` it stays as it was. */
+  changeTarget(id: number, target: number, enabled?: boolean): Observable<GoalResponse> {
+    return this.http.put<GoalResponse>(`/api/v1/goals/${id}`, {
+      target,
+      ...(enabled === undefined ? {} : { enabled }),
+    });
   }
 
   delete(id: number): Observable<void> {

@@ -5,7 +5,7 @@
       <h2 id="titulo-metas">Minhas metas</h2>
     </div>
     <span class="rule" aria-hidden="true"></span>
-    <a class="more" routerLink="/metas"
+    <a class="more" routerLink="/configuracoes" [queryParams]="{ aba: 'metas' }"
       >Gerenciar metas <ml-icon name="arrow-right" [size]="16"
     /></a>
   </div>
@@ -37,7 +37,7 @@
   } @else {
     <div class="empty">
       <p>Nenhuma meta para {{ year() }}. Que tal decidir quantos livros ler este ano?</p>
-      <a class="more" routerLink="/metas"
+      <a class="more" routerLink="/configuracoes" [queryParams]="{ aba: 'metas' }"
         >Criar uma meta <ml-icon name="arrow-right" [size]="16"
       /></a>
     </div>

@@ -270,7 +270,7 @@ describe('ShelfPage', () => {
 **Jornadas do MVP**
 1. Cadastrar um livro manualmente e encontrá-lo na Estante e na busca, inclusive buscando sem acento.
 2. Importar um livro da Open Library.
-3. Iniciar uma leitura, registrar sessões e concluir; conferir progresso, status e meta em `/metas` e na Home.
+3. Iniciar uma leitura, registrar sessões e concluir; conferir progresso, status e a meta ligada em Configurações → Metas, e na Home.
 4. Criar uma lista, adicionar livros e reordenar só pelo teclado; a ordem continua depois de recarregar.
 5. Trocar o tema e recarregar sem "piscar"; uma janela nova, sem nada salvo no navegador, abre no tema escolhido, porque ele vem do perfil.
 

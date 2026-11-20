@@ -377,18 +377,36 @@ Os livros de uma lista vêm de `GET /shelf/books?listId={id}&sort=listOrder,asc`
 |---|---|---|
 | `GET /goals?year=2026` | | `200` metas do ano (anuais e mensais), já com o progresso |
 | `POST /goals` | `{ "type": "BOOKS", "period": "MONTH", "year": 2026, "month": 11, "target": 3 }` | `201`; `409` (`goal.duplicated`) se já houver meta do mesmo tipo e período |
-| `PUT /goals/{id}` | `{ "target": 4 }` | `200` |
+| `PUT /goals/{id}` | `{ "target": 4, "enabled": false }` | `200`; sem `enabled`, a meta continua ligada ou desligada como estava |
 | `DELETE /goals/{id}` | | `204` |
 
 ```json
-{ "id": 1, "type": "BOOKS", "period": "YEAR", "year": 2026, "month": null, "target": 12, "current": 3, "percent": 25 }
+{ "id": 1, "type": "BOOKS", "period": "YEAR", "year": 2026, "month": null, "target": 12, "current": 3, "percent": 25, "enabled": true }
 ```
 
 - `type`: `BOOKS` (leituras concluídas no período, releituras incluídas), `PAGES` (páginas das sessões do período, mais o que faltava ao concluir uma leitura no período) e `REREADS` (leituras concluídas marcadas como releitura).
 - `REREADS` só existe por ano. Meta mensal sem `month`, anual com `month` ou releituras por mês: `422` (`goal.invalid-period`).
 - `percent` é arredondado para baixo e para em 100; `current` pode passar do alvo.
 - Sem `year`, `GET /goals` usa o ano atual. A lista vem com as anuais primeiro e depois mês a mês.
-- Só o alvo muda. Uma meta de tipo ou período errado é excluída e criada de novo.
+- Só o alvo e o `enabled` mudam. Uma meta de tipo ou período errado é excluída e criada de novo.
+- Desligada (`enabled: false`), a meta guarda o alvo, mas a Home não a mostra.
+- A meta mensal muda sozinha a cada mês: no ano atual, `GET /goals` cria a meta do mês corrente quando ele ainda não tem uma, com o alvo e o `enabled` da última meta mensal do mesmo tipo.
+
+## Destaques da Home (`featured`)
+
+| Método e rota | Corpo | Resposta |
+|---|---|---|
+| `GET /featured` | | `200` os livros em destaque, na ordem da Home (vazio até a usuária escolher) |
+| `PUT /featured` | `{ "slots": [ { "bookId": 7, "imageFrom": 2 }, { "bookId": 3 } ] }` | `200` os destaques novos; `422` (`featured.duplicated-book`, `featured.book-not-owned`); `404` (`book.not-found`) |
+| `PUT /featured/{slot}/image` | `multipart/form-data`, campo `file` | `200` o destaque com a imagem; `404` (`featured.not-found`) se a posição não tem livro |
+
+```json
+{ "slot": 1, "bookId": 7, "title": "A Sociedade do Anel", "authors": ["J. R. R. Tolkien"], "coverUrl": "/api/v1/images/12", "imageUrl": "/api/v1/images/31" }
+```
+
+- De 1 a 3 destaques, cada livro uma vez só, e só livros que a usuária tem (`ownership = OWNED`).
+- A imagem é da posição, não do livro: `imageFrom` diz de qual posição de antes a nova herda a imagem. Sem `imageFrom`, a posição fica sem imagem até receber uma. As imagens que nenhuma posição herdou vão para a lixeira.
+- Excluir o livro tira o destaque dele, e a imagem vai para a lixeira.
 
 ## Perfil (`profile`)
 

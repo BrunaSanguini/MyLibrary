@@ -55,6 +55,8 @@ export class Header {
   );
 
   protected readonly profileActive = computed(() => this.currentPath() === '/perfil');
+  /** Configurações is the only page where the gear is the current item; no menu item is. */
+  protected readonly settingsActive = computed(() => this.currentPath() === '/configuracoes');
   protected readonly dark = computed(() => this.theme.resolved() === 'dark');
   protected readonly avatarUrl = computed(() => this.profiles.profile()?.avatarUrl);
   protected readonly initial = computed(() => initialOf(this.profiles.profile()?.displayName));
