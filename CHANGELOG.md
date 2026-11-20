@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.0](https://github.com/BrunaSanguini/MyLibrary/compare/v1.2.0...v1.3.0) (2026-11-20)
+
+
+### Funcionalidades
+
+* **frontend:** adota as rotas da spec com redirecionamento das antigas ([#74](https://github.com/BrunaSanguini/MyLibrary/issues/74)) ([78a3b5c](https://github.com/BrunaSanguini/MyLibrary/commit/78a3b5ccca08b5e2fe22eab39492bfdb5291560c))
+* **lists:** guardar cor, lista fixada e status nas listas ([#76](https://github.com/BrunaSanguini/MyLibrary/issues/76)) ([e0e0146](https://github.com/BrunaSanguini/MyLibrary/commit/e0e0146e870394e7ad8e7df9a440de2571e741b3))
+* **lists:** página Listas com filtros por status, cor e cartões da spec ([#77](https://github.com/BrunaSanguini/MyLibrary/issues/77)) ([a1ac044](https://github.com/BrunaSanguini/MyLibrary/commit/a1ac044781a5657fc7894bdcaa235b005f072816))
+
 ## [1.2.0](https://github.com/BrunaSanguini/MyLibrary/compare/v1.1.0...v1.2.0) (2026-11-19)
 
 
