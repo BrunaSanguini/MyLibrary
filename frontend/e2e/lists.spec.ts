@@ -50,18 +50,22 @@ test('builds a list and reorders it without the mouse', async ({ page }) => {
   // The card opens the list, still empty.
   await card.click();
   await expect(page.getByRole('heading', { level: 1, name })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Esta lista está vazia' })).toBeVisible();
+  await expect(page.getByText('Esta lista ainda está vazia')).toBeVisible();
 
-  // Books come from the shelf, each one at the end of the list.
+  // Books come from the library, in the panel that takes the place of the card, each one at the
+  // end of the list; a book added leaves the panel.
+  await page.getByRole('button', { name: 'Adicionar livros' }).first().click();
   const search = page.getByLabel('Buscar na estante');
+  await expect(search).toBeFocused();
   await search.fill(run);
   for (const title of ['Alfa', 'Beta', 'Gama']) {
     await page.getByRole('button', { name: `Adicionar ${title} ${run} à lista` }).click();
-    await expect(page.getByRole('status')).toHaveText(`${title} ${run} entrou na lista.`);
+    await expect(page.getByRole('status')).toHaveText(`“${title} ${run}” entrou na lista.`);
   }
-  await expect(page.getByText('Já está na lista')).toHaveCount(3);
-  const books = page.locator('ol.books a.title');
+  await expect(page.getByText(`Nenhum livro encontrado para “${run}”.`)).toBeVisible();
+  const books = page.locator('ol.books .title-link .title');
   await expect(books).toHaveText([`Alfa ${run}`, `Beta ${run}`, `Gama ${run}`]);
+  await page.getByRole('button', { name: 'Concluir' }).click();
   await expect(page.getByText('0 de 3 lidos')).toBeVisible();
 
   // Gama goes to the top by the keyboard alone: Tab to its button, then Enter twice.
@@ -174,11 +178,16 @@ for (const theme of THEMES) {
     await expect(page.getByRole('form', { name: 'Criar nova lista' })).toBeVisible();
     await expectNoAccessibilityViolations(page);
 
-    await page.goto(`/lista/${id}`);
+    await page.goto(`/lista/${id}?adicionar=true`);
     await page.getByLabel('Buscar na estante').fill(run);
     await page.getByRole('button', { name: `Adicionar Delta ${run} à lista` }).click();
     await page.getByRole('button', { name: `Adicionar Épsilon ${run} à lista` }).click();
-    await expect(page.locator('ol.books a.title')).toHaveCount(2);
+    await expect(page.locator('ol.books .title-link .title')).toHaveCount(2);
+    await page.mouse.move(0, 0);
+    await expectNoAccessibilityViolations(page);
+
+    await page.getByRole('button', { name: 'Concluir' }).click();
+    await expect(page.getByRole('region', { name: `Acessível ${run}` })).toBeVisible();
     await page.mouse.move(0, 0);
     await expectNoAccessibilityViolations(page);
   });
