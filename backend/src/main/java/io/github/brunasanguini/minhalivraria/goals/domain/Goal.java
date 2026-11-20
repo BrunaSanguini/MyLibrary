@@ -17,8 +17,8 @@ import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A reading goal for one year or one month. What it counts and when never change; only the target does, so a goal
- * that was wrong from the start is deleted and created again.
+ * A reading goal for one year or one month. What it counts and when never change; only the target does, and whether
+ * it is on, so a goal that was wrong from the start is deleted and created again.
  */
 @Entity
 public class Goal extends AuditedEntity {
@@ -47,6 +47,10 @@ public class Goal extends AuditedEntity {
     @Column(nullable = false)
     private int target;
 
+    /** Off, the goal keeps its target but the Home does not show it. */
+    @Column(nullable = false)
+    private boolean enabled = true;
+
     /**
      * @param month 1 to 12 for a monthly goal; null for a yearly one
      * @throws BusinessRuleException {@code goal.invalid-period}: a monthly goal without month, a yearly goal with
@@ -71,6 +75,10 @@ public class Goal extends AuditedEntity {
 
     public void changeTarget(int target) {
         this.target = target;
+    }
+
+    public void turn(boolean on) {
+        this.enabled = on;
     }
 
     /** First day the goal counts. */
@@ -107,5 +115,9 @@ public class Goal extends AuditedEntity {
 
     public int target() {
         return target;
+    }
+
+    public boolean enabled() {
+        return enabled;
     }
 }

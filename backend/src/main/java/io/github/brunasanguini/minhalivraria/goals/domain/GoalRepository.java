@@ -1,7 +1,9 @@
 package io.github.brunasanguini.minhalivraria.goals.domain;
 
+import io.github.brunasanguini.minhalivraria.goals.GoalPeriod;
 import io.github.brunasanguini.minhalivraria.goals.GoalType;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,4 +25,7 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
                 and coalesce(g.month, 0) = coalesce(:month, 0)
             """)
     boolean existsByTypeAndPeriod(GoalType type, short year, @Nullable Short month);
+
+    /** The monthly goal of a type that came last, the one a new month repeats. */
+    Optional<Goal> findFirstByTypeAndPeriodOrderByYearDescMonthDesc(GoalType type, GoalPeriod period);
 }
