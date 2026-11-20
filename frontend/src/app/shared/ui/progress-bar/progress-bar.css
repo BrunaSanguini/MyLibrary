@@ -14,12 +14,25 @@
   border-radius: 3px;
 }
 
+/* The thread: a faint track and a gold fill that glows (the glow only exists in the dark theme). */
+:host([data-size='thread']) {
+  overflow: visible;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--ml-color-line);
+}
+
 .fill {
   display: block;
   height: 100%;
   border-radius: inherit;
   background: var(--ml-color-accent);
   transition: width 0.3s ease;
+}
+
+:host([data-size='thread']) .fill {
+  background: var(--ml-color-gold);
+  box-shadow: var(--ml-glow-gold);
 }
 
 @media (prefers-reduced-motion: reduce) {

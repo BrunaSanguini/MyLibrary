@@ -1,0 +1,66 @@
+/* The fan of a list card: an area of 112×118 with three covers of 64×96. */
+
+:host {
+  display: block;
+  position: relative;
+  flex: none;
+  width: 112px;
+  height: 118px;
+}
+
+.cover {
+  display: flex;
+  position: absolute;
+  top: 16px;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 64px;
+  height: 96px;
+  overflow: hidden;
+  border-radius: 2px 6px 6px 2px;
+  background: var(--ml-color-raised);
+  box-shadow: var(--ml-shadow-spine);
+}
+
+.left {
+  left: 0;
+  transform: rotate(-8deg);
+}
+
+.right {
+  left: 48px;
+  transform: rotate(8deg);
+}
+
+.front {
+  top: 4px;
+  left: 24px;
+  box-shadow: var(--ml-shadow-spine-front);
+}
+
+img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The list's own colour does not change with the theme, so the text over it does not either. */
+.name {
+  display: -webkit-box;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 6px 6px 6px 10px;
+  overflow: hidden;
+  color: var(--ml-color-hero-ink);
+  font-family: var(--ml-font-title);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+}

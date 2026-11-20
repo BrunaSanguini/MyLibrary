@@ -97,7 +97,7 @@ describe('ListPage', () => {
     await openWithBooks();
 
     expect(screen.getByRole('heading', { level: 1, name: 'Para as férias' })).toBeInTheDocument();
-    expect(screen.getByText('1 lido de 3')).toBeInTheDocument();
+    expect(screen.getByText('1 de 3 lidos')).toBeInTheDocument();
     expect(orderOfBooks()).toEqual(['A Sociedade do Anel', 'O Hobbit', 'Duna']);
     expect(
       screen.getByRole('button', { name: 'Mover A Sociedade do Anel para cima' }),

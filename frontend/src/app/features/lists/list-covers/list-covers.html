@@ -1,0 +1,17 @@
+<span class="cover left">
+  @if (left(); as url) {
+    <img [src]="url" alt="" />
+  }
+</span>
+<span class="cover right">
+  @if (right(); as url) {
+    <img [src]="url" alt="" />
+  }
+</span>
+<span class="cover front" [style.background]="front() ? null : background()">
+  @if (front(); as url) {
+    <img [src]="url" alt="" />
+  } @else {
+    <span class="name">{{ name() }}</span>
+  }
+</span>
