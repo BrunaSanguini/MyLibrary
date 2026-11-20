@@ -50,8 +50,8 @@ async function open(url = '/lista/4') {
   return { harness, http: TestBed.inject(HttpTestingController) };
 }
 
-async function openWithBooks() {
-  const opened = await open();
+async function openWithBooks(url = '/lista/4') {
+  const opened = await open(url);
   opened.http.expectOne('/api/v1/lists/4').flush(LIST);
   opened.http
     .expectOne((request) => request.url === '/api/v1/shelf/books')
@@ -103,6 +103,18 @@ describe('ListPage', () => {
       screen.getByRole('button', { name: 'Mover A Sociedade do Anel para cima' }),
     ).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Mover Duna para baixo' })).toBeDisabled();
+  });
+
+  it('takes the reader to the search of the shelf when it comes to add books', async () => {
+    await openWithBooks('/lista/4?adicionar=true');
+
+    await vi.waitFor(() => expect(screen.getByLabelText('Buscar na estante')).toHaveFocus());
+  });
+
+  it('leaves the focus alone on a plain visit', async () => {
+    await openWithBooks();
+
+    expect(screen.getByLabelText('Buscar na estante')).not.toHaveFocus();
   });
 
   it('moves a book with the keyboard, keeps the focus on it and says where it went', async () => {

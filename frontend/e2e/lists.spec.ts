@@ -18,13 +18,16 @@ async function createBooks(request: APIRequestContext, prefix: string, titles: r
   });
   expect(author.ok()).toBe(true);
   const { id: authorId } = (await author.json()) as { id: number };
+  const ids: number[] = [];
   for (const title of titles) {
     const book = await request.post('/api/v1/books', {
       headers: WRITE,
       data: { title: `${title} ${prefix}`, authorIds: [authorId], pageCount: 200 },
     });
     expect(book.ok()).toBe(true);
+    ids.push(((await book.json()) as { id: number }).id);
   }
+  return ids;
 }
 
 test('builds a list and reorders it without the mouse', async ({ page }) => {
@@ -99,6 +102,56 @@ test('refuses a second list with the same name', async ({ page }) => {
 
   await expect(page.getByRole('alert')).toContainText('Já existe uma lista com este nome.');
   await expect(page.getByLabel('Nome da lista')).toHaveValue(name.toUpperCase());
+});
+
+test('shows the pinned list in large and goes from it to adding books', async ({ page }) => {
+  const run = String(Date.now());
+  const [first, second] = await createBooks(page.request, run, ['Zeta', 'Eta']);
+  const created = await page.request.post('/api/v1/lists', {
+    headers: WRITE,
+    data: { name: `Fixada ${run}`, description: 'A lista em destaque.', color: 'SEAL' },
+  });
+  const { id } = (await created.json()) as { id: number };
+  for (const bookId of [first, second]) {
+    expect(
+      (await page.request.put(`/api/v1/lists/${id}/books/${bookId}`, { headers: WRITE })).ok(),
+    ).toBe(true);
+  }
+  expect((await page.request.put(`/api/v1/lists/${id}/pin`, { headers: WRITE })).ok()).toBe(true);
+
+  await page.goto('/listas');
+  const pinned = page.getByRole('region', { name: `Fixada ${run}` });
+  await expect(pinned.getByText('0 de 2 lidos')).toBeVisible();
+  await expect(pinned.getByText('0%')).toBeVisible();
+  // Out of the grid: the pinned list has its own place.
+  await expect(
+    page
+      .getByRole('region', { name: 'Todas as listas' })
+      .getByRole('link', { name: `Fixada ${run}` }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole('region', { name: 'Listas especiais' }).getByRole('link'),
+  ).toHaveCount(3);
+  await page.mouse.move(0, 0);
+  await expectNoAccessibilityViolations(page);
+
+  await pinned.getByRole('link', { name: 'Adicionar livros' }).click();
+  await expect(page).toHaveURL(new RegExp(`/lista/${id}\\?adicionar=true$`));
+  await expect(page.getByLabel('Buscar na estante')).toBeFocused();
+});
+
+test('opens the shelf filtered from a special list', async ({ page }) => {
+  await page.goto('/listas');
+  await page
+    .getByRole('region', { name: 'Listas especiais' })
+    .getByRole('link', { name: /Releituras/ })
+    .click();
+
+  await expect(page).toHaveURL(/\/estante\?reread=true$/);
+  await expect(page.getByRole('button', { name: 'Releituras' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
 });
 
 for (const theme of THEMES) {

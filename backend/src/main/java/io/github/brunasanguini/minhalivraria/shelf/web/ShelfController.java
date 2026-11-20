@@ -37,7 +37,8 @@ class ShelfController {
             operationId = "searchShelfBooks",
             summary = "Book cards, filtered and paginated",
             description = "The search ignores accents and also matches author names. A genre brings the books of its"
-                    + " subgenres. status can repeat. Sorting: title, author, addedAt (default, desc), seriesPosition,"
+                    + " subgenres. status can repeat. reread=true brings the books read more than once or with a"
+                    + " reading marked as a reread. Sorting: title, author, addedAt (default, desc), seriesPosition,"
                     + " rating, finishedAt and, only with listId, listOrder.")
     @GetMapping("/books")
     PageResponse<BookCardResponse> search(
@@ -45,14 +46,15 @@ class ShelfController {
             @RequestParam(required = false) @Nullable List<ShelfStatus> status,
             @RequestParam(required = false) @Nullable Ownership ownership,
             @RequestParam(required = false) @Nullable Boolean favorite,
+            @RequestParam(required = false) @Nullable Boolean reread,
             @RequestParam(required = false) @Nullable Long genreId,
             @RequestParam(required = false) @Nullable Long authorId,
             @RequestParam(required = false) @Nullable Long publisherId,
             @RequestParam(required = false) @Nullable Long seriesId,
             @RequestParam(required = false) @Nullable Long listId,
             @Valid @ParameterObject PageQuery page) {
-        ShelfFilter filter =
-                new ShelfFilter(q, status, ownership, favorite, genreId, authorId, publisherId, seriesId, listId);
+        ShelfFilter filter = new ShelfFilter(
+                q, status, ownership, favorite, reread, genreId, authorId, publisherId, seriesId, listId);
         return PageResponse.of(service.search(filter, page), Function.identity());
     }
 

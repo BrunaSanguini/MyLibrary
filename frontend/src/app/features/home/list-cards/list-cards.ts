@@ -2,17 +2,20 @@ import { httpResource } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ListsApi, ListsPage } from '@core/api/lists-api';
-import { BookCover } from '@shared/ui/book-cover/book-cover';
 import { Icon } from '@shared/ui/icon/icon';
+import { ListCovers } from '@shared/ui/list-covers/list-covers';
 
 const SHOWN = 3;
 
-/** Listas para explorar: the lists changed last, with their covers and how much was read. */
+/**
+ * Listas para explorar: the three lists changed last, pinned or not, each with its fan of covers
+ * and how many books it has and how many were read.
+ */
 @Component({
   selector: 'ml-list-cards',
-  imports: [BookCover, Icon, RouterLink],
+  imports: [Icon, ListCovers, RouterLink],
   templateUrl: './list-cards.html',
-  styleUrls: ['../home-section.css', '../card-fan.css'],
+  styleUrls: ['../home-section.css', './list-cards.css'],
 })
 export class ListCards {
   private readonly listsApi = inject(ListsApi);

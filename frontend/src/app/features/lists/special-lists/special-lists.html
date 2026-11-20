@@ -1,0 +1,28 @@
+<section aria-label="Listas especiais">
+  <ul class="specials">
+    @for (special of specials; track special.id) {
+      <li>
+        <a
+          class="special"
+          [attr.data-special]="special.id"
+          routerLink="/estante"
+          [queryParams]="special.queryParams"
+        >
+          <span class="icon"><ml-icon [name]="special.icon" [size]="22" /></span>
+          <span class="text">
+            <span class="name">{{ special.name }}</span>
+            <span class="description">{{ special.description }}</span>
+          </span>
+          @if (special.count.hasValue()) {
+            <span class="count">
+              {{ special.count.value().totalElements }}
+              <span class="ml-visually-hidden">
+                {{ special.count.value().totalElements === 1 ? 'livro' : 'livros' }}
+              </span>
+            </span>
+          }
+        </a>
+      </li>
+    }
+  </ul>
+</section>

@@ -62,6 +62,11 @@ export class ListsApi {
     };
   }
 
+  /** The pinned list, if there is one: only one list is pinned at a time. */
+  pinnedRequest(): HttpResourceRequest {
+    return { url: '/api/v1/lists', params: { pinned: true, size: 1 } };
+  }
+
   oneRequest(id: number): HttpResourceRequest {
     return { url: `/api/v1/lists/${id}` };
   }
@@ -114,6 +119,13 @@ export class ListsApi {
 /** `2 de 5 lidos`, the line every card of a list shows. */
 export function readCountOf(list: Pick<BookListResponse, 'bookCount' | 'readCount'>): string {
   return `${list.readCount} de ${list.bookCount} lidos`;
+}
+
+/** How much of a list was read, rounded: 5 of 8 is 63. An empty list is at 0. */
+export function percentOf(list: Pick<BookListResponse, 'bookCount' | 'readCount'>): number {
+  return list.bookCount === 0
+    ? 0
+    : Math.min(Math.round((list.readCount / list.bookCount) * 100), 100);
 }
 
 const STATUS_LABELS: Readonly<Record<ListStatus, string>> = {

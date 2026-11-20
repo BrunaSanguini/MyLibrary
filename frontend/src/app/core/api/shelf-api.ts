@@ -41,6 +41,8 @@ export interface ShelfFilter {
   readonly status?: readonly ShelfStatus[];
   readonly ownership?: Ownership;
   readonly favorite?: boolean;
+  /** Read more than once, or with a reading marked as a reread. */
+  readonly reread?: boolean;
   readonly genreId?: number;
   readonly authorId?: number;
   readonly publisherId?: number;

@@ -58,6 +58,8 @@ export default class ShelfPage {
   readonly status = input([], { transform: toStatuses });
   readonly ownership = input(undefined, { transform: toOwnership });
   readonly favorite = input(undefined, { transform: toFlag });
+  /** Read more than once: where the Releituras card of the Listas page leads. */
+  readonly reread = input(undefined, { transform: toFlag });
   readonly genreId = input(undefined, { transform: toId });
   readonly authorId = input(undefined, { transform: toId });
   readonly publisherId = input(undefined, { transform: toId });
@@ -73,6 +75,7 @@ export default class ShelfPage {
     status: this.status(),
     ownership: this.ownership(),
     favorite: this.favorite(),
+    reread: this.reread(),
     genreId: this.genreId(),
     authorId: this.authorId(),
     publisherId: this.publisherId(),
@@ -97,6 +100,7 @@ export default class ShelfPage {
         this.q() ??
         this.ownership() ??
         this.favorite() ??
+        this.reread() ??
         this.genreId() ??
         this.authorId() ??
         this.publisherId() ??
@@ -142,6 +146,10 @@ export default class ShelfPage {
 
   protected toggleFavorite(): void {
     this.changeFilter({ favorite: this.favorite() === true ? null : 'true' });
+  }
+
+  protected toggleReread(): void {
+    this.changeFilter({ reread: this.reread() === true ? null : 'true' });
   }
 
   protected changeSort(event: Event): void {

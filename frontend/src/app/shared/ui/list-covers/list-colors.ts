@@ -1,4 +1,8 @@
-import { ListColor } from '@core/api/lists-api';
+/**
+ * The cover colour of a list, one of the six of the design system. The same union as the API's
+ * `BookListResponse['color']`, written here because shared/ui does not know the API.
+ */
+export type ListColor = 'FOREST' | 'PLUM' | 'NIGHT' | 'RUST' | 'SEAL' | 'MOSS';
 
 export interface ListColorOption {
   readonly id: ListColor;

@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 
-import { ListsApi, readCountOf, statusLabelOf } from './lists-api';
+import { ListsApi, percentOf, readCountOf, statusLabelOf } from './lists-api';
 
 const card = (id: number) => ({
   id,
@@ -24,6 +24,18 @@ describe('readCountOf', () => {
     [5, 2, '2 de 5 lidos'],
   ])('describes %i books with %i read', (bookCount, readCount, text) => {
     expect(readCountOf({ bookCount, readCount })).toBe(text);
+  });
+});
+
+describe('percentOf', () => {
+  it.each([
+    [0, 0, 0],
+    [8, 5, 63],
+    [3, 1, 33],
+    [4, 4, 100],
+    [2, 3, 100],
+  ])('gives %i books with %i read as %i%%', (bookCount, readCount, percent) => {
+    expect(percentOf({ bookCount, readCount })).toBe(percent);
   });
 });
 
@@ -56,6 +68,13 @@ describe('ListsApi requests', () => {
     expect(api().cardsRequest({ status: 'COMPLETED' }).params).toMatchObject({
       pinned: false,
       status: 'COMPLETED',
+    });
+  });
+
+  it('asks for the pinned list alone', () => {
+    expect(api().pinnedRequest()).toEqual({
+      url: '/api/v1/lists',
+      params: { pinned: true, size: 1 },
     });
   });
 

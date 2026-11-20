@@ -1,0 +1,66 @@
+<section class="pinned" aria-labelledby="titulo-fixada">
+  <ml-list-covers
+    size="pinned"
+    [name]="list().name"
+    [color]="list().color"
+    [coverUrls]="list().coverUrls"
+  />
+
+  <div class="body">
+    <p class="eyebrow"><span aria-hidden="true">✦</span> Lista fixada</p>
+    <h2 id="titulo-fixada">{{ list().name }}</h2>
+    @if (list().description) {
+      <p class="description">{{ list().description }}</p>
+    }
+
+    <div class="progress">
+      <p class="numbers">
+        <span>{{ readCount() }}</span>
+        <span class="percent">{{ percent() }}%</span>
+      </p>
+      <div class="thread">
+        <ml-progress-bar
+          size="thread"
+          [value]="percent()"
+          [label]="'Livros lidos de ' + list().name"
+        />
+        @if (percent() > 0) {
+          <span class="star" aria-hidden="true" [style.left]="'calc(' + percent() + '% - 7px)'"
+            >✦</span
+          >
+        }
+      </div>
+    </div>
+
+    @if (spines().length > 0) {
+      <div class="strip" aria-hidden="true">
+        @for (book of spines(); track book.id) {
+          <span
+            class="spine"
+            [attr.data-state]="book.state"
+            [title]="book.title"
+            [style.background]="color()"
+          >
+            @if (book.coverUrl) {
+              <img [src]="book.coverUrl" alt="" />
+            }
+          </span>
+        }
+        @if (more() > 0) {
+          <span class="more">+{{ more() }}</span>
+        }
+      </div>
+    }
+
+    <div class="actions">
+      <a mlButton class="open" [routerLink]="['/lista', list().id]">Abrir lista</a>
+      <a
+        mlButton="secondary"
+        class="add"
+        [routerLink]="['/lista', list().id]"
+        [queryParams]="{ adicionar: 'true' }"
+        >Adicionar livros</a
+      >
+    </div>
+  </div>
+</section>

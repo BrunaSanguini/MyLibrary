@@ -72,15 +72,65 @@ async function open(url = '/listas') {
   return { harness, http: TestBed.inject(HttpTestingController) };
 }
 
-/** Answers every request the page has made to the lists: the cards, and the count of each tab. */
+const PINNED = {
+  id: 7,
+  name: 'Fantasia épica essencial',
+  description: 'Mundos enormes, mapas no começo e jornadas longas.',
+  bookCount: 8,
+  readCount: 5,
+  wishlistCount: 0,
+  status: 'IN_PROGRESS',
+  color: 'FOREST',
+  pinned: true,
+  coverUrls: [],
+  updatedAt: '2026-11-02T12:00:00Z',
+};
+
+const BOOK = { authors: [], genres: [], favorite: false, reread: false, ownership: 'OWNED' };
+
+/** The books of the pinned list: two read, one being read and one not started. */
+const PINNED_BOOKS = [
+  { ...BOOK, id: 1, title: 'A Sociedade do Anel', status: 'READ' },
+  { ...BOOK, id: 2, title: 'O Hobbit', status: 'READ' },
+  { ...BOOK, id: 3, title: 'O Nome do Vento', status: 'READING' },
+  { ...BOOK, id: 4, title: 'O Império Final', status: 'WANT_TO_READ' },
+];
+
+/** How many books the shelf has under each special list. */
+function specialCountOf(params: { get(name: string): string | null }): number {
+  if (params.get('ownership') === 'WISHLIST') {
+    return 12;
+  }
+  return params.get('favorite') === 'true' ? 8 : 1;
+}
+
+/** Answers the shelf: the count of each special list, and the books of the pinned one. */
+function answerShelf(http: HttpTestingController) {
+  for (const request of http.match((candidate) => candidate.url === '/api/v1/shelf/books')) {
+    const params = request.request.params;
+    if (params.has('listId')) {
+      request.flush(pageOf(PINNED_BOOKS));
+    } else {
+      request.flush(pageOf([], specialCountOf(params), 1));
+    }
+  }
+}
+
+/**
+ * Answers every request the page has made: the cards, the count of each tab, the pinned list
+ * (none, unless given) and the shelf behind the special lists.
+ */
 async function answer(
   http: HttpTestingController,
   harness: RouterTestingHarness,
   cards: object = CARDS,
+  pinned: object = pageOf([]),
 ) {
   for (const request of http.match((candidate) => candidate.url === '/api/v1/lists')) {
     const params = request.request.params;
-    if (params.get('size') === '1') {
+    if (params.get('pinned') === 'true') {
+      request.flush(pinned);
+    } else if (params.get('size') === '1') {
       const total = COUNTS[params.get('status') ?? 'todas']!;
       request.flush(
         pageOf(
@@ -92,6 +142,16 @@ async function answer(
     } else {
       request.flush(cards);
     }
+  }
+  answerShelf(http);
+  if ((pinned as { content: unknown[] }).content.length > 0) {
+    // The pinned list asks for its books only once it is on the screen.
+    await vi.waitFor(() => {
+      TestBed.tick();
+      const books = http.match((candidate) => candidate.params.has('listId'));
+      expect(books).toHaveLength(1);
+      books[0]!.flush(pageOf(PINNED_BOOKS));
+    });
   }
   await harness.fixture.whenStable();
 }
@@ -108,8 +168,14 @@ describe('ListsPage', () => {
 
     const requests = http.match((request) => request.url === '/api/v1/lists');
     const cards = requests.filter((request) => request.request.params.get('size') === '100');
-    const counts = requests.filter((request) => request.request.params.get('size') === '1');
+    const counts = requests.filter(
+      (request) =>
+        request.request.params.get('size') === '1' &&
+        request.request.params.get('pinned') === 'false',
+    );
+    const pinned = requests.filter((request) => request.request.params.get('pinned') === 'true');
 
+    expect(pinned).toHaveLength(1);
     expect(cards).toHaveLength(1);
     expect(cards[0]!.request.params.get('sort')).toBe('updatedAt,desc');
     expect(cards[0]!.request.params.get('pinned')).toBe('false');
@@ -248,12 +314,93 @@ describe('ListsPage', () => {
         { status: 500, statusText: 'Server Error' },
       );
     }
+    answerShelf(http);
     await harness.fixture.whenStable();
 
     expect(screen.getByRole('alert')).toHaveTextContent('Algo deu errado.');
     await userEvent.click(screen.getByRole('button', { name: /Tentar de novo/ }));
     TestBed.tick();
     expect(http.match((request) => request.url === '/api/v1/lists').length).toBeGreaterThan(0);
+  });
+
+  describe('special lists', () => {
+    it('counts the books of each one and opens the shelf already filtered', async () => {
+      await openAnswered();
+
+      const specials = screen.getByRole('region', { name: 'Listas especiais' });
+      const wishlist = within(specials).getByRole('link', { name: /Wishlist/ });
+      expect(wishlist).toHaveAttribute('href', '/estante?ownership=WISHLIST');
+      expect(wishlist).toHaveTextContent('Livros que você quer ter');
+      expect(wishlist).toHaveTextContent('12 livros');
+      expect(within(specials).getByRole('link', { name: /Favoritos/ })).toHaveAttribute(
+        'href',
+        '/estante?favorite=true',
+      );
+      const rereads = within(specials).getByRole('link', { name: /Releituras/ });
+      expect(rereads).toHaveAttribute('href', '/estante?reread=true');
+      expect(rereads).toHaveTextContent('1 livro');
+    });
+  });
+
+  describe('pinned list', () => {
+    it('shows the pinned list in large, with its progress and both ways in', async () => {
+      const { http, harness } = await open();
+      await answer(http, harness, CARDS, pageOf([PINNED]));
+
+      const pinned = screen.getByRole('region', { name: 'Fantasia épica essencial' });
+      expect(within(pinned).getByText(/Lista fixada/)).toBeInTheDocument();
+      expect(
+        within(pinned).getByRole('heading', { level: 2, name: 'Fantasia épica essencial' }),
+      ).toBeInTheDocument();
+      expect(within(pinned).getByText('5 de 8 lidos')).toBeInTheDocument();
+      expect(within(pinned).getByText('63%')).toBeInTheDocument();
+      expect(within(pinned).getByRole('progressbar')).toHaveAttribute('aria-valuenow', '63');
+      expect(within(pinned).getByRole('link', { name: 'Abrir lista' })).toHaveAttribute(
+        'href',
+        '/lista/7',
+      );
+      expect(within(pinned).getByRole('link', { name: 'Adicionar livros' })).toHaveAttribute(
+        'href',
+        '/lista/7?adicionar=true',
+      );
+    });
+
+    it('draws one spine per book, marking the read one and the one being read', async () => {
+      const { http, harness } = await open();
+      await answer(http, harness, CARDS, pageOf([PINNED]));
+
+      const states = [...document.querySelectorAll<HTMLElement>('.spine')].map((spine) => [
+        spine.title,
+        spine.dataset['state'],
+      ]);
+      expect(states).toEqual([
+        ['A Sociedade do Anel', 'read'],
+        ['O Hobbit', 'read'],
+        ['O Nome do Vento', 'reading'],
+        ['O Império Final', 'unread'],
+      ]);
+    });
+
+    it('hides the section when no list is pinned', async () => {
+      await openAnswered();
+
+      expect(screen.queryByText(/Lista fixada/)).not.toBeInTheDocument();
+    });
+
+    it('does not call the page empty when the pinned list is the only one', async () => {
+      const { http, harness } = await open();
+      COUNTS['todas'] = 0;
+      try {
+        await answer(http, harness, pageOf([]), pageOf([PINNED]));
+      } finally {
+        COUNTS['todas'] = 2;
+      }
+
+      expect(
+        screen.queryByRole('heading', { name: 'Nenhuma lista ainda' }),
+      ).not.toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Fantasia épica essencial' })).toBeInTheDocument();
+    });
   });
 
   describe('new list', () => {
@@ -305,9 +452,13 @@ describe('ListsPage', () => {
       expect(
         requests.filter((request) => request.request.params.get('size') === '100'),
       ).toHaveLength(1);
-      expect(requests.filter((request) => request.request.params.get('size') === '1')).toHaveLength(
-        4,
-      );
+      expect(
+        requests.filter(
+          (request) =>
+            request.request.params.get('size') === '1' &&
+            request.request.params.get('pinned') === 'false',
+        ),
+      ).toHaveLength(4);
     });
 
     it('goes back to all the lists when it was created under another tab', async () => {

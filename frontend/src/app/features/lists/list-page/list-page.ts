@@ -3,6 +3,7 @@ import {
   afterNextRender,
   Component,
   computed,
+  effect,
   ElementRef,
   inject,
   Injector,
@@ -15,7 +16,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { ApiError } from '@core/api/api-error';
 import { BookListResponse, ListsApi, readCountOf } from '@core/api/lists-api';
-import { toId } from '@core/api/query-params';
+import { toFlag, toId } from '@core/api/query-params';
 import { BOOK_STATUS_LABELS } from '@core/api/reading-api';
 import { BookCardResponse } from '@core/api/shelf-api';
 import { BookCover } from '@shared/ui/book-cover/book-cover';
@@ -59,6 +60,8 @@ type Direction = 'up' | 'down';
 })
 export default class ListPage {
   readonly id = input(undefined, { transform: toId });
+  /** `?adicionar=true`, from "Adicionar livros" on the Listas page: the search of the shelf takes the focus. */
+  readonly adicionar = input(undefined, { transform: toFlag });
 
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
@@ -104,6 +107,22 @@ export default class ListPage {
   protected readonly placeholders = [0, 1, 2];
   protected readonly statusLabels = BOOK_STATUS_LABELS;
   protected readonly readCountOf = readCountOf;
+
+  /** Only once per visit: after that the focus is the reader's. */
+  private searchFocused = false;
+
+  constructor() {
+    effect(() => {
+      if (!this.adicionar() || this.searchFocused || !this.list.hasValue()) {
+        return;
+      }
+      this.searchFocused = true;
+      afterNextRender(
+        () => this.host.nativeElement.querySelector<HTMLInputElement>('#busca-lista')?.focus(),
+        { injector: this.injector },
+      );
+    });
+  }
 
   /** Requests leave in the order of the clicks, so the last order saved is the one on the screen. */
   private queue: Promise<void> = Promise.resolve();

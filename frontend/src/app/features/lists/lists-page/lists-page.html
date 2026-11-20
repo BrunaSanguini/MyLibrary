@@ -33,6 +33,12 @@
   />
 }
 
+<ml-special-lists />
+
+@if (pinnedList(); as list) {
+  <ml-pinned-list [list]="list" />
+}
+
 <section class="all" aria-label="Todas as listas">
   @if (errorMessage()) {
     <ml-error-state [message]="errorMessage()" (retry)="retry()" />

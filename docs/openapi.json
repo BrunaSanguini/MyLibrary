@@ -2099,7 +2099,7 @@
       "get" : {
         "tags" : [ "shelf" ],
         "summary" : "Book cards, filtered and paginated",
-        "description" : "The search ignores accents and also matches author names. A genre brings the books of its subgenres. status can repeat. Sorting: title, author, addedAt (default, desc), seriesPosition, rating, finishedAt and, only with listId, listOrder.",
+        "description" : "The search ignores accents and also matches author names. A genre brings the books of its subgenres. status can repeat. reread=true brings the books read more than once or with a reading marked as a reread. Sorting: title, author, addedAt (default, desc), seriesPosition, rating, finishedAt and, only with listId, listOrder.",
         "operationId" : "searchShelfBooks",
         "parameters" : [ {
           "name" : "q",
@@ -2131,6 +2131,13 @@
           }
         }, {
           "name" : "favorite",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : [ "boolean", "null" ]
+          }
+        }, {
+          "name" : "reread",
           "in" : "query",
           "required" : false,
           "schema" : {

@@ -1,7 +1,6 @@
 import { Component, computed, input } from '@angular/core';
-import { ListColor } from '@core/api/lists-api';
 
-import { colorOf } from '../list-colors';
+import { colorOf, ListColor } from './list-colors';
 
 /**
  * The fan of three covers on a list card: the first book in front, the second behind it to the
@@ -16,13 +15,18 @@ import { colorOf } from '../list-colors';
   selector: 'ml-list-covers',
   templateUrl: './list-covers.html',
   styleUrl: './list-covers.css',
-  host: { 'aria-hidden': 'true' },
+  host: { 'aria-hidden': 'true', '[attr.data-size]': 'size()' },
 })
 export class ListCovers {
   readonly name = input.required<string>();
   readonly color = input.required<ListColor>();
   /** The covers of the first books of the list that have one, at most three. */
   readonly coverUrls = input<readonly string[]>([]);
+  /**
+   * `card` on the grid of Listas (112×118), `home` on Listas para explorar (128×132) and
+   * `pinned` on the pinned list (340×300, under a gothic arch).
+   */
+  readonly size = input<'card' | 'home' | 'pinned'>('card');
 
   protected readonly front = computed(() => this.coverUrls()[0]);
   protected readonly right = computed(() => this.coverUrls()[1]);

@@ -1,3 +1,8 @@
+@if (size() === 'pinned') {
+  <svg class="arch" viewBox="0 0 260 300" focusable="false">
+    <path d="M10 299 V120 Q10 10 130 1 Q250 10 250 120 V299" />
+  </svg>
+}
 <span class="cover left">
   @if (left(); as url) {
     <img [src]="url" alt="" />

@@ -56,12 +56,13 @@ describe('ShelfPage', () => {
 
   it('sends the filters of the URL to the API', async () => {
     const { params } = await openShelf(
-      '/estante?q=anel&ownership=OWNED&favorite=true&genreId=3&sort=title&page=2',
+      '/estante?q=anel&ownership=OWNED&favorite=true&reread=true&genreId=3&sort=title&page=2',
     );
 
     expect(params.get('q')).toBe('anel');
     expect(params.get('ownership')).toBe('OWNED');
     expect(params.get('favorite')).toBe('true');
+    expect(params.get('reread')).toBe('true');
     expect(params.get('genreId')).toBe('3');
     expect(params.get('sort')).toBe('title');
     expect(params.get('page')).toBe('2');
@@ -128,6 +129,25 @@ describe('ShelfPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Favoritos' }));
 
     expect(TestBed.inject(Router).url).toBe('/estante?favorite=true');
+  });
+
+  it('turns the rereads on and off', async () => {
+    const { harness, http } = await openShelf('/estante');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Releituras' }));
+    TestBed.tick();
+    const filtered = http.expectOne((candidate) => candidate.url === '/api/v1/shelf/books');
+    expect(filtered.request.params.get('reread')).toBe('true');
+    filtered.flush(page([FELLOWSHIP]));
+    await harness.fixture.whenStable();
+    expect(TestBed.inject(Router).url).toBe('/estante?reread=true');
+    expect(screen.getByRole('button', { name: 'Releituras' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Releituras' }));
+    expect(TestBed.inject(Router).url).toBe('/estante');
   });
 
   it('hides the paginator when everything fits in one page', async () => {
