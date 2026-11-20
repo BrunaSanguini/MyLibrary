@@ -93,6 +93,7 @@ Listagem de cards usada pela Estante, pela busca, pelas seções da Home e pelas
 | `status` | `ShelfStatus` | pode repetir: `?status=READING&status=READ` |
 | `ownership` | `Ownership` | |
 | `favorite` | booleano | |
+| `reread` | booleano | `true`: lido mais de uma vez ou com uma leitura marcada como releitura (a lista especial Releituras) |
 | `genreId` | número | um gênero inclui os livros dos subgêneros dele |
 | `authorId`, `publisherId`, `seriesId`, `listId` | número | |
 | `sort` | texto | `title`, `author`, `addedAt` (padrão, `desc`), `rating`, `finishedAt`, `seriesPosition`, `listOrder` (só com `listId`) |

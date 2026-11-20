@@ -264,6 +264,10 @@ public class ShelfService {
             clauses.add("b.favorite = :favorite");
             params.put("favorite", filter.favorite());
         }
+        if (filter.reread() != null) {
+            clauses.add("(" + REREAD + ") = :reread");
+            params.put("reread", filter.reread());
+        }
         if (filter.genreId() != null) {
             // A genre also brings the books tagged only with its subgenres.
             clauses.add("""
