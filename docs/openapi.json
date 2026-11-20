@@ -644,7 +644,8 @@
     "/api/v1/goals/{id}" : {
       "put" : {
         "tags" : [ "goals" ],
-        "summary" : "Changes the target of a goal",
+        "summary" : "Changes the target of a goal and turns it on or off",
+        "description" : "Without enabled, the goal stays on or off as it was. A goal that is off keeps its target but does not show on the Home.",
         "operationId" : "updateGoal",
         "parameters" : [ {
           "name" : "id",
@@ -1618,7 +1619,7 @@
       "get" : {
         "tags" : [ "goals" ],
         "summary" : "Goals of a year, yearly and monthly, with the progress of each one",
-        "description" : "Without year, the current one.",
+        "description" : "Without year, the current one. In the current year, a month without a monthly goal gets one with the target of the last monthly goal of the same type.",
         "operationId" : "listGoals",
         "parameters" : [ {
           "name" : "year",
@@ -2395,6 +2396,103 @@
           }
         }
       }
+    },
+    "/api/v1/featured" : {
+      "get" : {
+        "tags" : [ "books" ],
+        "summary" : "The books featured on the Home, in order",
+        "operationId" : "listFeaturedBooks",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/FeaturedBookResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "books" ],
+        "summary" : "Replaces the books featured on the Home",
+        "description" : "One to three books of the collection, each once: 422 featured.duplicated-book or featured.book-not-owned. imageFrom keeps the image a slot had before the change; without it the slot has no image until one is sent.",
+        "operationId" : "replaceFeaturedBooks",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/FeaturedBooksRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/FeaturedBookResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/featured/{slot}/image" : {
+      "put" : {
+        "tags" : [ "books" ],
+        "summary" : "Sends the image of a featured book",
+        "operationId" : "replaceFeaturedImage",
+        "parameters" : [ {
+          "name" : "slot",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "file" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "file" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FeaturedBookResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
@@ -2722,6 +2820,9 @@
             "format" : "int32",
             "exclusiveMinimum" : 0,
             "maximum" : 1000000
+          },
+          "enabled" : {
+            "type" : "boolean"
           }
         },
         "required" : [ "target" ]
@@ -2760,9 +2861,12 @@
           "percent" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "enabled" : {
+            "type" : "boolean"
           }
         },
-        "required" : [ "current", "id", "percent", "period", "target", "type", "year" ]
+        "required" : [ "current", "enabled", "id", "percent", "period", "target", "type", "year" ]
       },
       "GenreRequest" : {
         "type" : "object",
@@ -3837,6 +3941,65 @@
           }
         },
         "required" : [ "content", "page", "size", "totalElements", "totalPages" ]
+      },
+      "FeaturedBookResponse" : {
+        "type" : "object",
+        "properties" : {
+          "slot" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "bookId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "authors" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "coverUrl" : {
+            "type" : "string"
+          },
+          "imageUrl" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "authors", "bookId", "slot", "title" ]
+      },
+      "FeaturedBooksRequest" : {
+        "type" : "object",
+        "properties" : {
+          "slots" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FeaturedSlotRequest"
+            },
+            "maxItems" : 3,
+            "minItems" : 1
+          }
+        },
+        "required" : [ "slots" ]
+      },
+      "FeaturedSlotRequest" : {
+        "type" : "object",
+        "properties" : {
+          "bookId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "imageFrom" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 3,
+            "minimum" : 1
+          }
+        },
+        "required" : [ "bookId" ]
       }
     }
   }

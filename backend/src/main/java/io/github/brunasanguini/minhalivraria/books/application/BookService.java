@@ -42,6 +42,7 @@ public class BookService {
     private final SeriesRepository series;
     private final GenreRepository genres;
     private final ImageStore images;
+    private final FeaturedBookService featured;
 
     BookService(
             BookRepository books,
@@ -49,13 +50,15 @@ public class BookService {
             PublisherRepository publishers,
             SeriesRepository series,
             GenreRepository genres,
-            ImageStore images) {
+            ImageStore images,
+            FeaturedBookService featured) {
         this.books = books;
         this.authors = authors;
         this.publishers = publishers;
         this.series = series;
         this.genres = genres;
         this.images = images;
+        this.featured = featured;
     }
 
     public BookDetailResponse get(long id) {
@@ -79,12 +82,16 @@ public class BookService {
         return toResponse(book);
     }
 
-    /** Deleting a book sends its cover and banner to the trash; book_author and book_genre go with it (FK). */
+    /**
+     * Deleting a book sends its cover and banner to the trash, and the image of its slot on the Home when it is
+     * featured; book_author, book_genre and featured_book go with it (FK).
+     */
     @Transactional
     public void delete(long id) {
         Book book = find(id);
         discard(book.replaceCover(null));
         discard(book.replaceBanner(null));
+        featured.forgetBook(id);
         books.delete(book);
     }
 
