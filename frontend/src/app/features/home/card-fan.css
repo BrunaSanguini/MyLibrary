@@ -1,4 +1,4 @@
-/* Cards of authors and lists: a fan of covers over the name. */
+/* Cards of authors: a fan of covers over the name. */
 
 .cards {
   display: grid;
@@ -10,10 +10,6 @@
 
 .four {
   grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.three {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .card {

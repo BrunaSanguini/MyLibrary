@@ -1,0 +1,133 @@
+/*
+ * The fan of a list: three covers, the first book in front. The sizes come from the spec:
+ * 112×118 with covers of 64×96 on the grid, 128×132 with 72×108 on the Home and 340×300 with
+ * 124×186 and a front of 148×222 on the pinned list.
+ */
+
+:host {
+  --fan-width: 112px;
+  --fan-height: 118px;
+  --side-width: 64px;
+  --side-height: 96px;
+  --side-top: 16px;
+  --side-inset: 0px;
+  --side-angle: 8deg;
+  --front-width: var(--side-width);
+  --front-height: var(--side-height);
+  --front-top: 4px;
+  --name-size: 9px;
+
+  display: block;
+  position: relative;
+  flex: none;
+  width: var(--fan-width);
+  height: var(--fan-height);
+}
+
+:host([data-size='home']) {
+  --fan-width: 128px;
+  --fan-height: 132px;
+  --side-width: 72px;
+  --side-height: 108px;
+  --side-top: 18px;
+  --front-top: 6px;
+  --name-size: 10px;
+}
+
+:host([data-size='pinned']) {
+  --fan-width: 340px;
+  --fan-height: 300px;
+  --side-width: 124px;
+  --side-height: 186px;
+  --side-top: 80px;
+  --side-inset: 22px;
+  --side-angle: 11deg;
+  --front-width: 148px;
+  --front-height: 222px;
+  --front-top: 40px;
+  --name-size: 17px;
+}
+
+.arch {
+  position: absolute;
+  top: 0;
+  left: 40px;
+  width: 260px;
+  height: 300px;
+  opacity: 0.6;
+  fill: none;
+  stroke: var(--ml-color-gold);
+  stroke-width: 1.5;
+}
+
+.cover {
+  display: flex;
+  position: absolute;
+  top: var(--side-top);
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--side-width);
+  height: var(--side-height);
+  overflow: hidden;
+  border-radius: 2px 6px 6px 2px;
+  background: var(--ml-color-raised);
+  box-shadow: var(--ml-shadow-spine);
+}
+
+.left {
+  left: var(--side-inset);
+  transform: rotate(calc(var(--side-angle) * -1));
+}
+
+.right {
+  right: var(--side-inset);
+  transform: rotate(var(--side-angle));
+}
+
+.front {
+  top: var(--front-top);
+  left: calc((var(--fan-width) - var(--front-width)) / 2);
+  width: var(--front-width);
+  height: var(--front-height);
+  box-shadow: var(--ml-shadow-spine-front);
+}
+
+:host([data-size='pinned']) .cover {
+  border-radius: 2px 8px 8px 2px;
+}
+
+:host([data-size='pinned']) .front {
+  border-radius: 3px 10px 10px 3px;
+  box-shadow: var(--ml-shadow-spine-front), var(--ml-glow-cover);
+}
+
+img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The list's own colour does not change with the theme, so the text over it does not either. */
+.name {
+  display: -webkit-box;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 6px 6px 6px 10px;
+  overflow: hidden;
+  color: var(--ml-color-hero-ink);
+  font-family: var(--ml-font-title);
+  font-size: var(--name-size);
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+}
+
+:host([data-size='pinned']) .name {
+  padding: 16px 16px 16px 24px;
+}

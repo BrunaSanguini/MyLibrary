@@ -311,7 +311,7 @@ As rotas são texto visível na barra do navegador, então ficam em português. 
 | `/livro/:id` | página do livro |
 | `/livro/:id/editar` | edição |
 | `/livro/:id/leitura` | Registrar leitura |
-| `/listas` (`?filtro=`, `?page=`) · `/lista/:id` | Listas (filtro e página na URL) |
+| `/listas` (`?filtro=`, `?page=`) · `/lista/:id` (`?adicionar=true`) | Listas (filtro e página na URL); a lista, com o foco já na busca de livros |
 | `/catalogos` (`?tipo=`) | Catálogos |
 | `/autor/:id` · `/serie/:id` · `/editoras/:id` · `/generos/:id` | páginas de agrupamento |
 | `/calendario` | Calendário de leitura |

@@ -27,6 +27,8 @@ import { Skeleton } from '@shared/ui/skeleton/skeleton';
 
 import { ListCard } from '../list-card/list-card';
 import { ListForm } from '../list-form/list-form';
+import { PinnedList } from '../pinned-list/pinned-list';
+import { SpecialLists } from '../special-lists/special-lists';
 
 /** The tabs over the grid, and what each one asks the API for (`todas` asks for nothing). */
 export const LIST_FILTERS = [
@@ -44,8 +46,9 @@ const toListFilter = toOneOf(LIST_FILTERS.map((filter) => filter.id));
 const FLASH_MILLISECONDS = 5000;
 
 /**
- * Listas: a button that opens the form of a new list and every list as a card, newest change
- * first, under tabs that narrow them by how far their reading is.
+ * Listas: a button that opens the form of a new list, the three special lists, the pinned one in
+ * large and every other list as a card, newest change first, under tabs that narrow them by how
+ * far their reading is.
  *
  * <p>The tabs count with the API, one request each, so the numbers are right even when the lists
  * do not fit in one page. The filter and the page live in the URL (`?filtro=andamento&page=1`),
@@ -54,7 +57,18 @@ const FLASH_MILLISECONDS = 5000;
  */
 @Component({
   selector: 'ml-lists-page',
-  imports: [Button, EmptyState, ErrorState, Icon, ListCard, ListForm, Paginator, Skeleton],
+  imports: [
+    Button,
+    EmptyState,
+    ErrorState,
+    Icon,
+    ListCard,
+    ListForm,
+    Paginator,
+    PinnedList,
+    Skeleton,
+    SpecialLists,
+  ],
   templateUrl: './lists-page.html',
   styleUrl: './lists-page.css',
 })
@@ -90,15 +104,24 @@ export default class ListsPage {
     ]),
   ) as Record<ListFilterId, ReturnType<typeof httpResource<ListsPageResponse>>>;
 
+  /** Hidden when no list is pinned, or when it could not be loaded: the grid still has the rest. */
+  protected readonly pinned = httpResource<ListsPageResponse>(() => this.listsApi.pinnedRequest());
+  protected readonly pinnedList = computed(() =>
+    this.pinned.hasValue() ? this.pinned.value().content[0] : undefined,
+  );
+
   protected readonly errorMessage = computed(() => {
     const error: unknown = this.cards.error();
     return error === undefined ? undefined : ApiError.from(error).detail;
   });
 
-  /** Until the count of all lists arrives the tabs show, so they do not blink in and out. */
+  /**
+   * Until the count of all lists arrives the tabs show, so they do not blink in and out. A pinned
+   * list alone is a list too: the tabs stay, with nothing under them.
+   */
   protected readonly hasLists = computed(() => {
     const all = this.counts.todas;
-    return !all.hasValue() || all.value().totalElements > 0;
+    return !all.hasValue() || all.value().totalElements > 0 || this.pinnedList() !== undefined;
   });
 
   protected readonly placeholders = [0, 1, 2];
@@ -174,6 +197,7 @@ export default class ListsPage {
 
   protected retry(): void {
     this.cards.reload();
+    this.pinned.reload();
     this.reloadCounts();
   }
 

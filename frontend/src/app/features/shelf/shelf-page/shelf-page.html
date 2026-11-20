@@ -61,6 +61,15 @@
     >
       Favoritos
     </button>
+    <button
+      mlTag="state"
+      type="button"
+      [pressed]="reread() === true"
+      [attr.aria-pressed]="reread() === true"
+      (click)="toggleReread()"
+    >
+      Releituras
+    </button>
   </fieldset>
 
   <label class="sort">

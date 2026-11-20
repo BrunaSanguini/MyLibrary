@@ -1,0 +1,92 @@
+/* Wishlist, Favoritos and Releituras: three framed cards side by side, each in its own colour. */
+
+.specials {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.special {
+  --special-color: var(--ml-color-accent);
+
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  box-sizing: border-box;
+  height: 100%;
+  padding: 20px 22px;
+  border: 1px solid var(--ml-color-glass-line);
+  border-radius: var(--ml-radius-md);
+  background: var(--ml-color-surface);
+  box-shadow: var(--ml-shadow-frame), var(--ml-shadow-soft);
+  color: var(--ml-color-ink);
+  text-decoration: none;
+  transition: transform 0.25s ease;
+}
+
+.special[data-special='favoritos'] {
+  --special-color: var(--ml-color-gold-text);
+}
+
+.special[data-special='releituras'] {
+  --special-color: var(--ml-color-lilac);
+}
+
+.special:hover {
+  transform: translateY(-4px);
+}
+
+.special:focus-visible {
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 3px;
+}
+
+.icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 1.5px solid var(--ml-color-gold);
+  border-radius: 50%;
+  background: var(--ml-color-raised);
+  color: var(--special-color);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.name {
+  font-family: var(--ml-font-title);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.description {
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-display);
+  font-size: 16px;
+  font-style: italic;
+}
+
+.count {
+  margin-left: auto;
+  color: var(--special-color);
+  font-family: var(--ml-font-title);
+  font-size: 26px;
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .special {
+    transition: none;
+  }
+}

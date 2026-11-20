@@ -4,9 +4,8 @@ import { BookListResponse, readCountOf, statusLabelOf } from '@core/api/lists-ap
 import { relativeTimeSince } from '@core/time/relative-time';
 import { NOW } from '@core/time/today';
 import { Icon } from '@shared/ui/icon/icon';
+import { ListCovers } from '@shared/ui/list-covers/list-covers';
 import { ProgressBar } from '@shared/ui/progress-bar/progress-bar';
-
-import { ListCovers } from '../list-covers/list-covers';
 
 /**
  * A list on the Listas page: the fan of covers, its name and description, how much of it was read

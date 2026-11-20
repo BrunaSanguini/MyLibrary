@@ -15,6 +15,8 @@ async function setup(content: object[]) {
     (candidate) => candidate.url === '/api/v1/lists',
   );
   expect(request.request.params.get('sort')).toBe('updatedAt,desc');
+  expect(request.request.params.get('size')).toBe('3');
+  expect(request.request.params.has('pinned')).toBe(false);
   request.flush({ content, page: 0, size: 3, totalElements: content.length, totalPages: 1 });
   await view.fixture.whenStable();
 }
@@ -41,6 +43,10 @@ describe('ListCards', () => {
     expect(link).toHaveAttribute('href', '/lista/4');
     expect(link).toHaveTextContent('5 livros');
     expect(link).toHaveTextContent('1 lido');
+    // No cover yet: the book in front of the fan carries the name, on the colour of the list.
+    const front = link.querySelector<HTMLElement>('ml-list-covers .front');
+    expect(front).toHaveTextContent('Clássicos para reler');
+    expect(front?.style.background).toBe('var(--ml-color-book-plum)');
   });
 
   it('points to the page of lists when there is none', async () => {

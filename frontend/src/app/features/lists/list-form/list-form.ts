@@ -14,9 +14,8 @@ import { FieldTree, form, FormField, submit, validate } from '@angular/forms/sig
 import { ApiError } from '@core/api/api-error';
 import { BookListResponse, ListColor, ListsApi } from '@core/api/lists-api';
 import { Button } from '@shared/ui/button/button';
+import { DEFAULT_LIST_COLOR, LIST_COLORS } from '@shared/ui/list-covers/list-colors';
 import { firstValueFrom } from 'rxjs';
-
-import { DEFAULT_LIST_COLOR, LIST_COLORS } from '../list-colors';
 
 interface ListModel {
   name: string;
