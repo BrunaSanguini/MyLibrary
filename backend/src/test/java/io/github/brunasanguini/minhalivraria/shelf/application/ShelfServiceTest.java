@@ -322,8 +322,7 @@ class ShelfServiceTest {
 
     @Test
     void shouldAnswerAnEmptyPagePastTheEnd() {
-        var page = shelf.search(
-                new ShelfFilter(null, null, null, null, null, null, null, null, null, null), new PageQuery(5, 2, null));
+        var page = shelf.search(EVERYTHING, new PageQuery(5, 2, null));
 
         assertThat(page.getContent()).isEmpty();
         assertThat(page.getTotalElements()).isEqualTo(3);
@@ -461,9 +460,7 @@ class ShelfServiceTest {
     void shouldKeepTheTotalRightWhenFilteringByStatus() {
         start(fellowship, "2026-11-01");
 
-        var page = shelf.search(
-                new ShelfFilter(null, List.of(ShelfStatus.WANT_TO_READ), null, null, null, null, null, null, null),
-                new PageQuery(0, 1, "title,asc"));
+        var page = shelf.search(byStatus(ShelfStatus.WANT_TO_READ), new PageQuery(0, 1, "title,asc"));
 
         assertThat(page.getTotalElements()).isEqualTo(2);
         assertThat(page.getContent()).hasSize(1);
@@ -671,7 +668,11 @@ class ShelfServiceTest {
     }
 
     private List<Long> idsByStatus(ShelfStatus... statuses) {
-        return ids(new ShelfFilter(null, List.of(statuses), null, null, null, null, null, null, null));
+        return ids(byStatus(statuses));
+    }
+
+    private static ShelfFilter byStatus(ShelfStatus... statuses) {
+        return new ShelfFilter(null, List.of(statuses), null, null, null, null, null, null, null, null);
     }
 
     private static ShelfFilter inList(long listId) {
