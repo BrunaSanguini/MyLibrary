@@ -39,10 +39,7 @@ class FeaturedBookControllerTest {
     void shouldListTheFeaturedBooks() {
         given(service.list()).willReturn(List.of(HOBBIT));
 
-        assertThat(mvc.get().uri("/api/v1/featured"))
-                .hasStatusOk()
-                .bodyJson()
-                .isLenientlyEqualTo("""
+        assertThat(mvc.get().uri("/api/v1/featured")).hasStatusOk().bodyJson().isLenientlyEqualTo("""
                         [
                           {
                             "slot": 1,

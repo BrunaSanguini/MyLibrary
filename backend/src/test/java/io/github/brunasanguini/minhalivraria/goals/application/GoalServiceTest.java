@@ -241,7 +241,8 @@ class GoalServiceTest {
         YearMonth before = now.minusMonths(1);
         int year = before.getYear();
         int month = before.getMonthValue();
-        long last = goals.create(new GoalRequest(GoalType.BOOKS, GoalPeriod.MONTH, year, month, 3)).id();
+        long last = goals.create(new GoalRequest(GoalType.BOOKS, GoalPeriod.MONTH, year, month, 3))
+                .id();
         goals.update(last, 3, false);
         entityManager.flush();
 
@@ -287,7 +288,8 @@ class GoalServiceTest {
     }
 
     private static boolean isMonthly(GoalResponse goal, YearMonth month) {
-        return goal.period() == GoalPeriod.MONTH && Integer.valueOf(month.getMonthValue()).equals(goal.month());
+        return goal.period() == GoalPeriod.MONTH
+                && Integer.valueOf(month.getMonthValue()).equals(goal.month());
     }
 
     private static GoalRequest yearly(GoalType type, int target) {
