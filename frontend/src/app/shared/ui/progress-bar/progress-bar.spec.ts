@@ -42,4 +42,15 @@ describe('ProgressBar', () => {
 
     expect(screen.getByRole('progressbar', { name: 'Progresso da série' })).toBeInTheDocument();
   });
+
+  it('puts a star at the end of the thread when asked, and only there', async () => {
+    const { container, rerender } = await render(ProgressBar, {
+      inputs: { value: 40, size: 'thread', star: true },
+    });
+
+    expect(container.querySelector<HTMLElement>('.star')!.style.left).toBe('calc(40% - 7px)');
+
+    await rerender({ inputs: { value: 40, size: 'md', star: true } });
+    expect(container.querySelector('.star')).toBeNull();
+  });
 });

@@ -38,9 +38,9 @@ describe('HomePage', () => {
     await view.fixture.whenStable();
 
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Boas-vindas à Minha Livraria' }),
+      screen.getByRole('heading', { level: 1, name: 'Boas-vindas ao Ex·Libru' }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Nenhum favorito ainda/)).toBeInTheDocument();
+    expect(screen.getByText('Marque livros como favoritos para vê-los aqui.')).toBeInTheDocument();
     expect(screen.getByText(/Nenhuma meta para 2026/)).toBeInTheDocument();
     expect(await view.fixture.getDeferBlocks()).toHaveLength(3);
     http.verify();
@@ -85,8 +85,8 @@ describe('HomePage', () => {
     });
 
     expect(view.container.querySelector('img[src="/api/v1/images/9"]')).not.toBeNull();
-    expect(screen.getByText(/Livros em novembro/)).toBeInTheDocument();
-    expect(screen.queryByText(/Livros em outubro/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Livros em 2026/)).not.toBeInTheDocument();
+    expect(screen.getByRole('article', { name: 'Meta de novembro' })).toBeInTheDocument();
+    expect(screen.queryByRole('article', { name: 'Meta de outubro' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('article', { name: 'Meta anual' })).not.toBeInTheDocument();
   });
 });

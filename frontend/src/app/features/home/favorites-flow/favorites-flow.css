@@ -9,6 +9,37 @@
   overflow: hidden;
 }
 
+/* The gothic arch around the book in the middle. */
+.arch {
+  position: absolute;
+  top: 4px;
+  left: calc(50% - 140px);
+  z-index: 1;
+  width: 280px;
+  height: 372px;
+  pointer-events: none;
+}
+
+.arch path {
+  fill: none;
+  stroke: var(--ml-color-gold);
+}
+
+.arch .outer {
+  opacity: 0.7;
+  stroke-width: 1.5;
+}
+
+.arch .inner {
+  opacity: 0.3;
+  stroke-width: 1;
+}
+
+.arch .spark {
+  fill: var(--ml-color-gold);
+  stroke: none;
+}
+
 .item {
   --step: 196px;
   --scale: calc(1.18 - min(var(--distance), 3) * 0.2);
@@ -35,8 +66,9 @@
 }
 
 .center {
-  outline: 2px solid var(--ml-color-gold);
-  outline-offset: 5px;
+  box-shadow:
+    0 0 0 1px var(--ml-color-gold),
+    var(--ml-glow-cover);
 }
 
 .item:focus-visible {
@@ -46,14 +78,15 @@
 
 .badge {
   position: absolute;
-  bottom: 12px;
+  bottom: 16px;
   left: 20px;
-  padding: 3px 9px;
+  padding: 4px 10px;
+  border: 1px solid var(--ml-color-hero-corner);
   border-radius: var(--ml-radius-pill);
-  background: var(--ml-color-gold);
-  color: var(--ml-color-gold-ink);
-  font-size: 12px;
-  font-weight: 700;
+  background: var(--ml-color-hero-veil);
+  color: var(--ml-color-hero-gold);
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .caption {
@@ -68,9 +101,10 @@
 
 .title {
   color: var(--ml-color-ink);
-  font-family: var(--ml-font-display);
+  font-family: var(--ml-font-title);
   font-size: 30px;
-  font-weight: 600;
+  font-weight: 700;
+  line-height: 1.1;
   text-decoration: none;
 }
 
@@ -86,21 +120,25 @@
 .author {
   margin: 0;
   color: var(--ml-color-muted);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 1.6px;
+  font-family: var(--ml-font-title);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
 }
 
 .synopsis {
   display: -webkit-box;
-  margin: var(--ml-space-8) 0 0;
+  max-width: 560px;
+  margin: 4px 0 0;
   overflow: hidden;
-  color: var(--ml-color-muted);
-  line-height: 1.6;
+  font-family: var(--ml-font-display);
+  font-size: 20px;
+  font-style: italic;
+  line-height: 1.5;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .controls {
@@ -108,7 +146,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--ml-space-12);
-  margin-top: var(--ml-space-24);
+  margin-top: 14px;
 }
 
 @media (prefers-reduced-motion: reduce) {

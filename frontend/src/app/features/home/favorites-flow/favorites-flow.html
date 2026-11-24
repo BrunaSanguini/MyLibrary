@@ -17,6 +17,11 @@
     (focusin)="rest(true)"
     (focusout)="blur($event)"
   >
+    <svg class="arch" viewBox="0 0 280 372" aria-hidden="true" focusable="false">
+      <path class="outer" d="M8 371V150C8 70 64 22 140 12C216 22 272 70 272 150V371" />
+      <path class="inner" d="M22 371V156C22 86 72 42 140 32C208 42 258 86 258 156V371" />
+      <path class="spark" d="M140 0L143 8L151 10L143 12L140 20L137 12L129 10L137 8Z" />
+    </svg>
     @for (item of items(); track item.book.id) {
       <button
         type="button"
@@ -27,6 +32,7 @@
         [attr.aria-hidden]="item.hidden ? 'true' : null"
         [attr.tabindex]="item.hidden ? -1 : null"
         (click)="pick(item)"
+        (keydown)="moveWithKeys($event)"
       >
         <span aria-hidden="true">
           <ml-book-cover
@@ -60,7 +66,7 @@
         <ml-icon name="chevron-left" [size]="18" />
       </button>
       <span class="position">{{ position() }}</span>
-      <button class="round" type="button" aria-label="Próximo livro" (click)="step(1)">
+      <button class="round next" type="button" aria-label="Próximo livro" (click)="step(1)">
         <ml-icon name="chevron-right" [size]="18" />
       </button>
       <button

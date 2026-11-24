@@ -1,0 +1,29 @@
+/* Por autor: four cards side by side. */
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.loading {
+  height: 360px;
+  margin: 0;
+  border-radius: var(--ml-radius-md);
+  background: var(--ml-color-raised);
+}
+
+@media (width <= 1000px) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 560px) {
+  .cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

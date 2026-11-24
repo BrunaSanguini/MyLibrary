@@ -44,13 +44,26 @@ describe('HomeGoals', () => {
       providers: [provideRouter([])],
     });
 
-    const main = screen.getByRole('article', { name: 'Livros em 2026' });
-    expect(main).toHaveTextContent('3 de 12 livros');
-    expect(main).toHaveTextContent('Faltam 9 livros para fechar a meta.');
-    expect(screen.getByRole('article', { name: 'Páginas em 2026' })).toHaveTextContent(
-      '31% concluído',
+    const main = screen.getByRole('article', { name: 'Meta anual' });
+    expect(main).toHaveTextContent('3/12 livros');
+    expect(main).toHaveTextContent('Faltam 9 livros para fechar a meta de 2026.');
+    expect(main).toHaveTextContent('25% concluído');
+    expect(main.querySelector('.ring-current')).toHaveTextContent('III');
+    expect(main.querySelector('.ring-target')).toHaveTextContent('de XII');
+    expect(screen.getByRole('progressbar', { name: 'Progresso da meta anual' })).toHaveAttribute(
+      'aria-valuenow',
+      '25',
     );
-    expect(screen.getByRole('article', { name: 'Livros em novembro' })).toBeInTheDocument();
+    const pages = screen.getByRole('article', { name: 'Páginas no ano' });
+    expect(pages).toHaveTextContent('31% concluído');
+    expect(screen.getByRole('article', { name: 'Meta de novembro' })).toHaveTextContent(
+      '/ 2 livros',
+    );
+    expect(screen.getByText(/Metas de MMXXVI/)).toBeInTheDocument();
+    // The ring first, then pages, then the month, whatever the order the API sends.
+    expect(
+      screen.getAllByRole('article').map((article) => article.getAttribute('aria-label')),
+    ).toEqual(['Meta anual', 'Páginas no ano', 'Meta de novembro']);
     expect(screen.getByRole('link', { name: /Gerenciar metas/ })).toHaveAttribute(
       'href',
       '/configuracoes?aba=metas',
@@ -68,10 +81,12 @@ describe('HomeGoals', () => {
   });
 
   it('says what is left, or that the goal was reached', () => {
-    expect(remainingOf({ ...BOOKS, current: 11 })).toBe('Falta 1 livro para fechar a meta.');
-    expect(remainingOf({ ...PAGES, current: 1500, target: 2750 })).toBe(
-      'Faltam 1.250 páginas para fechar a meta.',
+    expect(remainingOf({ ...BOOKS, current: 11 })).toBe(
+      'Falta 1 livro para fechar a meta de 2026.',
     );
-    expect(remainingOf({ ...BOOKS, current: 12 })).toBe('Meta de 2026 alcançada.');
+    expect(remainingOf({ ...PAGES, current: 1500, target: 2750 })).toBe(
+      'Faltam 1.250 páginas para fechar a meta de 2026.',
+    );
+    expect(remainingOf({ ...BOOKS, current: 12 })).toBe('Meta de 2026 cumprida ✦');
   });
 });

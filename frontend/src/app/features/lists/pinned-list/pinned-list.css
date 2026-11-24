@@ -88,18 +88,6 @@ h2 {
   font-weight: 700;
 }
 
-.thread {
-  position: relative;
-}
-
-.star {
-  position: absolute;
-  top: -7px;
-  color: var(--ml-color-accent);
-  font-size: 14px;
-  line-height: 1;
-}
-
 .strip {
   display: flex;
   flex-wrap: wrap;

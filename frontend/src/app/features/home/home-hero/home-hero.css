@@ -125,19 +125,45 @@
 }
 
 .eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
   margin: 0;
-  color: var(--ml-color-hero-gold);
+  color: var(--ml-color-crest-gold);
+  font-family: var(--ml-font-title);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  text-shadow: none;
 }
 
 h1 {
   margin: 0;
-  font-family: var(--ml-font-display);
-  font-size: 68px;
-  font-weight: 600;
-  line-height: 0.95;
+  font-family: var(--ml-font-title);
+  font-size: 54px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  overflow-wrap: anywhere;
+}
+
+/* The book changes with a cross-fade of 600 ms. */
+.fade {
+  animation: fade-in 0.6s ease;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade {
+    animation: none;
+  }
 }
 
 .subtitle,
@@ -155,9 +181,10 @@ blockquote {
 .author {
   margin: 0;
   color: var(--ml-color-hero-soft-ink);
+  font-family: var(--ml-font-title);
   font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 1.8px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
 }
 
@@ -178,12 +205,30 @@ blockquote {
 }
 
 .chips li {
-  padding: 6px 12px;
-  border: 1px solid var(--ml-color-hero-chip-line);
+  padding: 6px 14px;
+  border: 1.5px solid var(--ml-color-hero-chip-line);
   border-radius: var(--ml-radius-pill);
-  background: var(--ml-color-hero-chip);
+  background: var(--ml-color-hero-veil-light);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
+  text-shadow: none;
+}
+
+.chips .genre {
+  border-color: var(--ml-color-hero-accent);
+  background: var(--ml-color-hero-accent);
+  color: var(--ml-color-hero-night);
+  font-weight: 800;
+}
+
+.chips .subgenre {
+  border-color: var(--ml-color-hero-lilac-line);
+  color: var(--ml-color-hero-lilac);
+}
+
+.chips .status {
+  border-color: var(--ml-color-crest-gold);
+  color: var(--ml-color-hero-gold);
 }
 
 .rating {
@@ -192,8 +237,11 @@ blockquote {
   gap: 10px;
   margin: 0;
   color: var(--ml-color-hero-soft-ink);
-  font-size: 14px;
+  font-family: var(--ml-font-title);
+  font-size: 12px;
   font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
 }
 
 .stars {
@@ -211,10 +259,22 @@ blockquote {
 }
 
 blockquote {
-  padding-right: 18px;
-  border-right: 2px solid var(--ml-color-hero-gold);
+  position: relative;
+  padding-right: 20px;
+  border-right: 1px solid var(--ml-color-crest-gold);
   font-size: 22px;
   line-height: 1.4;
+}
+
+blockquote::after {
+  content: '✦' / '';
+  position: absolute;
+  top: -12px;
+  right: -7px;
+  color: var(--ml-color-hero-accent);
+  font-size: 13px;
+  font-style: normal;
+  text-shadow: var(--ml-color-hero-accent-glow);
 }
 
 .actions {
@@ -245,13 +305,19 @@ blockquote {
 }
 
 .primary {
-  background: var(--ml-color-hero-gold);
+  background: var(--ml-color-hero-accent);
+  box-shadow: var(--ml-color-hero-accent-glow);
   color: var(--ml-color-hero-night);
+  font-weight: 800;
 }
 
 .secondary {
-  border: 1.5px solid var(--ml-color-hero-chip-line);
-  color: var(--ml-color-hero-ink);
+  min-height: 46px;
+  padding: 0 22px;
+  border: 1.5px solid var(--ml-color-crest-gold);
+  background: var(--ml-color-hero-veil-light);
+  color: var(--ml-color-hero-gold);
+  font-weight: 800;
 }
 
 a:focus-visible,

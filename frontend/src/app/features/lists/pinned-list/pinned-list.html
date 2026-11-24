@@ -21,14 +21,10 @@
       <div class="thread">
         <ml-progress-bar
           size="thread"
+          [star]="true"
           [value]="percent()"
           [label]="'Livros lidos de ' + list().name"
         />
-        @if (percent() > 0) {
-          <span class="star" aria-hidden="true" [style.left]="'calc(' + percent() + '% - 7px)'"
-            >✦</span
-          >
-        }
       </div>
     </div>
 

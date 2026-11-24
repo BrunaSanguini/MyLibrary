@@ -1,11 +1,41 @@
 <ml-home-hero [books]="featured()" [loading]="heroLoading()" />
 
+<!-- The starry sky behind the sections, from the foot of the hero down. -->
+<svg class="sky" viewBox="0 0 1440 2400" preserveAspectRatio="xMidYMin slice" aria-hidden="true">
+  <g class="stars">
+    <circle cx="120" cy="140" r="1.2" />
+    <circle cx="410" cy="60" r="1" />
+    <circle cx="760" cy="210" r="1.4" />
+    <circle cx="1010" cy="120" r="1" />
+    <circle cx="1330" cy="380" r="1.2" />
+    <circle cx="260" cy="720" r="1.4" />
+    <circle cx="1180" cy="860" r="1" />
+    <circle cx="640" cy="1320" r="1.2" />
+    <circle cx="1380" cy="1600" r="1.4" />
+    <circle cx="90" cy="1900" r="1" />
+  </g>
+  <g class="constellation">
+    <path d="M1220 40L1290 18L1340 52L1400 60" />
+    <path d="M30 1080L96 1050L140 1096L176 1062" />
+  </g>
+  <g class="nodes">
+    <circle cx="1220" cy="40" r="2" />
+    <circle cx="1290" cy="18" r="2.4" class="pink" />
+    <circle cx="1340" cy="52" r="2" />
+    <circle cx="1400" cy="60" r="2" />
+    <circle cx="30" cy="1080" r="2" />
+    <circle cx="96" cy="1050" r="2.4" class="pink" />
+    <circle cx="140" cy="1096" r="2" />
+    <circle cx="176" cy="1062" r="2" />
+  </g>
+</svg>
+
 @if (favoriteBooks().length > 0) {
   <ml-favorites-flow [books]="favoriteBooks()" />
 } @else if (favorites.hasValue()) {
   <section class="note" aria-labelledby="titulo-favoritos">
     <h2 id="titulo-favoritos">Favoritos</h2>
-    <p>Nenhum favorito ainda. Na página de um livro, marque a etiqueta Favorito para vê-lo aqui.</p>
+    <p>Marque livros como favoritos para vê-los aqui.</p>
   </section>
 }
 

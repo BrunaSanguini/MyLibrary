@@ -1,0 +1,24 @@
+<a class="card" [routerLink]="['/autor', author().id]">
+  <span class="name">{{ author().name }}</span>
+  <span class="meta">
+    <span class="books"><ml-icon name="shelf" [size]="14" /> {{ books() }}</span>
+    @if (readCount(); as read) {
+      <span class="read"><ml-icon name="check" [size]="14" /> {{ read }}</span>
+    }
+  </span>
+  <span class="fan" aria-hidden="true">
+    @if (left(); as url) {
+      <span class="cover left"><img [src]="url" alt="" /></span>
+    }
+    @if (right(); as url) {
+      <span class="cover right"><img [src]="url" alt="" /></span>
+    }
+    <span class="cover front">
+      @if (front(); as url) {
+        <img [src]="url" alt="" />
+      } @else {
+        <span class="lead">{{ author().name }}</span>
+      }
+    </span>
+  </span>
+</a>

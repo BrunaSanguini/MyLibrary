@@ -1,20 +1,22 @@
 import { httpResource } from '@angular/common/http';
 import { Component, computed, inject, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ReadingApi, ReadingResponse } from '@core/api/reading-api';
+import { ReadingApi, ReadingResponse, SessionResponse } from '@core/api/reading-api';
 import { ShelfApi, ShelfPage } from '@core/api/shelf-api';
-import { formatLongDate } from '@core/time/today';
+import { formatNumericDate } from '@core/time/today';
+import { toRoman } from '@shared/format/roman';
+import { Button } from '@shared/ui/button/button';
 import { BookCover } from '@shared/ui/book-cover/book-cover';
 import { Icon } from '@shared/ui/icon/icon';
 import { ProgressBar } from '@shared/ui/progress-bar/progress-bar';
 
 /**
- * Lendo agora: the books in progress, one at a time, with how far each one is and the way to
- * register the pages read today.
+ * Lendo agora: the books in progress, one at a time, with how far each one is, how many notes
+ * the reading has and the way to register the pages read today.
  */
 @Component({
   selector: 'ml-reading-now',
-  imports: [BookCover, Icon, ProgressBar, RouterLink],
+  imports: [BookCover, Button, Icon, ProgressBar, RouterLink],
   templateUrl: './reading-now.html',
   styleUrls: ['../home-section.css', './reading-now.css'],
 })
@@ -47,18 +49,31 @@ export class ReadingNow {
     const pageCount = reading?.progress.pageCount ?? this.current()?.progress?.pageCount;
     const parts = [
       pageCount ? `${pageCount} páginas` : undefined,
-      reading?.startDate ? `começou em ${formatLongDate(reading.startDate)}` : undefined,
+      reading?.startDate ? `começou em ${formatNumericDate(reading.startDate)}` : undefined,
     ];
     return parts.filter(Boolean).join(' · ');
   });
 
-  protected readonly sessions = computed(() => {
-    const count = this.reading()?.sessionCount ?? 0;
-    if (count === 0) {
-      return 'Nenhum dia registrado ainda';
-    }
-    return count === 1 ? '1 dia registrado' : `${count} dias registrados`;
+  /** The note of a session is a note of the book: the ones the reading has so far. */
+  private readonly sessions = httpResource<SessionResponse[]>(() => {
+    const reading = this.reading();
+    return reading ? this.readingApi.sessionsRequest(reading.id) : undefined;
   });
+
+  protected readonly notes = computed(() => {
+    if (!this.sessions.hasValue()) {
+      return undefined;
+    }
+    const count = this.sessions.value().filter((session) => session.note?.trim()).length;
+    if (count === 0) {
+      return 'Nenhuma nota registrada';
+    }
+    return count === 1 ? '1 nota registrada' : `${count} notas registradas`;
+  });
+
+  protected readonly position = computed(
+    () => `${toRoman(this.index() + 1)} / ${toRoman(this.books().length)}`,
+  );
 
   protected readonly percent = computed(
     () => this.reading()?.progress.percent ?? this.current()?.progress?.percent ?? 0,

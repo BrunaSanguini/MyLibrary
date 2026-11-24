@@ -84,8 +84,10 @@ describe('HomeHero', () => {
     TestBed.tick();
     http.match(() => true);
 
+    expect(screen.getByText('I')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Próximo destaque' }));
     expect(screen.getByRole('heading', { level: 1, name: 'O Hobbit' })).toBeInTheDocument();
+    expect(screen.getByText('/ II')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Próximo destaque' }));
     expect(
       screen.getByRole('heading', { level: 1, name: 'A Sociedade do Anel' }),
@@ -125,7 +127,7 @@ describe('HomeHero', () => {
     await setup([]);
 
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Boas-vindas à Minha Livraria' }),
+      screen.getByRole('heading', { level: 1, name: 'Boas-vindas ao Ex·Libru' }),
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Cadastrar livro' })).toHaveAttribute(
       'href',
@@ -136,7 +138,28 @@ describe('HomeHero', () => {
   it('waits for the favorites before welcoming', async () => {
     await setup([], true);
 
-    expect(screen.queryByText('Boas-vindas à Minha Livraria')).not.toBeInTheDocument();
+    expect(screen.queryByText('Boas-vindas ao Ex·Libru')).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1, name: 'Início' })).toBeInTheDocument();
+  });
+
+  it('moves on by itself every eight seconds and stops while the mouse is on it', async () => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
+    try {
+      const { view, http } = await setup([card(1, 'A Sociedade do Anel'), card(2, 'O Hobbit')]);
+      TestBed.tick();
+      http.match(() => true);
+
+      vi.advanceTimersByTime(8000);
+      TestBed.tick();
+      expect(screen.getByRole('heading', { level: 1, name: 'O Hobbit' })).toBeInTheDocument();
+
+      view.container.querySelector('section')!.dispatchEvent(new MouseEvent('mouseenter'));
+      TestBed.tick();
+      vi.advanceTimersByTime(16000);
+      TestBed.tick();
+      expect(screen.getByRole('heading', { level: 1, name: 'O Hobbit' })).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

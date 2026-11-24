@@ -1,6 +1,14 @@
-<section class="hero" [class.has-art]="banner()" aria-labelledby="titulo-destaque">
-  @if (banner(); as art) {
-    <img class="art" [src]="art" alt="" />
+<section
+  class="hero"
+  [class.has-art]="banner()"
+  aria-labelledby="titulo-destaque"
+  (mouseenter)="rest(true)"
+  (mouseleave)="rest(false)"
+  (focusin)="rest(true)"
+  (focusout)="blur($event)"
+>
+  @for (art of banner() ? [banner()] : []; track art) {
+    <img class="art fade" [src]="art" alt="" />
   }
   <div class="veil" aria-hidden="true"></div>
   <div class="veil-top" aria-hidden="true"></div>
@@ -11,64 +19,69 @@
 
   <div class="layout">
     @if (current(); as book) {
-      <div class="side">
-        <p class="ml-eyebrow eyebrow"><ml-icon name="star" [size]="14" /> Em destaque</p>
-        <h1 id="titulo-destaque">{{ book.title }}</h1>
-        @if (detail.value()?.subtitle; as subtitle) {
-          <p class="subtitle">{{ subtitle }}</p>
-        }
-        <p class="author">{{ book.authors.join(', ') }}</p>
-        <ul class="chips" aria-label="Sobre o livro">
-          @for (genre of genres(); track genre) {
-            <li>{{ genre }}</li>
-          }
-          @if (status(); as label) {
-            <li>{{ label }}</li>
-          }
-        </ul>
-      </div>
-
-      <div class="middle">
-        @if (!banner()) {
-          <ml-book-cover
-            size="md"
-            aria-hidden="true"
-            [title]="book.title"
-            [author]="book.authors[0]"
-            [coverUrl]="book.coverUrl ?? undefined"
-          />
-        }
-      </div>
-
-      <div class="side end">
-        @if (rating(); as value) {
-          <p class="rating">
-            <span>Sua nota</span>
-            <span
-              class="stars"
-              role="img"
-              [attr.aria-label]="'Nota ' + formatRating(value) + ' de 5'"
-            >
-              @for (star of stars(); track $index) {
-                <span [class]="star" aria-hidden="true">★</span>
-              }
-            </span>
+      <!-- Keyed by the book, so the text fades in again whenever the book changes. -->
+      @for (shown of [book]; track shown.id) {
+        <div class="side fade">
+          <p class="eyebrow">
+            <span aria-hidden="true">✦</span> Em destaque <span aria-hidden="true">✦</span>
           </p>
-        }
-        @if (excerpt(); as quote) {
-          <blockquote>{{ quote }}</blockquote>
-        }
-        <div class="actions">
-          <a class="primary" [routerLink]="['/livro', book.id]">
-            Abrir livro <ml-icon name="arrow-right" [size]="16" />
-          </a>
-          @if (excerpt()) {
-            <a class="secondary" [routerLink]="['/livro', book.id]" fragment="titulo-resenha">
-              Ler minha resenha
-            </a>
+          <h1 id="titulo-destaque">{{ book.title }}</h1>
+          @if (detail.value()?.subtitle; as subtitle) {
+            <p class="subtitle">{{ subtitle }}</p>
+          }
+          <p class="author">{{ book.authors.join(', ') }}</p>
+          <ul class="chips" aria-label="Sobre o livro">
+            @for (genre of genres(); track genre; let first = $first) {
+              <li [class.genre]="first" [class.subgenre]="!first">{{ genre }}</li>
+            }
+            @if (status(); as label) {
+              <li class="status">{{ label }}</li>
+            }
+          </ul>
+        </div>
+
+        <div class="middle fade">
+          @if (!banner()) {
+            <ml-book-cover
+              size="md"
+              aria-hidden="true"
+              [title]="book.title"
+              [author]="book.authors[0]"
+              [coverUrl]="book.coverUrl ?? undefined"
+            />
           }
         </div>
-      </div>
+
+        <div class="side end fade">
+          @if (rating(); as value) {
+            <p class="rating">
+              <span>Sua nota</span>
+              <span
+                class="stars"
+                role="img"
+                [attr.aria-label]="'Nota ' + formatRating(value) + ' de 5'"
+              >
+                @for (star of stars(); track $index) {
+                  <span [class]="star" aria-hidden="true">★</span>
+                }
+              </span>
+            </p>
+          }
+          @if (excerpt(); as quote) {
+            <blockquote>{{ quote }}</blockquote>
+          }
+          <div class="actions">
+            <a class="primary" [routerLink]="['/livro', book.id]">
+              Abrir livro <ml-icon name="arrow-right" [size]="16" />
+            </a>
+            @if (excerpt()) {
+              <a class="secondary" [routerLink]="['/livro', book.id]" fragment="titulo-resenha">
+                Ler minha resenha
+              </a>
+            }
+          </div>
+        </div>
+      }
 
       <div class="foot">
         <a class="scroll-hint" href="#favoritos" (click)="toFavorites($event)">
@@ -77,13 +90,13 @@
         </a>
         @if (books().length > 1) {
           <div class="pager">
-            <p class="position" aria-live="polite">
+            <p class="position" [attr.aria-live]="moving() ? 'off' : 'polite'">
               <span class="ml-visually-hidden">Destaque </span>{{ position().current }}
               <span>/ {{ position().total }}</span>
             </p>
             <span class="dots" aria-hidden="true">
               @for (item of books(); track item.id; let at = $index) {
-                <span [class.on]="at === index()"></span>
+                <span [class.on]="at === index()">✦</span>
               }
             </span>
             <button class="ghost" type="button" aria-label="Destaque anterior" (click)="step(-1)">
@@ -97,15 +110,15 @@
       </div>
     } @else if (!loading()) {
       <div class="side welcome">
-        <p class="ml-eyebrow eyebrow">
-          <ml-icon name="ornament" [size]="14" /> Sua biblioteca pessoal
-        </p>
-        <h1 id="titulo-destaque">Boas-vindas à Minha Livraria</h1>
+        <p class="eyebrow"><span aria-hidden="true">✦</span> Sua biblioteca pessoal</p>
+        <h1 id="titulo-destaque">Boas-vindas ao Ex·Libru</h1>
         <p class="lead">
-          Marque seus livros preferidos como favoritos e eles aparecem aqui, em destaque.
+          Escolha os livros em destaque em Configurações, ou marque favoritos, e eles aparecem aqui.
         </p>
         <div class="actions start">
-          <a class="primary" routerLink="/estante">Ir para a estante</a>
+          <a class="primary" routerLink="/configuracoes" [queryParams]="{ aba: 'destaques' }"
+            >Escolher destaques</a
+          >
           <a class="secondary" routerLink="/estante/novo">Cadastrar livro</a>
         </div>
       </div>
