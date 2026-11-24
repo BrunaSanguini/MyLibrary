@@ -85,6 +85,7 @@ describe('Header', () => {
     ['/editoras/5', 'Catálogos'],
     ['/calendario?mes=2026-11', 'Calendário'],
     ['/perfil', 'Meu perfil'],
+    ['/configuracoes?aba=metas', 'Configurações'],
   ])('at %s the current item is only %s', async (url, expected) => {
     await openAt(url);
 
@@ -92,7 +93,7 @@ describe('Header', () => {
   });
 
   it('has no current item on the pages that are not in the menu', async () => {
-    await openAt('/metas');
+    await openAt('/pagina-solta');
 
     expect(currentLinks()).toEqual([]);
   });
@@ -101,6 +102,15 @@ describe('Header', () => {
     await openAt('/livrosecretos');
 
     expect(currentLinks()).toEqual([]);
+  });
+
+  it('has the gear of Configurações', async () => {
+    await openAt('/');
+
+    expect(screen.getByRole('link', { name: 'Configurações' })).toHaveAttribute(
+      'href',
+      '/configuracoes',
+    );
   });
 
   it('has the button of the theme, which says if the dark theme is on', async () => {

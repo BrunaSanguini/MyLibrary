@@ -1,0 +1,180 @@
+<section class="intro" aria-labelledby="titulo-destaques">
+  <div>
+    <h2 id="titulo-destaques">Livros em destaque na Home</h2>
+    <p>
+      Escolha de 1 a 3 livros para a grande vitrine da Home. Para cada um, envie uma imagem sua: é
+      ela que ocupa o fundo da vitrine. Imagem larga (paisagem), de preferência 1920 × 1080 px, em
+      PNG, JPG ou WebP.
+    </p>
+  </div>
+  <div class="preview" aria-label="Como fica na Home" role="group">
+    <p class="preview-title">Como fica na Home</p>
+    <div class="mini">
+      @if (slots()[0]; as first) {
+        @if (first.preview ?? first.imageUrl; as art) {
+          <img [src]="art" alt="" />
+        }
+        <span class="mini-title">{{ first.book.title }}</span>
+      }
+      @if (slots().length > 1) {
+        <span class="arrows" aria-hidden="true">‹ ›</span>
+      }
+    </div>
+    <p class="arrows-text">{{ arrowsText() }}</p>
+  </div>
+</section>
+
+@if (saved.error()) {
+  <p class="failure" role="alert">Não foi possível carregar os destaques agora.</p>
+} @else if (!saved.hasValue()) {
+  <p class="loading" aria-hidden="true"></p>
+} @else {
+  @if (slots().length === 0) {
+    <p class="none">Nenhum destaque ainda. Enquanto isso, a Home mostra os seus favoritos.</p>
+  }
+
+  <ol class="slots" aria-label="Destaques">
+    @for (slot of slots(); track slot.key; let index = $index) {
+      <li class="slot" [class.missing]="!slot.file && !slot.imageUrl">
+        <div class="art">
+          @if (slot.preview ?? slot.imageUrl; as art) {
+            <img [src]="art" [alt]="'Imagem do destaque ' + slot.book.title" />
+          } @else {
+            <p class="no-art">Falta a imagem deste destaque</p>
+          }
+          <span class="badge">Destaque {{ toRoman(index + 1) }}</span>
+        </div>
+        <div class="body">
+          <div class="book">
+            <ml-book-cover
+              size="xs"
+              aria-hidden="true"
+              [title]="slot.book.title"
+              [coverUrl]="slot.book.coverUrl ?? undefined"
+            />
+            <div>
+              <p class="title">{{ slot.book.title }}</p>
+              <p class="authors">{{ slot.book.authors.join(', ') }}</p>
+            </div>
+          </div>
+          <div class="slot-actions">
+            <label class="ml-button file" data-variant="secondary">
+              <ml-icon name="upload" [size]="16" /> Trocar imagem
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                class="ml-visually-hidden"
+                [attr.aria-label]="'Trocar imagem do destaque ' + toRoman(index + 1)"
+                (change)="chooseImage(index, $event)"
+              />
+            </label>
+            <button
+              mlButton="secondary"
+              type="button"
+              [attr.aria-label]="'Trocar livro do destaque ' + toRoman(index + 1)"
+              (click)="pick(index)"
+            >
+              Trocar livro
+            </button>
+            <button
+              type="button"
+              class="remove"
+              [attr.aria-label]="'Remover destaque ' + toRoman(index + 1)"
+              (click)="remove(index)"
+            >
+              Remover destaque
+            </button>
+          </div>
+        </div>
+      </li>
+    }
+  </ol>
+
+  @if (picking() !== undefined) {
+    <section class="picker" aria-labelledby="titulo-escolha">
+      <div class="picker-head">
+        <h3 id="titulo-escolha">{{ pickTitle() }}</h3>
+        <button mlButton="secondary" type="button" (click)="closePicker()">Cancelar</button>
+      </div>
+      <label class="search">
+        <span class="ml-visually-hidden">Buscar livro da estante</span>
+        <ml-icon name="search" [size]="16" />
+        <input
+          id="busca-destaque"
+          type="search"
+          autocomplete="off"
+          placeholder="Buscar por título ou autor"
+          [value]="term()"
+          (input)="typeTerm($event)"
+          (keydown.escape)="closePicker()"
+        />
+      </label>
+      @if (choices().length === 0) {
+        <p class="none">
+          Nenhum livro da estante encontrado. Só livros que você tem podem ser destaque.
+        </p>
+      } @else {
+        <ul class="choices" aria-label="Livros da estante">
+          @for (book of choices(); track book.id) {
+            <li class="choice">
+              <ml-book-cover
+                size="xs"
+                aria-hidden="true"
+                [title]="book.title"
+                [coverUrl]="book.coverUrl ?? undefined"
+              />
+              <div class="text">
+                <p class="title">{{ book.title }}</p>
+                <p class="authors">{{ book.authors.join(', ') }}</p>
+              </div>
+              <button
+                mlButton="secondary"
+                type="button"
+                [attr.aria-label]="'Escolher ' + book.title"
+                (click)="choose(book)"
+              >
+                Escolher
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
+
+  @if (slots().length < most) {
+    <button mlButton="secondary" type="button" class="add" (click)="pick('new')">
+      <ml-icon name="plus" [size]="16" /> Adicionar destaque ({{ slots().length + 1 }} de
+      {{ most }})
+    </button>
+  } @else {
+    <p class="note">Você já escolheu os {{ most }} destaques permitidos.</p>
+  }
+
+  <div class="status" role="status">
+    @if (flash()) {
+      <p class="flash">{{ flash() }}</p>
+    }
+    @if (warning()) {
+      <p class="flash warn">{{ warning() }}</p>
+    }
+  </div>
+  @if (tried() && missing() > 0) {
+    <p class="failure" role="alert">{{ missingText() }}</p>
+  }
+  @if (failure()) {
+    <p class="failure" role="alert">{{ failure() }}</p>
+  }
+
+  <div class="actions">
+    <button
+      mlButton
+      type="button"
+      class="save"
+      [disabled]="saving() || slots().length === 0"
+      (click)="save()"
+    >
+      Salvar destaques
+    </button>
+  </div>
+}

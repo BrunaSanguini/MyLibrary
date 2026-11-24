@@ -22,8 +22,10 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.Year;
+import java.time.YearMonth;
 import java.util.List;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,6 +63,9 @@ class GoalServiceTest {
 
     @Autowired
     private EntityManager entityManager;
+
+    @Autowired
+    private Clock clock;
 
     private long hobbit;
     private long dune;
@@ -103,11 +108,12 @@ class GoalServiceTest {
         goals.create(monthly(GoalType.BOOKS, 3, 2));
         goals.create(monthly(GoalType.BOOKS, 4, 2));
         goals.create(yearly(GoalType.PAGES, 6000));
-        goals.create(new GoalRequest(GoalType.BOOKS, GoalPeriod.YEAR, YEAR + 1, null, 24));
+        // A year that is over: the current one repeats the last monthly goal in its month.
+        goals.create(new GoalRequest(GoalType.BOOKS, GoalPeriod.YEAR, YEAR - 1, null, 24));
         entityManager.flush();
 
         assertThat(goals.listByYear(YEAR)).hasSize(4);
-        assertThat(goals.listByYear(YEAR + 1)).hasSize(1);
+        assertThat(goals.listByYear(YEAR - 1)).hasSize(1);
     }
 
     @Test
@@ -212,6 +218,56 @@ class GoalServiceTest {
     }
 
     @Test
+    void shouldTurnAGoalOffKeepingItsTarget() {
+        long id = goals.create(yearly(GoalType.PAGES, 4000)).id();
+
+        GoalResponse off = goals.update(id, 4000, false);
+        GoalResponse untouched = goals.update(id, 3000, null);
+
+        assertThat(off.enabled()).isFalse();
+        assertThat(untouched.enabled()).isFalse();
+        assertThat(untouched.target()).isEqualTo(3000);
+        assertThat(goals.update(id, 3000, true).enabled()).isTrue();
+    }
+
+    @Test
+    void shouldStartEveryGoalOn() {
+        assertThat(goals.create(yearly(GoalType.BOOKS, 12)).enabled()).isTrue();
+    }
+
+    @Test
+    void shouldRepeatTheLastMonthlyGoalInTheCurrentMonth() {
+        YearMonth now = YearMonth.now(clock);
+        YearMonth before = now.minusMonths(1);
+        int year = before.getYear();
+        int month = before.getMonthValue();
+        long last = goals.create(new GoalRequest(GoalType.BOOKS, GoalPeriod.MONTH, year, month, 3))
+                .id();
+        goals.update(last, 3, false);
+        entityManager.flush();
+
+        List<GoalResponse> current = goals.listByYear(now.getYear());
+
+        assertThat(current)
+                .filteredOn(goal -> isMonthly(goal, now))
+                .singleElement()
+                .satisfies(goal -> {
+                    assertThat(goal.type()).isEqualTo(GoalType.BOOKS);
+                    assertThat(goal.target()).isEqualTo(3);
+                    assertThat(goal.enabled()).isFalse();
+                });
+        assertThat(goals.listByYear(now.getYear())).hasSameSizeAs(current);
+    }
+
+    @Test
+    void shouldNotRepeatMonthlyGoalsInAYearThatIsOver() {
+        goals.create(monthly(GoalType.BOOKS, 3, 2));
+        entityManager.flush();
+
+        assertThat(goals.listByYear(YEAR)).hasSize(1);
+    }
+
+    @Test
     void shouldDeleteAGoal() {
         long id = goals.create(yearly(GoalType.BOOKS, 4)).id();
 
@@ -229,6 +285,11 @@ class GoalServiceTest {
 
     private void finished(long bookId, String endDate, boolean reread) {
         readings.create(bookId, new ReadingRequest(ReadingStatus.FINISHED, null, LocalDate.parse(endDate), reread));
+    }
+
+    private static boolean isMonthly(GoalResponse goal, YearMonth month) {
+        return goal.period() == GoalPeriod.MONTH
+                && Integer.valueOf(month.getMonthValue()).equals(goal.month());
     }
 
     private static GoalRequest yearly(GoalType type, int target) {

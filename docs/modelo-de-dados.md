@@ -6,7 +6,7 @@ Modelo de domínio e banco da Minha Livraria. As decisões e as alternativas des
 
 | Módulo | Tabelas | Responsabilidade |
 |---|---|---|
-| `books` | `book`, `author`, `book_author`, `publisher`, `book_publisher`, `series`, `genre`, `book_genre` | Catálogo: livros, autores, editoras, séries, gêneros e subgêneros |
+| `books` | `book`, `author`, `book_author`, `publisher`, `book_publisher`, `series`, `genre`, `book_genre`, `featured_book` | Catálogo: livros, autores, editoras, séries, gêneros e subgêneros; os destaques da Home |
 | `reading` | `reading`, `reading_session`, `review` | Leituras, progresso, nota e resenha |
 | `lists` | `book_list`, `book_list_item` | Listas de livros |
 | `goals` | `goal` | Metas de leitura |
@@ -38,6 +38,8 @@ erDiagram
     BOOK_LIST ||--o{ BOOK_LIST_ITEM : "contém"
     BOOK ||--o{ BOOK_LIST_ITEM : "aparece em"
     IMAGE |o--o| PROFILE : "avatar"
+    BOOK ||--o{ FEATURED_BOOK : "em destaque"
+    IMAGE |o--o| FEATURED_BOOK : "imagem do destaque"
 
     BOOK {
         bigint id PK
@@ -199,6 +201,12 @@ Os dígitos verificadores do ISBN são validados no serviço.
 
 **`book_genre`**: chave (`book_id`, `genre_id`). Excluir um gênero remove o vínculo dele com os livros.
 
+**`featured_book`** (migração `V11`): os livros em destaque na Home, de 1 a 3, escolhidos em Configurações.
+- `slot` (`SMALLINT`, 1 a 3, único) é a ordem na Home; `book_id` (FK `book`, `ON DELETE CASCADE`) e `image_id` (FK `image`, `ON DELETE SET NULL`).
+- A imagem é da posição, não do livro: trocar o livro de um destaque mantém a imagem. Ela é guardada como `BANNER`.
+- Só livros com `ownership = OWNED` entram, cada um uma vez só (regras do serviço). Excluir o livro tira o destaque e manda a imagem para a lixeira.
+- Sem nenhum destaque, a Home mostra os favoritos.
+
 ### `reading`
 
 **`reading`**: uma leitura completa de um livro.
@@ -244,8 +252,11 @@ No máximo uma leitura `IN_PROGRESS` por livro. A regra fica no serviço e, como
 | `period_year` | `SMALLINT` | obrigatório |
 | `period_month` | `SMALLINT` | 1 a 12 quando `MONTH`; nulo quando `YEAR` |
 | `target` | `INT` | maior que zero |
+| `enabled` | `BOOLEAN` | padrão `true` (migração `V10`); desligada, a meta guarda o alvo, mas a Home não a mostra |
 
 Uma meta por tipo e período, garantida por `UNIQUE` em (`type`, `period_year`, `period_key`). A `period_key` é uma coluna gerada com `COALESCE(period_month, 0)`: sem ela, o `UNIQUE` não barraria metas anuais duplicadas, porque o banco trata dois `NULL` como diferentes.
+
+A meta mensal muda sozinha: no ano atual, ao listar as metas, o mês corrente sem meta mensal ganha uma com o alvo e o `enabled` da última meta mensal do mesmo tipo.
 
 Um novo tipo (por gênero, por série) entra como novo valor do enum, mais as colunas opcionais que precisar, em uma nova migration.
 

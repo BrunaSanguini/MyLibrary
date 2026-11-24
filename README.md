@@ -16,7 +16,8 @@ Biblioteca pessoal para desktop: o acervo, as leituras dia a dia, as resenhas, a
 - **Leitura:** registrar o início, as páginas de cada dia, o término ou o abandono, e também releituras. Cada livro mostra o próprio progresso.
 - **Resenhas:** nota de 1 a 5, com meio ponto, e o texto da resenha.
 - **Listas:** juntar livros do seu jeito e ordená-los só pelo teclado, se quiser.
-- **Metas:** livros, páginas ou releituras, por ano ou por mês, com o progresso calculado das leituras.
+- **Metas:** livros, páginas ou releituras, por ano ou por mês, ligadas e desligadas em Configurações, com o progresso calculado das leituras.
+- **Configurações:** cadastros (gêneros, autores, editoras, livros e listas) e os livros em destaque na Home, cada um com a sua imagem.
 - **Perfil:** números do mês e do ano, sequência de dias lendo, mapa de calor dos últimos seis meses e o ritmo de leitura.
 - **Tema claro e escuro**, acessível pelo teclado e por leitores de tela (WCAG 2.1 AA conferido pelo axe a cada mudança).
 

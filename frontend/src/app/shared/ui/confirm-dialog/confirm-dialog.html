@@ -1,5 +1,5 @@
-<dialog #dialog class="dialog" aria-labelledby="ml-confirm-title">
-  <h2 id="ml-confirm-title" class="title">{{ title() }}</h2>
+<dialog #dialog class="dialog" [attr.aria-labelledby]="titleId">
+  <h2 class="title" [id]="titleId">{{ title() }}</h2>
   @if (message()) {
     <p class="message">{{ message() }}</p>
   }

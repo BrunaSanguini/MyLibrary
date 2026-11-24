@@ -22,7 +22,9 @@
           @for (genre of genres(); track genre) {
             <li>{{ genre }}</li>
           }
-          <li>{{ status() }}</li>
+          @if (status(); as label) {
+            <li>{{ label }}</li>
+          }
         </ul>
       </div>
 

@@ -37,7 +37,8 @@ class GoalController {
     @Operation(
             operationId = "listGoals",
             summary = "Goals of a year, yearly and monthly, with the progress of each one",
-            description = "Without year, the current one.")
+            description = "Without year, the current one. In the current year, a month without a monthly goal gets"
+                    + " one with the target of the last monthly goal of the same type.")
     @GetMapping
     List<GoalResponse> list(@RequestParam(required = false) @Min(1900) @Max(2999) @Nullable Integer year) {
         return service.listByYear(year);
@@ -54,10 +55,14 @@ class GoalController {
                 .body(created);
     }
 
-    @Operation(operationId = "updateGoal", summary = "Changes the target of a goal")
+    @Operation(
+            operationId = "updateGoal",
+            summary = "Changes the target of a goal and turns it on or off",
+            description = "Without enabled, the goal stays on or off as it was. A goal that is off keeps its target"
+                    + " but does not show on the Home.")
     @PutMapping("/{id}")
     GoalResponse update(@PathVariable long id, @Valid @RequestBody GoalTargetRequest request) {
-        return service.changeTarget(id, request.target());
+        return service.update(id, request.target(), request.enabled());
     }
 
     @Operation(operationId = "deleteGoal")
