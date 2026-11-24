@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.0](https://github.com/BrunaSanguini/MyLibrary/compare/v1.4.0...v1.5.0) (2026-11-24)
+
+
+### Funcionalidades
+
+* **lists:** detalhe da lista pela spec, com fixar, desfazer e painel… ([#80](https://github.com/BrunaSanguini/MyLibrary/issues/80)) ([7b77dca](https://github.com/BrunaSanguini/MyLibrary/commit/7b77dcae0f6bdd9ddb67645083fc5c96de934c40))
+* tela Configurações com cadastros, destaques da Home e metas ([#82](https://github.com/BrunaSanguini/MyLibrary/issues/82)) ([0313296](https://github.com/BrunaSanguini/MyLibrary/commit/031329673a15e823c76e1acd8086fb5ac475246d))
+
 ## [1.4.0](https://github.com/BrunaSanguini/MyLibrary/compare/v1.3.0...v1.4.0) (2026-11-20)
 
 
