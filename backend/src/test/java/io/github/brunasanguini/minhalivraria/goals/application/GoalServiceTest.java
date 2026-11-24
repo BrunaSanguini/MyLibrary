@@ -108,11 +108,12 @@ class GoalServiceTest {
         goals.create(monthly(GoalType.BOOKS, 3, 2));
         goals.create(monthly(GoalType.BOOKS, 4, 2));
         goals.create(yearly(GoalType.PAGES, 6000));
-        goals.create(new GoalRequest(GoalType.BOOKS, GoalPeriod.YEAR, YEAR + 1, null, 24));
+        // A year that is over: the current one repeats the last monthly goal in its month.
+        goals.create(new GoalRequest(GoalType.BOOKS, GoalPeriod.YEAR, YEAR - 1, null, 24));
         entityManager.flush();
 
         assertThat(goals.listByYear(YEAR)).hasSize(4);
-        assertThat(goals.listByYear(YEAR + 1)).hasSize(1);
+        assertThat(goals.listByYear(YEAR - 1)).hasSize(1);
     }
 
     @Test
