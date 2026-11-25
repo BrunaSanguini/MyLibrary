@@ -121,7 +121,7 @@ describe('GroupPage', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Ver gêneros' })).toHaveAttribute(
       'href',
-      '/catalogos?tipo=generos',
+      '/catalogos/generos',
     );
   });
 

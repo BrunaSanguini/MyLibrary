@@ -1,7 +1,12 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { ReadingApi, ReadingResponse, SessionResponse } from '@core/api/reading-api';
+import {
+  pageAfterEachSession,
+  ReadingApi,
+  ReadingResponse,
+  SessionResponse,
+} from '@core/api/reading-api';
 import { formatNumericDate } from '@core/time/today';
 import { forkJoin, of } from 'rxjs';
 
@@ -13,7 +18,7 @@ interface Note {
 
 /**
  * Minhas notas: what the reader wrote while reading, from the sessions of every reading, the
- * oldest first so they follow the book. The "+" leads to Registrar leitura, where a note is written
+ * oldest first so they follow the book, each with the page it was written at. The "+" leads to Registrar leitura, where a note is written
  * with its session.
  */
 @Component({
@@ -39,12 +44,17 @@ export class BookNotes {
 
   protected readonly notes = computed<readonly Note[]>(() =>
     (this.sessions.value() ?? [])
-      .flat()
-      .filter((session) => (session.note ?? '').trim() !== '')
-      .sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id)
-      .map((session) => ({
+      .flatMap((sessions) => {
+        const pages = pageAfterEachSession(sessions);
+        return sessions.map((session) => ({ session, page: pages.get(session.id) }));
+      })
+      .filter(({ session }) => (session.note ?? '').trim() !== '')
+      .sort((a, b) => a.session.date.localeCompare(b.session.date) || a.session.id - b.session.id)
+      .map(({ session, page }) => ({
         id: session.id,
-        label: formatNumericDate(session.date),
+        label: page
+          ? `P. ${page} · ${formatNumericDate(session.date)}`
+          : formatNumericDate(session.date),
         text: session.note!.trim(),
       })),
   );

@@ -4,9 +4,7 @@
     title="Série não encontrada"
     message="Esta série não existe. Ela pode ter sido excluída."
   >
-    <a mlButton="primary" routerLink="/catalogos" [queryParams]="{ tipo: 'series' }"
-      >Ir para as séries</a
-    >
+    <a mlButton="primary" routerLink="/catalogos/series">Ir para as séries</a>
   </ml-empty-state>
 } @else if (errorMessage()) {
   <ml-error-state [message]="errorMessage()" (retry)="retry()" />
@@ -37,7 +35,7 @@
       }
 
       <div class="hero-text">
-        <p class="eyebrow">Série</p>
+        <p class="eyebrow">✦ Série</p>
         <h1 id="titulo-serie">{{ current.name }}</h1>
         @if (authors().length > 0) {
           <p class="authors">{{ authors().join(' · ') }}</p>
@@ -53,8 +51,20 @@
           </li>
           @if (complete()) {
             <li class="chip chip-gold">Série completa</li>
+          } @else if (missing() > 0) {
+            <li class="chip">
+              {{ missing() === 1 ? 'Falta 1 volume' : 'Faltam ' + missing() + ' volumes' }}
+            </li>
           }
         </ul>
+        <div class="hero-actions">
+          <button mlButton="primary" type="button" (click)="addDialog.show()">
+            + Adicionar livro à série
+          </button>
+          <button mlButton="secondary" type="button" (click)="editDialog.show()">
+            ✎ Editar série
+          </button>
+        </div>
       </div>
     </div>
   </section>
@@ -62,6 +72,22 @@
   @if (failure()) {
     <p class="failure" role="alert">{{ failure() }}</p>
   }
+  <p class="notice" role="status">{{ notice() }}</p>
+
+  <ml-series-add-dialog
+    #addDialog
+    [seriesId]="current.id"
+    [seriesName]="current.name"
+    [volumes]="books.value().content"
+    (saved)="added($event)"
+  />
+  <ml-series-edit-dialog
+    #editDialog
+    [series]="current"
+    [volumes]="books.value().content"
+    (saved)="edited()"
+    (deleted)="deleted()"
+  />
 
   <div class="layout">
     <section class="about card" aria-label="Sobre a série">
@@ -73,6 +99,19 @@
 
         <div ngTabPanel class="tab-panel" value="sobre">
           <ng-template ngTabContent>
+            @if (current.description) {
+              <p class="description">{{ description() }}</p>
+              @if (folds()) {
+                <button
+                  type="button"
+                  class="more"
+                  [attr.aria-expanded]="unfolded()"
+                  (click)="unfolded.set(!unfolded())"
+                >
+                  {{ unfolded() ? 'Mostrar menos' : 'Mostrar tudo' }}
+                </button>
+              }
+            }
             @if (genres().length > 0) {
               <ul class="genres" aria-label="Gêneros da série">
                 @for (genre of genres(); track genre.id) {

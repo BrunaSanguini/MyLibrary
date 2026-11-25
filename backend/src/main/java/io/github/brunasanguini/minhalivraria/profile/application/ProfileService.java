@@ -5,6 +5,9 @@ import io.github.brunasanguini.minhalivraria.images.ImageStore;
 import io.github.brunasanguini.minhalivraria.images.ImageUrls;
 import io.github.brunasanguini.minhalivraria.profile.domain.Profile;
 import io.github.brunasanguini.minhalivraria.profile.domain.ProfileRepository;
+import io.github.brunasanguini.minhalivraria.shared.error.BusinessRuleException;
+import java.time.Clock;
+import java.time.Year;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,20 +19,27 @@ public class ProfileService {
 
     private final ProfileRepository profiles;
     private final ImageStore images;
+    private final Clock clock;
 
-    ProfileService(ProfileRepository profiles, ImageStore images) {
+    ProfileService(ProfileRepository profiles, ImageStore images, Clock clock) {
         this.profiles = profiles;
         this.images = images;
+        this.clock = clock;
     }
 
     public ProfileResponse get() {
         return toResponse(profile());
     }
 
+    /** @throws BusinessRuleException {@code profile.reader-since-future} for a year still to come */
     @Transactional
     public ProfileResponse update(ProfileRequest request) {
+        Integer readerSince = request.readerSince();
+        if (readerSince != null && readerSince > Year.now(clock).getValue()) {
+            throw new BusinessRuleException("profile.reader-since-future");
+        }
         Profile profile = profile();
-        profile.update(request.displayName(), request.theme());
+        profile.update(request.displayName(), request.theme(), readerSince);
         return toResponse(profile);
     }
 
@@ -67,6 +77,9 @@ public class ProfileService {
     private static ProfileResponse toResponse(Profile profile) {
         Long avatar = profile.avatarImageId();
         return new ProfileResponse(
-                profile.displayName(), avatar == null ? null : ImageUrls.of(avatar), profile.theme());
+                profile.displayName(),
+                avatar == null ? null : ImageUrls.of(avatar),
+                profile.theme(),
+                profile.readerSince());
     }
 }

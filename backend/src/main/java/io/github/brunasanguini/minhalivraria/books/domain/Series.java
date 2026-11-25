@@ -19,17 +19,26 @@ public class Series extends NamedEntity {
     @Column(name = "total_volumes")
     private @Nullable Integer totalVolumes;
 
+    /** Written by the reader, for "Sobre a série". */
+    private @Nullable String description;
+
     public Series(String name, @Nullable Integer totalVolumes) {
+        this(name, totalVolumes, null);
+    }
+
+    public Series(String name, @Nullable Integer totalVolumes, @Nullable String description) {
         super(name);
         this.totalVolumes = totalVolumes;
+        this.description = description;
     }
 
     /** For JPA only. */
     protected Series() {}
 
-    public void update(String name, @Nullable Integer totalVolumes) {
+    public void update(String name, @Nullable Integer totalVolumes, @Nullable String description) {
         rename(name);
         this.totalVolumes = totalVolumes;
+        this.description = description;
     }
 
     public long id() {
@@ -38,5 +47,9 @@ public class Series extends NamedEntity {
 
     public @Nullable Integer totalVolumes() {
         return totalVolumes;
+    }
+
+    public @Nullable String description() {
+        return description;
     }
 }

@@ -49,6 +49,7 @@ Este catálogo cresce junto com o código: todo `code` novo entra aqui no mesmo 
 | <a id="reading-not-found"></a>`reading.not-found` | 404 | Leitura inexistente. |
 | <a id="reading-in-progress-exists"></a>`reading.in-progress-exists` | 409 | O livro já tem uma leitura em andamento. |
 | <a id="reading-not-in-progress"></a>`reading.not-in-progress` | 409 | Ação de concluir ou abandonar numa leitura que não está em andamento. |
+| <a id="reading-not-abandoned"></a>`reading.not-abandoned` | 409 | Retomar uma leitura que não foi abandonada. |
 | <a id="reading-end-before-start"></a>`reading.end-before-start` | 422 | Data de fim anterior à data de início. |
 | <a id="reading-end-date-required"></a>`reading.end-date-required` | 422 | Leitura concluída ou abandonada sem data de fim. |
 | <a id="reading-start-date-required"></a>`reading.start-date-required` | 422 | Leitura em andamento sem data de início. |
@@ -75,6 +76,7 @@ Este catálogo cresce junto com o código: todo `code` novo entra aqui no mesmo 
 | <a id="goal-not-found"></a>`goal.not-found` | 404 | Meta inexistente. |
 | <a id="goal-duplicated"></a>`goal.duplicated` | 409 | Já existe meta do mesmo tipo e período. |
 | <a id="goal-invalid-period"></a>`goal.invalid-period` | 422 | Período inválido para o tipo (ex.: releituras por mês) ou mês ausente numa meta mensal. |
+| <a id="profile-reader-since-future"></a>`profile.reader-since-future` | 422 | "Leitora desde" com um ano depois do ano atual. |
 
 ## Imagens
 

@@ -1,14 +1,23 @@
 import { httpResource } from '@angular/common/http';
 import { Component, computed, effect, inject, input, signal, viewChild } from '@angular/core';
-import { FieldTree, form, FormField, required, submit, validate } from '@angular/forms/signals';
+import {
+  disabled,
+  FieldTree,
+  form,
+  FormField,
+  required,
+  submit,
+  validate,
+} from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { ApiError } from '@core/api/api-error';
 import { BookDetailResponse, BooksApi } from '@core/api/books-api';
+import { ShelfApi, ShelfPage } from '@core/api/shelf-api';
 import { toId } from '@core/api/query-params';
 import { ReadingApi, ReadingResponse, ReadingStatus, SessionResponse } from '@core/api/reading-api';
 import { HasUnsavedChanges } from '@core/routing/unsaved-changes-guard';
-import { formatLongDate, formatShortDate, TODAY } from '@core/time/today';
-import { Breadcrumbs } from '@shared/ui/breadcrumbs/breadcrumbs';
+import { addDays, formatShortDate, IsoDate, startOfWeek, TODAY } from '@core/time/today';
+import { BookCover } from '@shared/ui/book-cover/book-cover';
 import { Button } from '@shared/ui/button/button';
 import { EmptyState } from '@shared/ui/empty-state/empty-state';
 import { ErrorState } from '@shared/ui/error-state/error-state';
@@ -16,7 +25,10 @@ import { Icon } from '@shared/ui/icon/icon';
 import { Skeleton } from '@shared/ui/skeleton/skeleton';
 import { firstValueFrom } from 'rxjs';
 
+import { PagesChart } from '../pages-chart/pages-chart';
 import { ReadingProgress } from '../reading-progress/reading-progress';
+import { dailyPages, weekAverage } from '../reading-stats';
+import { ReadingWeek } from '../reading-week/reading-week';
 import { SessionForm } from '../session-form/session-form';
 
 /** A reading being registered: one that starts now or one that is already over. */
@@ -32,26 +44,35 @@ interface PeriodModel {
   startDate: string;
   reread: boolean;
   endDate: string;
+  finished: boolean;
+  abandoned: boolean;
 }
 
+/** The status beside the author in the card of the book, as the period form says it now. */
+const STATUS_WORDS = { reading: 'Lendo', read: 'Lido', reread: 'Relido', abandoned: 'Abandonado' };
+
 /**
- * Registrar leitura: follows the reading in progress of a book, one session at a time.
+ * Registrar leitura (spec, screen 3): the diary of the reading of one book.
  *
- * <p>Without a reading in progress, the page offers to start one or to register one that is
- * already over. With one, it shows the progress, takes the sessions, and lets the reader correct
- * the period, finish or abandon. After every change the reading and its sessions are fetched
- * again, so the ring, the week, the chart and the forecast always show what is saved.
+ * <p>On the left, what the reading looks like (ring, week, numbers, chart); on the right, the
+ * session of a day and the period of the reading. Picking a day in the week fills the day of the
+ * session, and the other way round. A book can be changed in the selector, among the books being
+ * read and the abandoned ones, which a new session takes up again. Without a reading to follow,
+ * the page offers to start one or to register one that is already over. After every change the
+ * reading and its sessions are fetched again, so every number shows what is saved.
  */
 @Component({
   selector: 'ml-reading-page',
   imports: [
-    Breadcrumbs,
+    BookCover,
     Button,
     EmptyState,
     ErrorState,
     FormField,
     Icon,
+    PagesChart,
     ReadingProgress,
+    ReadingWeek,
     RouterLink,
     SessionForm,
     Skeleton,
@@ -64,6 +85,7 @@ export default class ReadingPage implements HasUnsavedChanges {
 
   private readonly router = inject(Router);
   private readonly booksApi = inject(BooksApi);
+  private readonly shelfApi = inject(ShelfApi);
   private readonly readingApi = inject(ReadingApi);
   private readonly todayOf = inject(TODAY);
   private readonly sessionForm = viewChild(SessionForm);
@@ -80,12 +102,69 @@ export default class ReadingPage implements HasUnsavedChanges {
     return id === undefined ? undefined : this.readingApi.readingsRequest(id);
   });
 
-  /** A book has at most one reading in progress, and the API lists it first. */
-  protected readonly current = computed(() =>
-    this.readings.hasValue()
-      ? this.readings.value().find((reading) => reading.status === 'IN_PROGRESS')
-      : undefined,
+  /**
+   * The reading the page follows: the one in progress (a book has at most one) or, without it,
+   * the latest one if it was abandoned, which a new session takes up again.
+   */
+  protected readonly current = computed(() => {
+    if (!this.readings.hasValue()) {
+      return undefined;
+    }
+    const readings = this.readings.value();
+    const inProgress = readings.find((reading) => reading.status === 'IN_PROGRESS');
+    return inProgress ?? (readings[0]?.status === 'ABANDONED' ? readings[0] : undefined);
+  });
+
+  protected readonly abandoned = computed(() => this.current()?.status === 'ABANDONED');
+
+  /** The books the selector offers: being read, and abandoned ones that can be taken up again. */
+  protected readonly choices = httpResource<ShelfPage>(() =>
+    this.shelfApi.booksRequest({
+      status: ['READING', 'ABANDONED'],
+      wishlist: false,
+      sort: 'title',
+      size: 100,
+    }),
   );
+
+  protected readonly bookChoices = computed(() => {
+    const listed = (this.choices.value()?.content ?? []).map(({ id, title }) => ({ id, title }));
+    const book = this.book.value();
+    return book && !listed.some((choice) => choice.id === book.id)
+      ? [{ id: book.id, title: book.title }, ...listed]
+      : listed;
+  });
+
+  /** The day picked in the week, which is also the day of the session. */
+  protected readonly selectedDay = signal<IsoDate | undefined>(undefined);
+  protected readonly day = computed(() => this.selectedDay() ?? this.today());
+  /** Monday of the week shown. */
+  protected readonly monday = signal<IsoDate | undefined>(undefined);
+  protected readonly weekStart = computed(() => this.monday() ?? startOfWeek(this.today()));
+
+  /** The pace of the forecast: the average of the week shown. */
+  protected readonly average = computed(() =>
+    weekAverage(
+      dailyPages(this.sessionList(), this.weekStart(), addDays(this.weekStart(), 6)),
+      this.today(),
+      this.current()?.startDate ?? undefined,
+    ),
+  );
+
+  /** `Patrick Rothfuss · Lendo`, with the status the period form says right now. */
+  protected readonly bookLine = computed(() => {
+    const book = this.book.value();
+    const authors = book?.authors.map((author) => author.name).join(', ') ?? '';
+    const { finished, abandoned, reread } = this.periodModel();
+    const status = abandoned
+      ? STATUS_WORDS.abandoned
+      : finished
+        ? reread
+          ? STATUS_WORDS.reread
+          : STATUS_WORDS.read
+        : STATUS_WORDS.reading;
+    return this.current() ? `${authors} · ${status}` : authors;
+  });
 
   private readonly currentId = computed(() => this.current()?.id);
 
@@ -126,11 +205,6 @@ export default class ReadingPage implements HasUnsavedChanges {
       this.readings.value().some((reading) => reading.status === 'FINISHED'),
   );
 
-  protected readonly startedOn = computed(() => {
-    const start = this.current()?.startDate;
-    return start ? formatLongDate(start) : undefined;
-  });
-
   protected readonly newReadingModel = signal<NewReadingModel>({
     status: 'IN_PROGRESS',
     startDate: '',
@@ -170,6 +244,8 @@ export default class ReadingPage implements HasUnsavedChanges {
     startDate: '',
     reread: false,
     endDate: '',
+    finished: false,
+    abandoned: false,
   });
 
   protected readonly periodForm = form(this.periodModel, (period) => {
@@ -179,15 +255,22 @@ export default class ReadingPage implements HasUnsavedChanges {
         ? { kind: 'future', message: 'O início não pode ser no futuro.' }
         : undefined,
     );
+    disabled(
+      period.endDate,
+      ({ valueOf }) => !valueOf(period.finished) && !valueOf(period.abandoned),
+    );
     validate(period.endDate, ({ value, valueOf }) => {
+      if (!valueOf(period.finished) && !valueOf(period.abandoned)) {
+        return undefined;
+      }
       if (value() === '') {
         return { kind: 'required', message: 'Informe o dia do término.' };
       }
       if (value() > this.today()) {
-        return { kind: 'future', message: 'O término não pode ser no futuro.' };
+        return { kind: 'future', message: 'A data não pode ser no futuro.' };
       }
       return value() < valueOf(period.startDate)
-        ? { kind: 'order', message: 'O término não pode ser antes do início.' }
+        ? { kind: 'order', message: 'A data final precisa ser depois do início.' }
         : undefined;
     });
   });
@@ -219,7 +302,9 @@ export default class ReadingPage implements HasUnsavedChanges {
         this.periodModel.set({
           startDate: current.startDate ?? '',
           reread: current.reread,
-          endDate: this.today(),
+          endDate: current.endDate ?? this.today(),
+          finished: false,
+          abandoned: current.status === 'ABANDONED',
         });
         this.periodForm().reset();
       }
@@ -272,27 +357,72 @@ export default class ReadingPage implements HasUnsavedChanges {
     });
   }
 
+  /** Terminei and Abandonei: marking one unmarks the other. */
+  protected setEnd(kind: 'finished' | 'abandoned', checked: boolean): void {
+    this.periodModel.update((model) => ({
+      ...model,
+      finished: kind === 'finished' ? checked : checked ? false : model.finished,
+      abandoned: kind === 'abandoned' ? checked : checked ? false : model.abandoned,
+    }));
+  }
+
+  /**
+   * Salvar período: the start and the reread mark, then the end the reader marked. An abandoned
+   * reading unmarked as abandoned is in progress again.
+   */
   protected async savePeriod(event: Event, reading: ReadingResponse): Promise<void> {
     event.preventDefault();
     const startField = this.periodForm.startDate();
+    const endField = this.periodForm.endDate();
     startField.markAsTouched();
-    if (startField.invalid()) {
+    endField.markAsTouched();
+    if (startField.invalid() || endField.invalid()) {
       return;
     }
-    const { startDate, reread } = this.periodModel();
+    const { startDate, reread, endDate, finished, abandoned } = this.periodModel();
     await this.send(async () => {
-      await firstValueFrom(this.readingApi.updateReading(reading.id, { startDate, reread }));
-      this.notice.set('Período da leitura atualizado.');
+      let status = reading.status;
+      if (status === 'ABANDONED' && !abandoned) {
+        await firstValueFrom(this.readingApi.resumeReading(reading.id));
+        status = 'IN_PROGRESS';
+      }
+      if (status === 'IN_PROGRESS') {
+        await firstValueFrom(this.readingApi.updateReading(reading.id, { startDate, reread }));
+        if (finished) {
+          await firstValueFrom(this.readingApi.finishReading(reading.id, endDate));
+        } else if (abandoned) {
+          await firstValueFrom(this.readingApi.abandonReading(reading.id, endDate));
+        }
+      } else {
+        await firstValueFrom(
+          this.readingApi.updateReading(reading.id, { startDate, endDate, reread }),
+        );
+      }
+      if (finished) {
+        await this.router.navigate(['/livro', reading.bookId]);
+        return;
+      }
+      this.notice.set(
+        abandoned ? '✦ Leitura marcada como abandonada.' : '✦ Início da leitura salvo.',
+      );
       this.readings.reload();
     });
   }
 
-  protected finish(reading: ReadingResponse): Promise<void> {
-    return this.close(reading, (endDate) => this.readingApi.finishReading(reading.id, endDate));
+  /** Another book in the selector: the page of its reading. */
+  protected chooseBook(event: Event): void {
+    const id = Number((event.target as HTMLSelectElement).value);
+    if (id && id !== this.id()) {
+      this.selectedDay.set(undefined);
+      this.monday.set(undefined);
+      void this.router.navigate(['/livro', id, 'leitura']);
+    }
   }
 
-  protected abandon(reading: ReadingResponse): Promise<void> {
-    return this.close(reading, (endDate) => this.readingApi.abandonReading(reading.id, endDate));
+  /** Choosing a day in the field of the session also moves the week to it. */
+  protected pickDay(day: IsoDate): void {
+    this.selectedDay.set(day);
+    this.monday.set(startOfWeek(day));
   }
 
   protected async deleteSession(reading: ReadingResponse, session: SessionResponse): Promise<void> {
@@ -300,22 +430,6 @@ export default class ReadingPage implements HasUnsavedChanges {
       await firstValueFrom(this.readingApi.deleteSession(reading.id, session.id));
       this.notice.set('Sessão excluída.');
       this.refresh();
-    });
-  }
-
-  /** Finishing and abandoning differ only in the request; both end on the page of the book. */
-  private async close(
-    reading: ReadingResponse,
-    request: (endDate: string) => ReturnType<ReadingApi['finishReading']>,
-  ): Promise<void> {
-    const endField = this.periodForm.endDate();
-    endField.markAsTouched();
-    if (endField.invalid()) {
-      return;
-    }
-    await this.send(async () => {
-      await firstValueFrom(request(this.periodModel().endDate));
-      await this.router.navigate(['/livro', reading.bookId]);
     });
   }
 

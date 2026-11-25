@@ -71,6 +71,21 @@ public class Reading extends AuditedEntity {
         close(ReadingStatus.ABANDONED, endDate);
     }
 
+    /**
+     * Back to reading a book that was abandoned: the reading is in progress again, from the same start, and the
+     * new sessions add to the pages it already had.
+     *
+     * @throws ConflictException {@code reading.not-abandoned} when the reading was not abandoned
+     */
+    public void resume() {
+        if (status != ReadingStatus.ABANDONED) {
+            throw new ConflictException("reading.not-abandoned");
+        }
+        LocalDate start = startDate == null ? endDate : startDate;
+        this.status = ReadingStatus.IN_PROGRESS;
+        setPeriod(start, null);
+    }
+
     /** Corrects the dates and the reread mark. The status only changes through finish and abandon. */
     public void reschedule(@Nullable LocalDate startDate, @Nullable LocalDate endDate, boolean reread) {
         setPeriod(startDate, endDate);

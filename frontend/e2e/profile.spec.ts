@@ -2,8 +2,8 @@ import { type APIRequestContext, expect, test } from '@playwright/test';
 
 /**
  * Journey 5: the theme chosen in the header is saved in the profile, so it holds after reloading
- * and in another window that never saw the choice (docs/testes-e-qualidade.md). Also the name and
- * the avatar of the Perfil page.
+ * and in another window that never saw the choice (docs/testes-e-qualidade.md). Also the name, the
+ * year and the photo of the modal Editar perfil e foto.
  *
  * The profile is one for the whole server: these tests run one after the other and put it back.
  * The other tests that need a theme fix it only in their own page (accessibility.ts).
@@ -60,32 +60,39 @@ test('keeps the theme chosen in the header, in this window and in a new one', as
   await other.close();
 });
 
-test('changes the name and the theme on the profile page', async ({ page }) => {
+test('changes the name and the year the reader started, keeping the theme', async ({ page }) => {
   await page.goto('/perfil');
-  await page.getByRole('button', { name: 'Editar perfil' }).click();
-  await page.getByLabel('Nome').fill('Leitora de Teste');
-  await page.getByRole('radio', { name: 'Claro' }).check();
-  await page.getByRole('button', { name: 'Salvar perfil' }).click();
+  await page.getByRole('button', { name: 'Editar perfil e foto' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Editar perfil e foto' });
+  await dialog.getByLabel('Como quer ser chamada(o)').fill('Leitora de Teste');
+  await dialog.getByLabel('Leitora desde').fill('2019');
+  await expect(dialog.getByText('Aparece como MMXIX')).toBeVisible();
+  await dialog.getByRole('button', { name: 'Salvar perfil' }).click();
+  await expect(dialog.getByRole('status')).toHaveText('Perfil salvo ✓');
+  await dialog.getByRole('button', { name: 'Cancelar' }).click();
 
   await expect(page.getByRole('heading', { level: 1, name: 'Leitora de Teste' })).toBeVisible();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await expect(page.getByText('✦ Leitora desde MMXIX')).toBeVisible();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect(page.getByRole('link', { name: 'Meu perfil' })).toHaveText('L');
 
   await page.reload();
   await expect(page.getByRole('heading', { level: 1, name: 'Leitora de Teste' })).toBeVisible();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await expect(page.getByText('✦ Leitora desde MMXIX')).toBeVisible();
 });
 
 test('changes the avatar, refuses a file that is not an image and removes it', async ({ page }) => {
   await page.goto('/perfil');
-  const avatarInput = page.locator('input[type=file]');
+  await page.getByRole('button', { name: 'Trocar foto do perfil' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Editar perfil e foto' });
+  const avatarInput = dialog.locator('input[type=file]');
 
   await avatarInput.setInputFiles({
     name: 'nota.png',
     mimeType: 'image/png',
     buffer: Buffer.from('não sou imagem'),
   });
-  await expect(page.getByRole('alert')).toHaveText('Envie uma imagem JPEG, PNG ou WebP.');
+  await expect(dialog.getByRole('alert')).toHaveText('Envie uma imagem JPEG, PNG ou WebP.');
 
   await avatarInput.setInputFiles({ name: 'eu.png', mimeType: 'image/png', buffer: PNG });
   await expect(page.getByRole('link', { name: 'Meu perfil' }).locator('img')).toHaveAttribute(
@@ -93,6 +100,6 @@ test('changes the avatar, refuses a file that is not an image and removes it', a
     /\/api\/v1\/images\/\d+/,
   );
 
-  await page.getByRole('button', { name: 'Remover foto' }).click();
+  await dialog.getByRole('button', { name: 'Remover foto' }).click();
   await expect(page.getByRole('link', { name: 'Meu perfil' }).locator('img')).toHaveCount(0);
 });

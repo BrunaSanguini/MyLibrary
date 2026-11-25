@@ -1,73 +1,131 @@
-/* Registrar leitura: one column of cards, the progress first. */
+/* Registrar leitura: the title row with the book, then the data on the left and the forms on the right. */
 
 :host {
   display: flex;
   flex-direction: column;
-  gap: var(--ml-space-24);
-  max-width: 860px;
+  gap: 28px;
+  box-sizing: border-box;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: var(--ml-space-40) var(--ml-space-32) var(--ml-space-56);
+  padding: var(--ml-space-32) var(--ml-space-32) var(--ml-space-56);
 }
 
-.eyebrow {
-  margin: 0 0 var(--ml-space-8);
-  color: var(--ml-color-accent);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 2.4px;
-  text-transform: uppercase;
+.title-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ml-space-24);
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.titles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.back {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  min-height: 32px;
+  color: var(--ml-color-gold-text);
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.titles .eyebrow {
+  margin: 0;
 }
 
 h1 {
   margin: 0;
-  font-family: var(--ml-font-display);
-  font-size: 54px;
-  font-weight: 600;
-  line-height: 1.02;
+  font-family: var(--ml-font-title);
+  font-size: 46px;
+  font-weight: 700;
+  line-height: 1;
 }
 
-.lead {
+.book-card {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
   gap: var(--ml-space-16);
-  margin: var(--ml-space-16) 0 0;
+  align-items: center;
+  padding: 10px 20px 10px 10px;
+  border: 1px solid var(--ml-color-glass-line);
+  border-radius: 14px;
+  background: var(--ml-color-surface);
+  box-shadow: var(--ml-shadow-frame);
+}
+
+.mini {
+  width: 48px;
+}
+
+.book-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.book-text select {
+  min-height: 36px;
+  padding: 0 32px 0 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--ml-font-title);
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.book-line {
+  margin: 0;
   color: var(--ml-color-muted);
-  font-size: 16px;
+  font-family: var(--ml-font-display);
+  font-size: 17px;
+  font-style: italic;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: var(--ml-space-24);
+  align-items: start;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ml-space-24);
+  min-width: 0;
+}
+
+.progress {
+  padding: 34px 40px;
+}
+
+.aside {
+  margin: 0 0 0 32px;
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-display);
+  font-size: 17px;
+  font-style: italic;
 }
 
 .text {
-  max-width: 62ch;
   margin: 0;
-  color: var(--ml-color-muted);
-  font-size: 15px;
-  line-height: 1.6;
 }
 
-/* Always in the page, so the live region announces what arrives; empty, it takes no room. */
-.notice {
-  margin: 0;
-  color: var(--ml-color-muted);
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.notice:empty {
-  display: none;
-}
-
-.reread {
-  align-self: flex-end;
-}
-
-.end {
-  flex: 0 1 auto;
-  max-width: 260px;
+.new {
+  max-width: 640px;
 }
 
 .sessions {
   display: flex;
   flex-direction: column;
+  gap: var(--ml-space-8);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -75,26 +133,33 @@ h1 {
 
 .session {
   display: grid;
-  grid-template-columns: 90px 110px minmax(0, 1fr) auto;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  gap: var(--ml-space-12);
   align-items: center;
-  gap: var(--ml-space-16);
-  padding: var(--ml-space-8) 0;
+  padding: 6px 0;
   border-top: 1px solid var(--ml-color-line);
 }
 
-.session:first-child {
-  border-top: 0;
-}
-
 .session-day {
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .session-pages {
-  font-weight: 600;
+  color: var(--ml-color-gold-text);
+  font-weight: 700;
 }
 
 .session-note {
+  overflow: hidden;
   color: var(--ml-color-muted);
-  font-size: 14px;
+  font-family: var(--ml-font-display);
+  font-style: italic;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (width < 960px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

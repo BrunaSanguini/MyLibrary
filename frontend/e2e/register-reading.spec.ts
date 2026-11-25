@@ -34,7 +34,11 @@ async function createBook(request: APIRequestContext, title: string, pageCount: 
   return ((await book.json()) as { id: number }).id;
 }
 
-const ring = (page: Page) => page.getByRole('progressbar', { name: 'Progresso de leitura' });
+/** The ring of Registrar leitura, named by the pages read: `100 de 400 páginas lidas`. */
+const ring = (page: Page) =>
+  page
+    .getByRole('region', { name: 'Progresso do livro' })
+    .getByRole('img', { name: /páginas lidas$/ });
 
 test('reads a book from the first page to the review', async ({ page }) => {
   const title = `Jornada de Leitura ${Date.now()}`;
@@ -48,39 +52,41 @@ test('reads a book from the first page to the review', async ({ page }) => {
 
   // Starting the reading opens the page that follows it.
   await expect(page).toHaveURL(new RegExp(`/livro/${bookId}/leitura$`));
-  await expect(page.getByRole('heading', { name: 'Nova leitura' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Este livro não está sendo lido' })).toBeVisible();
   await page.getByRole('button', { name: 'Começar leitura' }).click();
-  await expect(ring(page)).toHaveAttribute('aria-valuenow', '0');
+  await expect(ring(page)).toHaveAccessibleName('0 de 400 páginas lidas');
 
-  // A session in pages read, with the shortcuts: the ring, the week and the forecast follow.
+  // A session in pages read, with the shortcuts: the ring and the week follow.
   await page.getByRole('button', { name: 'Somar 50 páginas' }).click();
   await page.getByRole('button', { name: 'Somar 50 páginas' }).click();
-  await expect(page.getByLabel('Quantas páginas você leu?')).toHaveValue('100');
+  await expect(page.getByLabel('Páginas lidas neste dia')).toHaveValue('100');
   await page.getByLabel(/Anotação/).fill('Primeiros capítulos.');
   await page.getByRole('button', { name: 'Salvar sessão' }).click();
 
-  await expect(ring(page)).toHaveAttribute('aria-valuenow', '25');
-  const progress = page.getByRole('region', { name: 'Progresso' });
-  await expect(progress).toContainText('100 de 400 páginas');
-  await expect(progress).toContainText('No ritmo de 100 páginas por dia, faltam 300 páginas.');
-  const week = page.getByRole('region', { name: 'Esta semana' });
-  await expect(week.locator('[aria-current="date"]')).toHaveAccessibleName(/: 100 páginas$/);
-  await expect(page.getByLabel('Quantas páginas você leu?')).toHaveValue('');
+  await expect(ring(page)).toHaveAccessibleName('100 de 400 páginas lidas');
+  const progress = page.getByRole('region', { name: 'Progresso do livro' });
+  await expect(progress).toContainText('Faltam 300 páginas');
+  const week = page.getByRole('region', { name: 'Calendário da semana' });
+  await expect(week.getByRole('button', { name: /100 páginas/ })).toBeVisible();
 
   // A session by the page the reader stopped at is converted into pages read.
-  await page.getByRole('radio', { name: 'Página atual' }).check();
-  await page.getByLabel('Em que página você está?').fill('250');
+  const currentPage = page.getByRole('radio', { name: 'Página atual' });
+  await currentPage.click();
+  await expect(currentPage).toHaveAttribute('aria-checked', 'true');
+  await page.getByLabel('Em que página você parou?').fill('250');
   await page.getByRole('button', { name: 'Salvar sessão' }).click();
 
-  await expect(ring(page)).toHaveAttribute('aria-valuenow', '62');
-  await expect(week.locator('[aria-current="date"]')).toHaveAccessibleName(/: 250 páginas$/);
-  const sessions = page.getByRole('region', { name: 'Sessões registradas' });
+  await expect(ring(page)).toHaveAccessibleName('250 de 400 páginas lidas');
+  await expect(week.getByRole('button', { name: /250 páginas/ })).toBeVisible();
+  const sessions = page.getByRole('region', { name: 'Sessões desta leitura' });
   await expect(sessions.getByRole('listitem')).toHaveCount(2);
   await expect(sessions).toContainText('150 páginas');
   await expect(sessions).toContainText('Primeiros capítulos.');
 
-  // Finishing goes back to the book, now read.
-  await page.getByRole('button', { name: 'Concluir leitura' }).click();
+  // Finishing, on today, goes back to the book, now read.
+  await page.getByRole('checkbox', { name: 'Terminei este livro' }).check();
+  await expect(page.getByLabel('Fim', { exact: true })).toHaveValue(today());
+  await page.getByRole('button', { name: 'Salvar período' }).click();
   await expect(page).toHaveURL(new RegExp(`/livro/${bookId}$`));
   await expect(sheet).toContainText('Lido');
   const history = page.getByRole('region', { name: 'Histórico de leitura' });
@@ -121,12 +127,12 @@ test('refuses what the book does not have and keeps what was typed', async ({ pa
   });
 
   await page.goto(`/livro/${bookId}/leitura`);
-  await page.getByLabel('Quantas páginas você leu?').fill('121');
+  await page.getByLabel('Páginas lidas neste dia').fill('121');
   await page.getByRole('button', { name: 'Salvar sessão' }).click();
 
   await expect(page.getByText('Faltam 120 páginas para o fim do livro.')).toBeVisible();
-  await expect(page.getByLabel('Quantas páginas você leu?')).toHaveValue('121');
-  await expect(ring(page)).toHaveAttribute('aria-valuenow', '0');
+  await expect(page.getByLabel('Páginas lidas neste dia')).toHaveValue('121');
+  await expect(ring(page)).toHaveAccessibleName('0 de 120 páginas lidas');
 });
 
 for (const theme of THEMES) {
@@ -136,7 +142,9 @@ for (const theme of THEMES) {
 
     // The form that starts a reading.
     await page.goto(`/livro/${bookId}/leitura`);
-    await expect(page.getByRole('heading', { name: 'Nova leitura' })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'Este livro não está sendo lido' }),
+    ).toBeVisible();
     await expectNoAccessibilityViolations(page);
 
     // A reading in progress, with a session and a validation message on screen.
@@ -150,7 +158,7 @@ for (const theme of THEMES) {
       data: { date: today(), pagesRead: 75, note: 'Uma anotação.' },
     });
     await page.goto(`/livro/${bookId}/leitura`);
-    await expect(ring(page)).toHaveAttribute('aria-valuenow', '25');
+    await expect(ring(page)).toHaveAccessibleName('75 de 300 páginas lidas');
     await page.getByRole('button', { name: 'Salvar sessão' }).click();
     await expect(page.getByText('Informe quantas páginas você leu.')).toBeVisible();
     await expectNoAccessibilityViolations(page);

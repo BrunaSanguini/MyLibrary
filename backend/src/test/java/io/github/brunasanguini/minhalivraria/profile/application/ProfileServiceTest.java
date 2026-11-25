@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.brunasanguini.minhalivraria.images.ImageSamples;
 import io.github.brunasanguini.minhalivraria.profile.ProfileTheme;
+import io.github.brunasanguini.minhalivraria.shared.error.BusinessRuleException;
 import io.github.brunasanguini.minhalivraria.shared.error.PayloadTooLargeException;
 import io.github.brunasanguini.minhalivraria.shared.error.UnsupportedMediaTypeException;
 import jakarta.persistence.EntityManager;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Year;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -61,6 +63,27 @@ class ProfileServiceTest {
 
         assertThat(profile.update(new ProfileRequest("   ", ProfileTheme.LIGHT)).displayName())
                 .isNull();
+    }
+
+    @Test
+    void shouldKeepTheYearTheReaderStarted() {
+        profile.update(new ProfileRequest("Bru", ProfileTheme.DARK, 2019));
+        entityManager.flush();
+        entityManager.clear();
+
+        assertThat(profile.get().readerSince()).isEqualTo(2019);
+        assertThat(profile.update(new ProfileRequest("Bru", ProfileTheme.DARK)).readerSince())
+                .isNull();
+    }
+
+    @Test
+    void shouldRefuseAYearStillToCome() {
+        int next = Year.now().getValue() + 1;
+
+        assertThatThrownBy(() -> profile.update(new ProfileRequest("Bru", ProfileTheme.DARK, next)))
+                .isInstanceOf(BusinessRuleException.class)
+                .extracting("code")
+                .isEqualTo("profile.reader-since-future");
     }
 
     @Test

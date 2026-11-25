@@ -45,7 +45,10 @@ class StatsControllerTest {
                         21,
                         1,
                         2,
-                        new FastestReadingResponse(42, "O Hobbit", 6)));
+                        new FastestReadingResponse(42, "O Hobbit", 6),
+                        102,
+                        51,
+                        2019));
 
         assertThat(mvc.get().uri("/api/v1/stats/overview?year=2026&month=11"))
                 .hasStatusOk()

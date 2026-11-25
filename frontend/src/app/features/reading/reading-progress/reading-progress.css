@@ -1,163 +1,125 @@
-/* Reading progress: the summary with the ring on the left, the week and the chart below it. */
+/* Progresso do livro: the ring on the left, the percentage and the forecast on the right. */
 
 :host {
   display: flex;
-  flex-direction: column;
-  gap: var(--ml-space-24);
-}
-
-.card {
-  padding: var(--ml-space-32);
-  border: 1px solid var(--ml-color-line);
-  border-radius: var(--ml-radius-lg);
-  background: var(--ml-color-surface);
-  box-shadow: var(--ml-shadow-soft);
-}
-
-.summary {
-  display: flex;
-  flex-wrap: wrap;
+  gap: 40px;
   align-items: center;
-  gap: var(--ml-space-32);
 }
 
-.summary-body {
-  flex: 1 1 260px;
-  min-width: 0;
+.ring {
+  position: relative;
+  flex: 0 0 240px;
+  width: 240px;
+  height: 240px;
 }
 
-.card-head {
+svg {
+  width: 100%;
+  height: 100%;
+}
+
+circle {
+  fill: none;
+}
+
+.rim {
+  stroke: var(--ml-color-gold);
+  stroke-width: 1;
+  opacity: 0.5;
+}
+
+.track {
+  stroke: var(--ml-color-raised);
+  stroke-width: 12;
+}
+
+.arc {
+  filter: var(--ml-glow-arc);
+  stroke: var(--ml-color-accent);
+  stroke-linecap: round;
+  stroke-width: 12;
+  transition: stroke-dasharray 0.4s ease;
+}
+
+.center {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--ml-space-16);
+  position: absolute;
+  inset: 0;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
 }
 
-h2 {
-  margin: 0;
-  font-family: var(--ml-font-display);
-  font-size: 30px;
+.read {
+  display: flex;
+  gap: 4px;
+  align-items: baseline;
+  font-family: var(--ml-font-title);
+}
+
+.read b {
+  font-size: 54px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.total {
+  color: var(--ml-color-muted);
+  font-size: 20px;
+}
+
+.caption {
+  color: var(--ml-color-lilac);
+  font-family: var(--ml-font-title);
+  font-size: 11px;
   font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.text p {
+  margin: 0;
+}
+
+.percent {
+  color: var(--ml-color-accent);
+  font-family: var(--ml-font-title);
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: var(--ml-glow-capital);
+}
+
+.headline {
+  font-family: var(--ml-font-title);
+  font-size: 22px;
+  font-weight: 700;
   line-height: 1.2;
 }
 
-h3 {
-  margin: var(--ml-space-16) 0 0;
-  color: var(--ml-color-muted);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 1.6px;
-  text-transform: uppercase;
-}
-
-.pages {
-  margin: var(--ml-space-4) 0 0;
-  font-size: 16px;
-  font-weight: 600;
-}
-
 .forecast {
-  margin: var(--ml-space-4) 0 0;
+  color: var(--ml-color-muted);
   font-family: var(--ml-font-display);
-  font-size: 24px;
-  font-weight: 600;
+  font-size: 19px;
+  font-style: italic;
+  line-height: 1.45;
 }
 
-.detail,
-.total {
-  margin: var(--ml-space-4) 0 0;
-  color: var(--ml-color-muted);
-  font-size: 14px;
+@media (prefers-reduced-motion: reduce) {
+  .arc {
+    transition: none;
+  }
 }
 
-.total {
-  font-weight: 700;
-}
-
-.week,
-.chart {
-  display: grid;
-  margin: var(--ml-space-16) 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.week {
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: var(--ml-space-8);
-}
-
-.day {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: var(--ml-space-12) var(--ml-space-4);
-  border: 1.5px solid var(--ml-color-line);
-  border-radius: var(--ml-radius-md);
-}
-
-.day.read {
-  border-color: var(--ml-color-gold);
-  background: var(--ml-color-raised);
-}
-
-.day[aria-current] {
-  border-color: var(--ml-color-accent);
-}
-
-.weekday {
-  color: var(--ml-color-muted);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-}
-
-.day-number {
-  font-family: var(--ml-font-display);
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 1.1;
-}
-
-.day-pages {
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.chart {
-  grid-template-columns: repeat(14, minmax(0, 1fr));
-  align-items: end;
-  gap: var(--ml-space-8);
-  height: 180px;
-}
-
-.column {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--ml-space-4);
-  height: 100%;
-  min-width: 0;
-}
-
-.value {
-  min-height: 16px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.bar {
-  width: 100%;
-  min-height: 3px;
-  border-radius: 6px 6px 2px 2px;
-  background: var(--ml-color-accent);
-}
-
-.axis {
-  color: var(--ml-color-muted);
-  font-size: 12px;
-  font-weight: 600;
+@media (width < 760px) {
+  :host {
+    flex-direction: column;
+  }
 }

@@ -55,6 +55,12 @@ export function formatShortDate(date: IsoDate): string {
   return DAY_MONTH.format(parseIsoDate(date));
 }
 
+/** `5/11`: day and month, as the diary of reading writes them. */
+export function formatDayMonth(date: IsoDate): string {
+  const moment = parseIsoDate(date);
+  return `${moment.getDate()}/${moment.getMonth() + 1}`;
+}
+
 /** `dom`, without the dot some browsers add. */
 export function formatWeekday(date: IsoDate): string {
   return WEEKDAY.format(parseIsoDate(date)).replace('.', '');

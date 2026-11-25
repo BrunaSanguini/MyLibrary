@@ -1,5 +1,5 @@
 import { httpResource } from '@angular/common/http';
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, signal, viewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ApiError } from '@core/api/api-error';
 import { CalendarEntry, ReadingCalendar, StatsApi } from '@core/api/stats-api';
@@ -7,7 +7,10 @@ import { formatLongWeekday, IsoDate, parseIsoDate, TODAY, toIsoDate } from '@cor
 import { bookColorOf, BookCover } from '@shared/ui/book-cover/book-cover';
 import { Button } from '@shared/ui/button/button';
 import { ErrorState } from '@shared/ui/error-state/error-state';
+import { toRoman } from '@shared/format/roman';
 import { Icon } from '@shared/ui/icon/icon';
+
+import { DayReading, DayReadingDialog } from '../day-reading-dialog/day-reading-dialog';
 
 const MONTHS = [
   'janeiro',
@@ -67,7 +70,7 @@ function paramOf({ year, month }: Month): string {
  */
 @Component({
   selector: 'ml-calendar-page',
-  imports: [BookCover, Button, ErrorState, Icon, RouterLink],
+  imports: [BookCover, Button, DayReadingDialog, ErrorState, Icon, RouterLink],
   templateUrl: './calendar-page.html',
   styleUrls: ['./calendar-page.css', './calendar-grid.css'],
 })
@@ -96,12 +99,15 @@ export default class CalendarPage {
   });
 
   protected readonly selected = signal<IsoDate | undefined>(undefined);
+  /** The line after a reading registered in the modal. */
+  protected readonly notice = signal<string | undefined>(undefined);
+  private readonly dayDialog = viewChild.required(DayReadingDialog);
   protected readonly highlighted = signal<number | undefined>(undefined);
 
   protected readonly title = computed(() => {
     const { year, month } = this.current();
     const name = MONTHS[month - 1] ?? '';
-    return `${name.charAt(0).toUpperCase()}${name.slice(1)} de ${year}`;
+    return `${name.charAt(0).toUpperCase()}${name.slice(1)} de ${toRoman(year)}`;
   });
 
   protected readonly weekdays = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
@@ -142,7 +148,9 @@ export default class CalendarPage {
           ? 'Início'
           : books.some((book) => book.finished)
             ? 'Fim'
-            : undefined,
+            : books.some((book) => book.abandoned)
+              ? 'Parou'
+              : undefined,
         background: backgroundOf(books),
         // Read after the number of the day, which is on the screen: " de novembro: O Hobbit, 20 páginas".
         label:
@@ -224,11 +232,40 @@ export default class CalendarPage {
     return bookColorOf(title);
   }
 
+  /** A day of the month around opens that month on the day, as the spec recommends. */
   protected pick(cell: Cell): void {
-    if (cell.future || !cell.inMonth) {
+    if (cell.future) {
       return;
     }
+    if (!cell.inMonth) {
+      const moment = parseIsoDate(cell.date);
+      this.goTo({ year: moment.getFullYear(), month: moment.getMonth() + 1 });
+      this.selected.set(cell.date);
+      return;
+    }
+    this.notice.set(undefined);
     this.selected.update((date) => (date === cell.date ? undefined : cell.date));
+  }
+
+  protected registerOn(date: IsoDate): void {
+    this.dayDialog().show(date);
+  }
+
+  /** After the modal: the month of the day, the day open and the line that says what was saved. */
+  protected registered(reading: DayReading): void {
+    const moment = parseIsoDate(reading.date);
+    const month = { year: moment.getFullYear(), month: moment.getMonth() + 1 };
+    if (paramOf(month) !== paramOf(this.current())) {
+      this.goTo(month);
+    } else {
+      this.calendar.reload();
+    }
+    this.selected.set(reading.date);
+    this.notice.set(
+      reading.pages > 0
+        ? `Leitura registrada: ${reading.title}, ${reading.pages} ${reading.pages === 1 ? 'página' : 'páginas'}.`
+        : `Leitura registrada: ${reading.title}.`,
+    );
   }
 
   protected toggleHighlight(id: number): void {
@@ -238,6 +275,9 @@ export default class CalendarPage {
   protected flagOf(entry: CalendarEntry): string | undefined {
     if (entry.finished) {
       return 'Terminou';
+    }
+    if (entry.abandoned) {
+      return 'Parou de ler';
     }
     return entry.started ? 'Começou' : undefined;
   }

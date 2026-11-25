@@ -5,10 +5,13 @@ import {
   heatStart,
   heatWeeks,
   HEAT_WEEKS,
+  levelOf,
   monthSummaries,
   monthTitle,
+  mostReadGenre,
   paceOf,
   plural,
+  romanMonthTitle,
   timeBars,
   weekOf,
 } from './profile-stats';
@@ -24,6 +27,8 @@ const OVERVIEW = {
   longestStreak: 21,
   finishedLast30Days: 1,
   inProgress: 2,
+  readingDays: 102,
+  notes: 51,
 };
 
 describe('profile stats', () => {
@@ -62,7 +67,7 @@ describe('profile stats', () => {
       '2026-11-21',
       '2026-11-22',
     ]);
-    expect(thisWeek[0]).toMatchObject({ pages: 40, level: 4, future: false });
+    expect(thisWeek[0]).toMatchObject({ pages: 40, level: 3, future: false });
     expect(thisWeek[2]).toMatchObject({ level: 0, future: true });
     expect(weeks.at(-2)?.[1]).toMatchObject({ date: '2026-11-10', level: 1 });
   });
@@ -91,14 +96,59 @@ describe('profile stats', () => {
 
   it('writes the rows of Ritmo, with or without a finished book', () => {
     expect(
-      paceOf({ ...OVERVIEW, fastestInYear: { bookId: 2, title: 'O Hobbit', days: 6 } }),
+      paceOf({ ...OVERVIEW, fastestInYear: { bookId: 2, title: 'O Hobbit', days: 6 } }, 'Fantasia'),
     ).toEqual([
       { label: 'Últimos 30 dias', value: '1 livro terminado · 2 em andamento' },
       { label: 'Livro mais rápido', value: 'O Hobbit · 6 dias' },
       { label: 'Maior sequência', value: '21 dias seguidos' },
       { label: 'Páginas viradas', value: '3.240 em 2026' },
+      { label: 'Gênero mais lido', value: 'Fantasia' },
     ]);
     expect(paceOf(OVERVIEW)[1]?.value).toBe('Nenhum livro terminado em 2026');
+  });
+
+  it.each([
+    [0, 0],
+    [1, 1],
+    [10, 1],
+    [11, 2],
+    [30, 2],
+    [31, 3],
+    [60, 3],
+    [61, 4],
+  ])('puts a day of %i pages on level %i of the heat map', (pages, level) => {
+    expect(levelOf(pages)).toBe(level);
+  });
+
+  it('finds the genre with more books read, a subgenre counting for its genre', () => {
+    const card = (status: string, genres: string[]) =>
+      ({ status, genres, authors: [], title: '', id: 1 }) as never;
+    const tree = [
+      {
+        id: 1,
+        name: 'Fantasia',
+        bookCount: 2,
+        subgenres: [{ id: 2, name: 'Alta fantasia', bookCount: 1 }],
+      },
+      { id: 3, name: 'Romance', bookCount: 2, subgenres: [] },
+    ];
+
+    expect(
+      mostReadGenre(
+        [
+          card('READ', ['Fantasia', 'Alta fantasia']),
+          card('READ', ['Alta fantasia']),
+          card('READ', ['Romance']),
+          card('READING', ['Romance']),
+        ],
+        tree,
+      ),
+    ).toBe('Fantasia');
+    expect(mostReadGenre([card('READING', ['Romance'])], tree)).toBeUndefined();
+  });
+
+  it('writes the month by name and the year in roman numerals', () => {
+    expect(romanMonthTitle('2026-11-17', () => 'MMXXVI')).toBe('Novembro de MMXXVI');
   });
 
   it('measures each bar against the book with more days', () => {

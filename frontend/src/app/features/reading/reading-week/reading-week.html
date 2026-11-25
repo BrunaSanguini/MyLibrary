@@ -1,0 +1,55 @@
+<section class="card week" aria-label="Calendário da semana">
+  <header class="head">
+    <div>
+      <a class="month" routerLink="/calendario">
+        {{ month() }} <span class="chevron" aria-hidden="true">›</span>
+      </a>
+      <p class="summary">{{ summary() }}</p>
+    </div>
+    <div class="nav">
+      <button type="button" class="round" aria-label="Semana anterior" (click)="step(-1)">
+        <ml-icon name="chevron-left" [size]="16" />
+      </button>
+      <button
+        type="button"
+        class="round"
+        aria-label="Próxima semana"
+        [disabled]="!canGoForward()"
+        (click)="step(1)"
+      >
+        <ml-icon name="chevron-right" [size]="16" />
+      </button>
+    </div>
+  </header>
+
+  <div class="days">
+    @for (day of days(); track day.date) {
+      <button
+        type="button"
+        class="day"
+        [class.read]="day.pages > 0"
+        [disabled]="day.disabled"
+        [attr.aria-pressed]="day.date === selected()"
+        (click)="selectedChange.emit(day.date)"
+      >
+        <span class="ml-visually-hidden">{{ day.label }}</span>
+        <span class="number" aria-hidden="true">{{ day.number }}</span>
+        <span class="weekday" aria-hidden="true">{{ day.weekday }}</span>
+        @if (!day.disabled) {
+          <span class="mark" aria-hidden="true">✦</span>
+        }
+      </button>
+    }
+  </div>
+</section>
+
+<dl class="kpis">
+  @for (kpi of kpis(); track kpi.label) {
+    <div class="card kpi">
+      <dt>{{ kpi.label }}</dt>
+      <dd>
+        <b>{{ kpi.value }}</b> <span>{{ kpi.unit }}</span>
+      </dd>
+    </div>
+  }
+</dl>

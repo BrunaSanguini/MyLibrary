@@ -1,0 +1,77 @@
+<dialog #dialog class="dialog" aria-labelledby="titulo-adicionar-serie" (close)="closed()">
+  <form class="form" novalidate (submit)="save($event)">
+    <div class="head">
+      <div>
+        <p class="eyebrow">✦ {{ seriesName() }}</p>
+        <h2 id="titulo-adicionar-serie">Adicionar livro à série</h2>
+      </div>
+      <button type="button" class="round" aria-label="Fechar" (click)="close()">
+        <ml-icon name="close" [size]="16" />
+      </button>
+    </div>
+    <p class="intro">
+      Escolha um livro que já está no seu acervo. Para um livro novo, cadastre-o primeiro em
+      <a routerLink="/estante/novo">Adicionar livro</a>.
+    </p>
+
+    <div class="field">
+      <label for="busca-serie">Buscar no acervo</label>
+      <input
+        id="busca-serie"
+        type="search"
+        autocomplete="off"
+        placeholder="Título ou autor"
+        [value]="term()"
+        (input)="term.set(value($event))"
+      />
+    </div>
+
+    @if (choices().length > 0) {
+      <ul class="choices" role="radiogroup" aria-label="Livros do acervo">
+        @for (book of choices(); track book.id) {
+          <li>
+            <label class="choice">
+              <input
+                type="radio"
+                name="livro-serie"
+                [checked]="bookId() === book.id"
+                (change)="bookId.set(book.id)"
+              />
+              <span>
+                <span class="title">{{ book.title }}</span>
+                <span class="meta">{{ metaOf(book.authors, book.series) }}</span>
+              </span>
+            </label>
+          </li>
+        }
+      </ul>
+    } @else if (!loading()) {
+      <p class="none">Nenhum livro do acervo corresponde a “{{ term().trim() }}”.</p>
+    }
+
+    <div class="field">
+      <label for="posicao-serie">Posição na série</label>
+      <input
+        id="posicao-serie"
+        type="number"
+        min="0.1"
+        step="0.1"
+        [value]="position()"
+        (input)="setPosition(value($event))"
+      />
+      <p class="hint">{{ positionHint() }}</p>
+    </div>
+
+    @if (tried() && problem(); as message) {
+      <p class="error" role="alert">{{ message }}</p>
+    }
+    @if (failure(); as message) {
+      <p class="error" role="alert">{{ message }}</p>
+    }
+
+    <div class="actions">
+      <button mlButton="secondary" type="button" (click)="close()">Cancelar</button>
+      <button mlButton="primary" type="submit" [disabled]="busy()">Adicionar à série</button>
+    </div>
+  </form>
+</dialog>

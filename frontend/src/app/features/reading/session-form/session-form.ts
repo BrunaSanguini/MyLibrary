@@ -1,4 +1,13 @@
-import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  untracked,
+} from '@angular/core';
 import {
   FieldTree,
   form,
@@ -10,8 +19,9 @@ import {
 } from '@angular/forms/signals';
 import { ApiError } from '@core/api/api-error';
 import { ReadingApi, SessionRequest } from '@core/api/reading-api';
-import { IsoDate } from '@core/time/today';
+import { formatDayMonth, formatWeekday, IsoDate } from '@core/time/today';
 import { Button } from '@shared/ui/button/button';
+import { Icon } from '@shared/ui/icon/icon';
 import { firstValueFrom } from 'rxjs';
 
 /** The two ways of saying how much was read, which are the two fields of the API. */
@@ -36,7 +46,7 @@ const SHORTCUTS = [10, 25, 50] as const;
  */
 @Component({
   selector: 'ml-session-form',
-  imports: [Button, FormField],
+  imports: [Button, FormField, Icon],
   templateUrl: './session-form.html',
   styleUrls: ['../reading-fields.css', './session-form.css'],
 })
@@ -47,9 +57,15 @@ export class SessionForm {
   readonly pageCount = input.required<number>();
   readonly startDate = input<IsoDate | undefined>();
   readonly today = input.required<IsoDate>();
+  /** The day picked in the week strip, which the field follows. */
+  readonly day = input<IsoDate | undefined>();
+  /** The reading was abandoned: saving a session takes it up again first. */
+  readonly resumeFirst = input(false);
 
   /** A session was saved; the page fetches the reading again. */
   readonly saved = output();
+  /** The reader picked another day in the field, which the week strip follows. */
+  readonly dayChange = output<IsoDate>();
 
   private readonly readingApi = inject(ReadingApi);
 
@@ -82,19 +98,40 @@ export class SessionForm {
   });
 
   protected readonly amountLabel = computed(() =>
-    this.model().mode === 'pagesRead' ? 'Quantas páginas você leu?' : 'Em que página você está?',
+    this.model().mode === 'pagesRead' ? 'Páginas lidas neste dia' : 'Em que página você parou?',
   );
 
   protected readonly pagesLeft = computed(() => Math.max(0, this.pageCount() - this.pagesRead()));
 
   constructor() {
-    // The day starts as today, and only while the person has not picked another.
+    // The day follows the strip of the week, and starts as today.
     effect(() => {
-      const today = this.today();
-      if (this.model().date === '') {
-        this.sessionForm.date().value.set(today);
-      }
+      const day = this.day() ?? this.today();
+      untracked(() => this.sessionForm.date().value.set(day));
     });
+  }
+
+  /** The other mode starts from where the reader is: 0 pages, or the page already reached. */
+  protected setMode(mode: PagesMode): void {
+    this.model.update((model) => ({ ...model, mode, amount: null }));
+  }
+
+  /** − and +: one page at a time, inside the limits of the book. */
+  protected stepAmount(delta: number): void {
+    const { mode, amount } = this.model();
+    const base = amount ?? (mode === 'currentPage' ? this.pagesRead() : 0);
+    const limit = mode === 'currentPage' ? this.pageCount() : this.pagesLeft();
+    const amountField = this.sessionForm.amount();
+    amountField.value.set(Math.max(0, Math.min(base + delta, limit)));
+    amountField.markAsDirty();
+    amountField.markAsTouched();
+  }
+
+  protected pickDay(): void {
+    const date = this.model().date;
+    if (date !== '') {
+      this.dayChange.emit(date);
+    }
   }
 
   /**
@@ -140,13 +177,16 @@ export class SessionForm {
         note: note.trim() || undefined,
       };
       try {
+        if (this.resumeFirst()) {
+          await firstValueFrom(this.readingApi.resumeReading(this.readingId()));
+        }
         const session = await firstValueFrom(this.readingApi.addSession(this.readingId(), request));
-        this.model.set({ date: this.today(), mode, amount: null, note: '' });
+        this.model.set({ date, mode, amount: null, note: '' });
         this.sessionForm().reset();
         this.confirmation.set(
-          session.pagesRead === 1
-            ? 'Sessão salva: 1 página.'
-            : `Sessão salva: ${session.pagesRead} páginas.`,
+          `✦ +${session.pagesRead} ${session.pagesRead === 1 ? 'página' : 'páginas'} em ${formatWeekday(
+            date,
+          )}, ${formatDayMonth(date)}`,
         );
         this.saved.emit();
       } catch (error) {

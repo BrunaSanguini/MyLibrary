@@ -52,7 +52,7 @@ describe('SessionForm', () => {
 
     expect(screen.getByLabelText('Dia')).toHaveValue('2026-11-08');
     expect(screen.getByRole('radio', { name: 'Páginas lidas' })).toBeChecked();
-    expect(screen.getByLabelText('Quantas páginas você leu?')).toHaveValue(null);
+    expect(screen.getByLabelText('Páginas lidas neste dia')).toHaveValue(null);
     expect(screen.getByText('Você está na página 120 de 576.')).toBeInTheDocument();
   });
 
@@ -74,7 +74,7 @@ describe('SessionForm', () => {
 
     await vi.waitFor(() => expect(saved).toHaveBeenCalledTimes(1));
     await vi.waitFor(() =>
-      expect(screen.getByRole('status')).toHaveTextContent('Sessão salva: 25 páginas.'),
+      expect(screen.getByRole('status')).toHaveTextContent('✦ +25 páginas em dom, 8/11'),
     );
   });
 
@@ -98,7 +98,7 @@ describe('SessionForm', () => {
     const { http } = await setup();
 
     await userEvent.click(screen.getByRole('radio', { name: 'Página atual' }));
-    await userEvent.type(screen.getByLabelText('Em que página você está?'), '145');
+    await userEvent.type(screen.getByLabelText('Em que página você parou?'), '145');
     await save();
 
     expect(body(http.expectOne({ method: 'POST', url: SESSIONS }))).toEqual({
@@ -117,13 +117,44 @@ describe('SessionForm', () => {
     expect(amount()).toHaveValue(40);
   });
 
-  it('starts the shortcuts from the current page in the current page mode', async () => {
+  it('steps one page with − and +, from the current page in the current page mode', async () => {
     await setup();
 
     await userEvent.click(screen.getByRole('radio', { name: 'Página atual' }));
-    await userEvent.click(screen.getByRole('button', { name: 'Somar 50 páginas' }));
+    expect(screen.queryByRole('button', { name: 'Somar 50 páginas' })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Aumentar' }));
+    expect(amount()).toHaveValue(121);
 
-    expect(amount()).toHaveValue(170);
+    await userEvent.click(screen.getByRole('button', { name: 'Diminuir' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Diminuir' }));
+    expect(amount()).toHaveValue(119);
+  });
+
+  it('takes an abandoned reading up again before saving the session', async () => {
+    const { http, view } = await setup();
+    view.fixture.componentRef.setInput('resumeFirst', true);
+
+    await userEvent.type(amount(), '10');
+    await save();
+
+    http
+      .expectOne({ method: 'POST', url: '/api/v1/readings/9/resume' })
+      .flush({ id: 9, status: 'IN_PROGRESS' });
+    await vi.waitFor(() => http.expectOne({ method: 'POST', url: SESSIONS }));
+  });
+
+  it('follows the day picked in the week, and tells the week about the day typed', async () => {
+    const dayChange = vi.fn();
+    const { view } = await setup();
+    view.fixture.componentInstance.dayChange.subscribe(dayChange);
+
+    view.fixture.componentRef.setInput('day', '2026-11-05');
+    await view.fixture.whenStable();
+    expect(screen.getByLabelText('Dia')).toHaveValue('2026-11-05');
+
+    fireEvent.input(screen.getByLabelText('Dia'), { target: { value: '2026-11-03' } });
+    fireEvent.change(screen.getByLabelText('Dia'));
+    expect(dayChange).toHaveBeenCalledWith('2026-11-03');
   });
 
   it('never lets a shortcut pass the end of the book', async () => {

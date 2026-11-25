@@ -314,14 +314,14 @@ As rotas são texto visível na barra do navegador, então ficam em português. 
 | `/livro/:id/editar` | edição |
 | `/livro/:id/leitura` | Registrar leitura |
 | `/listas` (`?filtro=`, `?page=`) · `/lista/:id` (`?adicionar=true`) | Listas (filtro e página na URL); a lista, já com o painel “Adicionar livros” aberto |
-| `/catalogos` (`?tipo=`) | Catálogos |
+| `/catalogos/:aba` (`generos`, `autores`, `series`, `editoras`) | Catálogos; `/catalogos` abre Gêneros |
 | `/autor/:id` · `/serie/:id` · `/editoras/:id` · `/generos/:id` | páginas de agrupamento |
 | `/calendario` | Calendário de leitura |
 | `/configuracoes` (`?aba=`, `?cadastro=`) | Configurações: cadastros, destaques da Home e metas |
 | `/perfil` | Perfil |
 | `**` | Página não encontrada |
 
-As rotas da versão anterior (`/livros/…`, `/estante/importar`, `/listas/:id`, `/autores/:id`, `/series/:id`, `/metas`) continuam abrindo: o `app.routes.ts` as redireciona para as novas, mantendo o `:id`, a query string e o fragmento.
+As rotas da versão anterior (`/livros/…`, `/estante/importar`, `/listas/:id`, `/autores/:id`, `/series/:id`, `/metas`) continuam abrindo: o `app.routes.ts` as redireciona para as novas, mantendo o `:id`, a query string e o fragmento. O `/catalogos?tipo=` antigo abre a aba do `tipo` (subgêneros e listas caem em Gêneros).
 
 ```ts
 export const routes: Routes = [

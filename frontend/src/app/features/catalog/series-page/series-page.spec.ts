@@ -6,7 +6,7 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import { problemDetailsInterceptor } from '@core/api/problem-details-interceptor';
 import { screen, within } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import SeriesPage from './series-page';
 
@@ -39,7 +39,7 @@ const TREE = [
   },
 ];
 
-async function open(books = BOOKS) {
+async function open(books = BOOKS, series: object = SERIES) {
   TestBed.configureTestingModule({
     providers: [
       provideRouter([{ path: 'serie/:id', component: SeriesPage }], withComponentInputBinding()),
@@ -51,7 +51,7 @@ async function open(books = BOOKS) {
   await harness.navigateByUrl('/serie/3');
   const http = TestBed.inject(HttpTestingController);
   TestBed.tick();
-  http.expectOne('/api/v1/series/3').flush(SERIES);
+  http.expectOne('/api/v1/series/3').flush(series);
   const listing = http.expectOne((request) => request.url === '/api/v1/shelf/books');
   expect(listing.request.params.get('seriesId')).toBe('3');
   expect(listing.request.params.get('sort')).toBe('seriesPosition');
@@ -70,6 +70,121 @@ const volumeTitles = () =>
     .map((link) => link.textContent.replace(/Livro \d+:/, '').trim());
 
 describe('SeriesPage', () => {
+  beforeEach(() => {
+    HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) {
+      this.open = true;
+    });
+    HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
+      this.open = false;
+      this.dispatchEvent(new Event('close'));
+    });
+  });
+
+  it('counts the volumes still missing and folds a long description', async () => {
+    const description = `${'Uma jornada pela Terra-média. '.repeat(15)}Fim.`;
+    await open(BOOKS, { ...SERIES, totalVolumes: 5, description });
+
+    expect(screen.getByRole('list', { name: 'Resumo da série' })).toHaveTextContent(
+      'Faltam 2 volumes',
+    );
+    const more = screen.getByRole('button', { name: 'Mostrar tudo' });
+    expect(screen.queryByText(/Fim\.$/)).not.toBeInTheDocument();
+    await userEvent.click(more);
+    expect(screen.getByText(/Fim\.$/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Mostrar menos' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+  });
+
+  it('adds a book of the collection after the last volume', async () => {
+    const { http } = await open();
+
+    await userEvent.click(screen.getByRole('button', { name: '+ Adicionar livro à série' }));
+    const dialog = screen.getByRole('dialog', { name: 'Adicionar livro à série' });
+    await vi.waitFor(() =>
+      http
+        .expectOne((request) => request.url === '/api/v1/shelf/books')
+        .flush({
+          content: [BOOKS[0], { ...card(9, 'O Hobbit', 1, 'READ'), series: undefined }],
+          page: 0,
+          size: 40,
+          totalElements: 2,
+          totalPages: 1,
+        }),
+    );
+    const choices = await within(dialog).findByRole('radiogroup', { name: 'Livros do acervo' });
+    expect(within(choices).getAllByRole('radio')).toHaveLength(1);
+    expect(within(dialog).getByLabelText('Posição na série')).toHaveValue(4);
+    expect(within(dialog).getByText('Será o livro IV.')).toBeInTheDocument();
+    await userEvent.click(within(choices).getByRole('radio', { name: /O Hobbit/ }));
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Adicionar à série' }));
+
+    http.expectOne({ method: 'GET', url: '/api/v1/books/9' }).flush({
+      id: 9,
+      title: 'O Hobbit',
+      authors: [{ id: 7, name: 'J. R. R. Tolkien' }],
+      publishers: [],
+      genres: [],
+      ownership: 'OWNED',
+      favorite: false,
+    });
+    const put = await vi.waitFor(() => http.expectOne({ method: 'PUT', url: '/api/v1/books/9' }));
+    expect(put.request.body).toMatchObject({ seriesId: 3, seriesPosition: 4 });
+    put.flush({ id: 9, title: 'O Hobbit' });
+    await vi.waitFor(() =>
+      expect(screen.getByText('O Hobbit entrou na série.')).toBeInTheDocument(),
+    );
+  });
+
+  it('edits the series and takes a volume out of it', async () => {
+    const { http } = await open();
+
+    await userEvent.click(screen.getByRole('button', { name: '✎ Editar série' }));
+    const dialog = screen.getByRole('dialog', { name: 'Editar série' });
+    const name = within(dialog).getByLabelText('Nome da série');
+    await userEvent.clear(name);
+    await userEvent.type(name, 'O Senhor dos Anéis (edição única)');
+    await userEvent.type(
+      within(dialog).getByLabelText('Descrição · escrita por você'),
+      'A guerra do Anel.',
+    );
+    const takeOut = within(dialog).getAllByRole('button', { name: 'Tirar da série' });
+    await userEvent.click(takeOut[2]!);
+    expect(within(dialog).getByRole('button', { name: 'Desfazer' })).toBeInTheDocument();
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Salvar série' }));
+
+    const update = http.expectOne({ method: 'PUT', url: '/api/v1/series/3' });
+    expect(update.request.body).toEqual({
+      name: 'O Senhor dos Anéis (edição única)',
+      totalVolumes: 3,
+      description: 'A guerra do Anel.',
+    });
+    update.flush({ ...SERIES, name: 'O Senhor dos Anéis (edição única)' });
+    await vi.waitFor(() =>
+      http.expectOne({ method: 'GET', url: '/api/v1/books/4' }).flush({
+        id: 4,
+        title: 'O Retorno do Rei',
+        authors: [{ id: 7, name: 'J. R. R. Tolkien' }],
+        publishers: [],
+        genres: [{ id: 10, name: 'Fantasia' }],
+        series: { id: 3, name: 'O Senhor dos Anéis', position: 3 },
+        ownership: 'OWNED',
+        favorite: false,
+      }),
+    );
+    const book = await vi.waitFor(() => http.expectOne({ method: 'PUT', url: '/api/v1/books/4' }));
+    expect(book.request.body).toMatchObject({
+      title: 'O Retorno do Rei',
+      authorIds: [7],
+      genreIds: [10],
+      seriesId: undefined,
+      seriesPosition: undefined,
+    });
+    book.flush({});
+    await vi.waitFor(() => expect(screen.getByText('Série salva.')).toBeInTheDocument());
+  });
+
   it('names the series, its authors and how many volumes were read', async () => {
     await open();
 

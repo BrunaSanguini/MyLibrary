@@ -76,12 +76,18 @@ export class ShelfApi {
 
   /**
    * Every book of the shelf, by title, walking the pages until the last one. For the panel that
-   * adds books to a list, which shows the whole library and filters it as the reader types.
+   * adds books to a list, which shows the whole library and filters it as the reader types, and
+   * for Catálogos, which counts the shelf by genre, author and series (`wishlist: false`).
    */
-  allBooks(): Observable<BookCardResponse[]> {
+  allBooks(options: { wishlist?: boolean } = {}): Observable<BookCardResponse[]> {
     const pageOf = (page: number) =>
       this.http.get<ShelfPage>('/api/v1/shelf/books', {
-        params: { sort: 'title,asc', page, size: LARGEST_PAGE },
+        params: {
+          sort: 'title,asc',
+          page,
+          size: LARGEST_PAGE,
+          ...(options.wishlist === undefined ? {} : { wishlist: options.wishlist }),
+        },
       });
     return pageOf(0).pipe(
       expand((current) =>

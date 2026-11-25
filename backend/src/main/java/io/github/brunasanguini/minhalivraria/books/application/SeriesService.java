@@ -48,7 +48,7 @@ public class SeriesService {
         if (series.existsByNormalizedName(TextNormalizer.normalize(request.name()))) {
             throw new ConflictException("series.name-duplicated");
         }
-        return toResponse(series.save(new Series(request.name(), request.totalVolumes())));
+        return toResponse(series.save(new Series(request.name(), request.totalVolumes(), request.descriptionOrNull())));
     }
 
     @Transactional
@@ -57,7 +57,7 @@ public class SeriesService {
         if (series.existsByNormalizedNameAndIdNot(TextNormalizer.normalize(request.name()), id)) {
             throw new ConflictException("series.name-duplicated");
         }
-        found.update(request.name(), request.totalVolumes());
+        found.update(request.name(), request.totalVolumes(), request.descriptionOrNull());
         return toResponse(found);
     }
 
@@ -75,12 +75,17 @@ public class SeriesService {
     }
 
     private static SeriesResponse toResponse(Series found) {
-        return new SeriesResponse(found.id(), found.name(), found.totalVolumes());
+        return new SeriesResponse(found.id(), found.name(), found.totalVolumes(), found.description());
     }
 
     private static SeriesResponse toResponse(Series found, Map<Long, CatalogStats.Stats> stats) {
         CatalogStats.Stats counted = stats.getOrDefault(found.id(), CatalogStats.Stats.NONE);
         return new SeriesResponse(
-                found.id(), found.name(), found.totalVolumes(), counted.bookCount(), counted.coverUrls());
+                found.id(),
+                found.name(),
+                found.totalVolumes(),
+                counted.bookCount(),
+                counted.coverUrls(),
+                found.description());
     }
 }

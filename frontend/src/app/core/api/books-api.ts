@@ -1,6 +1,6 @@
 import { HttpClient, HttpResourceRequest } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
 
 import { components } from './schema';
 import { Ownership } from './shelf-api';
@@ -29,6 +29,20 @@ export class BooksApi {
     return this.http.put<BookDetailResponse>(`/api/v1/books/${id}`, request);
   }
 
+  /**
+   * Puts the book in a series at a position, or takes it out of its series (no `seriesId`): the
+   * API takes the whole book, so the rest comes from its detail, as it is.
+   */
+  placeInSeries(id: number, seriesId?: number, position?: number): Observable<BookDetailResponse> {
+    return this.http
+      .get<BookDetailResponse>(`/api/v1/books/${id}`)
+      .pipe(
+        switchMap((detail) =>
+          this.update(id, { ...requestOf(detail), seriesId, seriesPosition: position }),
+        ),
+      );
+  }
+
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`/api/v1/books/${id}`);
   }
@@ -52,4 +66,25 @@ export class BooksApi {
   removeImage(id: number, image: BookImage): Observable<void> {
     return this.http.delete<void>(`/api/v1/books/${id}/${image}`);
   }
+}
+
+/** The request that saves a book as its detail shows it. */
+export function requestOf(detail: BookDetailResponse): BookRequest {
+  return {
+    title: detail.title,
+    subtitle: detail.subtitle,
+    isbn13: detail.isbn13,
+    isbn10: detail.isbn10,
+    pageCount: detail.pageCount,
+    publishedYear: detail.publishedYear,
+    languageCode: detail.languageCode,
+    synopsis: detail.synopsis,
+    authorIds: detail.authors.map((author) => author.id),
+    publisherIds: detail.publishers.map((publisher) => publisher.id),
+    genreIds: detail.genres.map((genre) => genre.id),
+    seriesId: detail.series?.id,
+    seriesPosition: detail.series?.position,
+    ownership: detail.ownership,
+    favorite: detail.favorite,
+  };
 }

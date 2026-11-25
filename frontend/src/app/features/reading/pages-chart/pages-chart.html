@@ -1,0 +1,53 @@
+<div class="head">
+  <h2 id="titulo-grafico">Páginas por dia</h2>
+  <div class="periods" role="tablist" aria-label="Período do gráfico">
+    <button
+      type="button"
+      role="tab"
+      [attr.aria-selected]="period() === 'semana'"
+      (click)="choose('semana')"
+    >
+      Semana
+    </button>
+    <button
+      type="button"
+      role="tab"
+      [attr.aria-selected]="period() === 'mes'"
+      (click)="choose('mes')"
+    >
+      Mês
+    </button>
+  </div>
+</div>
+
+<p class="totals">
+  <span
+    ><b>{{ totals().pages }}</b> {{ totals().pagesLabel }}</span
+  >
+  <span
+    ><b>{{ totals().days }}</b> {{ totals().daysLabel }}</span
+  >
+</p>
+
+<div class="chart" role="img" [attr.aria-label]="label()" [attr.data-period]="period()">
+  <div class="bars">
+    @for (bar of bars(); track bar.date) {
+      <span
+        class="bar"
+        [class.read]="bar.pages > 0"
+        [class.lit]="bar.lit"
+        [style.height.%]="bar.height"
+      ></span>
+    }
+    @if (average() > 0) {
+      <span class="average" [style.bottom.%]="averageAt()">
+        <span>média {{ average() }}</span>
+      </span>
+    }
+  </div>
+  <div class="axis" aria-hidden="true">
+    @for (bar of bars(); track bar.date) {
+      <span>{{ bar.axis }}</span>
+    }
+  </div>
+</div>

@@ -1,118 +1,325 @@
 <header class="head">
-  <p class="eyebrow">Meu acervo</p>
-  <h1>Catálogos</h1>
+  <div>
+    <p class="eyebrow">✦ Explore a estante</p>
+    <h1>Catálogos</h1>
+    <p class="lead">Sua estante organizada por gênero, autor, série e editora.</p>
+  </div>
+  <dl class="totals">
+    @for (total of totals(); track total.label) {
+      <div>
+        <dt>{{ total.label }}</dt>
+        <dd>{{ total.value }}</dd>
+      </div>
+    }
+  </dl>
 </header>
 
-<nav class="tabs" aria-label="Tipos de catálogo">
-  <ul>
-    @for (tab of tabs; track tab.kind) {
-      <li>
-        <a
-          routerLink="/catalogos"
-          [queryParams]="{ tipo: tab.tab }"
-          [class.active]="tab.kind === tipo()"
-          [attr.aria-current]="tab.kind === tipo() ? 'page' : null"
-          >{{ tab.plural }}</a
-        >
-      </li>
+<div class="bar">
+  <div class="tabs" role="tablist" aria-label="Tipo de catálogo">
+    @for (tab of tabs; track tab) {
+      <a
+        role="tab"
+        class="tab"
+        [attr.data-tab]="tab"
+        [routerLink]="['/catalogos', tab]"
+        [attr.aria-selected]="aba() === tab"
+        [attr.aria-controls]="aba() === tab ? 'painel-' + tab : null"
+        [tabindex]="aba() === tab ? 0 : -1"
+        (keydown)="moveTab($event)"
+      >
+        {{ tabLabels[tab] }}
+        <span class="count">{{ counts()[tab] }}</span>
+      </a>
     }
-  </ul>
-</nav>
+  </div>
 
-<section [attr.aria-label]="group().plural">
-  @if (errorMessage()) {
-    <ml-error-state [message]="errorMessage()" (retry)="retry()" />
-  } @else if (loading()) {
-    <ul class="entries" aria-hidden="true">
-      @for (placeholder of placeholders; track placeholder) {
-        <li><ml-skeleton variant="card" /></li>
-      }
-    </ul>
-  } @else if (tipo() === 'genres') {
-    @if (genres.value()!.length === 0) {
-      <ml-empty-state
-        title="Nenhum gênero cadastrado"
-        message="Os gêneros aparecem aqui quando você os cria no cadastro de um livro."
-      />
-    } @else {
-      <ul class="entries">
-        @for (genre of genres.value(); track genre.id) {
-          <li class="entry genre-entry">
-            <a class="entry-name" [routerLink]="['/generos', genre.id]">{{ genre.name }}</a>
-            <p class="entry-count">{{ countOf(genre.bookCount) }}</p>
-            @if (genre.subgenres.length > 0) {
-              <ul class="subgenres" [attr.aria-label]="'Subgêneros de ' + genre.name">
-                @for (subgenre of genre.subgenres; track subgenre.id) {
-                  <li>
-                    <a mlTag="subgenre" [routerLink]="['/generos', subgenre.id]">
-                      {{ subgenre.name }} · {{ subgenre.bookCount }}
-                    </a>
-                  </li>
-                }
-              </ul>
+  <label class="search">
+    <span class="ml-visually-hidden">Buscar no catálogo</span>
+    <ml-icon class="glass" name="search" [size]="18" />
+    <input
+      #field
+      type="search"
+      [placeholder]="placeholder()"
+      [value]="term()"
+      (input)="type($event)"
+      (keydown.escape)="escape($event, field)"
+    />
+    @if (term()) {
+      <button type="button" class="clear" aria-label="Limpar busca" (click)="clear(field)">
+        <ml-icon name="close" [size]="14" />
+      </button>
+    }
+  </label>
+</div>
+
+@if (errorMessage()) {
+  <ml-error-state [message]="errorMessage()" (retry)="retry()" />
+} @else if (loading()) {
+  <div class="loading" aria-hidden="true">
+    <ml-skeleton variant="card" />
+    <ml-skeleton variant="card" />
+  </div>
+} @else {
+  <section [id]="'painel-' + aba()" role="tabpanel" [attr.aria-label]="tabLabels[aba()]">
+    @switch (aba()) {
+      @case ('generos') {
+        <div class="genres-layout">
+          <div class="genres">
+            @for (genre of genreList(); track genre.id) {
+              <article
+                class="card genre"
+                [class.selected]="selectedGenre()?.id === genre.id"
+                [attr.aria-label]="genre.name"
+              >
+                <span class="fan" aria-hidden="true">
+                  @for (book of genre.books.slice(0, 3); track book.id; let index = $index) {
+                    <ml-book-cover
+                      size="xs"
+                      [class]="'fan-cover fan-' + index"
+                      [title]="book.title"
+                      [coverUrl]="book.coverUrl ?? undefined"
+                    />
+                  } @empty {
+                    <span class="fan-empty"></span>
+                  }
+                </span>
+                <div class="genre-text">
+                  <button
+                    type="button"
+                    class="gname"
+                    [attr.aria-pressed]="selectedGenre()?.id === genre.id"
+                    (click)="pickGenre(genre.id)"
+                  >
+                    {{ genre.name }}
+                  </button>
+                  <p class="gcount">{{ countText(genre) }}</p>
+                  @if (genre.subgenres.length > 0) {
+                    <div
+                      class="chips"
+                      role="group"
+                      [attr.aria-label]="'Subgêneros de ' + genre.name"
+                    >
+                      @for (subgenre of genre.subgenres; track subgenre.id) {
+                        <button
+                          type="button"
+                          class="chip"
+                          [attr.aria-pressed]="
+                            selectedGenre()?.id === genre.id && subgenreId() === subgenre.id
+                          "
+                          (click)="pickSubgenre(genre.id, subgenre.id)"
+                        >
+                          {{ subgenre.name }} <span class="chip-count">{{ subgenre.count }}</span>
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+                <div
+                  class="mascot"
+                  [title]="
+                    'Mascote do gênero — desbloqueia com ' + mascotGoal + ' leituras do gênero'
+                  "
+                >
+                  <span class="lock" aria-hidden="true"><ml-icon name="lock" [size]="22" /></span>
+                  <span class="mascot-label">Mascote</span>
+                  <span class="mascot-text">{{ mascot(genre) }}</span>
+                  <span class="thread" aria-hidden="true">
+                    <span [style.width.%]="mascotFill(genre)"></span>
+                  </span>
+                </div>
+              </article>
             }
-          </li>
-        }
-      </ul>
-    }
-  } @else if (tipo() === 'subgenres') {
-    @if (subgenres().length === 0) {
-      <ml-empty-state
-        title="Nenhum subgênero cadastrado"
-        message="Os subgêneros aparecem aqui quando você os cria no cadastro de um livro, dentro de um gênero."
-      />
-    } @else {
-      <ul class="entries">
-        @for (subgenre of subgenres(); track subgenre.id) {
-          <li class="entry genre-entry">
-            <a class="entry-name" [routerLink]="['/generos', subgenre.id]">{{ subgenre.name }}</a>
-            <p class="entry-count">{{ countOf(subgenre.bookCount) }}</p>
-            <p class="entry-parent">
-              Em
-              <a mlTag="genre" [routerLink]="['/generos', subgenre.parentId]">{{
-                subgenre.parent
-              }}</a>
-            </p>
-          </li>
-        }
-      </ul>
-    }
-  } @else if (entries.value()!.content.length === 0) {
-    @if (tipo() === 'lists') {
-      <ml-empty-state title="Nenhuma lista ainda" message="Crie a primeira na página de listas.">
-        <a mlButton routerLink="/listas">Ir para as listas</a>
-      </ml-empty-state>
-    } @else {
-      <ml-empty-state
-        [title]="'Nada em ' + group().plural.toLowerCase() + ' ainda'"
-        message="Os registros aparecem aqui conforme você cadastra livros."
-      />
-    }
-  } @else {
-    <ul class="entries">
-      @for (entry of entries.value()!.content; track entry.id) {
-        <li class="entry">
-          <div class="entry-text">
-            <a class="entry-name" [routerLink]="[group().path, entry.id]">{{ entry.name }}</a>
-            <p class="entry-count">{{ countOf(entry.bookCount) }}</p>
+            @if (term() === '') {
+              <a
+                class="new-genre"
+                routerLink="/configuracoes"
+                [queryParams]="{ aba: 'cadastros', cadastro: 'generos' }"
+              >
+                <ml-icon name="plus" [size]="16" /> Novo gênero ou subgênero
+              </a>
+            }
+            @if (empty()) {
+              <p class="empty" role="status">Nada encontrado para “{{ term() }}” neste catálogo.</p>
+            }
           </div>
-          @if (entry.coverUrls.length > 0) {
-            <div class="covers" aria-hidden="true">
-              @for (cover of entry.coverUrls; track cover) {
-                <ml-book-cover size="xs" [title]="entry.name" [coverUrl]="cover" />
-              }
-            </div>
-          }
-        </li>
-      }
-    </ul>
 
-    @if (entries.value()!.totalPages > 1) {
-      <ml-paginator
-        [page]="entries.value()!.page"
-        [totalPages]="entries.value()!.totalPages"
-        (pageChange)="changePage($event)"
-      />
+          @if (selectedGenre(); as genre) {
+            <aside class="card panel" aria-label="Livros do gênero selecionado">
+              <p class="eyebrow">✦ Na estante</p>
+              <h2>{{ genre.name }}</h2>
+              @if (selectedSubgenre(); as subgenre) {
+                <button
+                  type="button"
+                  class="filter"
+                  aria-label="Remover filtro de subgênero"
+                  (click)="subgenreId.set(undefined)"
+                >
+                  {{ subgenre.name }} <span aria-hidden="true">×</span>
+                </button>
+              }
+              <p class="panel-count">{{ panelCount() }}</p>
+              @if (panelBooks().length > 0) {
+                <ul class="rows">
+                  @for (book of panelBooks(); track book.id) {
+                    <li>
+                      <a class="row" [routerLink]="['/livro', book.id]">
+                        <ml-book-cover
+                          size="xs"
+                          aria-hidden="true"
+                          [title]="book.title"
+                          [coverUrl]="book.coverUrl ?? undefined"
+                        />
+                        <span class="row-text">
+                          <span class="row-title">{{ book.title }}</span>
+                          <span class="row-meta">
+                            {{ authorsOf(book) }}
+                            @if (subgenreOf(book, genre); as subgenre) {
+                              · {{ subgenre }}
+                            }
+                          </span>
+                          <span class="status" [attr.data-status]="book.status">
+                            {{ statusLabels[book.status] }}
+                          </span>
+                        </span>
+                      </a>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <p class="panel-empty">
+                  {{
+                    selectedSubgenre()
+                      ? 'Nenhum livro com esse subgênero ainda.'
+                      : 'Nenhum livro neste gênero ainda.'
+                  }}
+                </p>
+              }
+              <a
+                class="to-shelf"
+                routerLink="/estante"
+                [queryParams]="{ genero: selectedSubgenre()?.id ?? genre.id }"
+              >
+                Ver na Minha Estante
+              </a>
+            </aside>
+          }
+        </div>
+      }
+
+      @case ('autores') {
+        @if (empty()) {
+          <p class="empty" role="status">Nada encontrado para “{{ term() }}” neste catálogo.</p>
+        } @else {
+          <ul class="authors">
+            @for (author of authorList(); track author.id) {
+              <li>
+                <a class="card author" [routerLink]="['/autor', author.id]">
+                  <span class="author-head">
+                    <span class="avatar" aria-hidden="true">{{ author.initials }}</span>
+                    <span class="author-text">
+                      <span class="author-name">{{ author.name }}</span>
+                      <span class="author-genres">{{ author.genres.join(' · ') }}</span>
+                    </span>
+                  </span>
+                  <span class="author-foot">
+                    <span class="author-books">{{
+                      author.books === 1 ? '1 livro' : author.books + ' livros'
+                    }}</span>
+                    <span class="author-read">{{
+                      author.read === 1 ? '1 lido' : author.read + ' lidos'
+                    }}</span>
+                  </span>
+                  <span class="thread" aria-hidden="true">
+                    <span
+                      [style.width.%]="author.books > 0 ? (author.read / author.books) * 100 : 0"
+                    ></span>
+                  </span>
+                </a>
+              </li>
+            }
+          </ul>
+        }
+      }
+
+      @case ('series') {
+        @if (empty()) {
+          <p class="empty" role="status">Nada encontrado para “{{ term() }}” neste catálogo.</p>
+        } @else {
+          <ul class="series">
+            @for (one of seriesRowsList(); track one.id; let index = $index) {
+              <li>
+                <a class="card series-row" [routerLink]="['/serie', one.id]">
+                  <span class="number" aria-hidden="true">{{ roman(index) }}</span>
+                  <span class="spines" aria-hidden="true" [attr.data-count]="one.covers.length">
+                    @for (book of one.covers; track book.id; let cover = $index) {
+                      <ml-book-cover
+                        size="xs"
+                        [class]="'spine spine-' + cover"
+                        [title]="book.title"
+                        [coverUrl]="book.coverUrl ?? undefined"
+                      />
+                    }
+                  </span>
+                  <span class="series-text">
+                    <span class="series-name">{{ one.name }}</span>
+                    <span class="series-meta">
+                      @if (one.author) {
+                        {{ one.author }} ·
+                      }
+                      {{ one.total === 1 ? '1 livro na série' : one.total + ' livros na série' }}
+                    </span>
+                  </span>
+                  <span class="series-progress">
+                    <span class="progress-line">
+                      <span>{{ one.read }} de {{ one.total }} lidos</span>
+                      <span class="on-shelf">{{ one.onShelf }} na estante</span>
+                    </span>
+                    <span class="thread star-thread" aria-hidden="true">
+                      <span [style.width.%]="one.percent"></span>
+                      <span class="star" [style.left]="'calc(' + one.percent + '% - 7px)'">✦</span>
+                    </span>
+                  </span>
+                  <span class="series-status" [attr.data-status]="one.status">
+                    {{
+                      one.status === 'complete'
+                        ? '✦ Completa'
+                        : one.status === 'reading'
+                          ? 'Em andamento'
+                          : 'Não iniciada'
+                    }}
+                  </span>
+                </a>
+              </li>
+            }
+          </ul>
+        }
+      }
+
+      @case ('editoras') {
+        @if (empty()) {
+          <p class="empty" role="status">Nada encontrado para “{{ term() }}” neste catálogo.</p>
+        } @else {
+          <div class="card ranking">
+            <ol>
+              @for (publisher of publisherList(); track publisher.id; let index = $index) {
+                <li>
+                  <span class="rank" aria-hidden="true">{{ roman(index) }}</span>
+                  <a class="publisher-name" [routerLink]="['/editoras', publisher.id]">{{
+                    publisher.name
+                  }}</a>
+                  <span class="thread" aria-hidden="true">
+                    <span [style.width.%]="publisher.bar"></span>
+                  </span>
+                  <span class="publisher-books">
+                    {{ publisher.books === 1 ? '1 livro' : publisher.books + ' livros' }}
+                  </span>
+                  <span class="share">{{ publisher.share }}%</span>
+                </li>
+              }
+            </ol>
+          </div>
+        }
+      }
     }
-  }
-</section>
+  </section>
+}

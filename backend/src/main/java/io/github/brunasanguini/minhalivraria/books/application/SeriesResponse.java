@@ -8,9 +8,14 @@ import org.jspecify.annotations.Nullable;
  * volumes the series has in all, which can be more than the books registered.
  */
 public record SeriesResponse(
-        long id, String name, @Nullable Integer totalVolumes, long bookCount, List<String> coverUrls) {
+        long id,
+        String name,
+        @Nullable Integer totalVolumes,
+        long bookCount,
+        List<String> coverUrls,
+        @Nullable String description) {
 
-    public SeriesResponse(long id, String name, @Nullable Integer totalVolumes) {
-        this(id, name, totalVolumes, 0, List.of());
+    public SeriesResponse(long id, String name, @Nullable Integer totalVolumes, @Nullable String description) {
+        this(id, name, totalVolumes, 0, List.of(), description);
     }
 }

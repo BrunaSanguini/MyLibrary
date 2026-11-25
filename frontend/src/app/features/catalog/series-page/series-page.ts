@@ -2,7 +2,7 @@ import { httpResource } from '@angular/common/http';
 import { Location } from '@angular/common';
 import { Tab, TabContent, TabList, TabPanel, Tabs } from '@angular/aria/tabs';
 import { Component, computed, inject, input, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ApiError } from '@core/api/api-error';
 import { BooksApi } from '@core/api/books-api';
 import { CatalogApi } from '@core/api/catalog-api';
@@ -20,12 +20,19 @@ import { Skeleton } from '@shared/ui/skeleton/skeleton';
 import { Tag } from '@shared/ui/tag/tag';
 import { firstValueFrom } from 'rxjs';
 
+import { SeriesAddDialog } from '../series-dialogs/series-add-dialog';
+import { SeriesEditDialog } from '../series-dialogs/series-edit-dialog';
+
 interface SeriesEntry {
   readonly id: number;
   readonly name: string;
   readonly totalVolumes?: number;
   readonly bookCount: number;
+  readonly description?: string;
 }
+
+/** Past this many characters the description of the series folds, with Mostrar tudo. */
+const FOLD = 320;
 
 /** A genre of the books of the series, with its id to link to and whether it is a subgenre. */
 interface SeriesGenre {
@@ -84,6 +91,8 @@ export class SeriesReview {
     Icon,
     RatingStars,
     RouterLink,
+    SeriesAddDialog,
+    SeriesEditDialog,
     SeriesReview,
     Skeleton,
     Tab,
@@ -104,6 +113,7 @@ export default class SeriesPage {
   private readonly shelfApi = inject(ShelfApi);
   private readonly genresApi = inject(GenresApi);
   private readonly booksApi = inject(BooksApi);
+  private readonly router = inject(Router);
 
   protected readonly series = httpResource<SeriesEntry>(() => {
     const id = this.id();
@@ -124,6 +134,8 @@ export default class SeriesPage {
   protected readonly tab = signal<string | undefined>('sobre');
   protected readonly lastFirst = signal(false);
   protected readonly failure = signal<string | undefined>(undefined);
+  protected readonly notice = signal<string | undefined>(undefined);
+  protected readonly unfolded = signal(false);
   /** Favorites changed on this page, before the listing is fetched again. */
   private readonly favorites = signal<ReadonlyMap<number, boolean>>(new Map());
 
@@ -188,6 +200,19 @@ export default class SeriesPage {
     return [...found.filter((g) => !g.subgenre), ...found.filter((g) => g.subgenre)];
   });
 
+  /** The volumes the reader still lacks, when the series says how many it has. */
+  protected readonly missing = computed(() => {
+    const series = this.series.value();
+    return series?.totalVolumes ? Math.max(0, series.totalVolumes - series.bookCount) : 0;
+  });
+
+  protected readonly folds = computed(() => (this.series.value()?.description?.length ?? 0) > FOLD);
+
+  protected readonly description = computed(() => {
+    const text = this.series.value()?.description ?? '';
+    return this.folds() && !this.unfolded() ? `${text.slice(0, FOLD).trimEnd()}…` : text;
+  });
+
   protected readonly notFound = computed(
     () =>
       this.id() === undefined ||
@@ -225,6 +250,20 @@ export default class SeriesPage {
 
   protected back(): void {
     this.location.back();
+  }
+
+  protected added(title: string): void {
+    this.notice.set(`${title} entrou na série.`);
+    this.retry();
+  }
+
+  protected edited(): void {
+    this.notice.set('Série salva.');
+    this.retry();
+  }
+
+  protected async deleted(): Promise<void> {
+    await this.router.navigate(['/catalogos', 'series']);
   }
 
   protected retry(): void {
