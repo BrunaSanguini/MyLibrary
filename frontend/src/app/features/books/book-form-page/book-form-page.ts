@@ -188,7 +188,7 @@ export default class BookFormPage implements HasUnsavedChanges {
       return 'Escolha uma série antes';
     }
     if (seriesPosition === null || seriesPosition <= 0) {
-      return 'Obrigatória com a série';
+      return 'Opcional';
     }
     const number = Number.isInteger(seriesPosition)
       ? toRoman(seriesPosition)

@@ -5,6 +5,7 @@ import { ReadingApi, ReadingResponse, ReadingStatus } from '@core/api/reading-ap
 import { daysBetween, IsoDate, parseIsoDate, TODAY } from '@core/time/today';
 import { toRoman } from '@shared/format/roman';
 import { Icon } from '@shared/ui/icon/icon';
+import { RatingStars } from '@shared/ui/rating-stars/rating-stars';
 
 import { journeyOf } from './journey';
 
@@ -29,7 +30,7 @@ const MIN_BAR = 3;
  */
 @Component({
   selector: 'ml-reading-entry',
-  imports: [Icon, RouterLink],
+  imports: [Icon, RatingStars, RouterLink],
   templateUrl: './reading-entry.html',
   styleUrl: './reading-entry.css',
   host: { '[class.latest]': 'latest()' },
@@ -38,6 +39,14 @@ export class ReadingEntry {
   readonly bookId = input.required<number>();
   readonly pageCount = input<number | undefined>();
   readonly reading = input.required<ReadingResponse>();
+
+  /** `5,0`, or `—` for a reading without a rating. */
+  protected readonly ratingText = computed(() => {
+    const rating = this.reading().rating;
+    return rating == null
+      ? '—'
+      : rating.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  });
   /** 1 for the first time the book was read. */
   readonly number = input.required<number>();
   /** The latest reading comes open and with its medal lit. */

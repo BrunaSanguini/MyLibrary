@@ -78,13 +78,13 @@ async function openNew(url = '/estante/novo') {
   return { harness, http: TestBed.inject(HttpTestingController) };
 }
 
-async function openEdit() {
+async function openEdit(book: object = DUNE) {
   configure();
   const harness = await RouterTestingHarness.create();
   await harness.navigateByUrl('/livro/42/editar');
   const http = TestBed.inject(HttpTestingController);
   TestBed.tick();
-  http.expectOne('/api/v1/books/42').flush(DUNE);
+  http.expectOne('/api/v1/books/42').flush(book);
   http.expectOne('/api/v1/books/42/readings').flush([]);
   await harness.fixture.whenStable();
   return { harness, http };
@@ -169,6 +169,19 @@ describe('BookFormPage', () => {
 
     expect(screen.getByLabelText('Posição na série')).toBeDisabled();
     expect(screen.getByText('Escolha uma série antes')).toBeInTheDocument();
+  });
+
+  it('saves a book in a series without a position, which is optional', async () => {
+    const { http } = await openEdit({
+      ...DUNE,
+      series: { id: 3, name: 'O Senhor dos Anéis', totalVolumes: 3 },
+    });
+
+    expect(screen.getByText('Opcional')).toBeInTheDocument();
+    await save();
+
+    const request = http.expectOne({ method: 'PUT', url: '/api/v1/books/42' });
+    expect(request.request.body).toMatchObject({ seriesId: 3, seriesPosition: undefined });
   });
 
   it('registers a book by hand, as one the reader has, and shows it saved', async () => {

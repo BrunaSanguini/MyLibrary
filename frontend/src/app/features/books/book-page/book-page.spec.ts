@@ -435,6 +435,42 @@ describe('BookPage', () => {
     expect(within(cards[0]!).getByText('O Conselho de Elrond!')).toBeInTheDocument();
   });
 
+  it('shows the rating of each reading and how it changed from the first one', async () => {
+    await openBook('/livro/42', FELLOWSHIP, undefined, {
+      readings: [
+        { ...FINISHED, rating: 5 },
+        { ...FINISHED, id: 7, startDate: '2023-03-01', endDate: '2023-03-10', rating: 4.5 },
+      ],
+    });
+
+    const cards = within(history()).getAllByRole('article');
+    expect(within(cards[0]!).getByText('Nota nesta leitura')).toBeInTheDocument();
+    expect(within(cards[0]!).getByRole('img', { name: 'Nota 5 de 5' })).toBeInTheDocument();
+    expect(within(cards[0]!).getByText('5,0')).toBeInTheDocument();
+    expect(within(cards[1]!).getByText('4,5')).toBeInTheDocument();
+    expect(within(history()).getByText('na nota, da 1ª para a 2ª')).toBeInTheDocument();
+    expect(within(history()).getByText('+0,5')).toBeInTheDocument();
+  });
+
+  it('leaves the change of rating out while a reading has no rating', async () => {
+    await openBook('/livro/42', FELLOWSHIP, undefined, {
+      readings: [FINISHED, { ...FINISHED, id: 7, rating: 4 }],
+    });
+
+    const cards = within(history()).getAllByRole('article');
+    expect(within(cards[0]!).getByRole('img', { name: 'Sem nota ainda' })).toBeInTheDocument();
+    expect(within(history()).queryByText(/na nota, da 1ª/)).not.toBeInTheDocument();
+  });
+
+  it('shows a book in a series without a position', async () => {
+    await openBook('/livro/42', {
+      ...FELLOWSHIP,
+      series: { id: 3, name: 'O Senhor dos Anéis', totalVolumes: 3 },
+    });
+
+    expect(within(record()).getByText('O Senhor dos Anéis · III livros')).toBeInTheDocument();
+  });
+
   it('marks a reading in progress as such, until today', async () => {
     await openBook('/livro/42', FELLOWSHIP, undefined, { readings: [READING] });
 

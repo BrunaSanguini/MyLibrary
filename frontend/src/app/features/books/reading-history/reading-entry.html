@@ -12,6 +12,13 @@
         <p class="period">{{ period }}</p>
       }
     </div>
+    <div class="rating">
+      <span class="rating-label">Nota nesta leitura</span>
+      <span class="rating-value">
+        <ml-rating-stars [value]="reading().rating ?? undefined" />
+        <span aria-hidden="true">{{ ratingText() }}</span>
+      </span>
+    </div>
   </header>
 
   <dl class="stats">

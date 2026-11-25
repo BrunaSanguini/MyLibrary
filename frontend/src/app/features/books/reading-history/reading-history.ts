@@ -36,6 +36,28 @@ export class ReadingHistory {
       readings: toRoman(this.readings().length),
       days,
       perDay: days > 0 ? Math.round(pages / days) : 0,
+      delta: ratingDelta(this.readings()),
     };
   });
+}
+
+/**
+ * `+0,5 na nota, da 1ª para a 2ª`: the rating of the latest reading less the one of the first.
+ * Only with two readings or more, both rated.
+ */
+export function ratingDelta(
+  readings: readonly ReadingResponse[],
+): { value: string; label: string } | undefined {
+  const latest = readings[0]?.rating;
+  const first = readings.at(-1)?.rating;
+  if (readings.length < 2 || latest == null || first == null) {
+    return undefined;
+  }
+  const delta = latest - first;
+  const number = Math.abs(delta).toLocaleString('pt-BR', {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
+  const sign = delta > 0 ? '+' : delta < 0 ? '−' : '';
+  return { value: `${sign}${number}`, label: `na nota, da 1ª para a ${readings.length}ª` };
 }

@@ -9,6 +9,7 @@ import io.github.brunasanguini.minhalivraria.books.application.AuthorService;
 import io.github.brunasanguini.minhalivraria.books.application.BookRequest;
 import io.github.brunasanguini.minhalivraria.books.application.BookService;
 import io.github.brunasanguini.minhalivraria.images.ImageSamples;
+import io.github.brunasanguini.minhalivraria.reading.ReadingStatus;
 import io.github.brunasanguini.minhalivraria.shared.error.BusinessRuleException;
 import io.github.brunasanguini.minhalivraria.shared.error.NotFoundException;
 import jakarta.persistence.EntityManager;
@@ -17,6 +18,7 @@ import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,6 +51,9 @@ class ReviewServiceTest {
 
     @Autowired
     private AuthorService authors;
+
+    @Autowired
+    private ReadingService readings;
 
     @Autowired
     private EntityManager entityManager;
@@ -84,6 +89,36 @@ class ReviewServiceTest {
         assertThat(reviews.get(fellowship).rating()).isEqualByComparingTo("5.0");
         assertThat(reviews.get(fellowship).content()).isNull();
         assertThat(reviews.latest(LATEST_FIRST).getTotalElements()).isEqualTo(1);
+    }
+
+    @Test
+    void shouldKeepTheRatingOnTheLatestReadingOnly() {
+        long first = readings.create(
+                        fellowship,
+                        new ReadingRequest(
+                                ReadingStatus.FINISHED, LocalDate.of(2025, 1, 2), LocalDate.of(2025, 2, 1), false))
+                .id();
+        reviews.save(fellowship, new ReviewRequest(new BigDecimal("4.0"), null));
+        long second = readings.create(
+                        fellowship,
+                        new ReadingRequest(
+                                ReadingStatus.FINISHED, LocalDate.of(2026, 3, 1), LocalDate.of(2026, 4, 1), true))
+                .id();
+
+        reviews.save(fellowship, new ReviewRequest(new BigDecimal("4.5"), "Melhor na releitura."));
+        entityManager.flush();
+        entityManager.clear();
+
+        List<ReadingResponse> history = readings.listByBook(fellowship);
+        assertThat(history).extracting(ReadingResponse::id).containsExactly(second, first);
+        assertThat(history.get(0).rating()).isEqualByComparingTo("4.5");
+        assertThat(history.get(1).rating()).isEqualByComparingTo("4.0");
+
+        reviews.delete(fellowship);
+        entityManager.flush();
+        entityManager.clear();
+        assertThat(readings.listByBook(fellowship).get(0).rating()).isNull();
+        assertThat(readings.listByBook(fellowship).get(1).rating()).isEqualByComparingTo("4.0");
     }
 
     @Test

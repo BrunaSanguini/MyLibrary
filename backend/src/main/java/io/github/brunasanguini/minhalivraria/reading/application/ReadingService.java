@@ -208,7 +208,8 @@ public class ReadingService {
                 reading.endDate(),
                 reading.reread(),
                 ProgressResponse.of(pagesRead, book.pageCount(), reading.status() == ReadingStatus.FINISHED),
-                ofReading.size());
+                ofReading.size(),
+                reading.rating());
     }
 
     private static SessionResponse toResponse(ReadingSession session) {

@@ -143,7 +143,7 @@ public class ShelfService {
         List<Card> series = cards(
                 " where b.id <> :id and b.series_id = (select own.series_id from book own where own.id = :id)",
                 params,
-                "b.series_position asc, b.id asc",
+                "b.series_position asc nulls last, b.id asc",
                 SERIES_LIMIT,
                 0);
         // The books of the series are already in the other list.
@@ -354,7 +354,7 @@ public class ShelfService {
 
     private static @Nullable CardSeriesResponse series(
             @Nullable Long id, @Nullable String name, @Nullable BigDecimal position) {
-        if (id == null || name == null || position == null) {
+        if (id == null || name == null) {
             return null;
         }
         return new CardSeriesResponse(id, name, position);

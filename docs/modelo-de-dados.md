@@ -177,7 +177,7 @@ As colunas de auditoria (`created_at`, `updated_at`) foram omitidas do diagrama.
 | `synopsis` | `VARCHAR(10000)` | opcional |
 | `ownership` | `VARCHAR(10)` | `OWNED` (Tenho), `WISHLIST` ou `NONE`; padrão `NONE` |
 | `favorite` | `BOOLEAN` | padrão `false`; alimenta o carrossel de favoritos |
-| `series_id` / `series_position` | `BIGINT` / `DECIMAL(4,1)` | FK `series`; preenchidos juntos ou nulos juntos (`CHECK`); posição maior que zero (aceita 2,5) |
+| `series_id` / `series_position` | `BIGINT` / `DECIMAL(4,1)` | FK `series`; a posição é opcional mas só existe com série (`CHECK`, migração `V15`); posição maior que zero (aceita 2,5) |
 | `cover_image_id` / `banner_image_id` | `BIGINT` | FK `image`, `ON DELETE SET NULL` |
 | `ol_work_key` / `ol_edition_key` | `VARCHAR(32)` | chaves da Open Library; `ol_edition_key` único |
 | `search_text` | `VARCHAR(1001)` | título e subtítulo normalizados (minúsculas, sem acento), recalculados ao salvar; cabe o tamanho máximo dos dois mais o espaço |
@@ -210,7 +210,6 @@ Os dígitos verificadores do ISBN são validados no serviço.
 ### `reading`
 
 **`reading`**: uma leitura completa de um livro.
-
 | Coluna | Tipo | Regra |
 |---|---|---|
 | `book_id` | `BIGINT` | FK `book`, `ON DELETE CASCADE` |
@@ -218,6 +217,7 @@ Os dígitos verificadores do ISBN são validados no serviço.
 | `start_date` | `DATE` | obrigatório em `IN_PROGRESS`; leituras antigas podem ter só a data de fim |
 | `end_date` | `DATE` | obrigatório em `FINISHED` e `ABANDONED`; nulo em `IN_PROGRESS`; nunca antes do início |
 | `reread` | `BOOLEAN` | marcado pelo usuário ("Esta é uma releitura") |
+| `rating` | `DECIMAL(2,1)` | opcional (migração `V14`): a nota do livro naquela leitura, de 1 a 5 em meios pontos. Salvar a nota do livro grava a mesma nota na leitura mais recente; as anteriores guardam a nota que tinham |
 
 No máximo uma leitura `IN_PROGRESS` por livro. A regra fica no serviço e, como o H2 não tem índice parcial, é reforçada no banco por uma coluna gerada com `UNIQUE`.
 

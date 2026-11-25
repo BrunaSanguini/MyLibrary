@@ -11,6 +11,10 @@ import { type APIRequestContext, expect, type Page, test } from '@playwright/tes
  */
 const WRITE = { 'X-Requested-By': 'minha-livraria' };
 
+// "Salvar metas" saves every card of the tab: two tests of this file on the same page at once
+// would save over each other. They run one after the other, still beside the other files.
+test.describe.configure({ mode: 'default' });
+
 interface Goal {
   readonly id: number;
   readonly type: string;

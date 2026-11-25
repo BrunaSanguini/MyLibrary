@@ -195,6 +195,8 @@ Todo livro tem pelo menos um autor (`authorIds` não pode vir vazio). Editoras (
 }
 ```
 
+A posição na série é opcional: `seriesId` sem `seriesPosition` põe o livro na série sem número, e `series.position` vem ausente. Posição sem série devolve `422` (`book.position-without-series`). Livros sem posição ficam no fim da ordem da série.
+
 O `BookDetailResponse` traz só os dados do livro. A página do livro busca as leituras em `/books/{id}/readings` e a resenha em `/books/{id}/review`.
 
 ### Importação da Open Library
@@ -285,6 +287,7 @@ O `bookCount` de um gênero conta os livros distintos do gênero e dos subgêner
 - `resume` retoma uma leitura abandonada na mesma leitura: volta a `IN_PROGRESS`, sem fim e com o mesmo início. Leitura que não está abandonada: `409` (`reading.not-abandoned`); outra leitura do livro em andamento: `409` (`reading.in-progress-exists`).
 - Mudar o período (pelo `PUT`, `finish` ou `abandon`) de um jeito que deixe uma sessão de fora devolve `422` (`session.out-of-period`).
 - `progress.percent` é sempre `100` numa leitura `FINISHED`.
+- `rating` é a nota do livro naquela leitura ("Nota nesta leitura"). Não há rota própria: salvar a resenha com nota grava a nota também na leitura mais recente, e apagar a resenha tira a nota dessa leitura.
 
 ```json
 {
@@ -295,7 +298,8 @@ O `bookCount` de um gênero conta os livros distintos do gênero e dos subgêner
   "endDate": null,
   "reread": false,
   "progress": { "pagesRead": 120, "pageCount": 576, "percent": 20 },
-  "sessionCount": 5
+  "sessionCount": 5,
+  "rating": 4.5
 }
 ```
 

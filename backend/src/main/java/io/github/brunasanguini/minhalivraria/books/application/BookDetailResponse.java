@@ -38,11 +38,15 @@ public record BookDetailResponse(
     /** A publisher, in the order printed on the book. */
     public record BookPublisherResponse(long id, String name) {}
 
-    /** The series and where the book sits in it; {@code totalVolumes} feeds the "2 de 3" bar. */
+    /**
+     * The series and where the book sits in it; {@code totalVolumes} feeds the "2 de 3" bar.
+     *
+     * @param position absent when the reader did not say which volume it is
+     */
     public record BookSeriesResponse(
             long id,
             String name,
-            BigDecimal position,
+            @Nullable BigDecimal position,
             @Nullable Integer totalVolumes) {}
 
     /** {@code parentId} is null for a genre and points to the genre for a subgenre. */

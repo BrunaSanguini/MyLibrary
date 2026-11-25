@@ -2670,6 +2670,9 @@
           "sessionCount" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "rating" : {
+            "type" : "number"
           }
         },
         "required" : [ "bookId", "id", "progress", "reread", "sessionCount", "status" ]
@@ -3196,7 +3199,7 @@
             "format" : "int32"
           }
         },
-        "required" : [ "id", "name", "position" ]
+        "required" : [ "id", "name" ]
       },
       "OpenLibraryResponse" : {
         "type" : "object",
@@ -3687,7 +3690,7 @@
             "type" : "number"
           }
         },
-        "required" : [ "id", "name", "position" ]
+        "required" : [ "id", "name" ]
       },
       "PageResponseBookCardResponse" : {
         "type" : "object",

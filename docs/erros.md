@@ -30,7 +30,7 @@ Este catálogo cresce junto com o código: todo `code` novo entra aqui no mesmo 
 | <a id="book-not-found"></a>`book.not-found` | 404 | Livro inexistente. |
 | <a id="book-isbn-duplicated"></a>`book.isbn-duplicated` | 409 | Já existe um livro com o mesmo ISBN-13. A resposta traz `bookId`. |
 | <a id="book-edition-duplicated"></a>`book.edition-duplicated` | 409 | A edição da Open Library já foi importada. A resposta traz `bookId`. |
-| <a id="book-series-position-required"></a>`book.series-position-required` | 422 | Série informada sem posição, ou posição sem série. |
+| <a id="book-position-without-series"></a>`book.position-without-series` | 422 | Posição na série informada sem série. |
 | <a id="author-not-found"></a>`author.not-found` | 404 | Autor inexistente. |
 | <a id="author-has-books"></a>`author.has-books` | 409 | Tentativa de excluir um autor que ainda tem livros. |
 | <a id="publisher-not-found"></a>`publisher.not-found` | 404 | Editora inexistente. |

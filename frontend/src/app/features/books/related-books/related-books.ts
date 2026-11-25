@@ -72,7 +72,7 @@ export class RelatedBooks {
       title: book.title,
       authors: book.authors.map((author) => author.name).join(', '),
       coverUrl: book.coverUrl,
-      position: series.position,
+      position: series.position ?? Number.MAX_SAFE_INTEGER,
       current: true,
     };
     return [...others, self]

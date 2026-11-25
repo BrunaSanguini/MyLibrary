@@ -85,7 +85,7 @@ export class SeriesAddDialog {
   private readonly following = computed(() => {
     const position = this.position();
     return Number.isInteger(position)
-      ? this.volumes().filter((book) => (book.series?.position ?? 0) >= position)
+      ? this.volumes().filter((book) => (book.series?.position ?? -1) >= position)
       : [];
   });
 
