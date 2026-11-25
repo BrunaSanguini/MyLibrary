@@ -266,7 +266,7 @@ Um novo tipo (por gênero, por série) entra como novo valor do enum, mais as co
 - `display_name` (`VARCHAR(80)`).
 - `avatar_image_id` (FK `image`, `ON DELETE SET NULL`).
 - `theme`: `LIGHT`, `DARK` ou `SYSTEM`; padrão `SYSTEM`.
-- `reader_since` (`SMALLINT`, opcional, migração `V13`): o ano em que a leitora diz que começou a ler, de 1900 até o ano atual. Vazio, o Perfil mostra o ano da primeira leitura registrada.
+- `reader_since` (`INTEGER`, opcional, migração `V13`): o ano em que a leitora diz que começou a ler, de 1900 até o ano atual. Vazio, o Perfil mostra o ano da primeira leitura registrada.
 
 ### `images`
 
