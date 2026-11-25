@@ -37,7 +37,8 @@ class RequiredFromNullabilityTest {
 
     @Test
     void shouldApplyToNestedRecordsToo() throws IOException {
-        assertThat(requiredOf("CardSeriesResponse")).contains("id", "name", "position");
+        // The position in the series is optional, so it is the one field of the series left out.
+        assertThat(requiredOf("CardSeriesResponse")).contains("id", "name").doesNotContain("position");
     }
 
     @Test
