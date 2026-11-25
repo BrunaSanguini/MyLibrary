@@ -7,7 +7,6 @@ import io.github.brunasanguini.minhalivraria.books.Ownership;
 import io.github.brunasanguini.minhalivraria.books.domain.BookRepository;
 import io.github.brunasanguini.minhalivraria.books.domain.DuplicatedBookException;
 import io.github.brunasanguini.minhalivraria.images.ImageSamples;
-import io.github.brunasanguini.minhalivraria.shared.error.BusinessRuleException;
 import io.github.brunasanguini.minhalivraria.shared.error.ConflictException;
 import io.github.brunasanguini.minhalivraria.shared.error.NotFoundException;
 import java.io.IOException;
