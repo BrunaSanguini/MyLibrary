@@ -151,8 +151,8 @@ test('opens the shelf filtered from a special list', async ({ page }) => {
     .getByRole('link', { name: /Releituras/ })
     .click();
 
-  await expect(page).toHaveURL(/\/estante\?reread=true$/);
-  await expect(page.getByRole('button', { name: 'Releituras' })).toHaveAttribute(
+  await expect(page).toHaveURL(/\/estante\?releituras=1$/);
+  await expect(page.getByRole('button', { name: /Releituras/ })).toHaveAttribute(
     'aria-pressed',
     'true',
   );

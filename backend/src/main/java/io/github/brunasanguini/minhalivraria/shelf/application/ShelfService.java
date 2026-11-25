@@ -74,6 +74,18 @@ public class ShelfService {
                 where bg.book_id = b.id and g.parent_id is not null
                 and bg.genre_id in (select own.genre_id from book_genre own where own.book_id = :id))""";
 
+    /**
+     * One row per book and tab it counts in, which the summary adds up. A small collection lives in one computer, so
+     * bringing a row per book costs nothing and keeps the rules of each tab in plain SQL.
+     */
+    private static final String SUMMARY = """
+            select 'WISHLIST' as tab from book b where b.ownership = 'WISHLIST'
+            union all select 'SHELF' from book b where b.ownership <> 'WISHLIST'
+            union all select %s from book b where b.ownership <> 'WISHLIST'
+            union all select 'FAVORITES' from book b where b.ownership <> 'WISHLIST' and b.favorite
+            union all select 'REREADS' from book b where b.ownership <> 'WISHLIST' and (%s)
+            """.formatted(STATUS, REREAD);
+
     private static final int SERIES_LIMIT = 100;
     private static final int SIMILAR_LIMIT = 12;
     private static final int COMPLETE = 100;
@@ -144,6 +156,24 @@ public class ShelfService {
                 SIMILAR_LIMIT,
                 0);
         return new RelatedBooksResponse(withCollections(series), withCollections(similar));
+    }
+
+    /**
+     * How many books each tab and chip of Minha Estante holds. The wishlist is counted apart: the other numbers are
+     * of the books outside it, the ones that live on the shelf.
+     */
+    public ShelfSummaryResponse summary() {
+        Map<String, Long> totals = jdbc.sql(SUMMARY).query(String.class).list().stream()
+                .collect(Collectors.groupingBy(tab -> tab, Collectors.counting()));
+        return new ShelfSummaryResponse(
+                totals.getOrDefault("SHELF", 0L),
+                totals.getOrDefault(ShelfStatus.READING.name(), 0L),
+                totals.getOrDefault(ShelfStatus.READ.name(), 0L),
+                totals.getOrDefault(ShelfStatus.WANT_TO_READ.name(), 0L),
+                totals.getOrDefault(ShelfStatus.ABANDONED.name(), 0L),
+                totals.getOrDefault("WISHLIST", 0L),
+                totals.getOrDefault("FAVORITES", 0L),
+                totals.getOrDefault("REREADS", 0L));
     }
 
     private long count(Conditions conditions) {
@@ -288,6 +318,9 @@ public class ShelfService {
         if (filter.seriesId() != null) {
             clauses.add("b.series_id = :seriesId");
             params.put("seriesId", filter.seriesId());
+        }
+        if (filter.wishlist() != null) {
+            clauses.add(filter.wishlist() ? "b.ownership = 'WISHLIST'" : "b.ownership <> 'WISHLIST'");
         }
         if (filter.listId() != null) {
             clauses.add("exists (select 1 from book_list_item li"

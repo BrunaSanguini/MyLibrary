@@ -8,6 +8,7 @@ import io.github.brunasanguini.minhalivraria.shelf.application.RelatedBooksRespo
 import io.github.brunasanguini.minhalivraria.shelf.application.ShelfFilter;
 import io.github.brunasanguini.minhalivraria.shelf.application.ShelfService;
 import io.github.brunasanguini.minhalivraria.shelf.application.ShelfStatus;
+import io.github.brunasanguini.minhalivraria.shelf.application.ShelfSummaryResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -38,8 +39,9 @@ class ShelfController {
             summary = "Book cards, filtered and paginated",
             description = "The search ignores accents and also matches author names. A genre brings the books of its"
                     + " subgenres. status can repeat. reread=true brings the books read more than once or with a"
-                    + " reading marked as a reread. Sorting: title, author, addedAt (default, desc), seriesPosition,"
-                    + " rating, finishedAt and, only with listId, listOrder.")
+                    + " reading marked as a reread. wishlist=false leaves the wishlist out and wishlist=true keeps only"
+                    + " it. Sorting: title, author, addedAt (default, desc), seriesPosition, rating, finishedAt,"
+                    + " publishedYear and, only with listId, listOrder.")
     @GetMapping("/books")
     PageResponse<BookCardResponse> search(
             @RequestParam(required = false) @Size(max = 200) @Nullable String q,
@@ -52,10 +54,20 @@ class ShelfController {
             @RequestParam(required = false) @Nullable Long publisherId,
             @RequestParam(required = false) @Nullable Long seriesId,
             @RequestParam(required = false) @Nullable Long listId,
+            @RequestParam(required = false) @Nullable Boolean wishlist,
             @Valid @ParameterObject PageQuery page) {
         ShelfFilter filter = new ShelfFilter(
-                q, status, ownership, favorite, reread, genreId, authorId, publisherId, seriesId, listId);
+                q, status, ownership, favorite, reread, genreId, authorId, publisherId, seriesId, listId, wishlist);
         return PageResponse.of(service.search(filter, page), Function.identity());
+    }
+
+    @Operation(
+            operationId = "getShelfSummary",
+            summary = "How many books each tab and chip of Minha Estante holds",
+            description = "Every number but wishlist counts only the books outside the wishlist.")
+    @GetMapping("/summary")
+    ShelfSummaryResponse summary() {
+        return service.summary();
     }
 
     @Operation(

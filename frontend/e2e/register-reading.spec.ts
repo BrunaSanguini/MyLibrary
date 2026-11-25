@@ -44,7 +44,7 @@ test('reads a book from the first page to the review', async ({ page }) => {
   await page.goto(`/livro/${bookId}`);
   const sheet = page.getByRole('region', { name: 'Ficha de leitura' });
   await expect(sheet).toContainText('Quero ler');
-  await sheet.getByRole('link', { name: 'Começar a ler' }).click();
+  await page.getByRole('link', { name: '+ Registrar nova leitura' }).click();
 
   // Starting the reading opens the page that follows it.
   await expect(page).toHaveURL(new RegExp(`/livro/${bookId}/leitura$`));
@@ -83,7 +83,9 @@ test('reads a book from the first page to the review', async ({ page }) => {
   await page.getByRole('button', { name: 'Concluir leitura' }).click();
   await expect(page).toHaveURL(new RegExp(`/livro/${bookId}$`));
   await expect(sheet).toContainText('Lido');
-  await expect(sheet.getByRole('link', { name: 'Registrar leitura' })).toBeVisible();
+  const history = page.getByRole('region', { name: 'Histórico de leitura' });
+  await expect(history.getByText('Concluída')).toBeVisible();
+  await expect(history.getByRole('link', { name: 'Registrar leitura →' })).toBeVisible();
 
   // The rating, by the keyboard alone: End is five stars, one arrow back is four and a half.
   await page.getByRole('button', { name: 'Escrever resenha' }).click();
@@ -97,16 +99,18 @@ test('reads a book from the first page to the review', async ({ page }) => {
 
   const review = page.getByRole('region', { name: 'Minha resenha' });
   await expect(review).toContainText('Valeu cada página.');
-  await expect(review.getByRole('img', { name: 'Nota 4,5 de 5' })).toBeVisible();
   await expect(sheet.getByRole('img', { name: 'Nota 4,5 de 5' })).toBeVisible();
 
   // And the shelf shows the book as read, with its rating.
-  await page.goto(`/estante?status=READ&q=${encodeURIComponent(title)}`);
+  await page.goto(`/estante?status=lidos&q=${encodeURIComponent(title)}`);
   const card = page.getByRole('link', { name: new RegExp(title) });
   await expect(card).toHaveCount(1);
   await expect(card).toContainText('Lido');
-  await expect(card.getByRole('img', { name: 'Nota 4,5 de 5' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Lidos' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('tab', { name: /Lidos/ })).toHaveAttribute('aria-selected', 'true');
+
+  // In the list, the row carries the rating too.
+  await page.getByRole('button', { name: 'Ver em lista' }).click();
+  await expect(card).toContainText('4,5 ★');
 });
 
 test('refuses what the book does not have and keeps what was typed', async ({ page }) => {
@@ -163,12 +167,9 @@ for (const theme of THEMES) {
     // The pointer is parked first: resting where a button lands, it would start a hover
     // transition, and axe would measure the contrast of a color halfway through it.
     await page.mouse.move(0, 0);
-    await page.goto('/estante?status=READING');
-    await expect(page.getByRole('button', { name: 'Lendo' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
-    await expect(page.getByRole('progressbar').first()).toBeVisible();
+    await page.goto('/estante?status=lendo');
+    await expect(page.getByRole('tab', { name: /Lendo/ })).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByText('Lendo agora').first()).toBeVisible();
     await expectNoAccessibilityViolations(page);
   });
 }

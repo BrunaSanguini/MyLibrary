@@ -329,15 +329,15 @@ describe('ListsPage', () => {
 
       const specials = screen.getByRole('region', { name: 'Listas especiais' });
       const wishlist = within(specials).getByRole('link', { name: /Wishlist/ });
-      expect(wishlist).toHaveAttribute('href', '/estante?ownership=WISHLIST');
+      expect(wishlist).toHaveAttribute('href', '/estante?status=wishlist');
       expect(wishlist).toHaveTextContent('Livros que você quer ter');
       expect(wishlist).toHaveTextContent('12 livros');
       expect(within(specials).getByRole('link', { name: /Favoritos/ })).toHaveAttribute(
         'href',
-        '/estante?favorite=true',
+        '/estante?favoritos=1',
       );
       const rereads = within(specials).getByRole('link', { name: /Releituras/ });
-      expect(rereads).toHaveAttribute('href', '/estante?reread=true');
+      expect(rereads).toHaveAttribute('href', '/estante?releituras=1');
       expect(rereads).toHaveTextContent('1 livro');
     });
   });

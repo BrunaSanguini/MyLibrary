@@ -29,15 +29,17 @@ interface CreateOption {
 /** The options that create are kept apart from real entries by their negative ids. */
 const CREATE_ID = -1;
 const TYPING_PAUSE = 200;
-const OPTIONS = 8;
+/** Clicking the field lists every entry, as the spec asks: the API serves at most 100 a page. */
+const OPTIONS = 100;
 
 let nextId = 0;
 
 /**
  * Combobox that picks an author, publisher, series, genre or subgenre, or creates one on the spot.
  *
- * <p>A subgenre always belongs to a genre: the picker offers only the subgenres of the genres in
- * `parents`, and creating one asks in which genre it goes when there is more than one.
+ * <p>Clicking the field lists every entry; typing filters them. The subgenres of every genre are
+ * offered, but a new subgenre is created inside one of the genres in `parents`, and creating one
+ * asks in which genre it goes when there is more than one.
  *
  * <p>Behaviour and ARIA come from `@angular/aria`; this component adds the search, the "Criar"
  * option and the look. Picking emits the entry and clears the field, so the same picker serves
@@ -104,7 +106,7 @@ export class EntityPicker {
     const entries = this.fromTree()
       ? this.treeEntries().filter((genre) => normalize(genre.name).includes(normalize(this.term())))
       : (this.catalog.value()?.content ?? []);
-    return entries.filter((entry) => !excluded.has(entry.id)).slice(0, OPTIONS);
+    return entries.filter((entry) => !excluded.has(entry.id));
   });
 
   private readonly treeEntries = computed<readonly PickedEntry[]>(() => {
@@ -112,12 +114,10 @@ export class EntityPicker {
     if (this.source() === 'genres') {
       return tree.map(({ id, name }) => ({ id, name, parentId: null }));
     }
-    const parents = new Set(this.parents().map((parent) => parent.id));
-    return tree
-      .filter((genre) => parents.has(genre.id))
-      .flatMap((genre) =>
-        genre.subgenres.map(({ id, name }) => ({ id, name, parentId: genre.id })),
-      );
+    // Every subgenre, of any genre: the reader classifies freely.
+    return tree.flatMap((genre) =>
+      genre.subgenres.map(({ id, name }) => ({ id, name, parentId: genre.id })),
+    );
   });
 
   /** Offered when the typed name matches no option exactly: one per genre, for a subgenre. */
@@ -128,12 +128,13 @@ export class EntityPicker {
       return [];
     }
     if (this.source() !== 'subgenres') {
-      return [{ id: CREATE_ID, label: `Criar “${name}”`, parentId: null }];
+      return [{ id: CREATE_ID, label: `＋ Cadastrar “${name}”`, parentId: null }];
     }
     const parents = this.parents();
     return parents.map((parent, index) => ({
       id: CREATE_ID - index,
-      label: parents.length > 1 ? `Criar “${name}” em ${parent.name}` : `Criar “${name}”`,
+      label:
+        parents.length > 1 ? `＋ Cadastrar “${name}” em ${parent.name}` : `＋ Cadastrar “${name}”`,
       parentId: parent.id,
     }));
   });

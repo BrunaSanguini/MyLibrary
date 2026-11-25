@@ -1,7 +1,30 @@
-<h2 id="titulo-resenha">Minha resenha</h2>
+@if (review(); as saved) {
+  <article class="card" aria-label="Texto da resenha">
+    <p class="written">Escrita em {{ writtenOn() }}</p>
+    @if (paragraphs().length > 0) {
+      <div class="content">
+        @for (paragraph of paragraphs(); track $index) {
+          <p>{{ paragraph }}</p>
+        }
+      </div>
+    } @else {
+      <p class="only-rating">Só a nota, por enquanto: a resenha ainda não tem texto.</p>
+    }
+  </article>
+} @else {
+  <div class="card empty">
+    <p>Você ainda não escreveu uma resenha</p>
+    <button mlButton="secondary" type="button" (click)="edit()">
+      <ml-icon name="edit" [size]="16" />
+      Escrever resenha
+    </button>
+  </div>
+}
 
-@if (editing()) {
-  <form class="form" aria-labelledby="titulo-resenha" novalidate (submit)="save($event)">
+<dialog #dialog class="dialog" aria-labelledby="titulo-editor-resenha" (close)="closed()">
+  <form class="form" novalidate (submit)="save($event)">
+    <h2 id="titulo-editor-resenha">{{ review() ? 'Editar resenha' : 'Escrever resenha' }}</h2>
+
     <div class="field">
       <label for="nota-resenha">Nota</label>
       <div class="rating">
@@ -16,12 +39,12 @@
       <label for="texto-resenha">O que você achou?</label>
       <textarea
         id="texto-resenha"
-        rows="8"
+        rows="10"
         [formField]="reviewForm.content"
         [attr.aria-describedby]="errorOf(reviewForm.content) ? 'erro-resenha' : null"
       ></textarea>
       @if (errorOf(reviewForm.content); as message) {
-        <p id="erro-resenha" class="error">{{ message }}</p>
+        <p id="erro-resenha" class="error" role="alert">{{ message }}</p>
       }
     </div>
 
@@ -49,23 +72,4 @@
       </button>
     </div>
   </form>
-} @else if (review(); as saved) {
-  @if (savedRating() !== undefined) {
-    <ml-rating-stars size="md" [value]="savedRating()" />
-  }
-  @if (saved.content) {
-    <p class="content">{{ saved.content }}</p>
-  }
-  <button mlButton="secondary" type="button" (click)="edit()">
-    <ml-icon name="edit" [size]="16" />
-    Editar resenha
-  </button>
-} @else {
-  <p class="invitation">
-    Você ainda não avaliou este livro. Que tal dar uma nota ou contar o que achou?
-  </p>
-  <button mlButton="secondary" type="button" (click)="edit()">
-    <ml-icon name="star" [size]="16" />
-    Escrever resenha
-  </button>
-}
+</dialog>

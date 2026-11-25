@@ -1,6 +1,6 @@
 import { HttpClient, HttpResourceRequest } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { EMPTY, expand, map, Observable, reduce } from 'rxjs';
+import { EMPTY, expand, map, Observable, of, reduce, switchMap } from 'rxjs';
 
 import { components } from './schema';
 
@@ -48,10 +48,10 @@ export class CatalogApi {
   }
 
   /**
-   * Every author or publisher, by name, walking the pages until the last one: Configurações lists
-   * them all and filters as the reader types.
+   * Every author, publisher or series, by name, walking the pages until the last one: Configurações
+   * lists them all and filters as the reader types, and the selects of Minha Estante offer them all.
    */
-  all(kind: 'authors' | 'publishers'): Observable<(AuthorResponse | PublisherResponse)[]> {
+  all(kind: CatalogKind): Observable<(AuthorResponse | PublisherResponse | SeriesResponse)[]> {
     const pageOf = (page: number) =>
       this.http.get<AuthorsPage>(`/api/v1/${kind}`, {
         params: { page, size: LARGEST_PAGE, sort: 'name,asc' },
@@ -63,6 +63,22 @@ export class CatalogApi {
       map((current) => current.content),
       reduce((all, content) => [...all, ...content], [] as AuthorResponse[]),
     );
+  }
+
+  /**
+   * The entry with this name, or a new one when there is none: the data brought from the Open
+   * Library names authors and publishers, and the form works with ids.
+   */
+  findOrCreate(kind: CatalogKind, name: string): Observable<NamedEntry> {
+    const wanted = normalizeName(name);
+    return this.http
+      .get<AuthorsPage>(`/api/v1/${kind}`, { params: { q: name, page: 0, size: 20 } })
+      .pipe(
+        switchMap((page) => {
+          const found = page.content.find((entry) => normalizeName(entry.name) === wanted);
+          return found ? of({ id: found.id, name: found.name }) : this.create(kind, name);
+        }),
+      );
   }
 
   /** An author or a publisher with books is refused by the API (author.has-books). */
@@ -81,4 +97,9 @@ export class CatalogApi {
       .post<NamedEntry>('/api/v1/genres', { name, parentId })
       .pipe(map(({ id, name: created }) => ({ id, name: created })));
   }
+}
+
+/** Same idea as the back-end's TextNormalizer: no accents, no case, single spaces. */
+function normalizeName(text: string): string {
+  return text.normalize('NFD').replace(/\p{M}/gu, '').replace(/\s+/g, ' ').trim().toLowerCase();
 }

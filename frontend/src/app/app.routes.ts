@@ -21,13 +21,10 @@ export const routes: Routes = [
     path: 'estante/novo',
     loadComponent: () => import('@features/books/book-form-page/book-form-page'),
     canDeactivate: [unsavedChangesGuard],
-    title: 'Cadastrar livro',
+    title: 'Adicionar livro',
   },
-  {
-    path: 'estante/importar',
-    loadComponent: () => import('@features/books/book-import-page/book-import-page'),
-    title: 'Importar livro',
-  },
+  // The import from the Open Library moved into the form; the search of the address fills its field.
+  { path: 'estante/importar', redirectTo: 'estante/novo', pathMatch: 'full' },
   {
     path: 'livro/:id',
     loadComponent: () => import('@features/books/book-page/book-page'),
@@ -110,9 +107,9 @@ export const routes: Routes = [
     title: 'Série',
   },
   // Addresses of the earlier versions, which may be in bookmarks. The ":id" is carried over, and
-  // so are the query string and the fragment (/livros/7#titulo-resenha).
+  // so are the query string and the fragment (/livros/7#minha-resenha).
   { path: 'livros/novo', redirectTo: 'estante/novo', pathMatch: 'full' },
-  { path: 'livros/importar', redirectTo: 'estante/importar', pathMatch: 'full' },
+  { path: 'livros/importar', redirectTo: 'estante/novo', pathMatch: 'full' },
   { path: 'livros/:id', redirectTo: 'livro/:id', pathMatch: 'full' },
   { path: 'livros/:id/editar', redirectTo: 'livro/:id/editar', pathMatch: 'full' },
   { path: 'livros/:id/leitura', redirectTo: 'livro/:id/leitura', pathMatch: 'full' },

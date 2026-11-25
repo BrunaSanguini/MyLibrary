@@ -5,6 +5,17 @@
  */
 
 :root {
+  /* The ficha de leitura of the book page is a dark card in both themes; only its paper changes. */
+  --ml-color-sheet-ink: #f2e6cc;
+  --ml-color-sheet-soft: #cfc3a6;
+  --ml-color-sheet-label: #b9a4ff;
+  --ml-color-sheet-gold: #d4a645;
+  --ml-color-sheet-accent: #ff8ab3;
+  --ml-color-sheet-line: rgb(212 166 69 / 45%);
+  --ml-color-sheet-frame: rgb(212 166 69 / 20%);
+  --ml-color-sheet-rule: rgb(212 166 69 / 18%);
+  --ml-color-sheet-dim: rgb(242 230 204 / 20%);
+
   /* Typography: titles in Cinzel, phrases and book content in Cormorant Garamond italic, interface in Mulish. */
   --ml-font-title: 'Cinzel Variable', 'Georgia', serif;
   --ml-font-display: 'Cormorant Garamond Variable', 'Georgia', serif;
@@ -98,6 +109,10 @@
   --ml-color-glass-line: rgb(212 166 69 / 45%);
   --ml-color-accent: #ff4f8b;
   --ml-color-accent-ink: #0c1024;
+  --ml-color-sheet: #0a0d1e;
+  --ml-color-danger: #ff6b6b;
+  --ml-color-warn: #ffb347;
+  --ml-glow-capital: 0 0 12px rgb(255 79 139 / 60%);
   --ml-color-accent-tint: #321d3c;
   --ml-color-gold: #d4a645;
   --ml-color-gold-ink: #0c1024;
@@ -138,6 +153,10 @@
   --ml-color-raised: #eadbb8;
   --ml-color-ink: #151b36;
   --ml-color-muted: #4a4560;
+  --ml-color-sheet: #151b36;
+  --ml-color-danger: #b3261e;
+  --ml-color-warn: #9a4a00;
+  --ml-glow-capital: none;
   --ml-color-line: rgb(168 122 30 / 40%);
   --ml-color-glass-line: rgb(168 122 30 / 50%);
   --ml-color-accent: #ba1557;

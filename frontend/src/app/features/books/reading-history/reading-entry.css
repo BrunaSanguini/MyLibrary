@@ -1,0 +1,242 @@
+/* One reading on the timeline: the medal over the thread, the card beside it. */
+
+:host {
+  display: block;
+  position: relative;
+}
+
+.medal {
+  display: grid;
+  position: absolute;
+  top: 18px;
+  left: -76px;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  box-sizing: border-box;
+  border: 2px solid var(--ml-color-gold);
+  border-radius: 50%;
+  background: var(--ml-color-surface);
+  color: var(--ml-color-gold-text);
+  font-family: var(--ml-font-title);
+  font-size: 22px;
+  font-weight: 700;
+}
+
+:host(.latest) .medal {
+  background: var(--ml-color-accent);
+  box-shadow: var(--ml-glow);
+  color: var(--ml-color-accent-ink);
+}
+
+.entry {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 26px 30px;
+  border: 1px solid var(--ml-color-glass-line);
+  border-radius: var(--ml-radius-md);
+  background: var(--ml-color-surface);
+  box-shadow: var(--ml-shadow-frame), var(--ml-shadow-soft);
+}
+
+h3 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ml-space-12);
+  align-items: center;
+  margin: 0;
+  font-family: var(--ml-font-title);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.seal {
+  padding: 3px 10px;
+  border: 1px solid var(--ml-color-gold);
+  border-radius: var(--ml-radius-pill);
+  color: var(--ml-color-gold-text);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.seal[data-status='IN_PROGRESS'] {
+  border-color: var(--ml-color-accent);
+  color: var(--ml-color-accent);
+}
+
+.seal[data-status='ABANDONED'] {
+  border-color: var(--ml-color-abandoned);
+  color: var(--ml-color-abandoned);
+}
+
+.period {
+  margin: 6px 0 0;
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-display);
+  font-size: 20px;
+  font-style: italic;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--ml-space-12);
+  margin: 0;
+}
+
+.stats div {
+  display: flex;
+  flex-direction: column-reverse;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--ml-color-raised);
+}
+
+.stats dd {
+  margin: 0;
+  font-family: var(--ml-font-title);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.stats dt {
+  color: var(--ml-color-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.details {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 28px;
+  align-items: end;
+}
+
+.chart {
+  margin: 0;
+}
+
+figcaption {
+  margin-bottom: var(--ml-space-12);
+  color: var(--ml-color-gold-text);
+  font-family: var(--ml-font-title);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.bars {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  height: 110px;
+}
+
+.week {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  max-width: 48px;
+}
+
+.amount {
+  color: var(--ml-color-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.bar {
+  width: 100%;
+  border-radius: 4px 4px 1px 1px;
+  background: var(--ml-color-gold);
+}
+
+.bar.top {
+  background: var(--ml-color-accent);
+  box-shadow: var(--ml-glow);
+}
+
+.name {
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-title);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+blockquote {
+  margin: 0;
+  padding: 4px 0 4px 18px;
+  border-left: 2px solid var(--ml-color-accent);
+  font-family: var(--ml-font-display);
+  font-size: 20px;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.quiet {
+  margin: 0;
+  color: var(--ml-color-muted);
+}
+
+.entry-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  padding-top: 4px;
+  border-top: 1px solid var(--ml-color-line);
+}
+
+.entry-foot button,
+.entry-foot a {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  min-height: 40px;
+  margin-top: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--ml-font-body);
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.toggle {
+  color: var(--ml-color-accent);
+}
+
+.toggle ml-icon {
+  transition: transform 0.2s ease;
+}
+
+.toggle[aria-expanded='true'] ml-icon {
+  transform: rotate(180deg);
+}
+
+.calendar {
+  color: var(--ml-color-gold-text);
+}
+
+.edit {
+  color: var(--ml-color-muted);
+}
+
+.entry-foot :focus-visible {
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 2px;
+}
+
+@media (width < 760px) {
+  .stats,
+  .details {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}

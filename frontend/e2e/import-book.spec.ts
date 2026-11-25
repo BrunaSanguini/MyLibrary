@@ -35,37 +35,48 @@ async function forgetTheHobbit(page: Page): Promise<void> {
 // The tests share one book of the simulated Open Library, so they run one after the other.
 test.describe.configure({ mode: 'serial' });
 
-test('imports a book from the Open Library and finds it on the shelf', async ({ page }) => {
+/** The search block of the form, which only asks the Open Library on Buscar. */
+async function searchOpenLibrary(page: Page, term: string): Promise<void> {
+  const search = page.getByRole('searchbox', { name: 'Buscar na Open Library' });
+  await search.fill(term);
+  await page.getByRole('button', { name: 'Buscar', exact: true }).click();
+}
+
+test('fills the form from the Open Library, imports on save and finds it on the shelf', async ({
+  page,
+}) => {
   await forgetTheHobbit(page);
 
   await page.goto('/estante');
-  await page.getByRole('link', { name: 'Importar livro' }).click();
-  await expect(page.getByRole('heading', { name: 'Importar livro', level: 1 })).toBeVisible();
+  await page.getByRole('link', { name: 'Adicionar livro' }).first().click();
+  await expect(page.getByRole('heading', { name: 'Adicionar livro', level: 1 })).toBeVisible();
 
   // Searching by title lists the editions the Open Library found.
-  const search = page.getByRole('searchbox', { name: 'Título, autor ou ISBN' });
-  await search.fill('hobbit');
-  await search.press('Enter');
-  await expect(page).toHaveURL(/\/estante\/importar\?q=hobbit$/);
-  await expect(page.getByRole('heading', { name: 'Resultados', level: 2 })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'O Hobbit', level: 3 })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'The Hobbit', level: 3 })).toBeVisible();
+  await searchOpenLibrary(page, 'hobbit');
+  const results = page.getByRole('list', { name: 'Resultados da Open Library' });
+  await expect(results).toContainText('O Hobbit');
+  await expect(results).toContainText('The Hobbit');
 
-  // The preview shows what will be saved, and the focus follows to it.
-  await page.getByRole('link', { name: 'Ver detalhes de O Hobbit' }).click();
-  const previewTitle = page.getByRole('heading', { name: 'O Hobbit', level: 2 });
-  await expect(previewTitle).toBeFocused();
-  const preview = page.getByRole('article');
-  await expect(preview).toContainText('J.R.R. Tolkien');
-  await expect(preview).toContainText('Harper Collins');
-  await expect(preview).toContainText('336');
-  await expect(preview).toContainText('9788595084742');
+  // Using an edition fills section I and the cover; nothing is saved yet.
+  await page.getByRole('button', { name: 'Usar estes dados: O Hobbit' }).click();
+  await expect(page.getByLabel('Título *')).toHaveValue('O Hobbit');
+  await expect(page.getByRole('list', { name: 'Autores escolhidos' })).toContainText(
+    'J.R.R. Tolkien',
+  );
+  await expect(page.getByRole('list', { name: 'Editora escolhida' })).toContainText(
+    'Harper Collins',
+  );
+  await expect(page.getByLabel('Páginas')).toHaveValue('336');
+  await expect(page.getByLabel('ISBN · opcional')).toHaveValue('9788595084742');
+  await expect(page.getByText(/Capa trazida da Open Library/)).toBeVisible();
 
-  // Classifying is optional and happens in the same step as the confirmation.
-  await page.getByLabel('Este livro').selectOption('OWNED');
-  await page.getByRole('button', { name: 'Importar livro' }).click();
+  // The fields stay editable, and saving keeps what the reader changed.
+  await page.getByLabel('Ano').fill('2019');
+  await page.getByRole('button', { name: 'Salvar livro' }).click();
+  await expect(page.getByRole('heading', { name: 'Livro salvo na sua estante' })).toBeVisible();
+  await page.getByRole('link', { name: 'Ver o livro' }).click();
 
-  // The import lands on the page of the new book, with the cover downloaded to the app.
+  // The book has the cover downloaded to the app, and the seal of a book that is the reader's.
   await expect(page).toHaveURL(/\/livro\/\d+$/);
   await expect(page.getByRole('heading', { name: 'O Hobbit', level: 1 })).toBeVisible();
   await expect(page.getByRole('link', { name: 'J.R.R. Tolkien' })).toBeVisible();
@@ -73,6 +84,7 @@ test('imports a book from the Open Library and finds it on the shelf', async ({ 
     'aria-pressed',
     'true',
   );
+  await expect(page.getByText('Capa via Open Library')).toBeVisible();
   const cover = await page.request.get(
     await page.evaluate(() => {
       const image = document.querySelector<HTMLImageElement>('img[src^="/api/v1/images/"]');
@@ -87,82 +99,66 @@ test('imports a book from the Open Library and finds it on the shelf', async ({ 
 });
 
 test('says the book is already on the shelf instead of importing it twice', async ({ page }) => {
-  // By title, the result points to the book of the collection.
+  // The old address of the import opens the form, with the search in its field.
   await page.goto('/estante/importar?q=hobbit');
-  const results = page.getByRole('list').filter({ hasText: 'The Hobbit' });
-  await expect(results.getByText('Já está na sua estante')).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Ver detalhes de O Hobbit' })).toHaveCount(0);
+  await expect(page).toHaveURL(/\/estante\/novo\?q=hobbit$/);
+  await expect(page.getByRole('searchbox', { name: 'Buscar na Open Library' })).toHaveValue(
+    'hobbit',
+  );
+  await page.getByRole('button', { name: 'Buscar', exact: true }).click();
+  const results = page.getByRole('list', { name: 'Resultados da Open Library' });
+  await expect(results.getByRole('link', { name: 'Já está na sua estante' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Usar estes dados: O Hobbit' })).toHaveCount(0);
 
-  // By ISBN, the search goes straight to the edition and offers the book, not the import.
-  const search = page.getByRole('searchbox', { name: 'Título, autor ou ISBN' });
-  await search.fill('978-85-9508-474-2');
-  await search.press('Enter');
-  await expect(page.getByRole('heading', { name: 'O Hobbit', level: 2 })).toBeVisible();
-  await expect(page.getByRole('status')).toContainText('Já está na sua estante');
-  await expect(page.getByRole('button', { name: 'Importar livro' })).toHaveCount(0);
-
-  await page.getByRole('link', { name: 'Abrir o livro' }).click();
+  // By ISBN, the search goes straight to the edition.
+  await searchOpenLibrary(page, '978-85-9508-474-2');
+  await results.getByRole('link', { name: 'Já está na sua estante' }).click();
   await expect(page.getByRole('heading', { name: 'O Hobbit', level: 1 })).toBeVisible();
 });
 
-test('points to the manual form when there is no connection to the Open Library', async ({
-  page,
-}) => {
-  await page.goto('/estante/importar');
-  const search = page.getByRole('searchbox', { name: 'Título, autor ou ISBN' });
-  await search.fill('sem conexao');
-  await search.press('Enter');
+test('keeps the form usable when there is no connection to the Open Library', async ({ page }) => {
+  await page.goto('/estante/novo');
+  await searchOpenLibrary(page, 'sem conexao');
 
-  const failure = page.getByRole('alert');
-  await expect(failure).toContainText('Não foi possível buscar na Open Library');
-  await expect(failure).toContainText(
-    'Sem conexão com a Open Library. O cadastro manual continua disponível.',
-  );
-
-  await failure.getByRole('link', { name: 'Cadastrar manualmente' }).click();
-  await expect(page.getByRole('heading', { name: 'Cadastrar livro', level: 1 })).toBeVisible();
+  await expect(page.getByText(/Não foi possível falar com a Open Library agora/)).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Tentar de novo' })).toBeVisible();
+  await page.getByLabel('Título *').fill('Um livro sem rede');
+  await expect(page.getByLabel('Título *')).toHaveValue('Um livro sem rede');
 });
 
 test('says so when the Open Library takes too long to answer', async ({ page }) => {
-  await page.goto('/estante/importar?q=lenta');
+  await page.goto('/estante/novo');
+  await searchOpenLibrary(page, 'lenta');
 
   // The app waits, tries again twice and only then gives up, which takes a few seconds.
-  await expect(page.getByRole('status')).toContainText('Buscando na Open Library');
-  const failure = page.getByRole('alert');
-  await expect(failure).toContainText('A Open Library não respondeu a tempo.', {
+  await expect(page.getByRole('button', { name: 'Buscando…' })).toBeVisible();
+  await expect(page.getByText(/Não foi possível falar com a Open Library agora/)).toBeVisible({
     timeout: 20_000,
   });
-  await expect(failure.getByRole('link', { name: 'Cadastrar manualmente' })).toBeVisible();
-  await expect(failure.getByRole('button', { name: 'Tentar de novo' })).toBeVisible();
 });
 
-test('finds nothing and offers the manual form', async ({ page }) => {
-  await page.goto('/estante/importar?q=um livro que ninguem escreveu');
+test('finds nothing and leaves the form to be filled by hand', async ({ page }) => {
+  await page.goto('/estante/novo');
+  await searchOpenLibrary(page, 'um livro que ninguem escreveu');
 
-  await expect(page.getByRole('heading', { name: 'Nenhum livro encontrado' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Cadastrar manualmente' })).toBeVisible();
+  await expect(
+    page.getByText(/Nada encontrado para “um livro que ninguem escreveu”/),
+  ).toBeVisible();
 });
 
 for (const theme of THEMES) {
-  test(`import page has no WCAG 2.1 AA violations in ${theme} theme`, async ({ page }) => {
+  test(`search of the Open Library has no WCAG 2.1 AA violations in ${theme} theme`, async ({
+    page,
+  }) => {
     await useTheme(page, theme);
 
-    await page.goto('/estante/importar');
-    await expect(page.getByRole('heading', { name: 'O que você quer importar?' })).toBeVisible();
+    await page.goto('/estante/novo');
+    await searchOpenLibrary(page, 'hobbit');
+    await expect(page.getByRole('list', { name: 'Resultados da Open Library' })).toBeVisible();
     await expectNoAccessibilityViolations(page);
 
-    await page.goto('/estante/importar?q=hobbit');
-    await expect(page.getByRole('heading', { name: 'Resultados', level: 2 })).toBeVisible();
-    await expectNoAccessibilityViolations(page);
-
-    // The other edition is never imported, so its preview always shows the classification form.
-    await page.goto('/estante/importar?q=hobbit&edicao=OL7604539M');
-    await expect(page.getByRole('heading', { name: 'The Hobbit', level: 2 })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Importar livro' })).toBeVisible();
-    await expectNoAccessibilityViolations(page);
-
-    await page.goto('/estante/importar?q=sem conexao');
-    await expect(page.getByRole('alert')).toBeVisible();
+    await searchOpenLibrary(page, 'sem conexao');
+    await expect(page.getByText(/Não foi possível falar com a Open Library agora/)).toBeVisible();
     await expectNoAccessibilityViolations(page);
   });
 }

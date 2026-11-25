@@ -21,7 +21,12 @@ async function renderField(currentUrl?: string) {
   const fileChange = vi.fn();
   const removeChange = vi.fn();
   await render(ImageField, {
-    inputs: { label: 'Capa', currentUrl },
+    inputs: {
+      label: 'Capa',
+      currentUrl,
+      placeholderTitle: 'Duna',
+      placeholderAuthor: 'Frank Herbert',
+    },
     on: { fileChange, removeChange },
   });
   return { fileChange, removeChange, area: screen.getByRole('group', { name: /^Capa:/ }) };
@@ -58,11 +63,11 @@ describe('ImageField', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Use uma imagem JPEG, PNG ou WebP.');
   });
 
-  it('takes the new image back and shows the saved one again', async () => {
+  it('drops the new image with "Remover capa" and shows the saved one again', async () => {
     const { fileChange, area } = await renderField('/images/capa.jpg');
 
     fireEvent.paste(area, { clipboardData: transferOf(PNG) });
-    await userEvent.click(screen.getByRole('button', { name: 'Desfazer' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Remover capa' }));
 
     expect(fileChange).toHaveBeenLastCalledWith(undefined);
     expect(screen.getByRole('img', { name: 'Prévia: Capa' })).toHaveAttribute(
@@ -71,13 +76,21 @@ describe('ImageField', () => {
     );
   });
 
-  it('asks to remove the saved image', async () => {
+  it('asks to remove the saved image, and draws the cover instead', async () => {
     const { removeChange } = await renderField('/images/capa.jpg');
 
-    await userEvent.click(screen.getByRole('checkbox', { name: 'Remover a capa atual' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Remover capa' }));
 
     expect(removeChange).toHaveBeenCalledWith(true);
     expect(screen.queryByRole('img', { name: 'Prévia: Capa' })).not.toBeInTheDocument();
+    expect(screen.getByText(/o Ex·Libru desenha uma capa/)).toBeInTheDocument();
+  });
+
+  it('cannot remove a cover that is not there', async () => {
+    await renderField();
+
+    expect(screen.getByRole('button', { name: 'Remover capa' })).toBeDisabled();
+    expect(screen.getByText('Duna')).toBeInTheDocument();
   });
 
   it('keeps the file field, named by the label', async () => {

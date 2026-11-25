@@ -1,0 +1,161 @@
+/* A book of Minha Estante: a card of the grid, or a row of the list. */
+
+:host {
+  display: block;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ml-space-12);
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 4px;
+  border-radius: var(--ml-radius-sm);
+}
+
+.cover-box {
+  position: relative;
+  align-self: flex-start;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ml-space-4);
+  min-width: 0;
+}
+
+.title {
+  font-family: var(--ml-font-title);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.byline {
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-display);
+  font-size: 16px;
+  font-style: italic;
+}
+
+.status {
+  align-self: flex-start;
+  margin-top: var(--ml-space-4);
+  padding: 2px 9px;
+  border: 1px solid currentcolor;
+  border-radius: var(--ml-radius-pill);
+  color: var(--ml-color-gold-text);
+  font-family: var(--ml-font-title);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.status[data-status='READING'],
+.status[data-status='WISHLIST'] {
+  color: var(--ml-color-accent);
+}
+
+.status[data-status='WANT_TO_READ'] {
+  color: var(--ml-color-lilac);
+}
+
+.status[data-status='ABANDONED'] {
+  color: var(--ml-color-abandoned);
+}
+
+/* The seals over the top corners of the cover: the favourite on the right, the reread on the left. */
+.badge {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid currentcolor;
+  border-radius: 50%;
+  background: var(--ml-color-hero-night);
+  font-size: 15px;
+  line-height: 1;
+}
+
+.cover-box .badge {
+  position: absolute;
+  top: -10px;
+}
+
+.favorite {
+  right: -10px;
+  color: var(--ml-color-gold);
+}
+
+.reread {
+  left: -10px;
+  color: var(--ml-color-lilac);
+}
+
+/* The list: one row per book, with the columns side by side. */
+:host([data-view='lista']) .card {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 2fr) minmax(0, 1.2fr) auto 72px;
+  gap: var(--ml-space-24);
+  align-items: center;
+  min-height: 86px;
+  padding: 7px var(--ml-space-24) 7px var(--ml-space-12);
+  border: 1px solid var(--ml-color-glass-line);
+  border-radius: 14px;
+  background: var(--ml-color-surface);
+}
+
+:host([data-view='lista']) .card:hover {
+  transform: translateY(-2px);
+}
+
+:host([data-view='lista']) .cover {
+  width: 48px;
+}
+
+.shelf {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+}
+
+.muted {
+  color: var(--ml-color-muted);
+}
+
+.marks {
+  display: flex;
+  gap: var(--ml-space-8);
+  align-items: center;
+}
+
+.marks .status {
+  margin-top: 0;
+}
+
+.marks .badge {
+  width: 26px;
+  height: 26px;
+  font-size: 13px;
+}
+
+.rating {
+  font-family: var(--ml-font-title);
+  font-size: 15px;
+  font-weight: 700;
+  text-align: right;
+}

@@ -1,55 +1,62 @@
 import { httpResource } from '@angular/common/http';
-import { Component, computed, inject, input, signal, viewChild } from '@angular/core';
-import { Tab, TabContent, TabList, TabPanel, Tabs } from '@angular/aria/tabs';
+import {
+  afterNextRender,
+  Component,
+  Injector,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { ViewportScroller } from '@angular/common';
 import { ApiError } from '@core/api/api-error';
 import { BookDetailResponse, BooksApi } from '@core/api/books-api';
 import { toId } from '@core/api/query-params';
 import { NO_REVIEW, ReadingApi, ReadingResponse, ReviewResponse } from '@core/api/reading-api';
 import { Ownership } from '@core/api/shelf-api';
 import { HasUnsavedChanges } from '@core/routing/unsaved-changes-guard';
+import { toRoman } from '@shared/format/roman';
 import { BookCover } from '@shared/ui/book-cover/book-cover';
 import { Breadcrumbs } from '@shared/ui/breadcrumbs/breadcrumbs';
 import { Button } from '@shared/ui/button/button';
 import { ConfirmDialog } from '@shared/ui/confirm-dialog/confirm-dialog';
 import { EmptyState } from '@shared/ui/empty-state/empty-state';
+import { ExLibrisSeal } from '@shared/ui/ex-libris-seal/ex-libris-seal';
 import { ErrorState } from '@shared/ui/error-state/error-state';
 import { Icon } from '@shared/ui/icon/icon';
 import { Skeleton } from '@shared/ui/skeleton/skeleton';
 import { Tag } from '@shared/ui/tag/tag';
 import { firstValueFrom, Observable } from 'rxjs';
 
+import { BookNotes } from '../book-notes/book-notes';
 import { ReadingHistory } from '../reading-history/reading-history';
 import { ReadingSheet } from '../reading-sheet/reading-sheet';
 import { RelatedBooks } from '../related-books/related-books';
 import { ReviewEditor } from '../review-editor/review-editor';
 
-const LANGUAGES: Readonly<Record<string, string>> = {
-  por: 'Português',
-  eng: 'Inglês',
-  spa: 'Espanhol',
-  fra: 'Francês',
-  ita: 'Italiano',
-  deu: 'Alemão',
-  jpn: 'Japonês',
-};
-
 /**
- * The page of a book: its data, where it sits in the catalog, the three quick switches (Tenho,
- * Wishlist and favorite), the reading record, the review and, at the end, the related books.
+ * The page of a book: the cover with the ex-libris seal, the ficha (ownership, title, synopsis,
+ * reading record, genres, edit and delete), the review and the notes, the history of readings and,
+ * at the end, the rest of the series and the books with the same subgenre.
  *
- * <p>The switches update the page first and the server right after, so a click answers at once;
- * if the server refuses, the page goes back to what is really saved and says why.
+ * <p>The ownership switches update the page first and the server right after, so a click answers
+ * at once; if the server refuses, the page goes back to what is really saved and says why. The
+ * review section is also the anchor `#minha-resenha`, where "Ler minha resenha" of the Home lands.
  */
 @Component({
   selector: 'ml-book-page',
   imports: [
+    BookNotes,
     Breadcrumbs,
     BookCover,
     Button,
     ConfirmDialog,
     EmptyState,
     ErrorState,
+    ExLibrisSeal,
     Icon,
     ReadingHistory,
     ReadingSheet,
@@ -57,15 +64,10 @@ const LANGUAGES: Readonly<Record<string, string>> = {
     ReviewEditor,
     RouterLink,
     Skeleton,
-    Tab,
-    TabContent,
-    TabList,
-    TabPanel,
-    Tabs,
     Tag,
   ],
   templateUrl: './book-page.html',
-  styleUrl: './book-page.css',
+  styleUrls: ['../book-section.css', './book-page.css'],
 })
 export default class BookPage implements HasUnsavedChanges {
   readonly id = input(undefined, { transform: toId });
@@ -75,6 +77,7 @@ export default class BookPage implements HasUnsavedChanges {
   private readonly readingApi = inject(ReadingApi);
   private readonly confirmDeletion = viewChild(ConfirmDialog);
   private readonly reviewEditor = viewChild(ReviewEditor);
+  private readonly injector = inject(Injector);
 
   protected readonly book = httpResource<BookDetailResponse>(() => {
     const id = this.id();
@@ -121,13 +124,20 @@ export default class BookPage implements HasUnsavedChanges {
   );
   protected readonly errorMessage = computed(() => this.error()?.detail);
 
-  /** "1", or "2,5" for a volume between two others. */
-  protected readonly seriesPosition = computed(() =>
-    this.book.value()?.series?.position.toLocaleString('pt-BR'),
-  );
+  /** `I`, or `2,5` for a volume between two others. */
+  protected readonly volume = computed(() => {
+    const position = this.book.value()?.series?.position;
+    if (position === undefined) {
+      return undefined;
+    }
+    return Number.isInteger(position) ? toRoman(position) : position.toLocaleString('pt-BR');
+  });
 
-  /** Sobre (synopsis and details) or Histórico de leitura. */
-  protected readonly tab = signal<string | undefined>('sobre');
+  protected readonly crumbs = computed(() => [
+    { label: 'Home', link: '/' },
+    { label: 'Minha Estante', link: '/estante' },
+    { label: this.book.value()?.title ?? '' },
+  ]);
 
   /** The classification in two rows: the genres, then the subgenres inside them. */
   protected readonly genres = computed(
@@ -141,22 +151,21 @@ export default class BookPage implements HasUnsavedChanges {
     (this.book.value()?.authors ?? []).map((author) => author.name).join(', '),
   );
 
-  protected readonly details = computed(() => {
-    const book = this.book.value();
-    if (!book) {
-      return [];
-    }
-    const language = book.languageCode
-      ? (LANGUAGES[book.languageCode] ?? book.languageCode)
-      : undefined;
-    return [
-      { label: 'Ano de publicação', value: book.publishedYear?.toString() },
-      { label: 'Páginas', value: book.pageCount?.toLocaleString('pt-BR') },
-      { label: 'Idioma', value: language },
-      { label: 'ISBN-13', value: book.isbn13 },
-      { label: 'ISBN-10', value: book.isbn10 },
-    ].filter((detail): detail is { label: string; value: string } => Boolean(detail.value));
-  });
+  constructor() {
+    // The review is below the fold: a link to #minha-resenha scrolls there once the page has it.
+    const scroller = inject(ViewportScroller);
+    const router = inject(Router);
+    let scrolled = false;
+    effect(() => {
+      if (this.book.hasValue() && !this.review.isLoading() && !scrolled) {
+        scrolled = true;
+        const fragment = router.parseUrl(router.url).fragment;
+        if (fragment) {
+          afterNextRender(() => scroller.scrollToAnchor(fragment), { injector: this.injector });
+        }
+      }
+    });
+  }
 
   /** A review being written is the one thing this page can lose. */
   hasUnsavedChanges(): boolean {
@@ -173,11 +182,8 @@ export default class BookPage implements HasUnsavedChanges {
     this.apply({ ownership: next }, this.booksApi.setOwnership(book.id, next));
   }
 
-  protected toggleFavorite(): void {
-    const book = this.book.value();
-    if (book) {
-      this.apply({ favorite: !book.favorite }, this.booksApi.setFavorite(book.id, !book.favorite));
-    }
+  protected editReview(): void {
+    this.reviewEditor()?.edit();
   }
 
   protected askToDelete(): void {

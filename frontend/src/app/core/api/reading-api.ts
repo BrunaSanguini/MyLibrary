@@ -59,6 +59,10 @@ export class ReadingApi {
     return { url: `/api/v1/readings/${readingId}/sessions` };
   }
 
+  sessions(readingId: number): Observable<SessionResponse[]> {
+    return this.http.get<SessionResponse[]>(`/api/v1/readings/${readingId}/sessions`);
+  }
+
   /** Answers 404 with {@link NO_REVIEW} for a book without review. */
   reviewRequest(bookId: number): HttpResourceRequest {
     return { url: `/api/v1/books/${bookId}/review` };

@@ -43,11 +43,14 @@ Cada componente tem a própria pasta, com `.ts`, `.html`, `.css` e `.spec.ts`:
 ```
 features/books/
 ├─ book-page/
-├─ book-form-page/
-├─ book-import-page/
+├─ book-form-page/       cadastro e edição, com a busca opcional na Open Library
+├─ book-notes/           notas escritas durante as leituras
+├─ entity-picker/        combobox de autor, editora, série, gênero e subgênero
+├─ image-field/          coluna da capa do cadastro
+├─ reading-history/      histórico de leitura em linha do tempo
 ├─ reading-sheet/        ficha de leitura exibida na página do livro
-├─ review-editor/        resenha, lida e escrita na própria página
-└─ related-books/        livros relacionados, carregados com @defer
+├─ review-editor/        resenha: cartão na página e editor em modal
+└─ related-books/        mesma série e parecidos por subgênero, carregados com @defer
 ```
 
 **Regras de dependência**
@@ -305,10 +308,9 @@ As rotas são texto visível na barra do navegador, então ficam em português. 
 | Rota | Tela |
 |---|---|
 | `/` | Home |
-| `/estante` | Minha Estante (filtros na URL) |
-| `/estante/novo` | cadastro manual |
-| `/estante/importar` | importação da Open Library |
-| `/livro/:id` | página do livro |
+| `/estante` (`?status=lendo\|lidos\|quero\|abandonados\|wishlist`, `?favoritos=1`, `?releituras=1`, `?q=`, `?genero=`, `?autor=`, `?serie=`, `?editora=`, `?ordem=`, `?page=`) | Minha Estante (filtros na URL) |
+| `/estante/novo` (`?q=`) | cadastro, com a busca opcional na Open Library; `/estante/importar` redireciona para cá |
+| `/livro/:id` (`#minha-resenha`) | página do livro |
 | `/livro/:id/editar` | edição |
 | `/livro/:id/leitura` | Registrar leitura |
 | `/listas` (`?filtro=`, `?page=`) · `/lista/:id` (`?adicionar=true`) | Listas (filtro e página na URL); a lista, já com o painel “Adicionar livros” aberto |
@@ -319,7 +321,7 @@ As rotas são texto visível na barra do navegador, então ficam em português. 
 | `/perfil` | Perfil |
 | `**` | Página não encontrada |
 
-As rotas da versão anterior (`/livros/…`, `/listas/:id`, `/autores/:id`, `/series/:id`, `/metas`) continuam abrindo: o `app.routes.ts` as redireciona para as novas, mantendo o `:id`, a query string e o fragmento.
+As rotas da versão anterior (`/livros/…`, `/estante/importar`, `/listas/:id`, `/autores/:id`, `/series/:id`, `/metas`) continuam abrindo: o `app.routes.ts` as redireciona para as novas, mantendo o `:id`, a query string e o fragmento.
 
 ```ts
 export const routes: Routes = [

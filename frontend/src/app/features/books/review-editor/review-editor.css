@@ -1,31 +1,89 @@
-/* Review: the saved text reads like the synopsis; the form sits in the same place when editing. */
+/* Review: the text on a page-like card, and the editor in a modal over the page. */
 
 :host {
+  display: block;
+}
+
+.card {
   display: flex;
   flex-direction: column;
+  gap: 14px;
+  padding: 36px 40px;
+  border: 1px solid var(--ml-color-glass-line);
+  border-radius: var(--ml-radius-md);
+  background: var(--ml-color-surface);
+  box-shadow: var(--ml-shadow-frame), var(--ml-shadow-soft);
+}
+
+.written {
+  margin: 0;
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-display);
+  font-size: 17px;
+  font-style: italic;
+}
+
+/* Read like the page of a book: large serif text, the first letter as a framed capital. */
+.content p {
+  margin: 0 0 0.6em;
+  font-family: var(--ml-font-display);
+  font-size: 22px;
+  line-height: 1.6;
+}
+
+.content p:first-child::first-letter {
+  float: left;
+  width: 64px;
+  height: 64px;
+  margin: 6px 14px 0 0;
+  border: 1.5px solid var(--ml-color-gold);
+  background: var(--ml-color-raised);
+  color: var(--ml-color-gold-text);
+  font-family: var(--ml-font-title);
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 64px;
+  text-align: center;
+  text-shadow: var(--ml-glow-capital);
+}
+
+.only-rating {
+  margin: 0;
+  color: var(--ml-color-muted);
+}
+
+.empty {
   align-items: flex-start;
-  gap: var(--ml-space-16);
+  border: 1.5px dashed var(--ml-color-glass-line);
+  box-shadow: none;
+}
+
+.empty p {
+  margin: 0;
+  font-family: var(--ml-font-display);
+  font-size: 22px;
+  font-style: italic;
+}
+
+.dialog {
+  width: min(720px, calc(100vw - var(--ml-space-32)));
+  padding: var(--ml-space-32);
+  border: 1px solid var(--ml-color-line);
+  border-radius: var(--ml-radius-lg);
+  background: var(--ml-color-surface);
+  box-shadow: var(--ml-shadow-soft);
+  color: var(--ml-color-ink);
+}
+
+.dialog::backdrop {
+  background: var(--ml-color-backdrop);
 }
 
 h2 {
   margin: 0;
-  font-family: var(--ml-font-display);
-  font-size: 30px;
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-.content,
-.invitation {
-  max-width: 70ch;
-  margin: 0;
-  font-size: 16px;
-  line-height: 1.65;
-  white-space: pre-line;
-}
-
-.invitation {
-  color: var(--ml-color-muted);
+  font-family: var(--ml-font-title);
+  font-size: 26px;
+  font-weight: 700;
 }
 
 .form {

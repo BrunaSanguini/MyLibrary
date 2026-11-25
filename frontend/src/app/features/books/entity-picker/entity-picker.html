@@ -13,6 +13,7 @@
     [attr.aria-describedby]="describedBy() ?? null"
     [(value)]="term"
     [(expanded)]="expanded"
+    (click)="expanded.set(true)"
   />
 
   <ng-template ngComboboxPopup [combobox]="combobox">
@@ -36,7 +37,7 @@
         </div>
       }
       @if (options().length === 0 && createOptions().length === 0) {
-        <p class="empty">Digite um nome para buscar ou criar.</p>
+        <p class="empty">Nada cadastrado com esse nome ainda.</p>
       }
     </div>
   </ng-template>

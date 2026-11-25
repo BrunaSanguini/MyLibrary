@@ -1,22 +1,21 @@
 import { Component, computed, input } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { BookDetailResponse } from '@core/api/books-api';
 import { BOOK_STATUS_LABELS, bookStatusOf, ReadingResponse } from '@core/api/reading-api';
-import { formatLongDate } from '@core/time/today';
-import { Button } from '@shared/ui/button/button';
-import { Icon } from '@shared/ui/icon/icon';
-import { ProgressBar } from '@shared/ui/progress-bar/progress-bar';
-import { RatingStars } from '@shared/ui/rating-stars/rating-stars';
-import { Tag } from '@shared/ui/tag/tag';
+import { formatNumericDate } from '@core/time/today';
+import { toRoman } from '@shared/format/roman';
+
+/** The volumes the series line draws, at most: beyond that the dashes would not fit. */
+const MAX_DASHES = 12;
 
 /**
- * The reading record of a book: rating, status, when it was read, how far the current reading
- * went and how many times it was read. Everything comes from the readings and the review, so the
- * record only shows; the readings are registered on their own page.
+ * Ficha de leitura: the rating, then the series, the status, the dates and pages of the latest
+ * reading and how many times the book was read. Dark in both themes, like a library card.
+ *
+ * <p>Everything comes from the readings and the review: the ficha only shows. A book in the
+ * wishlist has no reading status, so the status and the dates stay out.
  */
 @Component({
   selector: 'ml-reading-sheet',
-  imports: [Button, Icon, ProgressBar, RatingStars, RouterLink, Tag],
   templateUrl: './reading-sheet.html',
   styleUrl: './reading-sheet.css',
 })
@@ -27,61 +26,84 @@ export class ReadingSheet {
   /** Rating of the review, when the book has one. */
   readonly rating = input<number | undefined>();
 
-  /** The reading that decides the status, which is also the one whose dates the record shows. */
+  protected readonly wishlist = computed(() => this.book().ownership === 'WISHLIST');
+
+  /** The reading that decides the status, which is also the one whose dates the ficha shows. */
   protected readonly latest = computed(() => this.readings()[0]);
   protected readonly status = computed(() => bookStatusOf(this.readings()));
-  protected readonly statusLabel = computed(() => BOOK_STATUS_LABELS[this.status()]);
-  protected readonly reading = computed(() => this.status() === 'READING');
-
-  protected readonly startDate = computed(() => {
-    const start = this.latest()?.startDate;
-    return start ? formatLongDate(start) : undefined;
-  });
-
-  protected readonly endDate = computed(() => {
-    const end = this.latest()?.endDate;
-    return end ? formatLongDate(end) : undefined;
-  });
-
-  /** "120 de 576" while reading; otherwise just the size of the book. */
-  protected readonly pages = computed(() => {
-    const total = this.book().pageCount;
-    const latest = this.latest();
-    if (this.reading() && latest) {
-      const read = latest.progress.pagesRead.toLocaleString('pt-BR');
-      return total ? `${read} de ${total.toLocaleString('pt-BR')}` : read;
-    }
-    return total?.toLocaleString('pt-BR');
-  });
-
-  protected readonly timesRead = computed(
-    () => this.readings().filter((reading) => reading.status === 'FINISHED').length,
+  protected readonly statusLabel = computed(() =>
+    this.status() === 'READING' ? 'Lendo agora' : BOOK_STATUS_LABELS[this.status()],
   );
 
-  /** Read more than once, or a reading the person marked as a reread. */
-  protected readonly reread = computed(
-    () => this.timesRead() > 1 || this.readings().some((reading) => reading.reread),
-  );
+  /** `4,5`, or a dash when there is no rating. */
+  protected readonly ratingText = computed(() => {
+    const rating = this.rating();
+    return rating === undefined ? '—' : rating.toLocaleString('pt-BR');
+  });
 
-  protected readonly seriesPlace = computed(() => {
+  /** Five stars, full, half or empty, as the rating fills them. */
+  protected readonly stars = computed(() => {
+    const rating = this.rating() ?? 0;
+    return [1, 2, 3, 4, 5].map((star) =>
+      rating >= star ? 'full' : rating >= star - 0.5 ? 'half' : 'empty',
+    );
+  });
+
+  protected readonly starsLabel = computed(() => {
+    const rating = this.rating();
+    return rating === undefined ? 'Sem nota' : `Nota ${this.ratingText()} de 5`;
+  });
+
+  /** `O Senhor dos Anéis · livro I de III`, and one dash per volume, this one lit. */
+  protected readonly series = computed(() => {
     const series = this.book().series;
     if (!series) {
       return undefined;
     }
-    const position = series.position.toLocaleString('pt-BR');
-    return series.totalVolumes
-      ? `Livro ${position} de ${series.totalVolumes}`
-      : `Livro ${position}`;
+    const position = Number.isInteger(series.position)
+      ? toRoman(series.position)
+      : series.position.toLocaleString('pt-BR');
+    const total = series.totalVolumes;
+    const text = total
+      ? `${series.name} · livro ${position} de ${toRoman(total)}`
+      : `${series.name} · livro ${position}`;
+    const dashes =
+      total && total <= MAX_DASHES
+        ? Array.from({ length: total }, (_, index) => index + 1 === Math.round(series.position))
+        : [];
+    return { text, dashes };
   });
 
-  protected readonly action = computed(() => {
-    switch (this.status()) {
-      case 'READING':
-        return 'Continuar leitura';
-      case 'WANT_TO_READ':
-        return 'Começar a ler';
-      default:
-        return 'Registrar leitura';
-    }
+  protected readonly start = computed(() => {
+    const start = this.latest()?.startDate;
+    return start ? formatNumericDate(start) : '—';
   });
+
+  /** The end of the latest reading, or "em andamento" while it is not over. */
+  protected readonly end = computed(() => {
+    const end = this.latest()?.endDate;
+    return end ? formatNumericDate(end) : 'em andamento';
+  });
+
+  /** An abandoned book says where it stopped: `14/05/2026 · pág. 212 de 576`. */
+  protected readonly stoppedAt = computed(() => {
+    const latest = this.latest();
+    if (!latest || this.status() !== 'ABANDONED') {
+      return undefined;
+    }
+    const total = this.book().pageCount;
+    const page = latest.progress.pagesRead;
+    const where = total ? `pág. ${page} de ${total}` : `pág. ${page}`;
+    return latest.endDate ? `${formatNumericDate(latest.endDate)} · ${where}` : where;
+  });
+
+  protected readonly pages = computed(() => this.book().pageCount?.toLocaleString('pt-BR') ?? '—');
+
+  /** Every record of the history counts, in roman numerals. */
+  protected readonly timesRead = computed(() => {
+    const count = this.readings().length;
+    return count === 0 ? '—' : toRoman(count);
+  });
+
+  protected readonly reread = computed(() => this.readings().length > 1);
 }

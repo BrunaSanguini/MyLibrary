@@ -1,4 +1,5 @@
-/* A quiet line above the page title: only the links take the accent when hovered. */
+/* A quiet line above the page title, in small capitals with a star between the steps (HOME ✦ MINHA
+   ESTANTE): only the links take the accent when hovered. */
 
 :host {
   display: block;
@@ -10,24 +11,30 @@
 ol {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 10px;
   margin: 0;
   padding: 0;
   list-style: none;
   color: var(--ml-color-muted);
-  font-size: 14px;
+  font-family: var(--ml-font-title);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
 }
 
 li {
   display: flex;
-  gap: 6px;
+  gap: 10px;
   align-items: center;
   min-width: 0;
 }
 
 li + li::before {
   /* The empty alternative text keeps screen readers from reading the separator. */
-  content: '›' / '';
+  content: '✦' / '';
+  color: var(--ml-color-gold-text);
+  font-size: 10px;
 }
 
 a {
@@ -43,7 +50,6 @@ a:hover {
   overflow: hidden;
   max-width: 40ch;
   color: var(--ml-color-ink);
-  font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }

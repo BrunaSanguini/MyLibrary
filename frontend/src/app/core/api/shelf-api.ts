@@ -11,6 +11,7 @@ export type ShelfPage = components['schemas']['PageResponseBookCardResponse'];
 export type RelatedBooksResponse = components['schemas']['RelatedBooksResponse'];
 export type Ownership = NonNullable<BookCardResponse['ownership']>;
 export type ShelfStatus = BookCardResponse['status'];
+export type ShelfSummary = components['schemas']['ShelfSummaryResponse'];
 
 /** Sort fields the shelf accepts; anything else is rejected with request.invalid-sort. */
 export const SHELF_SORTS = [
@@ -20,11 +21,12 @@ export const SHELF_SORTS = [
   'seriesPosition',
   'rating',
   'finishedAt',
+  'publishedYear',
 ] as const;
 export type ShelfSort = (typeof SHELF_SORTS)[number];
 
-/** These two only make sense from the best or the latest down; the others keep the API default. */
-const DESCENDING_SORTS: readonly ShelfSort[] = ['rating', 'finishedAt'];
+/** These only make sense from the best or the latest down; the others keep the API default. */
+const DESCENDING_SORTS: readonly ShelfSort[] = ['rating', 'finishedAt', 'publishedYear'];
 
 export const SHELF_STATUSES = [
   'READING',
@@ -48,6 +50,8 @@ export interface ShelfFilter {
   readonly authorId?: number;
   readonly publisherId?: number;
   readonly seriesId?: number;
+  /** False leaves the wishlist out, as Minha Estante does; true keeps only it. */
+  readonly wishlist?: boolean;
   readonly sort?: ShelfSort;
   readonly page?: number;
   readonly size?: number;
@@ -86,6 +90,11 @@ export class ShelfApi {
       map((current) => current.content),
       reduce((all, content) => [...all, ...content], [] as BookCardResponse[]),
     );
+  }
+
+  /** How many books each tab and chip of Minha Estante holds. */
+  summaryRequest(): HttpResourceRequest {
+    return { url: '/api/v1/shelf/summary' };
   }
 
   /** The other books of the series and the ones with subgenres in common. */
