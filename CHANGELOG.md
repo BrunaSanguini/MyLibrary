@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.6.0](https://github.com/BrunaSanguini/MyLibrary/compare/v1.5.0...v1.6.0) (2026-11-25)
+
+
+### Funcionalidades
+
+* **frontend:** estante, livro e cadastro pela spec do Ex·Libru ([#85](https://github.com/BrunaSanguini/MyLibrary/issues/85)) ([264b56f](https://github.com/BrunaSanguini/MyLibrary/commit/264b56fd780c520cd1d52a2ea2b4f827da91a95d))
+* **frontend:** home pela spec do Ex·Libru ([#83](https://github.com/BrunaSanguini/MyLibrary/issues/83)) ([c42654b](https://github.com/BrunaSanguini/MyLibrary/commit/c42654b9a7549ff61bcef2d1e05f2a506ef383ec))
+* **frontend:** registrar leitura, calendário, catálogos e perfil ([#86](https://github.com/BrunaSanguini/MyLibrary/issues/86)) ([a489f41](https://github.com/BrunaSanguini/MyLibrary/commit/a489f41fd05520368513f191a4d14713c94d7258))
+
 ## [1.5.0](https://github.com/BrunaSanguini/MyLibrary/compare/v1.4.0...v1.5.0) (2026-11-24)
 
 
