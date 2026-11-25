@@ -177,6 +177,28 @@ class ReadingServiceTest {
     }
 
     @Test
+    void shouldResumeAnAbandonedReadingKeepingItsStart() {
+        long reading = readings.create(fellowship, inProgressFrom(NOV_1)).id();
+        readings.abandon(reading, NOV_8);
+
+        ReadingResponse resumed = readings.resume(reading);
+
+        assertThat(resumed)
+                .extracting(ReadingResponse::status, ReadingResponse::startDate, ReadingResponse::endDate)
+                .containsExactly(ReadingStatus.IN_PROGRESS, NOV_1, null);
+    }
+
+    @Test
+    void shouldOnlyResumeAnAbandonedReading() {
+        long reading = readings.create(fellowship, inProgressFrom(NOV_1)).id();
+
+        assertCode(() -> readings.resume(reading), ConflictException.class, "reading.in-progress-exists");
+
+        readings.finish(reading, NOV_8);
+        assertCode(() -> readings.resume(reading), ConflictException.class, "reading.not-abandoned");
+    }
+
+    @Test
     void shouldRefuseToFinishBeforeTheLastSession() {
         long reading = readings.create(fellowship, inProgressFrom(NOV_1)).id();
         readings.addSession(reading, pages(NOV_8, 25));

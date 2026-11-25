@@ -113,6 +113,7 @@
   --ml-color-danger: #ff6b6b;
   --ml-color-warn: #ffb347;
   --ml-glow-capital: 0 0 12px rgb(255 79 139 / 60%);
+  --ml-glow-arc: drop-shadow(0 0 7px rgb(255 79 139 / 70%));
   --ml-color-accent-tint: #321d3c;
   --ml-color-gold: #d4a645;
   --ml-color-gold-ink: #0c1024;
@@ -157,6 +158,7 @@
   --ml-color-danger: #b3261e;
   --ml-color-warn: #9a4a00;
   --ml-glow-capital: none;
+  --ml-glow-arc: none;
   --ml-color-line: rgb(168 122 30 / 40%);
   --ml-color-glass-line: rgb(168 122 30 / 50%);
   --ml-color-accent: #ba1557;

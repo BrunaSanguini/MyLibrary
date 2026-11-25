@@ -1,0 +1,108 @@
+<dialog #dialog class="dialog" aria-labelledby="titulo-editar-perfil">
+  <form class="form" novalidate (submit)="save($event)">
+    <div class="head">
+      <div>
+        <p class="eyebrow">✦ Seu perfil</p>
+        <h2 id="titulo-editar-perfil">Editar perfil e foto</h2>
+      </div>
+      <button type="button" class="round" aria-label="Fechar" (click)="close()">
+        <ml-icon name="close" [size]="16" />
+      </button>
+    </div>
+
+    <div class="photo">
+      <span class="preview" aria-hidden="true">
+        @if (profile()?.avatarUrl; as url) {
+          <img [src]="url" alt="" />
+        } @else if (initial(); as letter) {
+          {{ letter }}
+        } @else {
+          <ml-icon name="user" [size]="36" />
+        }
+      </span>
+      <div class="photo-text">
+        <div class="photo-actions">
+          <button
+            mlButton="secondary"
+            type="button"
+            [disabled]="photoBusy()"
+            (click)="choosePhoto()"
+          >
+            <ml-icon name="camera" [size]="16" /> Escolher imagem
+          </button>
+          <button
+            mlButton="secondary"
+            type="button"
+            [disabled]="photoBusy() || !profile()?.avatarUrl"
+            (click)="removePhoto()"
+          >
+            Remover foto
+          </button>
+        </div>
+        <p class="hint">PNG, JPG ou WebP, em círculo. A foto fica só neste computador.</p>
+        <label class="ml-visually-hidden" for="foto-perfil">Foto do perfil</label>
+        <input
+          #file
+          id="foto-perfil"
+          class="ml-visually-hidden"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          tabindex="-1"
+          aria-hidden="true"
+          (change)="sendPhoto($event)"
+        />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="nome-perfil">Como quer ser chamada(o)</label>
+      <input
+        id="nome-perfil"
+        type="text"
+        autocomplete="nickname"
+        [maxLength]="nameMax"
+        [value]="name()"
+        [attr.aria-invalid]="!!nameProblem()"
+        [attr.aria-describedby]="nameProblem() ? 'erro-nome-perfil' : null"
+        (input)="edit('name', $event)"
+      />
+      @if (nameProblem(); as message) {
+        <p id="erro-nome-perfil" class="error">{{ message }}</p>
+      }
+    </div>
+
+    <div class="field">
+      <label for="desde-perfil">Leitora desde</label>
+      <input
+        id="desde-perfil"
+        type="number"
+        step="1"
+        [min]="firstYear"
+        [max]="thisYear()"
+        [value]="since()"
+        [attr.aria-invalid]="!!sinceProblem()"
+        aria-describedby="dica-desde-perfil"
+        (input)="edit('since', $event)"
+      />
+      <p id="dica-desde-perfil" [class]="sinceProblem() ? 'error' : 'hint'">
+        {{ sinceProblem() ?? sinceHint() }}
+      </p>
+    </div>
+
+    @if (failure(); as message) {
+      <p class="error" role="alert">{{ message }}</p>
+    }
+
+    <div class="actions">
+      <p class="saved" role="status">{{ savedNotice() ? 'Perfil salvo ✓' : '' }}</p>
+      <button mlButton="secondary" type="button" (click)="close()">Cancelar</button>
+      <button
+        mlButton="primary"
+        type="submit"
+        [disabled]="busy() || !!nameProblem() || !!sinceProblem()"
+      >
+        Salvar perfil
+      </button>
+    </div>
+  </form>
+</dialog>

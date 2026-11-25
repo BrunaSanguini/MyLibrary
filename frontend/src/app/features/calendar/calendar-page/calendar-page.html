@@ -1,7 +1,7 @@
 <section class="bar" aria-label="Mês do calendário">
   <div class="month">
     <div class="titles">
-      <p class="eyebrow">Calendário de leitura</p>
+      <p class="eyebrow">✦ Calendário de leitura</p>
       <h1>{{ title() }}</h1>
     </div>
     <div class="nav">
@@ -67,7 +67,7 @@
           [class.is-today]="cell.today"
           [class.dim]="dimmed(cell)"
           [style.background]="cell.background"
-          [disabled]="cell.future || !cell.inMonth"
+          [disabled]="cell.future"
           [attr.aria-pressed]="selected() === cell.date"
           (click)="pick(cell)"
         >
@@ -117,6 +117,10 @@
           </button>
         </div>
 
+        @if (notice()) {
+          <p class="notice" role="status">{{ notice() }}</p>
+        }
+
         @for (entry of cell.books; track entry.bookId) {
           <div class="entry">
             <ml-book-cover
@@ -145,10 +149,16 @@
         } @empty {
           <div class="nothing">
             <p class="nothing-title">Nenhuma leitura neste dia</p>
-            <p>Leu e esqueceu de marcar? Registre na página do livro.</p>
+            <p>Leu e esqueceu de marcar? Registre agora.</p>
           </div>
         }
+
+        <button mlButton="primary" type="button" class="register" (click)="registerOn(cell.date)">
+          <ml-icon name="plus" [size]="15" /> Registrar leitura neste dia
+        </button>
       </aside>
     }
   </section>
 }
+
+<ml-day-reading-dialog (saved)="registered($event)" />

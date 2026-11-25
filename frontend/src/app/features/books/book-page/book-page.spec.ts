@@ -464,7 +464,7 @@ describe('BookPage', () => {
     });
 
     const notes = screen.getByRole('heading', { name: 'Minhas notas' }).closest('ml-book-notes')!;
-    expect(within(notes as HTMLElement).getByText('03/11/2026')).toBeInTheDocument();
+    expect(within(notes as HTMLElement).getByText('P. 30 · 03/11/2026')).toBeInTheDocument();
     expect(
       within(notes as HTMLElement).getByText('Um anel para a todos governar.'),
     ).toBeInTheDocument();

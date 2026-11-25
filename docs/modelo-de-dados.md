@@ -192,7 +192,7 @@ Os dígitos verificadores do ISBN são validados no serviço.
 
 **`book_publisher`**: chave (`book_id`, `publisher_id`) e `publisher_order`. Um livro pode ter mais de uma editora (coedição), na ordem impressa no livro. Remover o livro remove os vínculos. Excluir uma editora a tira dos livros antes (o livro fica com as outras, sem buraco na ordem). Até a versão 1.0 o livro tinha uma editora só (`book.publisher_id`); a migração `V8` passou cada uma para esta tabela.
 
-**`series`**: `name`, `normalized_name` (único) e `total_volumes` (opcional, para a barra "2 de 3"). Excluir uma série limpa `series_id` e `series_position` dos livros na mesma transação, então nenhum livro fica com posição sem série.
+**`series`**: `name`, `normalized_name` (único), `total_volumes` (opcional, para a barra "2 de 3") e `description` (`VARCHAR(2000)`, opcional, migração `V12`: a descrição escrita pela leitora). Excluir uma série limpa `series_id` e `series_position` dos livros na mesma transação, então nenhum livro fica com posição sem série.
 
 **`genre`**: `name`, `normalized_name` (único) e `parent_id`.
 - Gênero tem `parent_id` nulo; subgênero aponta para um gênero.
@@ -266,6 +266,7 @@ Um novo tipo (por gênero, por série) entra como novo valor do enum, mais as co
 - `display_name` (`VARCHAR(80)`).
 - `avatar_image_id` (FK `image`, `ON DELETE SET NULL`).
 - `theme`: `LIGHT`, `DARK` ou `SYSTEM`; padrão `SYSTEM`.
+- `reader_since` (`SMALLINT`, opcional, migração `V13`): o ano em que a leitora diz que começou a ler, de 1900 até o ano atual. Vazio, o Perfil mostra o ano da primeira leitura registrada.
 
 ### `images`
 

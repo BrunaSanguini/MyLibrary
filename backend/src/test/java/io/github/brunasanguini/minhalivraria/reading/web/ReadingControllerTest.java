@@ -160,6 +160,17 @@ class ReadingControllerTest {
     }
 
     @Test
+    void shouldAnswer409WhenResumingAReadingThatWasNotAbandoned() {
+        given(service.resume(9)).willThrow(new ConflictException("reading.not-abandoned"));
+
+        assertThat(post("/api/v1/readings/9/resume", "{}"))
+                .hasStatus(HttpStatus.CONFLICT)
+                .bodyJson()
+                .extractingPath("$.code")
+                .isEqualTo("reading.not-abandoned");
+    }
+
+    @Test
     void shouldAnswer409WhenFinishingAReadingThatIsNotInProgress() {
         given(service.finish(anyLong(), any())).willThrow(new ConflictException("reading.not-in-progress"));
 

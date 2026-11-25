@@ -4,7 +4,7 @@
     [title]="group().singular + ' não encontrado no acervo'"
     message="O endereço pode estar errado, ou o registro foi excluído."
   >
-    <a mlButton="primary" routerLink="/catalogos" [queryParams]="{ tipo: group().tab }">
+    <a mlButton="primary" [routerLink]="['/catalogos', group().tab]">
       Ver {{ group().plural.toLowerCase() }}
     </a>
   </ml-empty-state>

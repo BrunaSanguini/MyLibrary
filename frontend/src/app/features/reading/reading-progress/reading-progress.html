@@ -1,48 +1,35 @@
-<section class="summary card" aria-labelledby="titulo-progresso">
-  <ml-progress-ring [value]="progress().percent" />
-  <div class="summary-body">
-    <h2 id="titulo-progresso">Progresso</h2>
-    <p class="pages">{{ pages() }}</p>
+<div
+  class="ring"
+  role="img"
+  [attr.aria-label]="pagesRead() + ' de ' + (pageCount() ?? '?') + ' páginas lidas'"
+>
+  <svg viewBox="0 0 240 240" aria-hidden="true">
+    <circle class="rim" cx="120" cy="120" r="116" />
+    <circle class="track" cx="120" cy="120" [attr.r]="radius" />
+    <circle
+      class="arc"
+      cx="120"
+      cy="120"
+      [attr.r]="radius"
+      [attr.stroke-dasharray]="dash()"
+      transform="rotate(-90 120 120)"
+    />
+  </svg>
+  <span class="center" aria-hidden="true">
+    <span class="read">
+      <b>{{ pagesRead() }}</b>
+      @if (pageCount(); as total) {
+        <span class="total">/ {{ total }}</span>
+      }
+    </span>
+    <span class="caption">Páginas lidas</span>
+  </span>
+</div>
 
-    <h3>Previsão de término</h3>
-    @if (forecastDate()) {
-      <p class="forecast">{{ forecastDate() }}</p>
-    }
-    <p class="detail">{{ forecastDetail() }}</p>
-  </div>
-</section>
-
-<section class="card" aria-labelledby="titulo-semana">
-  <header class="card-head">
-    <h2 id="titulo-semana">Esta semana</h2>
-    <p class="total">{{ weekTotal() }}</p>
-  </header>
-  <ol class="week">
-    @for (day of week(); track day.date) {
-      <li
-        class="day"
-        [class.read]="day.pages > 0"
-        [attr.aria-current]="day.today ? 'date' : null"
-        [attr.aria-label]="day.label"
-      >
-        <span class="weekday" aria-hidden="true">{{ day.weekday }}</span>
-        <span class="day-number" aria-hidden="true">{{ day.dayOfMonth }}</span>
-        <span class="day-pages" aria-hidden="true">{{ day.pages > 0 ? day.pages : '–' }}</span>
-      </li>
-    }
-  </ol>
-</section>
-
-<section class="card" aria-labelledby="titulo-grafico">
-  <h2 id="titulo-grafico">Páginas por dia</h2>
-  <p class="detail">Os últimos 14 dias.</p>
-  <ol class="chart">
-    @for (day of chart(); track day.date) {
-      <li class="column" [attr.aria-label]="day.label">
-        <span class="value" aria-hidden="true">{{ day.pages > 0 ? day.pages : '' }}</span>
-        <span class="bar" aria-hidden="true" [style.height.%]="day.height"></span>
-        <span class="axis" aria-hidden="true">{{ day.dayOfMonth }}</span>
-      </li>
-    }
-  </ol>
-</section>
+<div class="text">
+  <p class="percent">{{ percent() }}%</p>
+  <p class="headline">{{ headline() }}</p>
+  @if (forecast(); as forecast) {
+    <p class="forecast">{{ forecast }}</p>
+  }
+</div>

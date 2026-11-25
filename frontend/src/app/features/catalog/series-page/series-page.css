@@ -9,6 +9,41 @@
   color: var(--ml-color-accent);
 }
 
+.notice {
+  margin: var(--ml-space-16) 0 0;
+  color: var(--ml-color-gold-text);
+  font-weight: 700;
+}
+
+.notice:empty {
+  display: none;
+}
+
+.description {
+  margin: 0 0 var(--ml-space-8);
+  font-family: var(--ml-font-display);
+  font-size: 19px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.more {
+  margin: 0 0 var(--ml-space-16);
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--ml-color-lilac);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.more:focus-visible {
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 2px;
+}
+
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);

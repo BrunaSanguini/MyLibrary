@@ -78,8 +78,18 @@ export const routes: Routes = [
     loadComponent: () => import('@features/calendar/calendar-page/calendar-page'),
     title: 'Calendário de leitura',
   },
+  // The tab is part of the address; the "?tipo=" of the earlier version opens the same tab.
   {
     path: 'catalogos',
+    pathMatch: 'full',
+    redirectTo: ({ queryParams }) => {
+      const tipo = queryParams['tipo'] as unknown;
+      const tab = ['autores', 'series', 'editoras'].includes(tipo as string) ? tipo : 'generos';
+      return inject(Router).createUrlTree(['/catalogos', tab]);
+    },
+  },
+  {
+    path: 'catalogos/:aba',
     loadComponent: () => import('@features/catalog/catalog-page/catalog-page'),
     title: 'Catálogos',
   },

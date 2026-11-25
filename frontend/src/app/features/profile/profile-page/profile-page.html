@@ -1,5 +1,5 @@
-<section class="intro" aria-labelledby="titulo-perfil">
-  <div class="who">
+<div class="top">
+  <section class="card hello" aria-labelledby="titulo-perfil">
     <div class="avatar-box">
       <span class="avatar" aria-hidden="true">
         @if (profile()?.avatarUrl; as url) {
@@ -11,128 +11,94 @@
         }
       </span>
       <button
-        class="camera"
+        class="pencil"
         type="button"
         aria-label="Trocar foto do perfil"
-        [disabled]="avatarBusy()"
-        (click)="chooseAvatar()"
+        (click)="dialog.show()"
       >
-        <ml-icon name="camera" [size]="18" />
+        <ml-icon name="edit" [size]="16" />
       </button>
-      <label class="ml-visually-hidden" for="foto-perfil">Foto do perfil</label>
-      <input
-        #avatarInput
-        id="foto-perfil"
-        class="ml-visually-hidden"
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        tabindex="-1"
-        aria-hidden="true"
-        (change)="sendAvatar($event)"
-      />
     </div>
-    <div class="hello">
+    <div class="hello-text">
       <p class="greeting">{{ greeting }}{{ name() ? ',' : '!' }}</p>
       <h1 id="titulo-perfil">{{ name() ?? 'Seu perfil' }}</h1>
-      <p class="since">Minha Livraria · {{ year() }}</p>
-      <div class="links">
-        <button
-          mlButton="secondary"
-          type="button"
-          [disabled]="editing()"
-          (click)="editing.set(true)"
-        >
-          <ml-icon name="edit" [size]="16" /> Editar perfil
-        </button>
-        @if (profile()?.avatarUrl) {
-          <button
-            mlButton="secondary"
-            type="button"
-            [disabled]="avatarBusy()"
-            (click)="removeAvatar()"
-          >
-            <ml-icon name="trash" [size]="16" /> Remover foto
-          </button>
-        }
-      </div>
-      @if (avatarError()) {
-        <p class="failure" role="alert">{{ avatarError() }}</p>
-      }
+      <p class="since">✦ Leitora desde {{ since() }}</p>
+      <button mlButton="secondary" type="button" class="edit" (click)="dialog.show()">
+        Editar perfil e foto
+      </button>
     </div>
-  </div>
+  </section>
 
-  @if (kpis().length > 0) {
-    <dl class="kpis">
-      @for (kpi of kpis(); track kpi.label) {
-        <div class="kpi">
-          <dt>{{ kpi.label }}</dt>
-          <dd>{{ kpi.value }}</dd>
-        </div>
-      }
-    </dl>
-  }
-</section>
+  <dl class="card numbers" aria-label="Livros terminados e nota média">
+    @for (number of numbers(); track number.label) {
+      <div class="number">
+        <dt>{{ number.label }}</dt>
+        <dd [attr.data-tone]="number.tone">{{ number.value }}</dd>
+      </div>
+    }
+  </dl>
+</div>
 
-@if (editing()) {
-  <ml-profile-form class="edit" (saved)="editing.set(false)" (cancelled)="editing.set(false)" />
-}
+<ml-profile-dialog #dialog />
 
 @if (errorMessage()) {
   <ml-error-state [message]="errorMessage()" (retry)="retry()" />
 } @else if (overview.hasValue() && daily.hasValue()) {
-  <section class="month" aria-labelledby="titulo-mes">
+  <section class="card month" aria-labelledby="titulo-mes">
     <div>
-      <h2 id="titulo-mes">{{ monthName() }} · em andamento</h2>
-      <p>{{ monthLine() }}</p>
+      <h2 id="titulo-mes" class="eyebrow">✦ {{ monthName() }} · em andamento</h2>
+      <p class="month-line">{{ monthLine() }}</p>
     </div>
-    <div class="month-links">
-      <a class="pill" routerLink="/calendario">Ver calendário</a>
-      <a class="pill" routerLink="/configuracoes" [queryParams]="{ aba: 'metas' }">Ver metas</a>
-    </div>
+    <a mlButton="primary" routerLink="/calendario">
+      <span aria-hidden="true">▦</span> Ver calendário
+    </a>
   </section>
 
   <div class="columns">
     <section class="reviews" aria-labelledby="titulo-resenhas">
       <div class="column-head">
-        <h2 id="titulo-resenhas">Últimas resenhas</h2>
-        <a class="more" routerLink="/estante" [queryParams]="{ status: 'lidos' }">
-          Estante <ml-icon name="arrow-right" [size]="14" />
-        </a>
+        <h2 id="titulo-resenhas" class="eyebrow">✦ Últimas resenhas</h2>
+        <a class="more" routerLink="/estante">Estante <span aria-hidden="true">→</span></a>
       </div>
-      @if (reviews.value()?.content; as latest) {
-        @if (latest.length > 0) {
-          <ul class="rows">
-            @for (review of latest; track review.bookId) {
-              <li>
-                <a class="row" [routerLink]="['/livro', review.bookId]">
-                  <ml-book-cover
-                    size="xs"
-                    aria-hidden="true"
-                    [title]="review.title"
-                    [coverUrl]="review.coverUrl ?? undefined"
-                  />
+      @if (latest().length > 0) {
+        <ul class="rows">
+          @for (review of latest(); track review.bookId) {
+            <li>
+              <a class="card row" [routerLink]="['/livro', review.bookId]">
+                <ml-book-cover
+                  size="xs"
+                  aria-hidden="true"
+                  [title]="review.title"
+                  [coverUrl]="review.coverUrl ?? undefined"
+                />
+                <span class="row-text">
                   <span class="row-title">{{ review.title }}</span>
-                  @if (ratingOf(review.rating); as rating) {
-                    <span class="rating">
-                      <span class="ml-visually-hidden">Nota</span> {{ rating }}
-                      <span aria-hidden="true">★</span>
-                    </span>
+                  @if (review.authors) {
+                    <span class="row-author">{{ review.authors }}</span>
                   }
-                </a>
-              </li>
-            }
-          </ul>
-        } @else {
-          <p class="none">Suas resenhas aparecem aqui depois que você avaliar um livro.</p>
-        }
+                </span>
+                @if (ratingOf(review.rating); as rating) {
+                  <span class="rating">
+                    <span class="ml-visually-hidden">Nota</span> {{ rating }}
+                    <span class="star" aria-hidden="true">★</span>
+                  </span>
+                }
+              </a>
+            </li>
+          }
+        </ul>
+      } @else if (reviews.hasValue()) {
+        <p class="none">Suas resenhas aparecerão aqui.</p>
       }
     </section>
 
-    <section class="reading" aria-labelledby="titulo-sua-leitura">
-      <h2 id="titulo-sua-leitura">Sua leitura</h2>
-      <p class="note">
-        Calculado a partir das datas e das páginas que você registra. Tudo fica neste computador.
-      </p>
+    <section class="card reading" aria-labelledby="titulo-sua-leitura">
+      <div class="reading-head">
+        <h2 id="titulo-sua-leitura">Sua leitura</h2>
+        <p class="note">
+          Calculado a partir das sessões que você registra. Tudo fica neste computador.
+        </p>
+      </div>
 
       <dl class="stats">
         @for (stat of stats(); track stat.label) {
@@ -162,7 +128,7 @@
             <span class="bar" aria-hidden="true"><span [style.width.%]="book.share"></span></span>
           </div>
         } @empty {
-          <p class="none">Registre os dias de leitura e os livros aparecem aqui.</p>
+          <p class="none-text">Registre os dias de leitura e os livros aparecem aqui.</p>
         }
       </div>
 

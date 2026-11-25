@@ -89,6 +89,16 @@ export class ReadingApi {
     return this.http.post<ReadingResponse>(`/api/v1/readings/${id}/abandon`, { endDate });
   }
 
+  /** The readings of a book, the one in progress first, then from the latest to the oldest. */
+  readings(bookId: number): Observable<ReadingResponse[]> {
+    return this.http.get<ReadingResponse[]>(`/api/v1/books/${bookId}/readings`);
+  }
+
+  /** An abandoned reading in progress again, from the same start. */
+  resumeReading(id: number): Observable<ReadingResponse> {
+    return this.http.post<ReadingResponse>(`/api/v1/readings/${id}/resume`, {});
+  }
+
   deleteReading(id: number): Observable<void> {
     return this.http.delete<void>(`/api/v1/readings/${id}`);
   }
@@ -108,4 +118,18 @@ export class ReadingApi {
   deleteReview(bookId: number): Observable<void> {
     return this.http.delete<void>(`/api/v1/books/${bookId}/review`);
   }
+}
+
+/**
+ * The page reached after each session, in the order they were read: what a note says when it
+ * shows where it was written (P. 312).
+ */
+export function pageAfterEachSession(sessions: readonly SessionResponse[]): Map<number, number> {
+  const pages = new Map<number, number>();
+  let total = 0;
+  for (const session of [...sessions].sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id)) {
+    total += session.pagesRead;
+    pages.set(session.id, total);
+  }
+  return pages;
 }

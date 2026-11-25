@@ -83,13 +83,13 @@ describe('AuthorPage', () => {
     expect(kpis).toHaveTextContent('3 lidos');
     expect(kpis).toHaveTextContent('1 lendo');
     expect(kpis).toHaveTextContent('4,8 nota média');
-    expect(screen.getByRole('link', { name: 'O Senhor dos Anéis · 2' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'O Senhor dos Anéis · II' })).toHaveAttribute(
       'href',
       '/serie/3',
     );
   });
 
-  it('lists the books in publication order, or the newest first', async () => {
+  it('lists the books in publication order, or in the order picked', async () => {
     await openTolkien();
 
     expect(titles()).toEqual([
@@ -99,15 +99,24 @@ describe('AuthorPage', () => {
       'O Silmarillion',
       'Contos Inacabados',
     ]);
-    await userEvent.click(screen.getByRole('button', { name: /Ordem de publicação/ }));
+    const order = screen.getByRole('combobox', { name: 'Ordem' });
+    await userEvent.selectOptions(order, 'Título (A–Z)');
+    expect(titles()[0]).toBe('A Sociedade do Anel');
+    await userEvent.selectOptions(order, 'Maior nota');
+    expect(titles().slice(0, 2)).toEqual(['A Sociedade do Anel', 'O Hobbit']);
+    await userEvent.selectOptions(order, 'Adicionados recentemente');
     expect(titles()[0]).toBe('Contos Inacabados');
   });
 
   it('filters the books by status, with the count of each', async () => {
     await openTolkien();
 
-    expect(screen.getByRole('button', { name: 'Todos 5' })).toHaveAttribute('aria-pressed', 'true');
-    await userEvent.click(screen.getByRole('button', { name: 'Lendo 1' }));
+    const tabs = screen.getByRole('tablist', { name: 'Filtrar por status' });
+    expect(within(tabs).getByRole('tab', { name: 'Todos 5' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    await userEvent.click(within(tabs).getByRole('tab', { name: 'Lendo 1' }));
 
     expect(titles()).toEqual(['O Silmarillion']);
     expect(

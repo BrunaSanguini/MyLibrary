@@ -15,14 +15,25 @@ import { Icon } from '@shared/ui/icon/icon';
 import { ProgressBar } from '@shared/ui/progress-bar/progress-bar';
 import { RatingStars } from '@shared/ui/rating-stars/rating-stars';
 import { Skeleton } from '@shared/ui/skeleton/skeleton';
+import { toRoman } from '@shared/format/roman';
 
-type StatusFilter = 'all' | 'READ' | 'READING' | 'WANT_TO_READ';
+type StatusFilter = 'all' | 'READ' | 'READING' | 'WANT_TO_READ' | 'ABANDONED';
+
+type AuthorOrder = 'publication' | 'title' | 'rating' | 'added';
+
+const ORDERS: readonly { readonly id: AuthorOrder; readonly label: string }[] = [
+  { id: 'publication', label: 'Ordem de publicação' },
+  { id: 'title', label: 'Título (A–Z)' },
+  { id: 'rating', label: 'Maior nota' },
+  { id: 'added', label: 'Adicionados recentemente' },
+];
 
 const FILTERS: readonly { readonly id: StatusFilter; readonly label: string }[] = [
   { id: 'all', label: 'Todos' },
   { id: 'READ', label: 'Lidos' },
   { id: 'READING', label: 'Lendo' },
   { id: 'WANT_TO_READ', label: 'Quero ler' },
+  { id: 'ABANDONED', label: 'Abandonados' },
 ];
 
 /** All the books of an author fit in one page: the filters and the order run here. */
@@ -76,7 +87,6 @@ export default class AuthorPage {
   });
 
   protected readonly filter = signal<StatusFilter>('all');
-  protected readonly newestFirst = signal(false);
 
   private readonly all = computed(() => this.books.value()?.content ?? []);
 
@@ -127,23 +137,65 @@ export default class AuthorPage {
     return [...found.values()];
   });
 
-  /** Three covers for the fan, the ones with a cover image first. */
-  protected readonly fan = computed(() =>
-    [...this.all()].sort((a, b) => Number(!!b.coverUrl) - Number(!!a.coverUrl)).slice(0, 3),
-  );
+  /** Three covers for the fan, the best rated in the middle. */
+  protected readonly fan = computed(() => {
+    const [best, ...rest] = [...this.all()].sort((a, b) => (b.rating ?? -1) - (a.rating ?? -1));
+    if (!best) {
+      return [];
+    }
+    const [left, right] = rest;
+    return [left, best, right].filter((book) => book !== undefined);
+  });
 
-  /** Publication order, books without a year at the end; or the newest first. */
+  protected readonly orders = ORDERS;
+  protected readonly order = signal<AuthorOrder>('publication');
+
+  /** Publication order by default, books without a year at the end, a tie by the series. */
   protected readonly visible = computed(() => {
     const filter = this.filter();
     const books = this.all().filter((book) => filter === 'all' || book.status === filter);
     const year = (book: BookCardResponse) => book.publishedYear ?? Number.MAX_SAFE_INTEGER;
-    const sorted = [...books].sort((a, b) => year(a) - year(b) || a.title.localeCompare(b.title));
-    return this.newestFirst() ? sorted.reverse() : sorted;
+    const title = (a: BookCardResponse, b: BookCardResponse) =>
+      a.title.localeCompare(b.title, 'pt-BR', { sensitivity: 'base' });
+    switch (this.order()) {
+      case 'title':
+        return [...books].sort(title);
+      case 'rating':
+        return [...books].sort((a, b) => (b.rating ?? -1) - (a.rating ?? -1) || title(a, b));
+      case 'added':
+        return [...books].sort((a, b) => b.id - a.id);
+      default:
+        return [...books].sort(
+          (a, b) =>
+            year(a) - year(b) ||
+            (a.series?.position ?? 0) - (b.series?.position ?? 0) ||
+            title(a, b),
+        );
+    }
   });
 
+  protected roman(count: number): string {
+    return toRoman(count);
+  }
+
+  /** Left and right move between the tabs of status. */
+  protected moveFilter(event: KeyboardEvent, index: number): void {
+    const options = this.filters();
+    const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+    if (step === 0) {
+      return;
+    }
+    event.preventDefault();
+    const next = (index + step + options.length) % options.length;
+    this.filter.set(options[next]!.id);
+    const tablist = (event.currentTarget as HTMLElement).closest('[role="tablist"]');
+    tablist?.querySelectorAll<HTMLElement>('[role="tab"]')[next]?.focus();
+  }
+
   protected readonly crumbs = computed(() => [
-    { label: 'Início', link: '/' },
-    { label: 'Autores', link: '/catalogos', queryParams: { tipo: 'autores' } },
+    { label: 'Home', link: '/' },
+    { label: 'Catálogos', link: '/catalogos' },
+    { label: 'Autores', link: '/catalogos/autores' },
     { label: this.author.value()?.name ?? '' },
   ]);
 

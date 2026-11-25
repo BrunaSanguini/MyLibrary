@@ -61,3 +61,37 @@ export function forecastOf(
     endDate: addDays(today, Math.ceil(pagesLeft / pace)),
   };
 }
+
+/** The pages of one day, all its sessions added up. */
+export function pagesOn(sessions: readonly SessionResponse[], date: IsoDate): number {
+  return sessions
+    .filter((session) => session.date === date)
+    .reduce((total, session) => total + session.pagesRead, 0);
+}
+
+/**
+ * The pace of the ring (spec R.3): the pages of the days of the week already lived, divided by
+ * how many they are. Days after today, or before the reading started, do not count.
+ */
+export function weekAverage(days: readonly DayPages[], today: IsoDate, start?: IsoDate): number {
+  const lived = days.filter((day) => day.date <= today && (!start || day.date >= start));
+  if (lived.length === 0) {
+    return 0;
+  }
+  return Math.round(lived.reduce((total, day) => total + day.pages, 0) / lived.length);
+}
+
+/**
+ * Days in a row with at least one page, up to today; a streak that reached yesterday still
+ * counts, since today is not over.
+ */
+export function currentStreak(sessions: readonly SessionResponse[], today: IsoDate): number {
+  const read = new Set(sessions.filter((session) => session.pagesRead > 0).map((s) => s.date));
+  let day = read.has(today) ? today : addDays(today, -1);
+  let streak = 0;
+  while (read.has(day)) {
+    streak++;
+    day = addDays(day, -1);
+  }
+  return streak;
+}

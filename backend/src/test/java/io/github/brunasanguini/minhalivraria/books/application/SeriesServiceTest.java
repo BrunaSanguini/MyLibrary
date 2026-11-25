@@ -30,6 +30,17 @@ class SeriesServiceTest {
     }
 
     @Test
+    void shouldKeepTheDescriptionWrittenByTheReader() {
+        SeriesResponse created =
+                service.create(new SeriesRequest("Mistborn", 3, "  Uma revolução contra o Senhor Soberano. "));
+
+        assertThat(created.description()).isEqualTo("Uma revolução contra o Senhor Soberano.");
+        assertThat(service.update(created.id(), new SeriesRequest("Mistborn", 3, " "))
+                        .description())
+                .isNull();
+    }
+
+    @Test
     void shouldRefuseADuplicatedNameIgnoringCaseAndAccents() {
         service.create(new SeriesRequest("O Senhor dos Anéis", 3));
 

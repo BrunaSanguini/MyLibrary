@@ -141,3 +141,11 @@ h1 {
   background: var(--ml-color-hero-gold);
   color: var(--ml-color-gold-ink);
 }
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ml-space-12);
+  justify-content: center;
+  margin-top: var(--ml-space-16);
+}

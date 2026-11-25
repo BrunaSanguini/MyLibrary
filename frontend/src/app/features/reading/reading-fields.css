@@ -1,51 +1,58 @@
 /*
- * What the forms of the reading feature share: cards, fields and messages. Each component lists
- * this file before its own stylesheet, so the rules stay scoped to the component.
+ * What the forms of the reading feature share: cards, eyebrows, fields and messages. Each
+ * component lists this file before its own stylesheet, so the rules stay scoped to it.
  */
 
-.card,
-.form {
+.card {
   display: flex;
   flex-direction: column;
-  gap: var(--ml-space-16);
-  padding: var(--ml-space-32);
-  border: 1px solid var(--ml-color-line);
-  border-radius: var(--ml-radius-lg);
+  gap: 20px;
+  padding: 30px;
+  border: 1px solid var(--ml-color-glass-line);
+  border-radius: var(--ml-radius-md);
   background: var(--ml-color-surface);
-  box-shadow: var(--ml-shadow-soft);
+  box-shadow: var(--ml-shadow-frame), var(--ml-shadow-soft);
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: var(--ml-color-gold-text);
+  font-family: var(--ml-font-title);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
 }
 
 h2 {
   margin: 0;
-  font-family: var(--ml-font-display);
-  font-size: 30px;
-  font-weight: 600;
+  font-family: var(--ml-font-title);
+  font-size: 24px;
+  font-weight: 700;
   line-height: 1.2;
 }
 
 .row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: var(--ml-space-24);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ml-space-12);
 }
 
 .field {
   display: flex;
   flex-direction: column;
+  gap: 8px;
   min-width: 0;
 }
 
-.row > .field {
-  flex: 1 1 200px;
-}
-
 label,
-legend {
-  margin: 0 0 6px;
-  padding: 0;
-  font-size: 13px;
-  font-weight: 700;
+.label {
+  color: var(--ml-color-lilac);
+  font-family: var(--ml-font-title);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 
 input[type='date'],
@@ -54,62 +61,53 @@ select,
 textarea {
   box-sizing: border-box;
   width: 100%;
-  min-height: 44px;
+  min-height: 48px;
   padding: 0 var(--ml-space-16);
-  border: 1.5px solid var(--ml-color-line);
-  border-radius: var(--ml-radius-pill);
-  background: var(--ml-color-surface);
+  border: 1px solid var(--ml-color-glass-line);
+  border-radius: 12px;
+  background: var(--ml-color-bg);
   color: var(--ml-color-ink);
-  font-family: var(--ml-font-body);
+  font: inherit;
   font-size: 15px;
+  font-weight: 700;
 }
 
 textarea {
-  padding: var(--ml-space-12) var(--ml-space-16);
-  border-radius: var(--ml-radius-md);
-  line-height: 1.5;
+  padding: 12px 16px;
+  font-family: var(--ml-font-display);
+  font-size: 18px;
+  font-style: italic;
+  font-weight: 400;
   resize: vertical;
 }
 
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  border-color: var(--ml-color-accent);
   outline: 2px solid var(--ml-color-accent);
   outline-offset: 2px;
 }
 
 input[aria-invalid='true'],
 textarea[aria-invalid='true'] {
-  border-color: var(--ml-color-accent);
+  border-color: var(--ml-color-warn);
 }
 
-.choice {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ml-space-8);
-  min-height: 44px;
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.error {
-  margin: 6px 0 0;
-  color: var(--ml-color-accent);
-  font-size: 13px;
-  font-weight: 600;
+input:disabled {
+  opacity: 0.5;
 }
 
 .hint {
-  margin: 6px 0 0;
+  margin: 0;
   color: var(--ml-color-muted);
   font-size: 13px;
 }
 
-.optional {
-  color: var(--ml-color-muted);
-  font-weight: 400;
+.error {
+  margin: 0;
+  color: var(--ml-color-warn);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .failure {
@@ -121,10 +119,36 @@ textarea[aria-invalid='true'] {
   font-weight: 600;
 }
 
-.actions {
+.confirmation {
+  min-height: 1.4em;
+  margin: 0;
+  color: var(--ml-color-gold-text);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.check {
   display: flex;
-  flex-wrap: wrap;
+  gap: 12px;
   align-items: center;
-  justify-content: flex-end;
-  gap: var(--ml-space-12);
+  min-height: 44px;
+  margin: 0;
+  color: var(--ml-color-ink);
+  font-family: var(--ml-font-body);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: none;
+  cursor: pointer;
+}
+
+.check input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--ml-color-accent);
+}
+
+.save {
+  min-height: 52px;
+  font-size: 16px;
 }

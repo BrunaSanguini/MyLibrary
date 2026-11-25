@@ -25,6 +25,9 @@ public class Profile extends AuditedEntity {
     @Column(name = "avatar_image_id")
     private @Nullable Long avatarImageId;
 
+    @Column(name = "reader_since")
+    private @Nullable Integer readerSince;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 6)
     private ProfileTheme theme;
@@ -33,10 +36,14 @@ public class Profile extends AuditedEntity {
     @SuppressWarnings("NullAway.Init")
     protected Profile() {}
 
-    /** @param displayName blank means no name, and the app greets without one */
-    public void update(@Nullable String displayName, ProfileTheme theme) {
+    /**
+     * @param displayName blank means no name, and the app greets without one
+     * @param readerSince absent means the year of the first reading registered
+     */
+    public void update(@Nullable String displayName, ProfileTheme theme, @Nullable Integer readerSince) {
         this.displayName = displayName == null || displayName.isBlank() ? null : displayName.strip();
         this.theme = theme;
+        this.readerSince = readerSince;
     }
 
     /** @return the avatar it had, which is no longer used */
@@ -52,6 +59,10 @@ public class Profile extends AuditedEntity {
 
     public @Nullable Long avatarImageId() {
         return avatarImageId;
+    }
+
+    public @Nullable Integer readerSince() {
+        return readerSince;
     }
 
     public ProfileTheme theme() {

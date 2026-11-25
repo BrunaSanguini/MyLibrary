@@ -269,3 +269,18 @@ h2 {
   font-size: 22px;
   font-weight: 600;
 }
+
+.register {
+  width: 100%;
+  min-height: 48px;
+  box-shadow: var(--ml-glow);
+}
+
+.notice {
+  margin: 0;
+  padding: 10px 14px;
+  border-left: 3px solid var(--ml-color-gold);
+  background: var(--ml-color-raised);
+  font-size: 14px;
+  font-weight: 800;
+}

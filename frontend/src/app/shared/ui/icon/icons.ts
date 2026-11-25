@@ -118,6 +118,15 @@ export const ICONS = {
     strokeWidth: 1.5,
     paths: ['M3 5h12M7 5V3.5h4V5M5 5l.7 9.5h6.6L13 5M7.5 8v4M10.5 8v4'],
   },
+  lock: {
+    viewBox: '0 0 22 22',
+    strokeWidth: 1.5,
+    paths: [
+      'M6 10V7a5 5 0 0 1 10 0v3',
+      'M4.5 10h13v9.5h-13z',
+      'M11 12.8l.7 1.5 1.6.2-1.2 1.1.3 1.6-1.4-.8-1.4.8.3-1.6-1.2-1.1 1.6-.2z',
+    ],
+  },
   grid: {
     viewBox: '0 0 18 18',
     strokeWidth: 1.5,

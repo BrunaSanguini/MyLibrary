@@ -52,7 +52,8 @@ public class StatsService {
                 YearMonth.of(year == null ? today.getYear() : year, month == null ? today.getMonthValue() : month);
         LocalDate yearStart = chosen.atDay(1).withDayOfYear(1);
         LocalDate yearEnd = yearStart.plusYears(1).minusDays(1);
-        Streaks streaks = Streaks.of(queries.readingDays(), today);
+        List<LocalDate> readingDays = queries.readingDays();
+        Streaks streaks = Streaks.of(readingDays, today);
         return new StatsOverviewResponse(
                 chosen.getYear(),
                 chosen.getMonthValue(),
@@ -67,7 +68,10 @@ public class StatsService {
                 streaks.longest(),
                 history.finishedReadings(today.minusDays(LAST_DAYS - 1L), today),
                 queries.inProgress(),
-                fastest(yearStart, yearEnd));
+                fastest(yearStart, yearEnd),
+                readingDays.size(),
+                queries.notes(),
+                queries.firstYear().orElse(null));
     }
 
     /**
@@ -103,7 +107,8 @@ public class StatsService {
                                 book.coverUrl(),
                                 row.pages(),
                                 row.started(),
-                                row.finished()));
+                                row.finished(),
+                                row.abandoned()));
             }
         }
         List<CalendarResponse.CalendarDayResponse> days = byDay.entrySet().stream()

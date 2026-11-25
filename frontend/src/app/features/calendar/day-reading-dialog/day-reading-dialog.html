@@ -1,0 +1,97 @@
+<dialog #dialog class="dialog" aria-labelledby="titulo-leitura-dia" (close)="closed()">
+  <form class="form" novalidate (submit)="save($event)">
+    <div class="head">
+      <div>
+        <p class="eyebrow">✦ Diário de leitura</p>
+        <h2 id="titulo-leitura-dia">Registrar leitura neste dia</h2>
+        <p class="when">{{ dateLine() }}</p>
+      </div>
+      <button type="button" class="round" aria-label="Fechar" (click)="close()">
+        <ml-icon name="close" [size]="16" />
+      </button>
+    </div>
+
+    <div class="field">
+      <label for="dia-leitura">Dia</label>
+      <input
+        id="dia-leitura"
+        type="date"
+        [max]="today()"
+        [value]="date()"
+        (input)="date.set(value($event))"
+      />
+    </div>
+
+    <div class="field">
+      <label for="livro-leitura">Livro</label>
+      @if (books.value()?.content; as choices) {
+        @if (choices.length > 0) {
+          <select id="livro-leitura" (change)="bookId.set(+value($event))">
+            @for (book of choices; track book.id) {
+              <option [value]="book.id" [selected]="book.id === chosen()">{{ book.title }}</option>
+            }
+          </select>
+        } @else {
+          <p class="none">Nenhum livro em leitura. Comece uma leitura na página do livro.</p>
+        }
+      }
+    </div>
+
+    <div class="field">
+      <label for="paginas-leitura">Páginas lidas neste dia</label>
+      <div class="amount">
+        <button type="button" class="minus" aria-label="Diminuir" (click)="step(-1)">−</button>
+        <input
+          id="paginas-leitura"
+          type="number"
+          inputmode="numeric"
+          [value]="pages()"
+          (input)="setPages(value($event))"
+        />
+        <button type="button" class="plus" aria-label="Aumentar" (click)="step(1)">+</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="nota-leitura">Anotação do dia · opcional</label>
+      <textarea
+        id="nota-leitura"
+        rows="3"
+        placeholder="Um trecho, um pensamento, onde parou…"
+        [value]="note()"
+        (input)="note.set(value($event))"
+      ></textarea>
+    </div>
+
+    <label class="check">
+      <input
+        type="checkbox"
+        [checked]="end() === 'finished'"
+        (change)="setEnd('finished', $any($event.target).checked)"
+      />
+      Terminei o livro neste dia
+    </label>
+    <label class="check">
+      <input
+        type="checkbox"
+        [checked]="end() === 'abandoned'"
+        (change)="setEnd('abandoned', $any($event.target).checked)"
+      />
+      Abandonei o livro neste dia
+    </label>
+
+    @if (tried() && problem(); as message) {
+      <p class="error" role="alert">{{ message }}</p>
+    }
+    @if (failure()) {
+      <p class="error" role="alert">{{ failure() }}</p>
+    }
+
+    <div class="actions">
+      <button mlButton="link" type="button" (click)="close()">Cancelar</button>
+      <button mlButton="primary" type="submit" [disabled]="busy() || chosen() === undefined">
+        {{ busy() ? 'Salvando…' : 'Salvar leitura' }}
+      </button>
+    </div>
+  </form>
+</dialog>

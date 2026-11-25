@@ -21,6 +21,7 @@ public record CalendarResponse(int year, int month, int finished, List<CalendarD
      * @param pages pages of the sessions of the day, 0 on a start or end without a session
      * @param started the reading started on this day
      * @param finished the reading was finished on this day
+     * @param abandoned the reading was abandoned on this day, the last day of the book
      */
     public record CalendarEntryResponse(
             long bookId,
@@ -29,5 +30,6 @@ public record CalendarResponse(int year, int month, int finished, List<CalendarD
             @Nullable String coverUrl,
             int pages,
             boolean started,
-            boolean finished) {}
+            boolean finished,
+            boolean abandoned) {}
 }

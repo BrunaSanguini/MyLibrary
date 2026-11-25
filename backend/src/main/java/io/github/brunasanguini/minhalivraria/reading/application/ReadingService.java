@@ -79,6 +79,20 @@ public class ReadingService {
         return toResponse(reading);
     }
 
+    /**
+     * @throws ConflictException {@code reading.not-abandoned}, and {@code reading.in-progress-exists} when the book
+     *     is already being read in another reading
+     */
+    @Transactional
+    public ReadingResponse resume(long id) {
+        Reading reading = find(id);
+        if (readings.existsByBookIdAndStatus(reading.bookId(), ReadingStatus.IN_PROGRESS)) {
+            throw new ConflictException("reading.in-progress-exists");
+        }
+        reading.resume();
+        return toResponse(reading);
+    }
+
     /** The sessions go with the reading (FK). */
     @Transactional
     public void delete(long id) {

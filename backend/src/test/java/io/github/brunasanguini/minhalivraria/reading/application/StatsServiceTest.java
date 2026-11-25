@@ -257,16 +257,16 @@ class StatsServiceTest {
                         LocalDate.parse("2025-12-01"), LocalDate.parse("2025-12-30"), LocalDate.parse("2025-12-31"));
         assertThat(december.days().getFirst().books())
                 .containsExactly(new CalendarResponse.CalendarEntryResponse(
-                        dune, "Duna", List.of("J. R. R. Tolkien"), null, 0, true, false));
+                        dune, "Duna", List.of("J. R. R. Tolkien"), null, 0, true, false, false));
         assertThat(december.days().get(1).books())
                 .containsExactly(
                         new CalendarResponse.CalendarEntryResponse(
-                                hobbit, "O Hobbit", List.of("J. R. R. Tolkien"), null, 100, true, false),
+                                hobbit, "O Hobbit", List.of("J. R. R. Tolkien"), null, 100, true, false, false),
                         new CalendarResponse.CalendarEntryResponse(
-                                dune, "Duna", List.of("J. R. R. Tolkien"), null, 10, false, false));
+                                dune, "Duna", List.of("J. R. R. Tolkien"), null, 10, false, false, false));
         assertThat(december.days().getLast().books())
                 .containsExactly(new CalendarResponse.CalendarEntryResponse(
-                        hobbit, "O Hobbit", List.of("J. R. R. Tolkien"), null, 20, false, true));
+                        hobbit, "O Hobbit", List.of("J. R. R. Tolkien"), null, 20, false, true, false));
     }
 
     @Test
@@ -282,11 +282,46 @@ class StatsServiceTest {
                         new CalendarResponse.CalendarDayResponse(
                                 LocalDate.parse("2025-12-10"),
                                 List.of(new CalendarResponse.CalendarEntryResponse(
-                                        hobbit, "O Hobbit", List.of("J. R. R. Tolkien"), null, 0, true, false))),
+                                        hobbit, "O Hobbit", List.of("J. R. R. Tolkien"), null, 0, true, false, false))),
                         new CalendarResponse.CalendarDayResponse(
                                 LocalDate.parse("2025-12-12"),
                                 List.of(new CalendarResponse.CalendarEntryResponse(
-                                        dune, "Duna", List.of("J. R. R. Tolkien"), null, 0, false, true))));
+                                        dune, "Duna", List.of("J. R. R. Tolkien"), null, 0, false, true, false))));
+    }
+
+    @Test
+    void shouldMarkTheLastDayOfAnAbandonedBook() {
+        long duneReading = inProgress(dune, "2025-12-01");
+        session(duneReading, "2025-12-05", 40);
+        readings.abandon(duneReading, LocalDate.parse("2025-12-05"));
+        entityManager.flush();
+
+        CalendarResponse december = stats.calendar(2025, 12);
+
+        assertThat(december.finished()).isZero();
+        assertThat(december.days().getLast().books())
+                .containsExactly(new CalendarResponse.CalendarEntryResponse(
+                        dune, "Duna", List.of("J. R. R. Tolkien"), null, 40, false, false, true));
+    }
+
+    @Test
+    void shouldCountTheDaysTheNotesAndTheFirstYearOfReading() {
+        long hobbitReading = inProgress(hobbit, "2025-12-30");
+        session(hobbitReading, "2025-12-30", 10);
+        session(hobbitReading, "2025-12-31", 10);
+        readings.addSession(hobbitReading, new SessionRequest(LocalDate.parse("2025-12-31"), 5, null, "Bilbo!"));
+        entityManager.flush();
+
+        StatsOverviewResponse overview = stats.overview(null, null);
+
+        assertThat(overview.readingDays()).isEqualTo(2);
+        assertThat(overview.notes()).isEqualTo(1);
+        assertThat(overview.readerSince()).isEqualTo(2025);
+    }
+
+    @Test
+    void shouldHaveNoFirstYearBeforeTheFirstReading() {
+        assertThat(stats.overview(null, null).readerSince()).isNull();
     }
 
     @Test

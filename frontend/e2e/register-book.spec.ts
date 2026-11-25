@@ -145,17 +145,18 @@ for (const theme of THEMES) {
 
     test('catalogs have no WCAG 2.1 AA violations', async ({ page }) => {
       await page.goto('/catalogos');
-      await expect(page.getByRole('link', { name: 'Romance' })).toBeVisible();
+      await expect(page).toHaveURL(/\/catalogos\/generos$/);
+      await expect(page.getByRole('button', { name: 'Romance', exact: true })).toBeVisible();
       await expectNoAccessibilityViolations(page);
 
-      await page.getByRole('link', { name: 'Autores' }).click();
-      await expect(page.getByRole('link', { name: 'Machado de Assis' })).toBeVisible();
+      await page.getByRole('tab', { name: /Autores/ }).click();
+      await expect(page.getByRole('link', { name: /Machado de Assis/ })).toBeVisible();
       await expectNoAccessibilityViolations(page);
     });
 
     test('series page lists its books in reading order', async ({ page }) => {
-      await page.goto('/catalogos?tipo=series');
-      await page.getByRole('link', { name: 'Trilogia Realista' }).click();
+      await page.goto('/catalogos/series');
+      await page.getByRole('link', { name: /Trilogia Realista/ }).click();
       await expect(
         page.getByRole('heading', { name: 'Trilogia Realista', level: 1 }),
       ).toBeVisible();
@@ -178,13 +179,13 @@ for (const theme of THEMES) {
       await expectNoAccessibilityViolations(page);
     });
 
-    test('subgenres tab of the catalog has no WCAG 2.1 AA violations', async ({ page }) => {
-      await page.goto('/catalogos?tipo=subgeneros');
-      await expect(page.getByRole('link', { name: 'Realismo' })).toBeVisible();
-      await expect(page.getByRole('link', { name: 'Subgêneros' })).toHaveAttribute(
-        'aria-current',
-        'page',
+    test('publishers tab of the catalog has no WCAG 2.1 AA violations', async ({ page }) => {
+      await page.goto('/catalogos/editoras');
+      await expect(page.getByRole('tab', { name: /Editoras/ })).toHaveAttribute(
+        'aria-selected',
+        'true',
       );
+      await expect(page.getByRole('tabpanel', { name: 'Editoras' })).toBeVisible();
 
       await expectNoAccessibilityViolations(page);
     });

@@ -4,9 +4,7 @@
     title="Autor não encontrado"
     message="Este autor não está no seu acervo. Ele pode ter sido excluído."
   >
-    <a mlButton="primary" routerLink="/catalogos" [queryParams]="{ tipo: 'autores' }"
-      >Ver os autores</a
-    >
+    <a mlButton="primary" routerLink="/catalogos/autores">Ver os autores</a>
   </ml-empty-state>
 } @else if (errorMessage()) {
   <ml-error-state [message]="errorMessage()" (retry)="retry()" />
@@ -17,7 +15,7 @@
     <div class="identity">
       <span class="monogram" aria-hidden="true">{{ monogram() }}</span>
       <div class="identity-text">
-        <p class="eyebrow">Autor</p>
+        <p class="eyebrow">✦ Autor</p>
         <h1 id="titulo-autor">{{ author.value().name }}</h1>
         <ul class="kpis" aria-label="Este autor no acervo">
           @for (kpi of kpis(); track kpi.label) {
@@ -31,7 +29,7 @@
             {{ series().length === 1 ? 'Série:' : 'Séries:' }}
             @for (entry of series(); track entry.id) {
               <a class="series-link" [routerLink]="['/serie', entry.id]"
-                >{{ entry.name }} · {{ entry.count }}</a
+                >{{ entry.name }} · {{ roman(entry.count) }}</a
               >
             }
           </p>
@@ -55,32 +53,34 @@
   </section>
 
   <div class="toolbar">
-    <div class="filters" role="group" aria-label="Filtrar por status">
-      @for (option of filters(); track option.id) {
+    <div class="filters" role="tablist" aria-label="Filtrar por status">
+      @for (option of filters(); track option.id; let index = $index) {
         <button
           type="button"
+          role="tab"
           class="filter"
-          [attr.aria-pressed]="filter() === option.id"
+          [attr.aria-selected]="filter() === option.id"
+          [tabindex]="filter() === option.id ? 0 : -1"
           (click)="filter.set(option.id)"
+          (keydown)="moveFilter($event, index)"
         >
           {{ option.label }} <span class="filter-count">{{ option.count }}</span>
         </button>
       }
     </div>
-    <button
-      mlButton="secondary"
-      type="button"
-      class="sort"
-      [attr.aria-pressed]="newestFirst()"
-      (click)="newestFirst.set(!newestFirst())"
-    >
-      {{ newestFirst() ? 'Mais recentes primeiro' : 'Ordem de publicação' }}
-      <ml-icon name="chevron-down" [size]="14" />
-    </button>
+    <label class="sort">
+      <span class="ml-visually-hidden">Ordem</span>
+      <select (change)="order.set($any($event.target).value)">
+        @for (option of orders; track option.id) {
+          <option [value]="option.id" [selected]="order() === option.id">{{ option.label }}</option>
+        }
+      </select>
+      <ml-icon name="chevron-down" [size]="12" />
+    </label>
   </div>
 
   @if (visible().length === 0) {
-    <p class="empty">Nenhum livro deste autor com esse status.</p>
+    <p class="empty" role="status">Nenhum livro deste autor com esse status.</p>
   } @else {
     <ul class="books" aria-label="Livros do autor">
       @for (book of visible(); track book.id) {

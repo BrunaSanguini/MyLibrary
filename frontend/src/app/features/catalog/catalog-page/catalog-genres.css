@@ -1,0 +1,347 @@
+/* The tab Gêneros: cards on the left, the panel of the genre picked on the right. */
+.genres-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 400px;
+  gap: 28px;
+  align-items: start;
+}
+
+.genres {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.genre {
+  display: grid;
+  grid-template-columns: 124px minmax(0, 1fr) 132px;
+  gap: 26px;
+  align-items: center;
+  padding: 22px 26px;
+}
+
+.genre.selected {
+  border-color: var(--ml-color-accent);
+  box-shadow:
+    0 0 0 1px var(--ml-color-accent),
+    var(--ml-shadow-soft);
+}
+
+.fan {
+  position: relative;
+  height: 138px;
+}
+
+.fan-cover {
+  position: absolute;
+  width: 70px;
+}
+
+.fan-0 {
+  z-index: 3;
+  top: 6px;
+  left: 27px;
+}
+
+.fan-1 {
+  z-index: 2;
+  top: 18px;
+  left: 0;
+  transform: rotate(-8deg);
+}
+
+.fan-2 {
+  z-index: 1;
+  top: 18px;
+  left: 54px;
+  transform: rotate(8deg);
+}
+
+.fan-empty {
+  position: absolute;
+  top: 6px;
+  left: 27px;
+  width: 70px;
+  height: 105px;
+  border-radius: 2px 6px 6px 2px;
+  background: var(--ml-color-raised);
+}
+
+.genre-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.gname {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ml-color-ink);
+  font-family: var(--ml-font-title);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: left;
+  cursor: pointer;
+}
+
+.gname:hover {
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
+
+.gname[aria-pressed='true'] {
+  color: var(--ml-color-accent);
+}
+
+.gcount {
+  margin: 0;
+  color: var(--ml-color-lilac);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ml-space-8);
+  margin-top: 4px;
+}
+
+.chip {
+  padding: 6px 14px;
+  border: 1.5px solid var(--ml-color-lilac);
+  border-radius: var(--ml-radius-pill);
+  background: transparent;
+  color: var(--ml-color-lilac);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.chip:hover {
+  transform: translateY(-2px);
+}
+
+.chip[aria-pressed='true'] {
+  background: var(--ml-color-lilac);
+  color: var(--ml-color-accent-ink);
+}
+
+.chip-count {
+  opacity: 0.7;
+}
+
+.gname:focus-visible,
+.chip:focus-visible {
+  outline: 2px solid currentcolor;
+  outline-offset: 2px;
+}
+
+.mascot {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  text-align: center;
+}
+
+.lock {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  box-sizing: border-box;
+  border: 1.5px dashed var(--ml-color-gold);
+  border-radius: 50%;
+  background: var(--ml-color-raised);
+  color: var(--ml-color-gold-text);
+}
+
+.mascot-label {
+  color: var(--ml-color-lilac);
+  font-family: var(--ml-font-title);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.mascot-text {
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-display);
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.2;
+}
+
+.thread {
+  display: block;
+  position: relative;
+  width: 100px;
+  height: 2px;
+  background: var(--ml-color-line);
+}
+
+.thread > span:first-child {
+  display: block;
+  height: 100%;
+  background: var(--ml-color-gold);
+  box-shadow: var(--ml-glow-gold);
+}
+
+.new-genre {
+  display: flex;
+  gap: var(--ml-space-8);
+  align-items: center;
+  justify-content: center;
+  min-height: 72px;
+  border: 1.5px dashed var(--ml-color-glass-line);
+  border-radius: var(--ml-radius-md);
+  color: var(--ml-color-gold-text);
+  font-family: var(--ml-font-title);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+}
+
+.panel {
+  display: flex;
+  position: sticky;
+  top: 24px;
+  flex-direction: column;
+  gap: var(--ml-space-16);
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  padding: 28px 26px;
+}
+
+.panel .eyebrow {
+  margin: 0;
+  font-size: 11px;
+}
+
+.panel h2 {
+  margin: 0;
+  font-family: var(--ml-font-title);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.filter {
+  align-self: flex-start;
+  padding: 5px 8px 5px 14px;
+  border: 0;
+  border-radius: var(--ml-radius-pill);
+  background: var(--ml-color-lilac);
+  color: var(--ml-color-accent-ink);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.panel-count,
+.panel-empty {
+  margin: 0;
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-display);
+  font-size: 18px;
+  font-style: italic;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  margin: 0 -10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.row:hover {
+  background: var(--ml-color-raised);
+}
+
+.row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.row-title {
+  font-family: var(--ml-font-title);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.row-meta {
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-display);
+  font-size: 16px;
+  font-style: italic;
+}
+
+.status {
+  color: var(--ml-color-gold-text);
+  font-family: var(--ml-font-title);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.status[data-status='READING'] {
+  color: var(--ml-color-accent);
+}
+
+.status[data-status='WANT_TO_READ'] {
+  color: var(--ml-color-lilac);
+}
+
+.status[data-status='ABANDONED'] {
+  color: var(--ml-color-abandoned);
+}
+
+.to-shelf {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1.5px solid var(--ml-color-gold);
+  border-radius: var(--ml-radius-pill);
+  color: var(--ml-color-gold-text);
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@media (width < 960px) {
+  .genres-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel {
+    position: static;
+    max-height: none;
+  }
+}

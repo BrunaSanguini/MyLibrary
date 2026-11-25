@@ -84,13 +84,11 @@ test('builds a list and reorders it without the mouse', async ({ page }) => {
   await page.reload();
   await expect(books).toHaveText([`Gama ${run}`, `Alfa ${run}`, `Beta ${run}`]);
 
-  // The card on /listas, under "Não iniciadas", and the tab on /catalogos show the list.
+  // The card on /listas shows the list, under "Não iniciadas" too.
   await page.goto('/listas');
   await expect(page.getByRole('link', { name })).toBeVisible();
   await page.getByRole('tab', { name: /Não iniciadas/ }).click();
   await expect(page).toHaveURL(/filtro=nao/);
-  await expect(page.getByRole('link', { name })).toBeVisible();
-  await page.goto('/catalogos?tipo=listas');
   await expect(page.getByRole('link', { name })).toBeVisible();
 });
 

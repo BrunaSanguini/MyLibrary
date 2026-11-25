@@ -17,6 +17,9 @@ import org.jspecify.annotations.Nullable;
  * @param finishedLast30Days readings finished in the last 30 days, today included
  * @param inProgress readings in progress now
  * @param fastestInYear the reading of the year finished in the fewest days, among those with a start date
+ * @param readingDays days with a session, ever
+ * @param notes session notes written, ever
+ * @param readerSince the year of the oldest reading or session; absent before the first one
  */
 public record StatsOverviewResponse(
         int year,
@@ -30,4 +33,7 @@ public record StatsOverviewResponse(
         int longestStreak,
         int finishedLast30Days,
         int inProgress,
-        @Nullable FastestReadingResponse fastestInYear) {}
+        @Nullable FastestReadingResponse fastestInYear,
+        int readingDays,
+        int notes,
+        @Nullable Integer readerSince) {}

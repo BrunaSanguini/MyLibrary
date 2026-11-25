@@ -1,0 +1,112 @@
+<dialog #dialog class="dialog" aria-labelledby="titulo-editar-serie">
+  <form class="form" novalidate (submit)="save($event)">
+    <div class="head">
+      <div>
+        <p class="eyebrow">✦ {{ series().name }}</p>
+        <h2 id="titulo-editar-serie">Editar série</h2>
+      </div>
+      <button type="button" class="round" aria-label="Fechar" (click)="close()">
+        <ml-icon name="close" [size]="16" />
+      </button>
+    </div>
+
+    <div class="field">
+      <label for="nome-serie">Nome da série</label>
+      <input
+        id="nome-serie"
+        type="text"
+        autocomplete="off"
+        [maxLength]="nameMax"
+        [value]="name()"
+        (input)="name.set(value($event))"
+      />
+    </div>
+
+    <div class="field">
+      <label for="total-serie">Total de livros</label>
+      <input
+        id="total-serie"
+        type="number"
+        min="1"
+        step="1"
+        [value]="total()"
+        (input)="total.set(value($event))"
+      />
+      <p class="hint">Deixe em branco se a série ainda não terminou.</p>
+    </div>
+
+    <div class="field">
+      <label for="descricao-serie">Descrição · escrita por você</label>
+      <textarea
+        id="descricao-serie"
+        rows="3"
+        [value]="description()"
+        (input)="description.set(value($event))"
+      ></textarea>
+      <p class="hint">{{ description().length }} de {{ descriptionMax }} caracteres</p>
+    </div>
+
+    @if (order().length > 0) {
+      <div class="field">
+        <span class="label" id="ordem-serie">Ordem dos livros</span>
+        <ol class="order" aria-labelledby="ordem-serie">
+          @for (volume of order(); track volume.book.id; let index = $index, last = $last) {
+            <li class="volume" [class.out]="volume.out">
+              <span class="position">{{ volume.out ? '—' : positionAt(index) }}</span>
+              <span class="title">{{ volume.book.title }}</span>
+              <span class="tools">
+                <button
+                  type="button"
+                  class="move"
+                  [attr.aria-label]="'Subir ' + volume.book.title"
+                  [disabled]="index === 0"
+                  (click)="move(index, -1)"
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  class="move"
+                  [attr.aria-label]="'Descer ' + volume.book.title"
+                  [disabled]="last"
+                  (click)="move(index, 1)"
+                >
+                  ↓
+                </button>
+                <button type="button" class="link" (click)="toggleOut(index)">
+                  {{ volume.out ? 'Desfazer' : 'Tirar da série' }}
+                </button>
+              </span>
+            </li>
+          }
+        </ol>
+      </div>
+    }
+
+    @if (tried() && problem(); as message) {
+      <p class="error" role="alert">{{ message }}</p>
+    }
+    @if (failure(); as message) {
+      <p class="error" role="alert">{{ message }}</p>
+    }
+
+    <div class="actions">
+      <button mlButton="secondary" type="button" (click)="close()">Cancelar</button>
+      <button mlButton="primary" type="submit" [disabled]="busy()">Salvar série</button>
+    </div>
+
+    <div class="danger">
+      @if (confirming()) {
+        <p role="alert">Excluir a série? Os livros continuam no acervo.</p>
+        <button mlButton="secondary" type="button" (click)="confirming.set(false)">Cancelar</button>
+        <button mlButton="primary" type="button" [disabled]="busy()" (click)="remove()">
+          Sim, excluir
+        </button>
+      } @else {
+        <button type="button" class="link delete" (click)="confirming.set(true)">
+          Excluir série
+        </button>
+      }
+    </div>
+  </form>
+</dialog>

@@ -80,6 +80,16 @@ class ReadingController {
         return service.abandon(id, request.endDate());
     }
 
+    @Operation(
+            operationId = "resumeReading",
+            summary = "Reads an abandoned book again, in the same reading",
+            description = "The reading is in progress again, with no end. Not abandoned: 409 reading.not-abandoned;"
+                    + " another reading of the book in progress: 409 reading.in-progress-exists.")
+    @PostMapping("/readings/{id}/resume")
+    ReadingResponse resume(@PathVariable long id) {
+        return service.resume(id);
+    }
+
     @Operation(operationId = "deleteReading", summary = "Deletes a reading and its sessions")
     @DeleteMapping("/readings/{id}")
     ResponseEntity<Void> delete(@PathVariable long id) {

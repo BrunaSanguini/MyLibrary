@@ -32,6 +32,7 @@ const NOVEMBER = {
       books: [entry(1, 'O Nome do Vento', 18), entry(2, 'O Olho do Mundo', 24, { started: true })],
     },
     { date: '2026-11-05', books: [entry(1, 'O Nome do Vento', 40, { finished: true })] },
+    { date: '2026-11-07', books: [entry(3, 'Duna', 12, { abandoned: true })] },
   ],
 };
 
@@ -66,11 +67,13 @@ describe('CalendarPage', () => {
   it('opens on the current month with its numbers', async () => {
     await openNovember();
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Novembro de 2026' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Novembro de MMXXVI' }),
+    ).toBeInTheDocument();
     const summary = screen.getByRole('list', { name: 'Resumo do mês' });
-    expect(summary).toHaveTextContent('3 dias lendo');
-    expect(summary).toHaveTextContent('2 livros');
-    expect(summary).toHaveTextContent('114 páginas');
+    expect(summary).toHaveTextContent('4 dias lendo');
+    expect(summary).toHaveTextContent('3 livros');
+    expect(summary).toHaveTextContent('126 páginas');
     expect(summary).toHaveTextContent('1 terminados');
   });
 
@@ -124,7 +127,68 @@ describe('CalendarPage', () => {
     request.flush({ year: 2026, month: 10, finished: 0, days: [] });
     await harness.fixture.whenStable();
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Outubro de 2026' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Outubro de MMXXVI' }),
+    ).toBeInTheDocument();
     expect(screen.getByText('Nenhuma leitura registrada neste mês.')).toBeInTheDocument();
+  });
+
+  it('marks the last day of an abandoned book', async () => {
+    await openNovember();
+
+    const day = screen.getByRole('button', { name: /^7 de novembro/ });
+    expect(within(day).getByText('Parou')).toBeInTheDocument();
+    await userEvent.click(day);
+    expect(screen.getByText('Parou de ler')).toBeInTheDocument();
+  });
+
+  it('registers a reading on the day picked, in a modal, without leaving the calendar', async () => {
+    HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement) {
+      this.setAttribute('open', '');
+    };
+    HTMLDialogElement.prototype.close = function (this: HTMLDialogElement) {
+      this.removeAttribute('open');
+      this.dispatchEvent(new Event('close'));
+    };
+    const { http, harness } = await openNovember();
+
+    await userEvent.click(screen.getByRole('button', { name: /^6 de novembro/ }));
+    expect(screen.getByText('Nenhuma leitura neste dia')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /Registrar leitura neste dia/ }));
+    TestBed.tick();
+    http
+      .expectOne((request) => request.url === '/api/v1/shelf/books')
+      .flush({ content: [{ id: 3, title: 'Duna', authors: [], genres: [] }] });
+    await harness.fixture.whenStable();
+
+    const dialog = screen.getByRole('dialog', { name: 'Registrar leitura neste dia' });
+    expect(within(dialog).getByLabelText('Dia')).toHaveValue('2026-11-06');
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Salvar leitura' }));
+    expect(
+      within(dialog).getByText('Informe as páginas lidas ou marque terminei/abandonei.'),
+    ).toBeInTheDocument();
+
+    await userEvent.type(within(dialog).getByLabelText('Páginas lidas neste dia'), '5');
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Salvar leitura' }));
+    http
+      .expectOne('/api/v1/books/3/readings')
+      .flush([{ id: 30, bookId: 3, status: 'ABANDONED', reread: false }]);
+    await vi.waitFor(() =>
+      http
+        .expectOne({ method: 'POST', url: '/api/v1/readings/30/resume' })
+        .flush({ id: 30, bookId: 3, status: 'IN_PROGRESS' }),
+    );
+    const session = await vi.waitFor(() =>
+      http.expectOne({ method: 'POST', url: '/api/v1/readings/30/sessions' }),
+    );
+    expect(session.request.body).toMatchObject({ date: '2026-11-06', pagesRead: 5 });
+    session.flush({ id: 1, date: '2026-11-06', pagesRead: 5 });
+    await vi.waitFor(() =>
+      http.expectOne((request) => request.url === '/api/v1/stats/calendar').flush(NOVEMBER),
+    );
+
+    await vi.waitFor(() =>
+      expect(screen.getByRole('status')).toHaveTextContent('Leitura registrada: Duna, 5 páginas.'),
+    );
   });
 });

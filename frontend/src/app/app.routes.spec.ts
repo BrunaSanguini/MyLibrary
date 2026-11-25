@@ -39,6 +39,9 @@ describe('routes', () => {
       ['/estante/importar?q=hobbit', '/estante/novo?q=hobbit'],
       ['/livros/importar?q=hobbit', '/estante/novo?q=hobbit'],
       ['/livros/1#minha-resenha', '/livro/1#minha-resenha'],
+      ['/catalogos', '/catalogos/generos'],
+      ['/catalogos?tipo=series', '/catalogos/series'],
+      ['/catalogos?tipo=subgeneros', '/catalogos/generos'],
     ])('keep the query string and the fragment of %s', async (old, current) => {
       const { url } = await navigate(old);
 
@@ -60,7 +63,7 @@ describe('routes', () => {
       ['/serie/3', 'serie/:id'],
       ['/generos/2', 'generos/:id'],
       ['/editoras/5', 'editoras/:id'],
-      ['/catalogos?tipo=autores', 'catalogos'],
+      ['/catalogos/autores', 'catalogos/:aba'],
       ['/configuracoes?aba=destaques', 'configuracoes'],
     ])('open %s as %s, with no redirect', async (url, route) => {
       const result = await navigate(url);

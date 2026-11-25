@@ -1,3 +1,5 @@
+import { GenreTreeResponse } from '@core/api/genres-api';
+import { BookCardResponse } from '@core/api/shelf-api';
 import { BookTime, DailyPages, StatsOverview } from '@core/api/stats-api';
 import { addDays, formatWeekday, IsoDate, parseIsoDate, startOfWeek } from '@core/time/today';
 
@@ -36,23 +38,29 @@ export function heatStart(today: IsoDate): IsoDate {
 export interface HeatDay {
   readonly date: IsoDate;
   readonly pages: number;
-  /** 0 without reading; 1 to 4 by the pages, relative to the busiest day. */
+  /** 0 without reading; 1 to 4 by the pages of the day (levelOf). */
   readonly level: number;
   /** After today: drawn empty. */
   readonly future: boolean;
 }
 
+/** The bands of the heat map: 0 · 1–10 · 11–30 · 31–60 · 61+ pages in the day. */
+export function levelOf(pages: number): number {
+  if (pages <= 0) {
+    return 0;
+  }
+  return pages <= 10 ? 1 : pages <= 30 ? 2 : pages <= 60 ? 3 : HEAT_LEVELS;
+}
+
 /** Weeks from Monday to Sunday, oldest first, ending in the week of today. */
 export function heatWeeks(today: IsoDate, days: readonly DailyPages[]): HeatDay[][] {
   const pagesOf = new Map(days.map((day) => [day.date, day.pages]));
-  const busiest = Math.max(0, ...days.map((day) => day.pages));
   const start = heatStart(today);
   return Array.from({ length: HEAT_WEEKS }, (_, week) =>
     Array.from({ length: 7 }, (_, weekday) => {
       const date = addDays(start, week * 7 + weekday);
       const pages = pagesOf.get(date) ?? 0;
-      const level = pages === 0 ? 0 : Math.max(1, Math.ceil((pages / busiest) * HEAT_LEVELS));
-      return { date, pages, level, future: date > today };
+      return { date, pages, level: levelOf(pages), future: date > today };
     }),
   );
 }
@@ -114,8 +122,8 @@ export interface PaceRow {
   readonly value: string;
 }
 
-/** The table of Ritmo. */
-export function paceOf(overview: StatsOverview): PaceRow[] {
+/** The table of Ritmo; the genre comes from the books read (mostReadGenre). */
+export function paceOf(overview: StatsOverview, genre?: string): PaceRow[] {
   const fastest = overview.fastestInYear;
   return [
     {
@@ -136,7 +144,41 @@ export function paceOf(overview: StatsOverview): PaceRow[] {
       label: 'Páginas viradas',
       value: `${NUMBER.format(overview.pagesInYear)} em ${overview.year}`,
     },
+    { label: 'Gênero mais lido', value: genre ?? 'Nenhum livro terminado ainda' },
   ];
+}
+
+/**
+ * The genre with more books read; a book in a subgenre counts for its genre. A tie goes to the
+ * first by name.
+ */
+export function mostReadGenre(
+  cards: readonly BookCardResponse[],
+  tree: readonly GenreTreeResponse[],
+): string | undefined {
+  const genreOf = new Map<string, string>();
+  for (const genre of tree) {
+    genreOf.set(genre.name, genre.name);
+    for (const subgenre of genre.subgenres) {
+      genreOf.set(subgenre.name, genre.name);
+    }
+  }
+  const counts = new Map<string, number>();
+  for (const card of cards.filter((one) => one.status === 'READ')) {
+    const genres = new Set(card.genres.map((name) => genreOf.get(name)).filter((name) => !!name));
+    for (const genre of genres) {
+      counts.set(genre!, (counts.get(genre!) ?? 0) + 1);
+    }
+  }
+  return [...counts.entries()].sort(
+    ([a, one], [b, other]) => other - one || a.localeCompare(b, 'pt-BR'),
+  )[0]?.[0];
+}
+
+/** `Novembro de MMXXVI`: the month by name and the year in roman numerals. */
+export function romanMonthTitle(date: IsoDate, roman: (value: number) => string): string {
+  const month = MONTH.format(parseIsoDate(date));
+  return `${month.charAt(0).toLocaleUpperCase('pt-BR')}${month.slice(1)} de ${roman(Number(date.slice(0, 4)))}`;
 }
 
 export interface TimeBar extends BookTime {
@@ -145,7 +187,7 @@ export interface TimeBar extends BookTime {
 }
 
 export function timeBars(books: readonly BookTime[], shown = 5): TimeBar[] {
-  const most = books[0]?.days ?? 0;
+  const most = Math.max(0, ...books.map((book) => book.days));
   return books.slice(0, shown).map((book) => ({
     ...book,
     share: most === 0 ? 0 : Math.round((book.days / most) * 100),

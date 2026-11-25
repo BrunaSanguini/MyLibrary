@@ -43,25 +43,30 @@ class ReadingStatsQueries {
                                d.book_id AS book_id,
                                SUM(d.pages) AS pages,
                                MAX(d.started) AS started,
-                               MAX(d.finished) AS finished
+                               MAX(d.finished) AS finished,
+                               MAX(d.abandoned) AS abandoned
                         FROM (
                             SELECT s.session_date AS session_day,
                                    r.book_id AS book_id,
                                    s.pages_read AS pages,
                                    CASE WHEN r.start_date = s.session_date THEN 1 ELSE 0 END AS started,
                                    CASE WHEN r.status = 'FINISHED' AND r.end_date = s.session_date
-                                       THEN 1 ELSE 0 END AS finished
+                                       THEN 1 ELSE 0 END AS finished,
+                                   CASE WHEN r.status = 'ABANDONED' AND r.end_date = s.session_date
+                                       THEN 1 ELSE 0 END AS abandoned
                             FROM reading_session s
                             JOIN reading r ON r.id = s.reading_id
                             WHERE s.session_date BETWEEN :from AND :to
                             UNION ALL
-                            SELECT r.start_date, r.book_id, 0, 1, 0
+                            SELECT r.start_date, r.book_id, 0, 1, 0, 0
                             FROM reading r
                             WHERE r.start_date BETWEEN :from AND :to
                             UNION ALL
-                            SELECT r.end_date, r.book_id, 0, 0, 1
+                            SELECT r.end_date, r.book_id, 0, 0,
+                                   CASE WHEN r.status = 'FINISHED' THEN 1 ELSE 0 END,
+                                   CASE WHEN r.status = 'ABANDONED' THEN 1 ELSE 0 END
                             FROM reading r
-                            WHERE r.status = 'FINISHED' AND r.end_date BETWEEN :from AND :to
+                            WHERE r.status IN ('FINISHED', 'ABANDONED') AND r.end_date BETWEEN :from AND :to
                         ) d
                         GROUP BY d.session_day, d.book_id
                         ORDER BY d.session_day, SUM(d.pages) DESC, d.book_id
@@ -73,7 +78,8 @@ class ReadingStatsQueries {
                         row.getLong("book_id"),
                         row.getInt("pages"),
                         row.getInt("started") == 1,
-                        row.getInt("finished") == 1))
+                        row.getInt("finished") == 1,
+                        row.getInt("abandoned") == 1))
                 .list();
     }
 
@@ -124,6 +130,31 @@ class ReadingStatsQueries {
                 .findFirst();
     }
 
+    /** Session notes written so far: the notes of the books. */
+    int notes() {
+        return jdbc.sql("SELECT COUNT(*) FROM reading_session WHERE note IS NOT NULL")
+                .query(Integer.class)
+                .single();
+    }
+
+    /** The year of the oldest reading or session: since when the reader reads with the app. */
+    Optional<Integer> firstYear() {
+        return jdbc
+                .sql("""
+                        SELECT MIN(first_day) FROM (
+                            SELECT MIN(start_date) AS first_day FROM reading
+                            UNION ALL
+                            SELECT MIN(session_date) FROM reading_session
+                        ) days
+                        """)
+                .query(LocalDate.class)
+                .list()
+                .stream()
+                .filter(Objects::nonNull)
+                .findFirst()
+                .map(LocalDate::getYear);
+    }
+
     int inProgress() {
         return jdbc.sql("SELECT COUNT(*) FROM reading WHERE status = 'IN_PROGRESS'")
                 .query(Integer.class)
@@ -150,5 +181,5 @@ class ReadingStatsQueries {
 
     record Fastest(long bookId, int days) {}
 
-    record DayBook(LocalDate day, long bookId, int pages, boolean started, boolean finished) {}
+    record DayBook(LocalDate day, long bookId, int pages, boolean started, boolean finished, boolean abandoned) {}
 }

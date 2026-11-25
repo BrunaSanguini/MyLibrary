@@ -41,7 +41,11 @@ export class ProfileStore {
     const previous = this.theme.preference();
     this.theme.setPreference(preference);
     try {
-      await this.save({ displayName: this.state()?.displayName, theme: preference });
+      await this.save({
+        displayName: this.state()?.displayName,
+        theme: preference,
+        readerSince: this.state()?.readerSince,
+      });
     } catch (error) {
       this.theme.setPreference(previous);
       throw error;

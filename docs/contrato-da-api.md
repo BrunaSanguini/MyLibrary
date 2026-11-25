@@ -243,7 +243,7 @@ Se a edição ou o ISBN já existir, a resposta é `409` (`book.edition-duplicat
 |---|---|---|
 | Autores | `GET /authors` (paginado, `q`, `sort=name`) · `GET`/`PUT`/`DELETE /authors/{id}` · `POST /authors` | `{ "name": "..." }` |
 | Editoras | `GET /publishers` · `GET`/`PUT`/`DELETE /publishers/{id}` · `POST /publishers` | `{ "name": "..." }` |
-| Séries | `GET /series` · `GET`/`PUT`/`DELETE /series/{id}` · `POST /series` | `{ "name": "...", "totalVolumes": 3 }` |
+| Séries | `GET /series` · `GET`/`PUT`/`DELETE /series/{id}` · `POST /series` | `{ "name": "...", "totalVolumes": 3, "description": "..." }` (descrição opcional, até 2000 caracteres) |
 | Gêneros | `GET /genres` (árvore, sem paginação) · `POST /genres` · `PUT`/`DELETE /genres/{id}` | `{ "name": "...", "parentId": null }` |
 
 Nas listagens de autores, editoras e séries, cada item traz `bookCount` e até três `coverUrls` para os cards de Catálogos.
@@ -276,11 +276,13 @@ O `bookCount` de um gênero conta os livros distintos do gênero e dos subgêner
 | `PUT /readings/{id}` | `{ "startDate": "...", "endDate": "...", "reread": true }` | `200` `ReadingResponse` |
 | `POST /readings/{id}/finish` | `{ "endDate": "2026-11-08" }` | `200` `ReadingResponse` |
 | `POST /readings/{id}/abandon` | `{ "endDate": "2026-11-08" }` | `200` `ReadingResponse` |
+| `POST /readings/{id}/resume` | | `200` `ReadingResponse` |
 | `DELETE /readings/{id}` | | `204` |
 
 - O `POST` aceita `FINISHED` e `ABANDONED` para registrar leituras antigas; nesse caso, `endDate` é obrigatório.
 - Criar uma leitura `IN_PROGRESS` quando já existe outra em andamento devolve `409` (`reading.in-progress-exists`).
-- O status só muda pelas ações `finish` e `abandon`, nunca pelo `PUT`.
+- O status só muda pelas ações `finish`, `abandon` e `resume`, nunca pelo `PUT`.
+- `resume` retoma uma leitura abandonada na mesma leitura: volta a `IN_PROGRESS`, sem fim e com o mesmo início. Leitura que não está abandonada: `409` (`reading.not-abandoned`); outra leitura do livro em andamento: `409` (`reading.in-progress-exists`).
 - Mudar o período (pelo `PUT`, `finish` ou `abandon`) de um jeito que deixe uma sessão de fora devolve `422` (`session.out-of-period`).
 - `progress.percent` é sempre `100` numa leitura `FINISHED`.
 
@@ -337,16 +339,16 @@ O front trata `review.not-found` como "sem resenha", sem exibir erro.
 
 | Rota | Resposta |
 |---|---|
-| `GET /stats/overview?year=2026&month=11` | totais do mês e do ano, nota média, releituras, páginas no ano, sequência atual e maior sequência |
+| `GET /stats/overview?year=2026&month=11` | totais do mês e do ano, nota média, releituras, páginas no ano, sequência atual e maior sequência, dias com leitura, notas e o ano da primeira leitura |
 | `GET /stats/daily-pages?from=&to=` | `[{ "date": "2026-11-08", "pages": 25 }]`, só os dias com leitura; período máximo de 366 dias |
 | `GET /stats/books-time?from=&to=` | `[{ "bookId": 42, "title": "...", "coverUrl": "...", "days": 6, "pages": 210 }]` |
-| `GET /stats/calendar?year=2026&month=11` | o mês do calendário: `finished` (leituras terminadas no mês) e `days`, os dias com sessão, início ou fim de leitura (sem sessão, `pages` é 0), cada um com os livros do dia (`pages`, `started`, `finished`, autores e capa) |
+| `GET /stats/calendar?year=2026&month=11` | o mês do calendário: `finished` (leituras terminadas no mês) e `days`, os dias com sessão, início ou fim de leitura (sem sessão, `pages` é 0), cada um com os livros do dia (`pages`, `started`, `finished`, `abandoned`, autores e capa); `abandoned` marca o dia em que a leitura parou |
 
 O mapa de calor e o "Esta semana" saem do `daily-pages`; a tabela de Ritmo sai do `overview`.
 
 - `daily-pages` e `books-time` exigem `from` e `to`, com os dois dias incluídos. Fim antes do início: `400` (`stats.invalid-period`); mais de 366 dias: `400` (`stats.period-too-long`).
 - Um dia com leitura é um dia com pelo menos uma sessão. A **sequência atual** termina hoje ou ontem (o dia de hoje ainda não acabou); a **maior sequência** considera todo o histórico.
-- `overview` traz `finishedInMonth`, `finishedInYear`, `rereadsInYear` e `pagesInYear` com as mesmas regras das metas; `averageRating` é a média de todas as notas, com uma casa decimal, e fica ausente sem notas; `finishedLast30Days` conta hoje e os 29 dias anteriores; `fastestInYear` é a leitura concluída no ano em menos dias (início e fim incluídos), entre as que têm data de início.
+- `overview` traz `finishedInMonth`, `finishedInYear`, `rereadsInYear` e `pagesInYear` com as mesmas regras das metas; `averageRating` é a média de todas as notas, com uma casa decimal, e fica ausente sem notas; `finishedLast30Days` conta hoje e os 29 dias anteriores; `fastestInYear` é a leitura concluída no ano em menos dias (início e fim incluídos), entre as que têm data de início; `readingDays` conta os dias com sessão de todo o histórico; `notes` conta as sessões com anotação; `readerSince` é o ano da primeira leitura ou sessão registrada e fica ausente antes dela.
 - `books-time` ordena por dias e depois por páginas.
 
 ## Listas (`lists`)
@@ -421,12 +423,13 @@ Os livros de uma lista vêm de `GET /shelf/books?listId={id}&sort=listOrder,asc`
 
 | Método e rota | Corpo | Resposta |
 |---|---|---|
-| `GET /profile` | | `200` `{ "displayName": "...", "avatarUrl": null, "theme": "SYSTEM" }` |
-| `PUT /profile` | `{ "displayName": "...", "theme": "DARK" }` | `200` |
+| `GET /profile` | | `200` `{ "displayName": "...", "avatarUrl": null, "theme": "SYSTEM", "readerSince": 2019 }` |
+| `PUT /profile` | `{ "displayName": "...", "theme": "DARK", "readerSince": 2019 }` | `200` |
 | `PUT /profile/avatar` | multipart `file` | `200` `{ "avatarUrl": "..." }` |
 | `DELETE /profile/avatar` | | `204` |
 
 - O nome tem até 80 caracteres; em branco, o perfil fica sem nome e o app cumprimenta sem ele.
+- `readerSince` vai de 1900 até o ano atual; um ano depois do atual devolve `422` (`profile.reader-since-future`). O `PUT` troca o perfil inteiro: ausente, o campo fica vazio.
 - O avatar segue as regras das capas (JPEG, PNG ou WebP até 5 MB, conferidos pelo conteúdo): `415` (`image.invalid-type`) e `413` (`image.too-large`). O avatar anterior vai para a lixeira.
 
 ## Imagens (`images`)

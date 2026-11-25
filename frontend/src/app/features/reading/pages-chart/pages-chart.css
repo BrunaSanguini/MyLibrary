@@ -1,0 +1,144 @@
+/* Páginas por dia: the tabs, the totals and the bars over the line of the average. */
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.head {
+  display: flex;
+  gap: var(--ml-space-16);
+  align-items: center;
+  justify-content: space-between;
+}
+
+h2 {
+  margin: 0;
+  font-family: var(--ml-font-title);
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.periods {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 4px;
+  border: 1px solid var(--ml-color-glass-line);
+  border-radius: var(--ml-radius-pill);
+}
+
+.periods button {
+  min-width: 96px;
+  min-height: 40px;
+  border: 0;
+  border-radius: var(--ml-radius-pill);
+  background: transparent;
+  color: var(--ml-color-ink);
+  font-family: var(--ml-font-title);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.periods [aria-selected='true'] {
+  background: var(--ml-color-accent);
+  box-shadow: var(--ml-glow);
+  color: var(--ml-color-accent-ink);
+}
+
+.periods button:focus-visible {
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 2px;
+}
+
+.totals {
+  display: flex;
+  gap: 20px;
+  align-items: baseline;
+  margin: 0;
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-display);
+  font-size: 17px;
+  font-style: italic;
+}
+
+.totals b {
+  color: var(--ml-color-ink);
+  font-family: var(--ml-font-title);
+  font-size: 30px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.chart {
+  --columns: 7;
+  --gap: 14px;
+}
+
+.chart[data-period='mes'] {
+  --columns: 30;
+  --gap: 4px;
+}
+
+.bars,
+.axis {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+  gap: var(--gap);
+}
+
+.bars {
+  position: relative;
+  align-items: end;
+  height: 160px;
+}
+
+.bar {
+  min-height: 3px;
+  border-radius: 4px 4px 1px 1px;
+  background: var(--ml-color-raised);
+}
+
+.bar.read {
+  background: var(--ml-color-gold);
+}
+
+.bar.lit {
+  background: var(--ml-color-accent);
+  box-shadow: var(--ml-glow);
+}
+
+.average {
+  position: absolute;
+  right: 0;
+  left: 0;
+  border-top: 1px dashed var(--ml-color-lilac);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.average span {
+  position: absolute;
+  top: -20px;
+  right: 0;
+  padding: 0 4px;
+  background: var(--ml-color-surface);
+  color: var(--ml-color-lilac);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.axis {
+  margin-top: 8px;
+}
+
+.axis span {
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-title);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+}

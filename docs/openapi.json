@@ -1436,6 +1436,35 @@
         }
       }
     },
+    "/api/v1/readings/{id}/resume" : {
+      "post" : {
+        "tags" : [ "readings" ],
+        "summary" : "Reads an abandoned book again, in the same reading",
+        "description" : "The reading is in progress again, with no end. Not abandoned: 409 reading.not-abandoned; another reading of the book in progress: 409 reading.in-progress-exists.",
+        "operationId" : "resumeReading",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReadingResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/publishers" : {
       "get" : {
         "tags" : [ "publishers" ],
@@ -2536,6 +2565,11 @@
             "type" : "integer",
             "format" : "int32",
             "exclusiveMinimum" : 0
+          },
+          "description" : {
+            "type" : "string",
+            "maxLength" : 2000,
+            "minLength" : 0
           }
         },
         "required" : [ "name" ]
@@ -2563,6 +2597,9 @@
             "items" : {
               "type" : "string"
             }
+          },
+          "description" : {
+            "type" : "string"
           }
         },
         "required" : [ "bookCount", "coverUrls", "id", "name" ]
@@ -2728,6 +2765,11 @@
           "theme" : {
             "type" : "string",
             "enum" : [ "LIGHT", "DARK", "SYSTEM" ]
+          },
+          "readerSince" : {
+            "type" : "integer",
+            "format" : "int32",
+            "minimum" : 1900
           }
         },
         "required" : [ "theme" ]
@@ -2744,6 +2786,10 @@
           "theme" : {
             "type" : "string",
             "enum" : [ "LIGHT", "DARK", "SYSTEM" ]
+          },
+          "readerSince" : {
+            "type" : "integer",
+            "format" : "int32"
           }
         },
         "required" : [ "theme" ]
@@ -3421,9 +3467,21 @@
           },
           "fastestInYear" : {
             "$ref" : "#/components/schemas/FastestReadingResponse"
+          },
+          "readingDays" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "notes" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "readerSince" : {
+            "type" : "integer",
+            "format" : "int32"
           }
         },
-        "required" : [ "currentStreak", "finishedInMonth", "finishedInYear", "finishedLast30Days", "inProgress", "longestStreak", "month", "pagesInYear", "rereadsInYear", "year" ]
+        "required" : [ "currentStreak", "finishedInMonth", "finishedInYear", "finishedLast30Days", "inProgress", "longestStreak", "month", "notes", "pagesInYear", "readingDays", "rereadsInYear", "year" ]
       },
       "DailyPagesResponse" : {
         "type" : "object",
@@ -3483,9 +3541,12 @@
           },
           "finished" : {
             "type" : "boolean"
+          },
+          "abandoned" : {
+            "type" : "boolean"
           }
         },
-        "required" : [ "authors", "bookId", "finished", "pages", "started", "title" ]
+        "required" : [ "abandoned", "authors", "bookId", "finished", "pages", "started", "title" ]
       },
       "CalendarResponse" : {
         "type" : "object",

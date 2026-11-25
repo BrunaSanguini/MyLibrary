@@ -9,6 +9,7 @@ type Schemas = components['schemas'];
 export type AuthorResponse = Schemas['AuthorResponse'];
 export type PublisherResponse = Schemas['PublisherResponse'];
 export type SeriesResponse = Schemas['SeriesResponse'];
+export type SeriesRequest = Schemas['SeriesRequest'];
 type AuthorsPage = Schemas['PageResponseAuthorResponse'];
 
 /** The API serves at most this many items per page. */
@@ -79,6 +80,11 @@ export class CatalogApi {
           return found ? of({ id: found.id, name: found.name }) : this.create(kind, name);
         }),
       );
+  }
+
+  /** Name, number of volumes and description of a series (Editar série). */
+  updateSeries(id: number, request: SeriesRequest): Observable<SeriesResponse> {
+    return this.http.put<SeriesResponse>(`/api/v1/series/${id}`, request);
   }
 
   /** An author or a publisher with books is refused by the API (author.has-books). */
