@@ -139,17 +139,13 @@ class ReadingStatsQueries {
 
     /** The year of the oldest reading or session: since when the reader reads with the app. */
     Optional<Integer> firstYear() {
-        return jdbc
-                .sql("""
+        return jdbc.sql("""
                         SELECT MIN(first_day) FROM (
                             SELECT MIN(start_date) AS first_day FROM reading
                             UNION ALL
                             SELECT MIN(session_date) FROM reading_session
                         ) days
-                        """)
-                .query(LocalDate.class)
-                .list()
-                .stream()
+                        """).query(LocalDate.class).list().stream()
                 .filter(Objects::nonNull)
                 .findFirst()
                 .map(LocalDate::getYear);
