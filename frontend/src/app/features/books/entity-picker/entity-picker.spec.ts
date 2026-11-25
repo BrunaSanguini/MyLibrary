@@ -116,7 +116,7 @@ describe('EntityPicker', () => {
 
     await user.type(screen.getByRole('combobox', { name: 'Autor' }), 'Clarice Lispector');
     await answer(http, fixture, '/api/v1/authors', { content: [] });
-    await user.click(screen.getByRole('option', { name: /Criar/ }));
+    await user.click(screen.getByRole('option', { name: /Cadastrar/ }));
     TestBed.tick();
     const creation = http.expectOne({ method: 'POST', url: '/api/v1/authors' });
     expect(creation.request.body).toEqual({ name: 'Clarice Lispector' });
@@ -133,7 +133,7 @@ describe('EntityPicker', () => {
     await user.type(screen.getByRole('combobox', { name: 'Autor' }), 'machado de assis');
     await answer(http, fixture, '/api/v1/authors', AUTHORS);
 
-    expect(screen.queryByRole('option', { name: /Criar/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: /Cadastrar/ })).not.toBeInTheDocument();
   });
 
   it('shows why a creation was refused', async () => {
@@ -142,7 +142,7 @@ describe('EntityPicker', () => {
 
     await user.type(screen.getByRole('combobox', { name: 'Autor' }), 'Garnier');
     await answer(http, fixture, '/api/v1/publishers', { content: [] });
-    await user.click(screen.getByRole('option', { name: /Criar/ }));
+    await user.click(screen.getByRole('option', { name: /Cadastrar/ }));
     TestBed.tick();
     http
       .expectOne({ method: 'POST', url: '/api/v1/publishers' })
@@ -167,7 +167,7 @@ describe('EntityPicker', () => {
     expect(screen.queryByRole('option', { name: 'Alta fantasia' })).not.toBeInTheDocument();
   });
 
-  it('offers only the subgenres of the chosen genres, and says which genre they belong to', async () => {
+  it('offers the subgenres of every genre, and says which genre they belong to', async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     const { http, fixture, picked } = await renderPicker('subgenres', [], [FANTASY]);
 
@@ -175,7 +175,7 @@ describe('EntityPicker', () => {
     await answer(http, fixture, '/api/v1/genres', TREE);
 
     expect(screen.getByRole('option', { name: 'Alta fantasia' })).toBeInTheDocument();
-    expect(screen.queryByRole('option', { name: 'Realismo' })).not.toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Realismo' })).toBeInTheDocument();
     await user.click(screen.getByRole('option', { name: 'Alta fantasia' }));
     await fixture.whenStable();
     expect(picked).toHaveBeenCalledWith({ id: 2, name: 'Alta fantasia', parentId: 1 });
@@ -187,7 +187,7 @@ describe('EntityPicker', () => {
 
     await user.type(screen.getByRole('combobox', { name: 'Autor' }), 'Fantasia urbana');
     await answer(http, fixture, '/api/v1/genres', TREE);
-    await user.click(screen.getByRole('option', { name: 'Criar “Fantasia urbana”' }));
+    await user.click(screen.getByRole('option', { name: '＋ Cadastrar “Fantasia urbana”' }));
     TestBed.tick();
     const creation = http.expectOne({ method: 'POST', url: '/api/v1/genres' });
     expect(creation.request.body).toEqual({ name: 'Fantasia urbana', parentId: 1 });
@@ -205,9 +205,9 @@ describe('EntityPicker', () => {
     await answer(http, fixture, '/api/v1/genres', TREE);
 
     expect(
-      screen.getByRole('option', { name: 'Criar “Distopia” em Fantasia' }),
+      screen.getByRole('option', { name: '＋ Cadastrar “Distopia” em Fantasia' }),
     ).toBeInTheDocument();
-    await user.click(screen.getByRole('option', { name: 'Criar “Distopia” em Romance' }));
+    await user.click(screen.getByRole('option', { name: '＋ Cadastrar “Distopia” em Romance' }));
     TestBed.tick();
     const creation = http.expectOne({ method: 'POST', url: '/api/v1/genres' });
     expect(creation.request.body).toEqual({ name: 'Distopia', parentId: 5 });

@@ -1,4 +1,4 @@
-import { HttpClient, HttpResourceRequest } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -31,14 +31,18 @@ export function isOpenLibraryOutage(code: string): boolean {
 export class ImportApi {
   private readonly http = inject(HttpClient);
 
-  /** Up to 20 results by title or author. */
-  searchRequest(q: string): HttpResourceRequest {
-    return { url: '/api/v1/books/import/search', params: { q } };
+  /** Up to 20 results by title or author, asked only when the reader clicks Buscar. */
+  search(q: string): Observable<ImportCandidateResponse[]> {
+    return this.http.get<ImportCandidateResponse[]>('/api/v1/books/import/search', {
+      params: { q },
+    });
   }
 
   /** Everything the Open Library knows about one edition; nothing is saved. */
-  previewRequest(lookup: EditionLookup): HttpResourceRequest {
-    return { url: '/api/v1/books/import/preview', params: { ...lookup } };
+  preview(lookup: EditionLookup): Observable<ImportPreviewResponse> {
+    return this.http.get<ImportPreviewResponse>('/api/v1/books/import/preview', {
+      params: { ...lookup },
+    });
   }
 
   importEdition(request: ImportRequest): Observable<BookDetailResponse> {

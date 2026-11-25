@@ -1,77 +1,118 @@
-/* Histórico de leitura: one card per reading, the sessions opening inside it. */
+/* Histórico de leitura: four numbers in one card, then the readings on a gold thread. */
 
-.history {
+:host {
   display: flex;
   flex-direction: column;
-  gap: var(--ml-space-16);
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  gap: 28px;
 }
 
-.entry {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--ml-space-12);
-  padding: var(--ml-space-24);
-  border: 1px solid var(--ml-color-line);
-  border-radius: var(--ml-radius-lg);
+.summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--ml-color-glass-line);
+  border-radius: var(--ml-radius-md);
   background: var(--ml-color-surface);
+  box-shadow: var(--ml-shadow-frame), var(--ml-shadow-soft);
 }
 
-.entry-head {
+.summary div {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column-reverse;
+  gap: 4px;
   align-items: center;
-  gap: var(--ml-space-12);
+  padding: 22px 16px;
+  border-right: 1px solid var(--ml-color-line);
+  text-align: center;
 }
 
-h3 {
+.summary div:last-child {
+  border-right: 0;
+}
+
+.summary dd {
   margin: 0;
-  font-family: var(--ml-font-display);
-  font-size: 24px;
-  font-weight: 600;
-}
-
-.period,
-.empty {
-  margin: 0;
-  color: var(--ml-color-muted);
-  font-size: 15px;
-}
-
-.progress {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  width: 100%;
-  max-width: 420px;
-  font-size: 14px;
-}
-
-.sessions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: 14px;
-}
-
-.sessions li {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--ml-space-12);
-}
-
-.session-date {
-  min-width: 64px;
+  font-family: var(--ml-font-title);
+  font-size: 36px;
   font-weight: 700;
+  line-height: 1;
 }
 
-.note {
+.summary .accent {
+  color: var(--ml-color-accent);
+}
+
+.summary dt {
   color: var(--ml-color-muted);
+  font-family: var(--ml-font-display);
+  font-size: 17px;
   font-style: italic;
+}
+
+.timeline {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  gap: 22px;
+  margin: 0;
+  padding: 0 0 0 76px;
+  list-style: none;
+}
+
+/* The thread that links the medals. */
+.timeline::before {
+  content: '';
+  position: absolute;
+  top: 30px;
+  bottom: 40px;
+  left: 31px;
+  width: 1px;
+  background: var(--ml-color-gold);
+  opacity: 0.55;
+}
+
+.invite {
+  display: flex;
+  position: relative;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  padding: 18px 24px;
+  border: 1.5px dashed var(--ml-color-glass-line);
+  border-radius: var(--ml-radius-md);
+}
+
+.marker {
+  display: grid;
+  position: absolute;
+  left: -63px;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1.5px dashed var(--ml-color-gold);
+  border-radius: 50%;
+  background: var(--ml-color-bg);
+  color: var(--ml-color-gold-text);
+}
+
+.invite p {
+  margin: 0;
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-display);
+  font-size: 20px;
+  font-style: italic;
+}
+
+.invite a {
+  margin-left: auto;
+  color: var(--ml-color-accent);
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.invite a:focus-visible {
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 2px;
 }

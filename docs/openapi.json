@@ -2100,7 +2100,7 @@
       "get" : {
         "tags" : [ "shelf" ],
         "summary" : "Book cards, filtered and paginated",
-        "description" : "The search ignores accents and also matches author names. A genre brings the books of its subgenres. status can repeat. reread=true brings the books read more than once or with a reading marked as a reread. Sorting: title, author, addedAt (default, desc), seriesPosition, rating, finishedAt and, only with listId, listOrder.",
+        "description" : "The search ignores accents and also matches author names. A genre brings the books of its subgenres. status can repeat. reread=true brings the books read more than once or with a reading marked as a reread. wishlist=false leaves the wishlist out and wishlist=true keeps only it. Sorting: title, author, addedAt (default, desc), seriesPosition, rating, finishedAt, publishedYear and, only with listId, listOrder.",
         "operationId" : "searchShelfBooks",
         "parameters" : [ {
           "name" : "q",
@@ -2185,6 +2185,13 @@
             "format" : "int64"
           }
         }, {
+          "name" : "wishlist",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : [ "boolean", "null" ]
+          }
+        }, {
           "name" : "page",
           "in" : "query",
           "required" : false,
@@ -2218,6 +2225,26 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/PageResponseBookCardResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/shelf/summary" : {
+      "get" : {
+        "tags" : [ "shelf" ],
+        "summary" : "How many books each tab and chip of Minha Estante holds",
+        "description" : "Every number but wishlist counts only the books outside the wishlist.",
+        "operationId" : "getShelfSummary",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ShelfSummaryResponse"
                 }
               }
             }
@@ -4000,6 +4027,44 @@
           }
         },
         "required" : [ "bookId" ]
+      },
+      "ShelfSummaryResponse" : {
+        "type" : "object",
+        "properties" : {
+          "shelf" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "reading" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "read" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "wantToRead" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "abandoned" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "wishlist" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "favorites" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rereads" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "abandoned", "favorites", "read", "reading", "rereads", "shelf", "wantToRead", "wishlist" ]
       }
     }
   }

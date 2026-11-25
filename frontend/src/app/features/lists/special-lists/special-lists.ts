@@ -24,7 +24,7 @@ export const SPECIAL_LISTS: readonly Special[] = [
     description: 'Livros que você quer ter',
     icon: 'wishlist',
     filter: { ownership: 'WISHLIST' },
-    queryParams: { ownership: 'WISHLIST' },
+    queryParams: { status: 'wishlist' },
   },
   {
     id: 'favoritos',
@@ -32,7 +32,7 @@ export const SPECIAL_LISTS: readonly Special[] = [
     description: 'Livros que você marcou com ♥',
     icon: 'star',
     filter: { favorite: true },
-    queryParams: { favorite: 'true' },
+    queryParams: { favoritos: '1' },
   },
   {
     id: 'releituras',
@@ -40,7 +40,7 @@ export const SPECIAL_LISTS: readonly Special[] = [
     description: 'Lidos mais de uma vez',
     icon: 'reread',
     filter: { reread: true },
-    queryParams: { reread: 'true' },
+    queryParams: { releituras: '1' },
   },
 ];
 

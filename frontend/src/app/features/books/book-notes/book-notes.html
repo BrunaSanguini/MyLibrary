@@ -1,0 +1,17 @@
+<div class="head">
+  <h3>Minhas notas</h3>
+  <a class="add" aria-label="Adicionar nota" [routerLink]="['/livro', bookId(), 'leitura']">+</a>
+</div>
+
+@if (notes().length > 0) {
+  <ul>
+    @for (note of notes(); track note.id) {
+      <li>
+        <span class="label">{{ note.label }}</span>
+        <p>{{ note.text }}</p>
+      </li>
+    }
+  </ul>
+} @else {
+  <p class="none">Nenhuma nota ainda.</p>
+}

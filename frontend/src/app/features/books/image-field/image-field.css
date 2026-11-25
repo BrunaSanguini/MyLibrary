@@ -1,100 +1,64 @@
-/* The area takes paste and drop: a dashed frame that turns accent when an image is over it. */
+/* The cover column: the cover in 2:3 (the image, or the drawn one), the buttons under it. */
 
 :host {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  min-width: 0;
-}
-
-.label {
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.area {
-  display: flex;
-  gap: var(--ml-space-16);
+  gap: var(--ml-space-12);
   align-items: center;
-  padding: var(--ml-space-16);
-  border: 2px dashed var(--ml-color-line);
-  border-radius: var(--ml-radius-md);
-  background: var(--ml-color-bg);
-}
-
-.area.banner {
-  flex-direction: column;
-  align-items: stretch;
-}
-
-.area:focus-visible,
-.area.dragging {
-  border-color: var(--ml-color-accent);
-  outline: none;
-  background: var(--ml-color-accent-tint);
-}
-
-.preview,
-.placeholder {
-  flex: none;
-  width: 96px;
-  aspect-ratio: 2 / 3;
-  border-radius: 6px;
-  object-fit: cover;
-}
-
-.placeholder {
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--ml-color-line);
-  color: var(--ml-color-muted);
-  font-size: 12px;
-}
-
-.banner .preview,
-.banner .placeholder {
-  width: 100%;
-  aspect-ratio: 4 / 1;
-}
-
-.controls {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
   min-width: 0;
+}
+
+/* The cover itself takes the paste and the drop, and lights up when an image is over it. */
+.area {
+  width: 176px;
+  border-radius: var(--ml-radius-book);
+  outline-offset: 6px;
+}
+
+.area.dragging {
+  outline: 2px dashed var(--ml-color-accent);
+}
+
+.area:focus-visible {
+  outline: 2px solid var(--ml-color-accent);
+}
+
+.preview {
+  display: block;
+  width: 176px;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--ml-radius-book);
+  box-shadow: var(--ml-shadow-book);
+  object-fit: cover;
 }
 
 .hint,
 .chosen {
   margin: 0;
   color: var(--ml-color-muted);
-  font-size: 13px;
+  font-family: var(--ml-font-display);
+  font-size: 15px;
+  font-style: italic;
+  text-align: center;
 }
 
 .buttons {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-direction: column;
+  gap: var(--ml-space-8);
   align-items: center;
+  width: 100%;
 }
 
-/* Smaller than the form buttons, still a 44px target. */
-.buttons .ml-button[data-variant='secondary'] {
-  min-height: 44px;
-  padding: 0 var(--ml-space-16);
-  font-size: 14px;
-  white-space: nowrap;
+.buttons button:disabled {
+  color: var(--ml-color-muted);
+  opacity: 0.6;
 }
 
 .error {
   margin: 0;
   color: var(--ml-color-accent);
   font-size: 13px;
-}
-
-.check {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
 }

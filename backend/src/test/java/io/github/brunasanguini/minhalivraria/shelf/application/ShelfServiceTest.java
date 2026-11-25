@@ -50,7 +50,7 @@ class ShelfServiceTest {
 
     private static final PageQuery FIRST_PAGE = new PageQuery(null, null, null);
     private static final ShelfFilter EVERYTHING =
-            new ShelfFilter(null, null, null, null, null, null, null, null, null, null);
+            new ShelfFilter(null, null, null, null, null, null, null, null, null, null, null);
     private static final Path DATA_DIR = tempDataDir();
 
     @DynamicPropertySource
@@ -197,38 +197,71 @@ class ShelfServiceTest {
 
     @Test
     void shouldBringTheBooksOfTheSubgenresOfAGenre() {
-        assertThat(ids(new ShelfFilter(null, null, null, null, null, fantasy, null, null, null, null)))
+        assertThat(ids(new ShelfFilter(null, null, null, null, null, fantasy, null, null, null, null, null)))
                 .containsExactlyInAnyOrder(fellowship, hobbit);
-        assertThat(ids(new ShelfFilter(null, null, null, null, null, highFantasy, null, null, null, null)))
+        assertThat(ids(new ShelfFilter(null, null, null, null, null, highFantasy, null, null, null, null, null)))
                 .containsExactly(fellowship);
-        assertThat(ids(new ShelfFilter(null, null, null, null, null, sciFi, null, null, null, null)))
+        assertThat(ids(new ShelfFilter(null, null, null, null, null, sciFi, null, null, null, null, null)))
                 .containsExactly(dune);
     }
 
     @Test
     void shouldFilterByOwnershipAndFavorite() {
-        assertThat(ids(new ShelfFilter(null, null, Ownership.WISHLIST, null, null, null, null, null, null, null)))
+        assertThat(ids(new ShelfFilter(null, null, Ownership.WISHLIST, null, null, null, null, null, null, null, null)))
                 .containsExactly(dune);
-        assertThat(ids(new ShelfFilter(null, null, null, true, null, null, null, null, null, null)))
+        assertThat(ids(new ShelfFilter(null, null, null, true, null, null, null, null, null, null, null)))
                 .containsExactly(fellowship);
-        assertThat(ids(new ShelfFilter(null, null, null, false, null, null, null, null, null, null)))
+        assertThat(ids(new ShelfFilter(null, null, null, false, null, null, null, null, null, null, null)))
                 .containsExactlyInAnyOrder(hobbit, dune);
     }
 
     @Test
+    void shouldLeaveTheWishlistOutOrKeepOnlyIt() {
+        assertThat(ids(new ShelfFilter(null, null, null, null, null, null, null, null, null, null, false)))
+                .containsExactlyInAnyOrder(fellowship, hobbit);
+        assertThat(ids(new ShelfFilter(null, null, null, null, null, null, null, null, null, null, true)))
+                .containsExactly(dune);
+    }
+
+    @Test
+    void shouldCountTheTabsOfTheShelfLeavingTheWishlistApart() {
+        start(hobbit, "2026-11-01");
+        past(fellowship, ReadingStatus.FINISHED, "2024-03-01");
+        past(fellowship, ReadingStatus.FINISHED, "2025-03-01");
+        past(dune, ReadingStatus.FINISHED, "2025-06-01");
+
+        assertThat(shelf.summary()).isEqualTo(new ShelfSummaryResponse(2, 1, 1, 0, 0, 1, 1, 1));
+    }
+
+    @Test
+    void shouldCountNothingOnAnEmptyShelf() {
+        entityManager.createNativeQuery("delete from book_genre").executeUpdate();
+        entityManager.createNativeQuery("delete from book_publisher").executeUpdate();
+        entityManager.createNativeQuery("delete from book_author").executeUpdate();
+        entityManager.createNativeQuery("delete from book").executeUpdate();
+
+        assertThat(shelf.summary()).isEqualTo(new ShelfSummaryResponse(0, 0, 0, 0, 0, 0, 0, 0));
+    }
+
+    @Test
+    void shouldSortByThePublicationYear() {
+        assertThat(ids(EVERYTHING, "publishedYear,desc")).first().isEqualTo(fellowship);
+    }
+
+    @Test
     void shouldFilterByAuthorPublisherAndSeries() {
-        assertThat(ids(new ShelfFilter(null, null, null, null, null, null, tolkien, null, null, null)))
+        assertThat(ids(new ShelfFilter(null, null, null, null, null, null, tolkien, null, null, null, null)))
                 .containsExactlyInAnyOrder(fellowship, hobbit);
-        assertThat(ids(new ShelfFilter(null, null, null, null, null, null, null, harper, null, null)))
+        assertThat(ids(new ShelfFilter(null, null, null, null, null, null, null, harper, null, null, null)))
                 .containsExactlyInAnyOrder(fellowship, hobbit);
-        assertThat(ids(new ShelfFilter(null, null, null, null, null, null, null, null, lotr, null)))
+        assertThat(ids(new ShelfFilter(null, null, null, null, null, null, null, null, lotr, null, null)))
                 .containsExactly(fellowship);
     }
 
     @Test
     void shouldCombineFiltersWithAnd() {
-        ShelfFilter filter =
-                new ShelfFilter("tolkien", null, Ownership.OWNED, false, null, fantasy, tolkien, harper, null, null);
+        ShelfFilter filter = new ShelfFilter(
+                "tolkien", null, Ownership.OWNED, false, null, fantasy, tolkien, harper, null, null, null);
         List<Long> found = ids(filter);
 
         assertThat(found).containsExactly(hobbit);
@@ -287,7 +320,7 @@ class ShelfServiceTest {
         lists.addBook(list, fellowship);
         entityManager.flush();
 
-        assertThat(ids(new ShelfFilter("duna", null, null, null, null, null, null, null, null, list)))
+        assertThat(ids(new ShelfFilter("duna", null, null, null, null, null, null, null, null, list, null)))
                 .containsExactly(dune);
     }
 
@@ -302,7 +335,7 @@ class ShelfServiceTest {
     @Test
     void shouldRefuseASortFieldOutsideTheList() {
         assertThatThrownBy(() -> shelf.search(
-                        new ShelfFilter(null, null, null, null, null, null, null, null, null, null),
+                        new ShelfFilter(null, null, null, null, null, null, null, null, null, null, null),
                         new PageQuery(null, null, "synopsis,asc")))
                 .isInstanceOf(BadRequestException.class)
                 .extracting("code")
@@ -312,7 +345,7 @@ class ShelfServiceTest {
     @Test
     void shouldPaginateKeepingTheTotal() {
         var page = shelf.search(
-                new ShelfFilter(null, null, null, null, null, null, null, null, null, null),
+                new ShelfFilter(null, null, null, null, null, null, null, null, null, null, null),
                 new PageQuery(0, 2, "title,asc"));
 
         assertThat(page.getContent()).hasSize(2);
@@ -330,7 +363,8 @@ class ShelfServiceTest {
 
     @Test
     void shouldFillTheCardOfABookInASeries() {
-        var card = shelf.search(new ShelfFilter(null, null, null, null, null, null, null, null, lotr, null), FIRST_PAGE)
+        var card = shelf.search(
+                        new ShelfFilter(null, null, null, null, null, null, null, null, lotr, null, null), FIRST_PAGE)
                 .getContent()
                 .getFirst();
 
@@ -505,9 +539,9 @@ class ShelfServiceTest {
         past(fellowship, ReadingStatus.FINISHED, "2025-03-01");
         past(dune, ReadingStatus.FINISHED, "2025-06-01");
 
-        assertThat(ids(new ShelfFilter(null, null, null, null, true, null, null, null, null, null)))
+        assertThat(ids(new ShelfFilter(null, null, null, null, true, null, null, null, null, null, null)))
                 .containsExactly(fellowship);
-        assertThat(ids(new ShelfFilter(null, null, null, null, false, null, null, null, null, null)))
+        assertThat(ids(new ShelfFilter(null, null, null, null, false, null, null, null, null, null, null)))
                 .containsExactlyInAnyOrder(hobbit, dune);
     }
 
@@ -672,15 +706,15 @@ class ShelfServiceTest {
     }
 
     private static ShelfFilter byStatus(ShelfStatus... statuses) {
-        return new ShelfFilter(null, List.of(statuses), null, null, null, null, null, null, null, null);
+        return new ShelfFilter(null, List.of(statuses), null, null, null, null, null, null, null, null, null);
     }
 
     private static ShelfFilter inList(long listId) {
-        return new ShelfFilter(null, null, null, null, null, null, null, null, null, listId);
+        return new ShelfFilter(null, null, null, null, null, null, null, null, null, listId, null);
     }
 
     private static ShelfFilter filterByTerm(String term) {
-        return new ShelfFilter(term, null, null, null, null, null, null, null, null, null);
+        return new ShelfFilter(term, null, null, null, null, null, null, null, null, null, null);
     }
 
     private List<Long> ids(ShelfFilter filter) {

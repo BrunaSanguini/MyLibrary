@@ -1,61 +1,66 @@
-<article class="entry" [attr.aria-labelledby]="'titulo-' + sessionsId()">
+<span class="medal" aria-hidden="true">{{ medal() }}</span>
+
+<article class="entry" [attr.aria-labelledby]="'titulo-' + detailsId()">
   <header class="entry-head">
-    <h3 [id]="'titulo-' + sessionsId()">{{ title() }}</h3>
-    <span mlTag="seal">{{ statusLabel() }}</span>
-    @if (reading().reread) {
-      <span mlTag="seal">Releitura</span>
-    }
+    <div>
+      <h3 [id]="'titulo-' + detailsId()">
+        <span class="ml-visually-hidden">Leitura {{ medal() }}:</span>
+        {{ title() }}
+        <span class="seal" [attr.data-status]="reading().status">{{ seal() }}</span>
+      </h3>
+      @if (period(); as period) {
+        <p class="period">{{ period }}</p>
+      }
+    </div>
   </header>
 
-  @if (period(); as period) {
-    <p class="period">
-      {{ period }}
-      @if (days(); as days) {
-        <span class="days">· {{ days }}</span>
-      }
-    </p>
-  }
-
-  <div class="progress">
-    <ml-progress-bar [value]="reading().progress.percent" [label]="'Progresso da ' + title()" />
-    <span>{{ pages() }}</span>
-  </div>
-
-  @if (reading().sessionCount > 0) {
-    <button
-      mlButton="link"
-      type="button"
-      [attr.aria-expanded]="open()"
-      [attr.aria-controls]="sessionsId()"
-      (click)="toggle()"
-    >
-      {{ open() ? 'Esconder' : 'Ver' }} {{ sessionCount() }}
-    </button>
-    @if (open()) {
-      <div [id]="sessionsId()">
-        @if (sessions.hasValue()) {
-          <ul class="sessions">
-            @for (session of sessions.value(); track session.id) {
-              <li>
-                <span class="session-date">{{ dateOf(session) }}</span>
-                <span
-                  >{{ session.pagesRead }}
-                  {{ session.pagesRead === 1 ? 'página' : 'páginas' }}</span
-                >
-                @if (session.note) {
-                  <span class="note">{{ session.note }}</span>
-                }
-              </li>
-            }
-          </ul>
-        } @else if (sessions.error()) {
-          <p class="empty" role="alert">Não foi possível carregar as sessões.</p>
-        } @else {
-          <p class="empty" role="status">Carregando as sessões…</p>
-        }
+  <dl class="stats">
+    @for (stat of stats(); track stat.label) {
+      <div>
+        <dt>{{ stat.label }}</dt>
+        <dd>{{ stat.value }}</dd>
       </div>
     }
-  } @else {
-    <p class="empty">Nenhuma sessão registrada.</p>
+  </dl>
+
+  @if (open()) {
+    <div class="details" [id]="detailsId()">
+      @if (weeks().length > 0) {
+        <figure class="chart">
+          <figcaption>Páginas por semana</figcaption>
+          <div class="bars" role="img" [attr.aria-label]="chartLabel()">
+            @for (week of weeks(); track week.label) {
+              <span class="week">
+                <span class="amount">{{ week.value || '—' }}</span>
+                <span class="bar" [class.top]="week.top" [style.height.px]="week.height"></span>
+                <span class="name">{{ week.label }}</span>
+              </span>
+            }
+          </div>
+        </figure>
+      } @else if (sessions.isLoading()) {
+        <p class="quiet" role="status">Carregando as sessões…</p>
+      } @else {
+        <p class="quiet">Nenhuma sessão registrada nesta leitura.</p>
+      }
+      @if (quote(); as quote) {
+        <blockquote>{{ quote }}</blockquote>
+      }
+    </div>
   }
+
+  <footer class="entry-foot">
+    <button
+      type="button"
+      class="toggle"
+      [attr.aria-expanded]="open()"
+      [attr.aria-controls]="detailsId()"
+      (click)="toggle()"
+    >
+      {{ open() ? 'Ocultar detalhes' : 'Ver detalhes' }}
+      <ml-icon name="chevron-down" [size]="14" />
+    </button>
+    <a class="calendar" routerLink="/calendario">▦ Ver no calendário</a>
+    <a class="edit" [routerLink]="['/livro', bookId(), 'leitura']">✎ Editar leitura</a>
+  </footer>
 </article>

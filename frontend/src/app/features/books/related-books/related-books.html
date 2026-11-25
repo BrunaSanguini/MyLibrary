@@ -1,38 +1,71 @@
-@if (seriesBooks().length > 0) {
-  <section aria-labelledby="titulo-serie">
-    <div class="section-head">
-      <div class="titles">
-        <p class="eyebrow">Da mesma série</p>
-        <h2 id="titulo-serie">{{ series()?.name ?? 'Mais da série' }}</h2>
+@if (series(); as current) {
+  @if (volumes().length > 1) {
+    <section aria-label="Livros da série">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">✦ Da mesma série</p>
+          <h2>{{ current.name }}</h2>
+        </div>
+        <span class="rule" aria-hidden="true"></span>
+        <a class="more" [routerLink]="['/serie', current.id]">Ver série · {{ volumeCount() }} →</a>
       </div>
-      <span class="rule" aria-hidden="true"></span>
-      @if (series(); as current) {
-        <a class="more" [routerLink]="['/serie', current.id]">
-          Ver série · {{ seriesCount() }} <ml-icon name="arrow-right" [size]="16" />
-        </a>
-      }
-    </div>
-    <ul class="grid">
-      @for (card of seriesBooks(); track card.id) {
-        <li><ml-book-card [book]="card" /></li>
-      }
-    </ul>
-  </section>
+      <ul class="covers">
+        @for (volume of volumes(); track volume.id) {
+          <li>
+            <a
+              class="volume"
+              [class.current]="volume.current"
+              [routerLink]="['/livro', volume.id]"
+              [attr.aria-current]="volume.current ? 'page' : null"
+            >
+              @if (volume.number) {
+                <span class="number" aria-hidden="true">{{ volume.number }}</span>
+              }
+              <ml-book-cover
+                aria-hidden="true"
+                [title]="volume.title"
+                [author]="volume.authors"
+                [coverUrl]="volume.coverUrl"
+              />
+              <span class="caption">
+                Livro {{ volume.number }}{{ volume.current ? ' · Este livro' : '' }}
+              </span>
+              <span class="ml-visually-hidden">{{ volume.title }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    </section>
+  }
 }
 
-@if (similar().length > 0) {
-  <section aria-labelledby="titulo-similares">
-    <div class="section-head">
-      <div class="titles">
-        <p class="eyebrow">Pelos mesmos subgêneros</p>
-        <h2 id="titulo-similares">Você também pode gostar</h2>
+@if (subgenre(); as subgenre) {
+  @if (similar().length > 0) {
+    <section aria-label="Livros parecidos">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">✦ Parecidos por subgênero</p>
+          <h2>{{ subgenre.name }}</h2>
+        </div>
+        <span class="rule" aria-hidden="true"></span>
+        <a class="more" [routerLink]="['/generos', subgenre.id]">Ver todos →</a>
       </div>
-      <span class="rule" aria-hidden="true"></span>
-    </div>
-    <ul class="grid">
-      @for (card of similar(); track card.id) {
-        <li><ml-book-card [book]="card" /></li>
-      }
-    </ul>
-  </section>
+      <ul class="covers">
+        @for (card of similar(); track card.id) {
+          <li>
+            <a class="volume" [routerLink]="['/livro', card.id]">
+              <ml-book-cover
+                aria-hidden="true"
+                [title]="card.title"
+                [author]="card.authorNames"
+                [coverUrl]="card.coverUrl ?? undefined"
+              />
+              <span class="title">{{ card.title }}</span>
+              <span class="author">{{ card.authorNames }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    </section>
+  }
 }

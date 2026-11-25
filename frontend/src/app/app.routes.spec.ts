@@ -20,7 +20,8 @@ describe('routes', () => {
   describe('addresses of the earlier versions', () => {
     it.each([
       ['/livros/novo', '/estante/novo'],
-      ['/livros/importar', '/estante/importar'],
+      ['/livros/importar', '/estante/novo'],
+      ['/estante/importar', '/estante/novo'],
       ['/livros/42', '/livro/42'],
       ['/livros/42/editar', '/livro/42/editar'],
       ['/livros/42/leitura', '/livro/42/leitura'],
@@ -35,8 +36,9 @@ describe('routes', () => {
     });
 
     it.each([
-      ['/livros/importar?q=hobbit&edicao=OL1M', '/estante/importar?q=hobbit&edicao=OL1M'],
-      ['/livros/1#titulo-resenha', '/livro/1#titulo-resenha'],
+      ['/estante/importar?q=hobbit', '/estante/novo?q=hobbit'],
+      ['/livros/importar?q=hobbit', '/estante/novo?q=hobbit'],
+      ['/livros/1#minha-resenha', '/livro/1#minha-resenha'],
     ])('keep the query string and the fragment of %s', async (old, current) => {
       const { url } = await navigate(old);
 
@@ -49,7 +51,6 @@ describe('routes', () => {
       ['/', ''],
       ['/estante', 'estante'],
       ['/estante/novo', 'estante/novo'],
-      ['/estante/importar', 'estante/importar'],
       ['/livro/42', 'livro/:id'],
       ['/livro/42/editar', 'livro/:id/editar'],
       ['/livro/42/leitura', 'livro/:id/leitura'],

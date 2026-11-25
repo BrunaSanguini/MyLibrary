@@ -75,7 +75,7 @@ describe('HomeHero', () => {
     expect(view.container.querySelector('img.art')).toHaveAttribute('src', '/api/v1/images/9');
     expect(screen.getByRole('link', { name: 'Ler minha resenha' })).toHaveAttribute(
       'href',
-      '/livro/1#titulo-resenha',
+      '/livro/1#minha-resenha',
     );
   });
 

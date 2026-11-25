@@ -1,76 +1,91 @@
-/* Related books: the same grid of cards as the shelf, one block per kind of relation. */
+/* The end of the book page: the volumes of the series, then the books with the same subgenre. */
 
 :host {
   display: flex;
   flex-direction: column;
-  gap: var(--ml-space-40);
+  gap: var(--ml-space-56);
 }
 
-/* The heading of each block, as on the Home: eyebrow, title, a rule and the link. */
-.section-head {
-  display: flex;
-  align-items: flex-end;
-  gap: var(--ml-space-24);
-  margin-bottom: var(--ml-space-24);
-}
-
-.titles {
+section {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  min-width: 0;
+  gap: 28px;
 }
 
-.eyebrow {
+.covers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
   margin: 0;
-  color: var(--ml-color-accent);
-  font-size: 12px;
+  padding: 12px 0 0 12px;
+  list-style: none;
+}
+
+.volume {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  gap: 14px;
+  width: 176px;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.28s ease;
+}
+
+.volume:hover {
+  transform: translateY(-6px) scale(1.04);
+}
+
+.volume:focus-visible {
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 6px;
+}
+
+.volume.current ml-book-cover {
+  outline: 1.5px solid var(--ml-color-gold);
+  outline-offset: 5px;
+}
+
+/* The roman numeral of the volume, pinned over the top left corner of the cover. */
+.number {
+  display: grid;
+  position: absolute;
+  z-index: 2;
+  top: -12px;
+  left: -12px;
+  place-items: center;
+  min-width: 36px;
+  height: 36px;
+  box-sizing: border-box;
+  padding: 0 6px;
+  border: 1.5px solid var(--ml-color-sheet-gold);
+  border-radius: 50%;
+  background: var(--ml-color-hero-night);
+  color: var(--ml-color-sheet-gold);
+  font-family: var(--ml-font-title);
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 2.4px;
+}
+
+.caption {
+  color: var(--ml-color-gold-text);
+  font-family: var(--ml-font-title);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
-h2 {
-  margin: 0;
-  font-family: var(--ml-font-display);
-  font-size: 40px;
-  font-weight: 600;
-  line-height: 1.05;
-}
-
-.rule {
-  flex: 1;
-  height: 1px;
-  margin: 0 var(--ml-space-8) 14px;
-  background: var(--ml-color-line);
-}
-
-.more {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  gap: var(--ml-space-8);
-  min-height: 44px;
-  color: var(--ml-color-accent);
-  font-size: 15px;
+.title {
+  font-family: var(--ml-font-title);
+  font-size: 14px;
   font-weight: 700;
-  text-decoration: none;
 }
 
-.more:hover {
-  text-decoration: underline;
-}
-
-.more:focus-visible {
-  outline: 2px solid var(--ml-color-accent);
-  outline-offset: 2px;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--ml-space-24);
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.author {
+  margin-top: -10px;
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-display);
+  font-size: 16px;
+  font-style: italic;
 }

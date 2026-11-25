@@ -23,6 +23,7 @@ final class ShelfSort {
             "seriesPosition", "b.series_position",
             "rating", "rv.rating",
             "listOrder", LIST_ORDER,
+            "publishedYear", "b.published_year",
             "finishedAt", "(select max(r.end_date) from reading r where r.book_id = b.id and r.status = 'FINISHED')");
 
     static final Sort DEFAULT = Sort.by(Sort.Direction.DESC, "b.created_at");

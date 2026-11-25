@@ -3,9 +3,9 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { screen } from '@testing-library/angular';
+import { screen, within } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import ShelfPage from './shelf-page';
 
@@ -14,16 +14,48 @@ const FELLOWSHIP = {
   title: 'A Sociedade do Anel',
   authors: ['J. R. R. Tolkien'],
   genres: ['Alta fantasia'],
+  status: 'READ',
   ownership: 'OWNED',
   favorite: true,
+  reread: true,
+  rating: 4.5,
+  publishedYear: 1954,
   series: { id: 3, name: 'O Senhor dos Anéis', position: 1 },
 };
 
-function page(content: object[], totalPages = 1, pageIndex = 0) {
-  return { content, page: pageIndex, size: 24, totalElements: content.length, totalPages };
+const DUNE = {
+  id: 7,
+  title: 'Duna',
+  authors: ['Frank Herbert'],
+  genres: [],
+  status: 'WANT_TO_READ',
+  ownership: 'WISHLIST',
+  favorite: false,
+  reread: false,
+};
+
+const SUMMARY = {
+  shelf: 26,
+  reading: 2,
+  read: 15,
+  wantToRead: 7,
+  abandoned: 2,
+  wishlist: 4,
+  favorites: 6,
+  rereads: 1,
+};
+
+function page(content: object[], totalElements = content.length, pageIndex = 0) {
+  return {
+    content,
+    page: pageIndex,
+    size: 12,
+    totalElements,
+    totalPages: Math.ceil(totalElements / 12),
+  };
 }
 
-/** Opens /estante at the given URL and answers the listing request, returning what was asked. */
+/** Opens /estante at the given URL and answers every request; returns what the listing asked. */
 async function openShelf(url: string, body: object = page([FELLOWSHIP])) {
   TestBed.configureTestingModule({
     providers: [
@@ -39,251 +71,271 @@ async function openShelf(url: string, body: object = page([FELLOWSHIP])) {
   TestBed.tick();
   const request = http.expectOne((candidate) => candidate.url === '/api/v1/shelf/books');
   request.flush(body);
+  http.expectOne('/api/v1/shelf/summary').flush(SUMMARY);
+  http
+    .expectOne('/api/v1/genres')
+    .flush([{ id: 1, name: 'Fantasia', bookCount: 3, subgenres: [] }]);
+  for (const kind of ['authors', 'series', 'publishers']) {
+    http
+      .expectOne((candidate) => candidate.url === `/api/v1/${kind}`)
+      .flush({
+        content: [{ id: 9, name: `Um ${kind}` }],
+        page: 0,
+        size: 100,
+        totalElements: 1,
+        totalPages: 1,
+      });
+  }
   await harness.fixture.whenStable();
   return { harness, http, params: request.request.params };
 }
 
+/** After a change: answers the new listing, if the change asked for one, and lets the page settle. */
+async function settle(harness: RouterTestingHarness) {
+  TestBed.tick();
+  const http = TestBed.inject(HttpTestingController);
+  for (const request of http.match((candidate) => candidate.url === '/api/v1/shelf/books')) {
+    request.flush(page([FELLOWSHIP]));
+  }
+  await harness.fixture.whenStable();
+}
+
 describe('ShelfPage', () => {
-  it('lists the books of the collection', async () => {
+  afterEach(() => vi.useRealTimers());
+
+  it('shows the title, the numbers of the shelf and the books, each a link to its page', async () => {
     await openShelf('/estante');
 
     expect(screen.getByRole('heading', { name: 'Minha Estante', level: 1 })).toBeInTheDocument();
+    expect(screen.getByText('26 livros que moram neste computador · 15 lidos')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /A Sociedade do Anel/ })).toHaveAttribute(
       'href',
       '/livro/42',
     );
+    expect(screen.getByText('Mostrando 1–1 de 1 livro')).toBeInTheDocument();
+    const trail = screen.getByRole('navigation', { name: 'Trilha de navegação' });
+    expect(within(trail).getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/');
   });
 
-  it('sends the filters of the URL to the API', async () => {
-    const { params } = await openShelf(
-      '/estante?q=anel&ownership=OWNED&favorite=true&reread=true&genreId=3&sort=title&page=2',
-    );
-
-    expect(params.get('q')).toBe('anel');
-    expect(params.get('ownership')).toBe('OWNED');
-    expect(params.get('favorite')).toBe('true');
-    expect(params.get('reread')).toBe('true');
-    expect(params.get('genreId')).toBe('3');
-    expect(params.get('sort')).toBe('title');
-    expect(params.get('page')).toBe('2');
-  });
-
-  it('drops a page that is not a number', async () => {
-    const { params } = await openShelf('/estante?page=abc');
-
-    expect(params.get('page')).toBe('0');
-  });
-
-  it('drops an ownership outside the enum', async () => {
-    const { params } = await openShelf('/estante?ownership=EMPRESTADO');
-
-    expect(params.has('ownership')).toBe(false);
-  });
-
-  it('drops a sort field the back-end would reject', async () => {
-    const { params } = await openShelf('/estante?sort=synopsis');
-
-    expect(params.has('sort')).toBe(false);
-  });
-
-  it('drops an id that is not a positive number', async () => {
-    const { params } = await openShelf('/estante?genreId=-3&authorId=abc&seriesId=0');
-
-    expect(params.has('genreId')).toBe(false);
-    expect(params.has('authorId')).toBe(false);
-    expect(params.has('seriesId')).toBe(false);
-  });
-
-  it('treats anything but true and false as no favorite filter', async () => {
-    const { params } = await openShelf('/estante?favorite=sim');
-
-    expect(params.has('favorite')).toBe(false);
-  });
-
-  it('keeps an empty term out of the request', async () => {
-    const { params } = await openShelf('/estante?q=%20%20');
-
-    expect(params.has('q')).toBe(false);
-  });
-
-  it('puts a filter in the URL, so it survives a reload', async () => {
-    const { harness } = await openShelf('/estante');
-
-    await userEvent.click(screen.getByRole('button', { name: 'Wishlist' }));
-
-    expect(TestBed.inject(Router).url).toBe('/estante?ownership=WISHLIST');
-    expect(harness).toBeDefined();
-  });
-
-  it('turns a filter off when its own tag is clicked again', async () => {
-    await openShelf('/estante?ownership=WISHLIST');
-
-    await userEvent.click(screen.getByRole('button', { name: 'Wishlist' }));
-
-    expect(TestBed.inject(Router).url).toBe('/estante');
-  });
-
-  it('goes back to the first page when a filter changes', async () => {
-    await openShelf('/estante?page=3', page([FELLOWSHIP], 5, 3));
-
-    await userEvent.click(screen.getByRole('button', { name: 'Favoritos' }));
-
-    expect(TestBed.inject(Router).url).toBe('/estante?favorite=true');
-  });
-
-  it('turns the rereads on and off', async () => {
-    const { harness, http } = await openShelf('/estante');
-
-    await userEvent.click(screen.getByRole('button', { name: 'Releituras' }));
-    TestBed.tick();
-    const filtered = http.expectOne((candidate) => candidate.url === '/api/v1/shelf/books');
-    expect(filtered.request.params.get('reread')).toBe('true');
-    filtered.flush(page([FELLOWSHIP]));
-    await harness.fixture.whenStable();
-    expect(TestBed.inject(Router).url).toBe('/estante?reread=true');
-    expect(screen.getByRole('button', { name: 'Releituras' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
-
-    await userEvent.click(screen.getByRole('button', { name: 'Releituras' }));
-    expect(TestBed.inject(Router).url).toBe('/estante');
-  });
-
-  it('hides the paginator when everything fits in one page', async () => {
-    await openShelf('/estante');
-
-    expect(screen.queryByRole('button', { name: 'Próxima página' })).not.toBeInTheDocument();
-  });
-
-  it('shows the paginator when there is more than one page', async () => {
-    await openShelf('/estante', page([FELLOWSHIP], 3));
-
-    expect(screen.getByRole('button', { name: 'Próxima página' })).toBeInTheDocument();
-  });
-
-  it('offers to add a book when the shelf is empty', async () => {
-    await openShelf('/estante', page([]));
-
-    // The header always offers it too, so both links lead to the same form.
-    expect(screen.getByRole('heading', { name: 'Sua estante está vazia' })).toBeInTheDocument();
-    const links = screen.getAllByRole('link', { name: 'Adicionar livro' });
-    expect(links).toHaveLength(2);
-    for (const link of links) {
-      expect(link).toHaveAttribute('href', '/estante/novo');
-    }
-  });
-
-  it('offers to clear the filters when they are what emptied the shelf', async () => {
-    await openShelf('/estante?q=xyz', page([]));
-
-    expect(
-      screen.getByRole('heading', { name: 'Nenhum livro com esses filtros' }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Limpar filtros' })).toBeInTheDocument();
-  });
-
-  it('shows the detail the API wrote when the request fails', async () => {
-    TestBed.configureTestingModule({
-      providers: [
-        provideRouter([{ path: 'estante', component: ShelfPage }], withComponentInputBinding()),
-        provideHttpClient(),
-        provideHttpClientTesting(),
-      ],
-    });
-    const harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl('/estante');
-    const http = TestBed.inject(HttpTestingController);
-    TestBed.tick();
-    http
-      .expectOne((candidate) => candidate.url === '/api/v1/shelf/books')
-      .flush(
-        { code: 'request.invalid-sort', detail: 'A ordenação pedida não existe.' },
-        { status: 400, statusText: 'Bad Request' },
-      );
-    await harness.fixture.whenStable();
-
-    expect(screen.getByRole('alert')).toBeInTheDocument();
-    expect(screen.getByText('A ordenação pedida não existe.')).toBeInTheDocument();
-  });
-
-  it('sends every status of the URL, and drops the ones that do not exist', async () => {
-    const { params } = await openShelf('/estante?status=READING&status=READ&status=EMPRESTADO');
-
-    expect(params.getAll('status')).toEqual(['READING', 'READ']);
-    expect(screen.getByRole('button', { name: 'Lendo' })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByRole('button', { name: 'Lidos' })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByRole('button', { name: 'Quero ler' })).toHaveAttribute(
-      'aria-pressed',
-      'false',
-    );
-  });
-
-  it('sends no status at all when none is picked', async () => {
+  it('leaves the wishlist out and asks for twelve books, the newest first', async () => {
     const { params } = await openShelf('/estante');
 
+    expect(params.get('wishlist')).toBe('false');
+    expect(params.get('size')).toBe('12');
+    expect(params.get('sort')).toBe('addedAt');
     expect(params.has('status')).toBe(false);
   });
 
-  it('adds a status to the ones already picked and goes back to the first page', async () => {
-    await openShelf('/estante?status=READING&page=2');
+  it('counts every tab and chip, with Todos chosen', async () => {
+    await openShelf('/estante');
 
-    await userEvent.click(screen.getByRole('button', { name: 'Lidos' }));
-
-    expect(TestBed.inject(Router).url).toBe('/estante?status=READING&status=READ');
+    const tabs = screen.getByRole('tablist', { name: 'Status de leitura' });
+    expect(within(tabs).getByRole('tab', { name: /Todos 26/ })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    expect(within(tabs).getByRole('tab', { name: /Lidos 15/ })).toHaveAttribute(
+      'aria-selected',
+      'false',
+    );
+    expect(within(tabs).getByRole('tab', { name: /Wishlist 4/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Favoritos 6/ })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+    expect(screen.getByRole('button', { name: /Releituras 1/ })).toBeInTheDocument();
   });
 
-  it('takes a status out when its pressed tag is clicked again', async () => {
-    await openShelf('/estante?status=READING');
+  it('turns the tab of the address bar into the status of the request', async () => {
+    const { params } = await openShelf('/estante?status=lidos');
 
-    await userEvent.click(screen.getByRole('button', { name: 'Lendo' }));
+    expect(params.get('status')).toBe('READ');
+    expect(params.get('wishlist')).toBe('false');
+  });
+
+  it('still opens the tab of an address of the earlier version', async () => {
+    const { params } = await openShelf('/estante?status=READING');
+
+    expect(params.get('status')).toBe('READING');
+  });
+
+  it('shows only the wishlist on its tab, with the note and the WISHLIST label', async () => {
+    const { params } = await openShelf('/estante?status=wishlist', page([DUNE]));
+
+    expect(params.get('wishlist')).toBe('true');
+    expect(params.has('status')).toBe(false);
+    expect(screen.getByText('4 livros que você quer ter')).toBeInTheDocument();
+    expect(screen.getByText(/Livros que você ainda não tem/)).toBeInTheDocument();
+    expect(screen.getByText('Wishlist', { selector: '.status' })).toBeInTheDocument();
+  });
+
+  it('sends the chips, the selects and the order of the address bar', async () => {
+    const { params } = await openShelf(
+      '/estante?favoritos=1&releituras=1&genero=1&autor=2&serie=3&editora=4&ordem=nota&page=2',
+    );
+
+    expect(params.get('favorite')).toBe('true');
+    expect(params.get('reread')).toBe('true');
+    expect(params.get('genreId')).toBe('1');
+    expect(params.get('authorId')).toBe('2');
+    expect(params.get('seriesId')).toBe('3');
+    expect(params.get('publisherId')).toBe('4');
+    expect(params.get('sort')).toBe('rating,desc');
+    expect(params.get('page')).toBe('2');
+  });
+
+  it('sorts by the year of publication, the newest first', async () => {
+    const { params } = await openShelf('/estante?ordem=ano');
+
+    expect(params.get('sort')).toBe('publishedYear,desc');
+  });
+
+  it('drops what is not a valid filter', async () => {
+    const { params } = await openShelf('/estante?status=emprestado&ordem=preco&genero=abc&page=x');
+
+    expect(params.has('status')).toBe(false);
+    expect(params.get('sort')).toBe('addedAt');
+    expect(params.has('genreId')).toBe(false);
+    expect(params.get('page')).toBe('0');
+  });
+
+  it('puts the seals of favourite and reread on the cover', async () => {
+    await openShelf('/estante');
+
+    expect(screen.getByRole('img', { name: 'Favorito' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Relido' })).toBeInTheDocument();
+    expect(screen.getByText('Lido', { selector: '.status' })).toBeInTheDocument();
+  });
+
+  it('choosing a tab goes back to page 1', async () => {
+    const { harness } = await openShelf('/estante?page=2');
+
+    await userEvent.click(screen.getByRole('tab', { name: /Abandonados/ }));
+    await settle(harness);
+
+    expect(TestBed.inject(Router).url).toBe('/estante?status=abandonados');
+  });
+
+  it('moves between the tabs with the arrows', async () => {
+    const { harness } = await openShelf('/estante');
+
+    screen.getByRole('tab', { name: /Todos/ }).focus();
+    await userEvent.keyboard('{ArrowLeft}');
+    await settle(harness);
+
+    expect(TestBed.inject(Router).url).toBe('/estante?status=wishlist');
+  });
+
+  it('turns a chip on and off', async () => {
+    const { harness } = await openShelf('/estante?favoritos=1');
+
+    const favorites = screen.getByRole('button', { name: /Favoritos/ });
+    expect(favorites).toHaveAttribute('aria-pressed', 'true');
+    await userEvent.click(favorites);
+    await settle(harness);
 
     expect(TestBed.inject(Router).url).toBe('/estante');
   });
 
-  it('asks for the best rated and the latest finished first', async () => {
-    const { params } = await openShelf('/estante?sort=rating');
-    expect(params.get('sort')).toBe('rating,desc');
+  it('filters by a select and by the order', async () => {
+    const { harness } = await openShelf('/estante');
+
+    await userEvent.selectOptions(screen.getByLabelText('Autor'), '9');
+    await settle(harness);
+    expect(TestBed.inject(Router).url).toBe('/estante?autor=9');
+
+    await userEvent.selectOptions(screen.getByLabelText('Ordenar por'), 'titulo');
+    await settle(harness);
+    expect(TestBed.inject(Router).url).toBe('/estante?autor=9&ordem=titulo');
   });
 
-  it('keeps the other sort fields in the order the API defaults to', async () => {
-    const { params } = await openShelf('/estante?sort=title');
-    expect(params.get('sort')).toBe('title');
+  it('searches as the reader types, after a short pause', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const { harness } = await openShelf('/estante');
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+
+    await user.type(screen.getByRole('searchbox', { name: 'Buscar na estante' }), 'anel');
+    await vi.advanceTimersByTimeAsync(300);
+    await settle(harness);
+
+    expect(TestBed.inject(Router).url).toBe('/estante?q=anel');
   });
 
-  it('shows the status, the rating and the progress on the cards', async () => {
-    await openShelf(
-      '/estante',
-      page([
-        {
-          ...FELLOWSHIP,
-          status: 'READING',
-          progress: { pagesRead: 120, pageCount: 576, percent: 20 },
-        },
-        { ...FELLOWSHIP, id: 43, title: 'O Hobbit', status: 'READ', rating: 4.5, series: null },
-        {
-          ...FELLOWSHIP,
-          id: 44,
-          title: 'Duna',
-          status: 'WANT_TO_READ',
-          rating: null,
-          series: null,
-        },
-      ]),
+  it('clears the search with its button', async () => {
+    const { harness } = await openShelf('/estante?q=anel');
+
+    expect(screen.getByRole('searchbox', { name: 'Buscar na estante' })).toHaveValue('anel');
+    await userEvent.click(screen.getByRole('button', { name: 'Limpar busca' }));
+    await settle(harness);
+
+    expect(TestBed.inject(Router).url).toBe('/estante');
+  });
+
+  it('shows "Limpar filtros" only with a filter on, and keeps the order when clearing', async () => {
+    const { harness } = await openShelf('/estante?status=lidos&favoritos=1&ordem=autor');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Limpar filtros' }));
+    await settle(harness);
+
+    expect(TestBed.inject(Router).url).toBe('/estante?ordem=autor');
+    expect(screen.queryByRole('button', { name: 'Limpar filtros' })).not.toBeInTheDocument();
+  });
+
+  it('switches between grid and list, the list with genre, series and rating', async () => {
+    await openShelf('/estante');
+
+    const grid = screen.getByRole('button', { name: 'Ver em grade' });
+    expect(grid).toHaveAttribute('aria-pressed', 'true');
+    await userEvent.click(screen.getByRole('button', { name: 'Ver em lista' }));
+
+    expect(screen.getByRole('button', { name: 'Ver em lista' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(screen.getByText('J. R. R. Tolkien · 1954')).toBeInTheDocument();
+    expect(screen.getByText('O Senhor dos Anéis')).toBeInTheDocument();
+    expect(screen.getByText('4,5 ★')).toBeInTheDocument();
+  });
+
+  it('pages twelve at a time, with the current page marked', async () => {
+    Element.prototype.scrollIntoView = vi.fn();
+    const { harness } = await openShelf('/estante?page=1', page([FELLOWSHIP], 26, 1));
+
+    expect(screen.getByText('Mostrando 13–13 de 26 livros')).toBeInTheDocument();
+    const pages = screen.getByRole('navigation', { name: 'Paginação' });
+    expect(within(pages).getByRole('button', { name: 'Página 2' })).toHaveAttribute(
+      'aria-current',
+      'page',
     );
 
-    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '20');
-    expect(screen.getByRole('link', { name: /O Hobbit.*Lido/ })).toBeInTheDocument();
-    expect(screen.getAllByRole('img', { name: 'Nota 4,5 de 5' })).toHaveLength(1);
-    // A rating the API sends as null is "no rating", not zero stars.
-    expect(screen.queryByRole('img', { name: /Sem nota/ })).not.toBeInTheDocument();
+    await userEvent.click(within(pages).getByRole('button', { name: 'Próxima ›' }));
+    await settle(harness);
+
+    expect(TestBed.inject(Router).url).toBe('/estante?page=2');
+    expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
   });
 
-  it('says the filters found nothing when only a status narrows the shelf', async () => {
-    await openShelf('/estante?status=ABANDONED', page([]));
+  it('hides the pages when everything fits in one', async () => {
+    await openShelf('/estante');
 
-    expect(
-      screen.getByRole('heading', { name: 'Nenhum livro com esses filtros' }),
-    ).toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'Paginação' })).not.toBeInTheDocument();
+  });
+
+  it('says when no book matches the filters, with the way back', async () => {
+    await openShelf('/estante?status=abandonados', page([]));
+
+    expect(screen.getByRole('heading', { name: 'Nenhum livro com esses filtros' })).toBeVisible();
+    expect(screen.getByText('0 livros')).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Limpar filtros' })).toHaveLength(2);
+  });
+
+  it('invites to add the first book when the shelf is empty', async () => {
+    await openShelf('/estante', page([]));
+
+    expect(screen.getByRole('heading', { name: 'Sua estante está vazia' })).toBeVisible();
+    expect(screen.getAllByRole('link', { name: /Adicionar livro/ })[0]).toHaveAttribute(
+      'href',
+      '/estante/novo',
+    );
   });
 });

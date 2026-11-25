@@ -16,15 +16,16 @@ test('registers a book by hand and finds it again', async ({ page }, testInfo) =
   await page.getByRole('link', { name: 'Adicionar livro' }).first().click();
 
   // The form refuses to save without a title and an author, before anything reaches the server.
-  await expect(page.getByRole('heading', { name: 'Cadastrar livro', level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Adicionar livro', level: 1 })).toBeVisible();
   await page.getByRole('button', { name: 'Salvar livro' }).click();
-  await expect(page.getByText('Informe o título.')).toBeVisible();
-  await expect(page.getByText('Informe ao menos um autor.')).toBeVisible();
+  await expect(page.getByText('Informe o título do livro.')).toBeVisible();
+  await expect(page.getByText(/Escolha ao menos um autor/)).toBeVisible();
+  await expect(page.getByText('Faltam 2 ajustes para salvar')).toBeVisible();
 
-  await page.getByLabel('Título', { exact: true }).fill(title);
+  await page.getByLabel('Título *').fill(title);
 
   // The author already exists in the sample collection, so the picker finds it by typing.
-  const authors = page.getByRole('combobox', { name: 'Autores' });
+  const authors = page.getByRole('combobox', { name: 'Autor(es) *' });
   await authors.fill('machado');
   await expect(page.getByRole('option', { name: 'Machado de Assis' })).toBeVisible();
   await page.getByRole('option', { name: 'Machado de Assis' }).click();
@@ -34,31 +35,33 @@ test('registers a book by hand and finds it again', async ({ page }, testInfo) =
 
   // A genre that does not exist yet is created on the spot.
   const genre = `Novela ${testInfo.project.name} ${testInfo.retry}`;
-  await page.getByRole('combobox', { name: 'Gêneros' }).fill(genre);
-  await page.getByRole('option', { name: /^Criar/ }).click();
-  await expect(page.getByRole('list', { name: 'Gêneros escolhidos' })).toContainText(genre);
+  await page.getByRole('combobox', { name: 'Gênero' }).fill(genre);
+  await page.getByRole('option', { name: /Cadastrar/ }).click();
+  await expect(page.getByRole('list', { name: 'Gênero escolhido' })).toContainText(genre);
 
   // And a subgenre inside it, which the book page shows in a row of its own.
   const subgenre = `Conto ${testInfo.project.name} ${testInfo.retry}`;
   await page.getByRole('combobox', { name: 'Subgêneros' }).fill(subgenre);
-  await page.getByRole('option', { name: /^Criar/ }).click();
+  await page.getByRole('option', { name: /Cadastrar/ }).click();
   await expect(page.getByRole('list', { name: 'Subgêneros escolhidos' })).toContainText(subgenre);
 
-  await page.getByLabel('Ano de publicação').fill('1882');
+  await page.getByLabel('Ano').fill('1882');
+  await page.getByRole('radio', { name: 'Lido' }).click();
   await page.getByRole('button', { name: 'Salvar livro' }).click();
 
-  // Saving lands on the page of the new book.
+  // Saving shows what was saved, with the way to the new book.
+  await expect(page.getByRole('heading', { name: 'Livro salvo na sua estante' })).toBeVisible();
+  await page.getByRole('link', { name: 'Ver o livro' }).click();
   await expect(page.getByRole('heading', { name: title, level: 1 })).toBeVisible();
   await expect(page).toHaveURL(/\/livro\/\d+$/);
   await expect(page.getByRole('link', { name: 'Machado de Assis' })).toBeVisible();
-  await expect(page.getByText('1882')).toBeVisible();
   await expect(page.getByRole('list', { name: 'Subgêneros' })).toContainText(subgenre);
+  await expect(page.getByRole('region', { name: 'Ficha de leitura' })).toContainText('Lido');
 
-  // The state tags are toggles and say so.
+  // The book is the reader's, so it has the seal; the toggles say so.
   const owned = page.getByRole('button', { name: 'Tenho este livro' });
-  await expect(owned).toHaveAttribute('aria-pressed', 'false');
-  await owned.click();
   await expect(owned).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('img', { name: 'Selo ex-libris: este livro é seu' })).toBeVisible();
 
   // Finding it again through the search of the header, with the keyboard only.
   await page.getByRole('button', { name: 'Pesquisar no acervo' }).focus();
@@ -75,16 +78,13 @@ test('registers a book by hand and finds it again', async ({ page }, testInfo) =
   await page.keyboard.press('Escape');
   await expect(page.getByRole('button', { name: 'Pesquisar no acervo' })).toBeFocused();
 
-  // And on the shelf, filtered by what it now is: owned, and matching the search.
-  await page.goto(`/estante?q=${encodeURIComponent(title)}&ownership=OWNED`);
+  // And on the shelf, on the tab of the books read, matching the search.
+  await page.goto(`/estante?status=lidos&q=${encodeURIComponent(title)}`);
   await expect(page.getByRole('link', { name: new RegExp('O Alienista') })).toHaveCount(1);
 
   // The filter is in the address, so a reload keeps it.
   await page.reload();
-  await expect(page.getByRole('button', { name: 'Tenho', exact: true })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  );
+  await expect(page.getByRole('tab', { name: /Lidos/ })).toHaveAttribute('aria-selected', 'true');
   await expect(page.getByRole('link', { name: new RegExp('O Alienista') })).toHaveCount(1);
 });
 
@@ -92,7 +92,7 @@ test('finds a book typing without the accents of its title', async ({ page }) =>
   await page.goto('/estante?q=memorias%20postumas');
 
   await expect(page.getByRole('link', { name: /Memórias Póstumas de Brás Cubas/ })).toBeVisible();
-  await expect(page.getByText('1 livro', { exact: true })).toBeVisible();
+  await expect(page.getByText('Mostrando 1–1 de 1 livro')).toBeVisible();
 });
 
 test('asks before deleting a book, and Escape backs out', async ({ page }) => {
@@ -101,7 +101,7 @@ test('asks before deleting a book, and Escape backs out', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Iracema', level: 1 })).toBeVisible();
 
   await page.getByRole('button', { name: 'Excluir livro' }).click();
-  const dialog = page.getByRole('dialog', { name: 'Excluir este livro?' });
+  const dialog = page.getByRole('dialog', { name: 'Excluir “Iracema”?' });
   await expect(dialog).toBeVisible();
   // The safe choice has the first focus, so Enter by reflex would cancel.
   await expect(dialog.getByRole('button', { name: 'Cancelar' })).toBeFocused();
@@ -109,7 +109,7 @@ test('asks before deleting a book, and Escape backs out', async ({ page }) => {
   // A real Escape closes the native dialog and returns the focus to what opened it.
   await page.keyboard.press('Escape');
   await expect(dialog).toBeHidden();
-  await expect(page.getByRole('button', { name: 'Excluir livro' })).toBeFocused();
+  await expect(page.getByRole('button', { name: 'Excluir livro' }).first()).toBeFocused();
   await expect(page.getByRole('heading', { name: 'Iracema', level: 1 })).toBeVisible();
 });
 
@@ -137,7 +137,7 @@ for (const theme of THEMES) {
     test('book form has no WCAG 2.1 AA violations, errors included', async ({ page }) => {
       await page.goto('/estante/novo');
       await page.getByRole('button', { name: 'Salvar livro' }).click();
-      await expect(page.getByText('Informe o título.')).toBeVisible();
+      await expect(page.getByText('Informe o título do livro.')).toBeVisible();
 
       await expectNoAccessibilityViolations(page);
     });

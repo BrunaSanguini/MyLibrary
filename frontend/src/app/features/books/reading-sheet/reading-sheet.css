@@ -1,88 +1,128 @@
-/* Reading record: a raised card with the facts of the readings in a grid. */
+/* The ficha: a dark library card in both themes, the rating on top and one fact per line. */
 
 :host {
+  display: block;
+  padding: 26px 30px 10px;
+  border: 1px solid var(--ml-color-sheet-line);
+  border-radius: 14px;
+  background: var(--ml-color-sheet);
+  box-shadow:
+    inset 0 0 0 5px var(--ml-color-sheet),
+    inset 0 0 0 6px var(--ml-color-sheet-frame);
+  color: var(--ml-color-sheet-ink);
+}
+
+.score {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-wrap: wrap;
   gap: var(--ml-space-16);
-  padding: var(--ml-space-24);
-  border: 1px solid var(--ml-color-line);
-  border-radius: var(--ml-radius-md);
-  background: var(--ml-color-raised);
+  align-items: baseline;
+  padding-bottom: var(--ml-space-16);
 }
 
-.head {
-  display: flex;
-  align-items: center;
-  gap: var(--ml-space-12);
-}
-
-h2 {
+.rating {
   margin: 0;
-  font-family: var(--ml-font-display);
-  font-size: 30px;
-  font-weight: 600;
-  line-height: 1.2;
+  font-family: var(--ml-font-title);
+}
+
+.value {
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.of {
+  margin-left: 6px;
+  color: var(--ml-color-sheet-soft);
+  font-size: 22px;
+}
+
+.none {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.stars {
+  font-size: 26px;
+  letter-spacing: 6px;
+}
+
+[data-star='full'] {
+  color: var(--ml-color-sheet-gold);
+}
+
+/* Half a star: gold on the left half, the empty colour on the right. */
+[data-star='half'] {
+  background: linear-gradient(90deg, var(--ml-color-sheet-gold) 50%, var(--ml-color-sheet-dim) 50%);
+  background-clip: text;
+  color: transparent;
+}
+
+[data-star='empty'] {
+  color: var(--ml-color-sheet-dim);
 }
 
 .facts {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-  gap: var(--ml-space-16) var(--ml-space-24);
-  width: 100%;
   margin: 0;
 }
 
+.facts div {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: var(--ml-space-16);
+  align-items: center;
+  padding: 12px 0;
+  border-top: 1px solid var(--ml-color-sheet-rule);
+}
+
 dt {
-  color: var(--ml-color-muted);
+  color: var(--ml-color-sheet-label);
+  font-family: var(--ml-font-title);
   font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 1.6px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
 dd {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  margin: 4px 0 0;
-  font-size: 15px;
+  margin: 0;
+  font-size: 16px;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
-.none,
-.detail {
-  color: var(--ml-color-muted);
-  font-size: 13px;
-}
-
-dd a {
-  color: var(--ml-color-accent);
-  text-decoration: none;
-}
-
-dd a:hover {
-  text-decoration: underline;
-}
-
-dd a:focus-visible {
-  outline: 2px solid var(--ml-color-accent);
-  outline-offset: 2px;
-}
-
-.progress {
+.series,
+.times {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: var(--ml-space-12);
-  width: 100%;
+  align-items: center;
 }
 
-.progress ml-progress-bar {
-  flex: 1;
+.dashes {
+  display: inline-flex;
+  gap: 6px;
 }
 
-.percent {
-  font-size: 14px;
-  font-weight: 700;
+.dash {
+  width: 28px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--ml-color-sheet-dim);
+}
+
+.dash.current {
+  background: var(--ml-color-sheet-gold);
+  box-shadow: 0 0 8px var(--ml-color-sheet-gold);
+}
+
+.reread {
+  padding: 2px 10px;
+  border: 1px solid var(--ml-color-sheet-accent);
+  border-radius: var(--ml-radius-pill);
+  color: var(--ml-color-sheet-accent);
+  font-size: 12px;
+  font-weight: 800;
 }

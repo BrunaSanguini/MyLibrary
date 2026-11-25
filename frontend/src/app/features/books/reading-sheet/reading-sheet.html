@@ -1,69 +1,71 @@
-<header class="head">
-  <h2 id="titulo-ficha">Ficha de leitura</h2>
-  @if (reread()) {
-    <span mlTag="seal">
-      <ml-icon name="reread" [size]="14" />
-      Relido
-    </span>
-  }
-</header>
+<h2 class="ml-visually-hidden">Ficha de leitura</h2>
+
+<div class="score">
+  <p class="rating">
+    @if (rating() === undefined && status() === 'ABANDONED') {
+      <span class="none">Sem nota</span>
+    } @else {
+      <span class="value">{{ ratingText() }}</span>
+      <span class="of">/ 5</span>
+    }
+  </p>
+  <span class="stars" role="img" [attr.aria-label]="starsLabel()">
+    @for (star of stars(); track $index) {
+      <span [attr.data-star]="star">★</span>
+    }
+  </span>
+</div>
 
 <dl class="facts">
-  <div>
-    <dt>Nota</dt>
-    <dd>
-      @if (rating() !== undefined) {
-        <ml-rating-stars size="md" [value]="rating()" />
-      } @else {
-        <span class="none">Sem nota ainda</span>
-      }
-    </dd>
-  </div>
-  <div>
-    <dt>Status</dt>
-    <dd>{{ statusLabel() }}</dd>
-  </div>
-  @if (book().series; as series) {
+  @if (series(); as series) {
     <div>
       <dt>Série</dt>
-      <dd>
-        <a [routerLink]="['/serie', series.id]">{{ series.name }}</a>
-        <span class="detail">{{ seriesPlace() }}</span>
+      <dd class="series">
+        {{ series.text }}
+        @if (series.dashes.length > 0) {
+          <span class="dashes" aria-hidden="true">
+            @for (current of series.dashes; track $index) {
+              <span class="dash" [class.current]="current"></span>
+            }
+          </span>
+        }
       </dd>
     </div>
   }
-  @if (startDate()) {
+  @if (!wishlist()) {
     <div>
-      <dt>Início</dt>
-      <dd>{{ startDate() }}</dd>
+      <dt>Status</dt>
+      <dd>{{ statusLabel() }}</dd>
     </div>
-  }
-  @if (endDate()) {
-    <div>
-      <dt>Fim</dt>
-      <dd>{{ endDate() }}</dd>
-    </div>
-  }
-  @if (pages()) {
-    <div>
-      <dt>Páginas</dt>
-      <dd>{{ pages() }}</dd>
-    </div>
+    @if (latest()) {
+      <div>
+        <dt>Início</dt>
+        <dd>{{ start() }}</dd>
+      </div>
+      @if (stoppedAt(); as stopped) {
+        <div>
+          <dt>Parou em</dt>
+          <dd>{{ stopped }}</dd>
+        </div>
+      } @else {
+        <div>
+          <dt>Fim</dt>
+          <dd>{{ end() }}</dd>
+        </div>
+      }
+    }
   }
   <div>
+    <dt>Páginas</dt>
+    <dd>{{ pages() }}</dd>
+  </div>
+  <div>
     <dt>Leituras</dt>
-    <dd>{{ timesRead() }}</dd>
+    <dd class="times">
+      {{ timesRead() }}
+      @if (reread()) {
+        <span class="reread">↻ Relido</span>
+      }
+    </dd>
   </div>
 </dl>
-
-@if (reading() && latest(); as current) {
-  <div class="progress">
-    <ml-progress-bar [value]="current.progress.percent" />
-    <span class="percent">{{ current.progress.percent }}%</span>
-  </div>
-}
-
-<a mlButton="primary" [routerLink]="['/livro', book().id, 'leitura']">
-  <ml-icon name="reading" [size]="16" />
-  {{ action() }}
-</a>

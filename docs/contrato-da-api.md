@@ -96,11 +96,20 @@ Listagem de cards usada pela Estante, pela busca, pelas seções da Home e pelas
 | `reread` | booleano | `true`: lido mais de uma vez ou com uma leitura marcada como releitura (a lista especial Releituras) |
 | `genreId` | número | um gênero inclui os livros dos subgêneros dele |
 | `authorId`, `publisherId`, `seriesId`, `listId` | número | |
-| `sort` | texto | `title`, `author`, `addedAt` (padrão, `desc`), `rating`, `finishedAt`, `seriesPosition`, `listOrder` (só com `listId`) |
+| `wishlist` | booleano | `false`: deixa a wishlist de fora (o padrão da Minha Estante); `true`: só a wishlist |
+| `sort` | texto | `title`, `author`, `addedAt` (padrão, `desc`), `rating`, `finishedAt`, `publishedYear`, `seriesPosition`, `listOrder` (só com `listId`) |
 
 Resposta: `PageResponse<BookCardResponse>`.
 
-**A Home não tem endpoint próprio.** O front faz as chamadas em paralelo: `?favorite=true` (destaques e favoritos), `?status=READING` (lendo agora), `/goals` (metas) e `/lists` (listas).
+**A Home não tem endpoint próprio.** O front faz as chamadas em paralelo: `?favorite=true` (favoritos), `?status=READING` (lendo agora), `/goals` (metas) e `/lists` (listas).
+
+### `GET /shelf/summary`
+
+Os números das abas e dos chips da Minha Estante. Todos, menos `wishlist`, contam só os livros fora da wishlist; `shelf` é a soma dos quatro status.
+
+```json
+{ "shelf": 26, "reading": 2, "read": 15, "wantToRead": 7, "abandoned": 2, "wishlist": 4, "favorites": 6, "rereads": 1 }
+```
 
 ### `GET /shelf/books/{id}/related`
 

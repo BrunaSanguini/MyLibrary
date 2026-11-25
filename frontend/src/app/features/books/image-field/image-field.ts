@@ -1,4 +1,5 @@
 import { Component, computed, effect, input, OnDestroy, output, signal } from '@angular/core';
+import { BookCover } from '@shared/ui/book-cover/book-cover';
 import { Button } from '@shared/ui/button/button';
 
 const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -7,28 +8,29 @@ const IMAGE_LIMIT = 5 * 1024 * 1024;
 let nextId = 0;
 
 /**
- * A cover or banner of the book, chosen three ways: the file field, an image dragged onto the
- * area or an image pasted from the clipboard (Ctrl+V with the area focused, or the "Colar imagem"
- * button). The image is only checked here (type and size) and shown before it is saved; the form
- * sends it once the book is saved. The name of the file does not matter: the app saves every
- * image under a name of its own.
+ * The cover of the book, chosen three ways: the "Enviar imagem da capa" button, an image dragged
+ * onto the cover or an image pasted from the clipboard (Ctrl+V with the cover focused). The image
+ * is only checked here (type and size) and shown before it is saved; the form sends it once the
+ * book is saved. Without an image, the cover drawn with the title and author typed shows instead.
  */
 @Component({
   selector: 'ml-image-field',
-  imports: [Button],
+  imports: [BookCover, Button],
   templateUrl: './image-field.html',
   styleUrl: './image-field.css',
 })
 export class ImageField implements OnDestroy {
-  /** "Capa" or "Banner": names the file field, so the area is reached by it. */
+  /** Names the file field, so the area is reached by it. */
   readonly label = input.required<string>();
-  /** The saved image, when there is one. */
+  /** The saved image, or the one from the Open Library, when there is one. */
   readonly currentUrl = input<string | undefined>();
-  readonly shape = input<'cover' | 'banner'>('cover');
+  /** What the drawn cover says while there is no image. */
+  readonly placeholderTitle = input('');
+  readonly placeholderAuthor = input('');
 
   /** The new image, or undefined when it was taken back. */
   readonly fileChange = output<File | undefined>();
-  /** Asks to remove the saved image. */
+  /** Asks to remove the saved image; false when that is taken back. */
   readonly removeChange = output<boolean>();
 
   protected readonly id = `ml-image-field-${nextId++}`;
@@ -126,10 +128,14 @@ export class ImageField implements OnDestroy {
     this.fileChange.emit(undefined);
   }
 
-  protected toggleRemoval(event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
-    this.remove.set(checked);
-    this.removeChange.emit(checked);
+  /** "Remover capa": a new image is simply dropped; the saved one is marked to go. */
+  protected removeImage(): void {
+    if (this.file()) {
+      this.undo();
+      return;
+    }
+    this.remove.set(true);
+    this.removeChange.emit(true);
   }
 
   /** Keeps the image when it is one the API takes; otherwise says why. */
@@ -144,6 +150,10 @@ export class ImageField implements OnDestroy {
       return false;
     }
     this.pasted.set(pasted);
+    if (this.remove()) {
+      this.remove.set(false);
+      this.removeChange.emit(false);
+    }
     this.file.set(file);
     this.fileChange.emit(file);
     return true;

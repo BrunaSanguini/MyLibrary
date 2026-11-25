@@ -17,6 +17,7 @@ import io.github.brunasanguini.minhalivraria.shelf.application.RelatedBooksRespo
 import io.github.brunasanguini.minhalivraria.shelf.application.ShelfFilter;
 import io.github.brunasanguini.minhalivraria.shelf.application.ShelfService;
 import io.github.brunasanguini.minhalivraria.shelf.application.ShelfStatus;
+import io.github.brunasanguini.minhalivraria.shelf.application.ShelfSummaryResponse;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -76,7 +77,7 @@ class ShelfControllerTest {
 
         assertThat(mvc.get()
                         .uri("/api/v1/shelf/books?q=aneis&status=READING&status=READ&ownership=OWNED&favorite=true"
-                                + "&reread=true&genreId=1&authorId=2&publisherId=3&seriesId=4&listId=5"))
+                                + "&reread=true&genreId=1&authorId=2&publisherId=3&seriesId=4&listId=5&wishlist=false"))
                 .hasStatusOk();
 
         ArgumentCaptor<ShelfFilter> filter = ArgumentCaptor.forClass(ShelfFilter.class);
@@ -92,7 +93,8 @@ class ShelfControllerTest {
                         2L,
                         3L,
                         4L,
-                        5L));
+                        5L,
+                        false));
     }
 
     @Test
@@ -103,7 +105,7 @@ class ShelfControllerTest {
 
         ArgumentCaptor<ShelfFilter> filter = ArgumentCaptor.forClass(ShelfFilter.class);
         then(service).should().search(filter.capture(), any());
-        ShelfFilter none = new ShelfFilter(null, null, null, null, null, null, null, null, null, null);
+        ShelfFilter none = new ShelfFilter(null, null, null, null, null, null, null, null, null, null, null);
         assertThat(filter.getValue()).isEqualTo(none);
     }
 
@@ -118,6 +120,19 @@ class ShelfControllerTest {
                 .bodyJson()
                 .extractingPath("$.code")
                 .isEqualTo("request.invalid-sort");
+    }
+
+    @Test
+    void shouldAnswerTheSummaryOfTheShelf() {
+        given(service.summary()).willReturn(new ShelfSummaryResponse(26, 2, 15, 7, 2, 4, 6, 1));
+
+        assertThat(mvc.get().uri("/api/v1/shelf/summary"))
+                .hasStatusOk()
+                .bodyJson()
+                .isLenientlyEqualTo("""
+                        {"shelf": 26, "reading": 2, "read": 15, "wantToRead": 7, "abandoned": 2,
+                         "wishlist": 4, "favorites": 6, "rereads": 1}
+                        """);
     }
 
     @Test

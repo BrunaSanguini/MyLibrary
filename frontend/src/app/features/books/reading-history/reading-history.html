@@ -1,12 +1,40 @@
 @if (readings().length > 0) {
-  <ol class="history">
+  <dl class="summary">
+    <div>
+      <dt>{{ readings().length === 1 ? 'leitura' : 'leituras' }}</dt>
+      <dd class="accent">{{ summary().readings }}</dd>
+    </div>
+    <div>
+      <dt>{{ summary().days === 1 ? 'dia com o livro' : 'dias com o livro' }}</dt>
+      <dd>{{ summary().days }}</dd>
+    </div>
+    <div>
+      <dt>páginas por dia, em média</dt>
+      <dd>{{ summary().perDay }}</dd>
+    </div>
+  </dl>
+
+  <ol class="timeline">
     @for (reading of readings(); track reading.id; let index = $index, count = $count) {
       <li>
-        <ml-reading-entry [reading]="reading" [number]="count - index" />
+        <ml-reading-entry
+          [bookId]="bookId()"
+          [pageCount]="pageCount()"
+          [reading]="reading"
+          [number]="count - index"
+          [latest]="index === 0"
+        />
       </li>
     }
+    <li class="invite">
+      <span class="marker" aria-hidden="true">✦</span>
+      <p>Vai reler de novo? Registre a próxima jornada.</p>
+      <a [routerLink]="['/livro', bookId(), 'leitura']">Registrar leitura →</a>
+    </li>
   </ol>
 } @else {
-  <p class="empty">Você ainda não registrou nenhuma leitura deste livro.</p>
-  <a mlButton="secondary" [routerLink]="['/livro', bookId(), 'leitura']">Começar a ler</a>
+  <div class="invite alone">
+    <p>Ainda sem jornadas — registre a primeira leitura.</p>
+    <a [routerLink]="['/livro', bookId(), 'leitura']">Registrar leitura →</a>
+  </div>
 }

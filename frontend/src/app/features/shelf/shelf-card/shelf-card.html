@@ -1,0 +1,48 @@
+<a class="card" [routerLink]="['/livro', book().id]">
+  <span class="cover-box">
+    <ml-book-cover
+      class="cover"
+      aria-hidden="true"
+      [title]="book().title"
+      [author]="authors()"
+      [coverUrl]="book().coverUrl ?? undefined"
+      [size]="view() === 'grade' ? 'md' : 'xs'"
+    />
+    @if (view() === 'grade') {
+      @if (book().reread) {
+        <span class="badge reread" role="img" aria-label="Relido">↻</span>
+      }
+      @if (book().favorite) {
+        <span class="badge favorite" role="img" aria-label="Favorito">★</span>
+      }
+    }
+  </span>
+
+  <span class="info">
+    <span class="title">{{ book().title }}</span>
+    <span class="byline">{{ view() === 'grade' ? authors() : byline() }}</span>
+    @if (view() === 'grade') {
+      <span class="status" [attr.data-status]="label().key">{{ label().text }}</span>
+    }
+  </span>
+
+  @if (view() === 'lista') {
+    <span class="shelf">
+      <span>{{ genre() }}</span>
+      <span class="muted">{{ series() }}</span>
+    </span>
+    <span class="marks">
+      <span class="status" [attr.data-status]="label().key">{{ label().text }}</span>
+      @if (book().favorite) {
+        <span class="badge favorite" role="img" aria-label="Favorito">★</span>
+      }
+      @if (book().reread) {
+        <span class="badge reread" role="img" aria-label="Relido">↻</span>
+      }
+    </span>
+    <span class="rating">
+      <span class="ml-visually-hidden">Nota:</span>
+      {{ rating() }}
+    </span>
+  }
+</a>

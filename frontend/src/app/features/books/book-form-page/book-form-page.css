@@ -1,58 +1,295 @@
-/* Book form: stacked cards, one per group of fields. */
+/* Cadastro: the Open Library across the top, then the cover on the left and sections I–III on the right. */
 
 :host {
-  display: block;
-  max-width: 860px;
-  margin: 0 auto;
-  padding: var(--ml-space-40) var(--ml-space-32) var(--ml-space-56);
-}
-
-.head {
-  margin-bottom: var(--ml-space-32);
-}
-
-.form {
   display: flex;
   flex-direction: column;
-  gap: var(--ml-space-24);
+  gap: var(--ml-space-32);
+  box-sizing: border-box;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: var(--ml-space-32) var(--ml-space-32) var(--ml-space-56);
 }
 
-textarea {
+ml-breadcrumbs {
+  margin: 0;
+}
+
+.saved-line {
+  margin: 0;
   padding: var(--ml-space-12) var(--ml-space-16);
-  border-radius: var(--ml-radius-md);
-  line-height: 1.5;
-  resize: vertical;
+  border-left: 3px solid var(--ml-color-gold);
+  background: var(--ml-color-raised);
+  font-weight: 700;
 }
 
-input[type='file'] {
+/* Buscar na Open Library. */
+.lookup-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ml-space-12) var(--ml-space-32);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.lookup-head p {
+  margin: 0;
   color: var(--ml-color-muted);
-  font-family: var(--ml-font-body);
-  font-size: 13px;
+  font-family: var(--ml-font-display);
+  font-size: 18px;
+  font-style: italic;
+}
+
+.lookup-form {
+  display: flex;
+  gap: var(--ml-space-12);
+}
+
+.lookup-form input {
+  flex: 1;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ml-space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.results li {
+  display: flex;
+  gap: var(--ml-space-16);
+  align-items: center;
+  padding: var(--ml-space-8) var(--ml-space-12);
+  border-radius: var(--ml-radius-sm);
+  background: var(--ml-color-raised);
+}
+
+.mini-cover {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 60px;
+  border-radius: 2px 6px 6px 2px;
+  background: var(--ml-color-line);
+  object-fit: cover;
+}
+
+.result-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.result-title {
+  font-family: var(--ml-font-title);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.result-meta {
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-display);
+  font-size: 16px;
+  font-style: italic;
+}
+
+.notice {
+  margin: 0;
+  padding: var(--ml-space-12) var(--ml-space-16);
+  border-left: 3px solid var(--ml-color-accent);
+  background: var(--ml-color-raised);
+}
+
+/* The form: the cover column and the sections side by side. */
+.form {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: var(--ml-space-32);
+  align-items: start;
+}
+
+.cover-column {
+  align-items: center;
+}
+
+.small-title {
+  align-self: flex-start;
+  color: var(--ml-color-lilac);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  min-width: 0;
+}
+
+.section-title {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ml-space-8) var(--ml-space-24);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.section-title p {
+  margin: 0;
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-display);
+  font-size: 18px;
+  font-style: italic;
+}
+
+/* Tenho / Ainda não tenho: two cards, only one chosen. */
+.choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ml-space-16);
+}
+
+.choice {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--ml-space-16) var(--ml-space-24);
+  border: 1.5px solid var(--ml-color-glass-line);
+  border-radius: var(--ml-radius-md);
+  background: transparent;
+  color: var(--ml-color-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.choice[aria-checked='true'] {
+  border-color: var(--ml-color-accent);
+  background: var(--ml-color-raised);
+}
+
+.choice:focus-visible {
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 2px;
+}
+
+.choice-title {
+  font-family: var(--ml-font-title);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.choice-text {
+  color: var(--ml-color-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ml-space-8);
+}
+
+.pill {
+  min-height: 40px;
+  padding: 0 18px;
+  border: 1.5px solid var(--ml-color-glass-line);
+  border-radius: var(--ml-radius-pill);
+  background: transparent;
+  color: var(--ml-color-ink);
+  font-family: var(--ml-font-title);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.pill[aria-checked='true'] {
+  border-color: var(--ml-color-accent);
+  background: var(--ml-color-accent);
+  box-shadow: var(--ml-glow);
+  color: var(--ml-color-accent-ink);
+}
+
+.pill:focus-visible {
+  outline: 2px solid var(--ml-color-accent);
+  outline-offset: 2px;
+}
+
+.status-now {
+  margin: 0;
 }
 
 .check {
   display: inline-flex;
-  align-items: center;
   gap: var(--ml-space-8);
-  min-height: 44px;
+  align-items: center;
   margin: 0;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
-.grow > .check {
-  margin-top: var(--ml-space-8);
-  font-size: 13px;
+.check input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--ml-color-accent);
 }
 
-.images {
+.actions-card {
+  gap: var(--ml-space-12);
+}
+
+.problems {
+  margin: 0;
+  padding: var(--ml-space-12) var(--ml-space-16);
+  border-left: 3px solid var(--ml-color-warn);
+  background: var(--ml-color-raised);
+  font-weight: 700;
+}
+
+.cancel {
+  margin-right: auto;
+}
+
+/* After saving or discarding: what happened and where to go next. */
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ml-space-12);
+  align-items: flex-start;
+  padding: 40px 44px;
+  border: 1px solid var(--ml-color-glass-line);
+  border-radius: var(--ml-radius-md);
+  background: var(--ml-color-surface);
+  box-shadow: var(--ml-shadow-frame), var(--ml-shadow-soft);
+}
+
+.done-mark {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
-  gap: var(--ml-space-24);
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1.5px solid var(--ml-color-gold);
+  border-radius: 50%;
+  color: var(--ml-color-gold-text);
+  font-size: 22px;
 }
 
-@media (width <= 760px) {
-  .images {
+.result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ml-space-12);
+  align-items: center;
+  margin-top: var(--ml-space-12);
+}
+
+@media (width < 960px) {
+  .form,
+  .choices {
     grid-template-columns: minmax(0, 1fr);
   }
 }

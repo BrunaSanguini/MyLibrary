@@ -1,121 +1,220 @@
+<ml-breadcrumbs [items]="crumbs" />
+
 <header class="head">
-  <p class="eyebrow">Meu acervo</p>
-  <h1>Minha Estante</h1>
-  @if (books.hasValue()) {
-    <p class="count">
-      {{ books.value().totalElements }}
-      {{ books.value().totalElements === 1 ? 'livro' : 'livros' }}
-    </p>
-  }
-  <div class="add">
-    <a mlButton="secondary" routerLink="/estante/importar">Importar livro</a>
-    <a mlButton="primary" routerLink="/estante/novo">
-      <ml-icon name="plus" [size]="16" />
-      Adicionar livro
-    </a>
+  <div>
+    <p class="eyebrow">✦ Seu acervo</p>
+    <h1>Minha Estante</h1>
+    <p class="lead">{{ lead() ?? ' ' }}</p>
   </div>
+  <a mlButton="primary" class="add" routerLink="/estante/novo">
+    <ml-icon name="plus" [size]="16" />
+    Adicionar livro
+  </a>
 </header>
 
-<div class="filters">
-  <fieldset>
-    <legend>Status</legend>
-    @for (option of statusOptions; track option.value) {
+<section class="filters" aria-label="Busca e filtros">
+  <div class="search">
+    <ml-icon class="search-icon" name="search" [size]="18" />
+    <input
+      #field
+      type="search"
+      aria-label="Buscar na estante"
+      placeholder="Buscar na estante por título, autor ou série"
+      [value]="term()"
+      (input)="type($event)"
+    />
+    @if (term()) {
       <button
-        mlTag="state"
         type="button"
-        [pressed]="status().includes(option.value)"
-        [attr.aria-pressed]="status().includes(option.value)"
-        (click)="toggleStatus(option.value)"
+        class="clear-search"
+        aria-label="Limpar busca"
+        (click)="clearSearch(field)"
       >
-        {{ option.label }}
+        <ml-icon name="close" [size]="14" />
       </button>
     }
-  </fieldset>
+  </div>
 
-  <fieldset>
-    <legend>Mostrar</legend>
-    <button
-      mlTag="state"
-      type="button"
-      [pressed]="ownership() === 'OWNED'"
-      [attr.aria-pressed]="ownership() === 'OWNED'"
-      (click)="toggleOwnership('OWNED')"
-    >
-      Tenho
-    </button>
-    <button
-      mlTag="state"
-      type="button"
-      [pressed]="ownership() === 'WISHLIST'"
-      [attr.aria-pressed]="ownership() === 'WISHLIST'"
-      (click)="toggleOwnership('WISHLIST')"
-    >
-      Wishlist
-    </button>
-    <button
-      mlTag="state"
-      type="button"
-      [pressed]="favorite() === true"
-      [attr.aria-pressed]="favorite() === true"
-      (click)="toggleFavorite()"
-    >
-      Favoritos
-    </button>
-    <button
-      mlTag="state"
-      type="button"
-      [pressed]="reread() === true"
-      [attr.aria-pressed]="reread() === true"
-      (click)="toggleReread()"
-    >
-      Releituras
-    </button>
-  </fieldset>
-
-  <label class="sort">
-    <span>Ordenar por</span>
-    <select [value]="sort() ?? 'addedAt'" (change)="changeSort($event)">
-      @for (option of sortOptions; track option.value) {
-        <option [value]="option.value">{{ option.label }}</option>
+  <div class="row">
+    <div class="tabs" role="tablist" aria-label="Status de leitura">
+      @for (tab of tabs; track tab) {
+        <button
+          type="button"
+          role="tab"
+          class="pill"
+          [id]="'aba-' + tab"
+          aria-controls="livros"
+          [attr.aria-selected]="status() === tab"
+          [tabindex]="status() === tab ? 0 : -1"
+          (click)="selectTab(tab)"
+          (keydown)="moveTab($event)"
+        >
+          @if (tab === 'wishlist') {
+            <span aria-hidden="true">♡</span>
+          }
+          {{ tabInfo[tab].label }}
+          <span class="count">{{ countOf(tab) }}</span>
+        </button>
       }
-    </select>
-  </label>
-</div>
+    </div>
 
-@if (books.hasValue()) {
-  @if (cards().length > 0) {
-    <ul class="grid">
-      @for (card of cards(); track card.id) {
-        <li><ml-book-card [book]="card" /></li>
+    <div class="chips">
+      <button
+        type="button"
+        class="pill chip"
+        [attr.aria-pressed]="favoritos()"
+        (click)="toggleFavorites()"
+      >
+        <span aria-hidden="true">★</span>
+        Favoritos
+        <span class="count">{{ summary.value()?.favorites }}</span>
+      </button>
+      <button
+        type="button"
+        class="pill chip"
+        [attr.aria-pressed]="releituras()"
+        (click)="toggleRereads()"
+      >
+        <span aria-hidden="true">↻</span>
+        Releituras
+        <span class="count">{{ summary.value()?.rereads }}</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="row selects">
+    @for (select of selects(); track select.name) {
+      <label class="select">
+        <span>{{ select.label }}</span>
+        <select (change)="choose(select.name, $event)">
+          <option value="" [selected]="select.value === undefined">{{ select.all }}</option>
+          @for (option of select.options; track option.id) {
+            <option [value]="option.id" [selected]="select.value === option.id">
+              {{ option.name }}
+            </option>
+          }
+        </select>
+      </label>
+    }
+    @if (filtered()) {
+      <button type="button" class="clear" (click)="clearFilters()">Limpar filtros</button>
+    }
+
+    <label class="select order">
+      <span>Ordenar por</span>
+      <select class="wide" (change)="changeOrder($event)">
+        @for (order of orders; track order) {
+          <option [value]="order" [selected]="(ordem() ?? 'recentes') === order">
+            {{ orderInfo[order].label }}
+          </option>
+        }
+      </select>
+    </label>
+
+    <div class="views" role="group" aria-label="Modo de exibição">
+      <button
+        type="button"
+        class="view"
+        aria-label="Ver em grade"
+        [attr.aria-pressed]="view() === 'grade'"
+        (click)="view.set('grade')"
+      >
+        <ml-icon name="grid" [size]="18" />
+      </button>
+      <button
+        type="button"
+        class="view"
+        aria-label="Ver em lista"
+        [attr.aria-pressed]="view() === 'lista'"
+        (click)="view.set('lista')"
+      >
+        <ml-icon name="list" [size]="18" />
+      </button>
+    </div>
+  </div>
+
+  @if (status() === 'wishlist') {
+    <p class="note">
+      Livros que você ainda não tem. Ao marcar “Tenho este livro” na página do livro, ele sai da
+      wishlist e passa a morar na estante.
+    </p>
+  }
+</section>
+
+<section
+  #results
+  id="livros"
+  class="results"
+  role="tabpanel"
+  [attr.aria-labelledby]="'aba-' + status()"
+>
+  @if (books.hasValue()) {
+    <p class="showing" aria-live="polite">{{ showing() }}</p>
+
+    @if (books.value().content.length > 0) {
+      <ul class="books" [attr.data-view]="view()">
+        @for (book of books.value().content; track book.id) {
+          <li><ml-shelf-card [book]="book" [view]="view()" /></li>
+        }
+      </ul>
+
+      @if (books.value().totalPages > 1) {
+        <nav class="pagination" aria-label="Paginação">
+          <button
+            type="button"
+            class="step"
+            [disabled]="books.value().page === 0"
+            (click)="changePage(books.value().page - 1)"
+          >
+            ‹ Anterior
+          </button>
+          @for (index of pages(); track index) {
+            <button
+              type="button"
+              class="number"
+              [attr.aria-label]="'Página ' + (index + 1)"
+              [attr.aria-current]="index === books.value().page ? 'page' : null"
+              (click)="changePage(index)"
+            >
+              {{ index + 1 }}
+            </button>
+          }
+          <button
+            type="button"
+            class="step"
+            [disabled]="books.value().page + 1 >= books.value().totalPages"
+            (click)="changePage(books.value().page + 1)"
+          >
+            Próxima ›
+          </button>
+        </nav>
+      }
+    } @else if (filtered()) {
+      <div class="empty">
+        <h2>Nenhum livro com esses filtros</h2>
+        <p>
+          {{
+            status() === 'wishlist'
+              ? 'Sua wishlist não tem livros com esses filtros.'
+              : 'Tente outro status, outro gênero ou limpe a busca.'
+          }}
+        </p>
+        <button mlButton="secondary" type="button" (click)="clearFilters()">Limpar filtros</button>
+      </div>
+    } @else {
+      <div class="empty">
+        <h2>Sua estante está vazia</h2>
+        <p>Adicione o primeiro livro e ele passa a morar aqui.</p>
+        <a mlButton="primary" routerLink="/estante/novo">Adicionar livro</a>
+      </div>
+    }
+  } @else if (books.error()) {
+    <ml-error-state [message]="errorMessage()" (retry)="books.reload()" />
+  } @else {
+    <ul class="books" data-view="grade" aria-hidden="true">
+      @for (item of skeletons; track item) {
+        <li><ml-skeleton variant="cover" /></li>
       }
     </ul>
-
-    @if (books.value().totalPages > 1) {
-      <ml-paginator
-        [page]="books.value().page"
-        [totalPages]="books.value().totalPages"
-        (pageChange)="changePage($event)"
-      />
-    }
-  } @else if (filtered()) {
-    <ml-empty-state
-      icon="search"
-      title="Nenhum livro com esses filtros"
-      message="Tente outra combinação ou limpe os filtros para ver a estante inteira."
-    >
-      <button mlButton="secondary" type="button" (click)="clearFilters()">Limpar filtros</button>
-    </ml-empty-state>
-  } @else {
-    <ml-empty-state
-      title="Sua estante está vazia"
-      message="Cadastre ou importe o primeiro livro e ele aparece aqui."
-    >
-      <a mlButton="primary" routerLink="/estante/novo">Adicionar livro</a>
-      <a mlButton="link" routerLink="/estante/importar">Importar da Open Library</a>
-    </ml-empty-state>
   }
-} @else if (books.error()) {
-  <ml-error-state [message]="errorMessage()" (retry)="books.reload()" />
-} @else {
-  <ml-book-grid-skeleton />
-}
+</section>

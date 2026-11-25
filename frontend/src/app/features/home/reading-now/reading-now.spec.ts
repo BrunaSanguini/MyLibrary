@@ -88,7 +88,7 @@ describe('ReadingNow', () => {
     expect(await screen.findByText('Você não está lendo nada agora.')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Ver Minha Estante' })).toHaveAttribute(
       'href',
-      '/estante?status=WANT_TO_READ',
+      '/estante?status=quero',
     );
   });
 });
