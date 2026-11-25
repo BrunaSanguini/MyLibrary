@@ -150,7 +150,9 @@ for (const theme of THEMES) {
       await expectNoAccessibilityViolations(page);
 
       await page.getByRole('tab', { name: /Autores/ }).click();
-      await expect(page.getByRole('link', { name: /Machado de Assis/ })).toBeVisible();
+      await expect(page).toHaveURL(/\/catalogos\/autores$/);
+      const authors = page.getByRole('tabpanel', { name: 'Autores' });
+      await expect(authors.getByRole('link', { name: /Machado de Assis/ })).toBeVisible();
       await expectNoAccessibilityViolations(page);
     });
 

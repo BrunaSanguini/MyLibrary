@@ -70,7 +70,9 @@ test('reads a book from the first page to the review', async ({ page }) => {
   await expect(week.getByRole('button', { name: /100 páginas/ })).toBeVisible();
 
   // A session by the page the reader stopped at is converted into pages read.
-  await page.getByRole('radio', { name: 'Página atual' }).check();
+  const currentPage = page.getByRole('radio', { name: 'Página atual' });
+  await currentPage.click();
+  await expect(currentPage).toHaveAttribute('aria-checked', 'true');
   await page.getByLabel('Em que página você parou?').fill('250');
   await page.getByRole('button', { name: 'Salvar sessão' }).click();
 
@@ -130,7 +132,7 @@ test('refuses what the book does not have and keeps what was typed', async ({ pa
 
   await expect(page.getByText('Faltam 120 páginas para o fim do livro.')).toBeVisible();
   await expect(page.getByLabel('Páginas lidas neste dia')).toHaveValue('121');
-  await expect(ring(page)).toHaveAttribute('aria-valuenow', '0');
+  await expect(ring(page)).toHaveAccessibleName('0 de 120 páginas lidas');
 });
 
 for (const theme of THEMES) {

@@ -90,9 +90,10 @@ test('a finished reading moves the goal of the month', async ({ page }) => {
   // The reading is finished on its page, the way a person does it.
   await page.goto(`/livro/${bookId}/leitura`);
   await page.getByRole('button', { name: 'Começar leitura' }).click();
-  // The day it ends starts as today once the reading is on screen.
-  await expect(page.getByLabel('Dia do término')).not.toHaveValue('');
-  await page.getByRole('button', { name: 'Concluir leitura' }).click();
+  // Terminei fills the end with today; saving the period finishes the reading.
+  await page.getByRole('checkbox', { name: 'Terminei este livro' }).check();
+  await expect(page.getByLabel('Fim', { exact: true })).not.toHaveValue('');
+  await page.getByRole('button', { name: 'Salvar período' }).click();
   await expect(page).toHaveURL(new RegExp(`/livro/${bookId}$`));
 
   // The goal counts this book. At least: tests running beside this one may finish readings of
