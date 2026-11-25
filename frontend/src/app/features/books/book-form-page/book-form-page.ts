@@ -169,6 +169,7 @@ export default class BookFormPage implements HasUnsavedChanges {
   protected readonly subgenres = computed(() =>
     this.model().genres.filter((genre) => genre.parentId !== null),
   );
+  protected readonly topGenreIds = computed(() => this.topGenres().map((genre) => genre.id));
   protected readonly subgenreIds = computed(() => this.subgenres().map((genre) => genre.id));
 
   /** The cover on the left: the file chosen, the one from the Open Library or the saved one. */
@@ -359,14 +360,12 @@ export default class BookFormPage implements HasUnsavedChanges {
   }
 
   /** One genre: picking another replaces it, and the subgenres stay. */
-  protected setGenre(genre: PickedEntry | undefined): void {
+  /** A book can have several genres, like Fantasia and Aventura; each one is a chip. */
+  protected addGenre(genre: PickedEntry): void {
     this.change(() =>
       this.bookForm
         .genres()
-        .value.update((genres) => [
-          ...(genre ? [{ id: genre.id, name: genre.name, parentId: null }] : []),
-          ...genres.filter((entry) => entry.parentId !== null),
-        ]),
+        .value.update((genres) => [...genres, { id: genre.id, name: genre.name, parentId: null }]),
     );
   }
 

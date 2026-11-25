@@ -164,6 +164,40 @@ describe('BookFormPage', () => {
     expect(screen.getByText('ISBN inválido: confira os 10 ou 13 dígitos.')).toBeInTheDocument();
   });
 
+  it('takes several genres, each one a chip, and keeps the field open for another', async () => {
+    const { http, harness } = await openNew();
+    const tree = [
+      { id: 1, name: 'Fantasia', bookCount: 2, subgenres: [] },
+      { id: 2, name: 'Aventura', bookCount: 1, subgenres: [] },
+    ];
+    const pick = async (name: string) => {
+      await userEvent.click(screen.getByRole('combobox', { name: 'Gêneros' }));
+      await vi.waitFor(() => {
+        TestBed.tick();
+        http.match('/api/v1/genres').forEach((request) => request.flush(tree));
+        expect(screen.getByRole('option', { name })).toBeInTheDocument();
+      });
+      await harness.fixture.whenStable();
+      await userEvent.click(screen.getByRole('option', { name }));
+    };
+
+    await pick('Fantasia');
+    expect(screen.getByRole('combobox', { name: 'Gêneros' })).toHaveAttribute(
+      'placeholder',
+      'Adicionar outro…',
+    );
+    await pick('Aventura');
+
+    const chosen = screen.getByRole('list', { name: 'Gêneros escolhidos' });
+    expect(
+      within(chosen)
+        .getAllByRole('listitem')
+        .map((item) => item.textContent?.trim()),
+    ).toEqual(['Fantasia', 'Aventura']);
+    await userEvent.click(screen.getByRole('button', { name: 'Remover gênero Fantasia' }));
+    expect(within(chosen).getAllByRole('listitem')).toHaveLength(1);
+  });
+
   it('keeps the position closed until a series is chosen', async () => {
     await openNew();
 
