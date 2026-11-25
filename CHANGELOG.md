@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/BrunaSanguini/MyLibrary/compare/v1.6.0...v1.7.0) (2026-11-25)
+
+
+### Funcionalidades
+
+* **reading:** nota em cada leitura e posição opcional na série ([#87](https://github.com/BrunaSanguini/MyLibrary/issues/87)) ([32be407](https://github.com/BrunaSanguini/MyLibrary/commit/32be407c27efe22bcabd1d7f851bb1b094d2f82c))
+
 ## [1.6.0](https://github.com/BrunaSanguini/MyLibrary/compare/v1.5.0...v1.6.0) (2026-11-25)
 
 
