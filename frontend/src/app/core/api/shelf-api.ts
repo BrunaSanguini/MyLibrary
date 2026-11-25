@@ -137,6 +137,6 @@ export function toBookCard(book: BookCardResponse): BookCardData {
     rating: book.rating ?? undefined,
     progress: book.progress?.percent,
     seriesName: book.series?.name,
-    seriesPosition: book.series?.position,
+    seriesPosition: book.series?.position ?? undefined,
   };
 }

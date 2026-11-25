@@ -462,13 +462,14 @@ describe('BookPage', () => {
     expect(within(history()).queryByText(/na nota, da 1ª/)).not.toBeInTheDocument();
   });
 
-  it('shows a book in a series without a position', async () => {
+  it('shows a book in a series without a position, as the API sends it: null', async () => {
     await openBook('/livro/42', {
       ...FELLOWSHIP,
-      series: { id: 3, name: 'O Senhor dos Anéis', totalVolumes: 3 },
+      series: { id: 3, name: 'O Senhor dos Anéis', position: null, totalVolumes: 3 },
     });
 
     expect(within(record()).getByText('O Senhor dos Anéis · III livros')).toBeInTheDocument();
+    expect(screen.queryByText(/· livro/)).not.toBeInTheDocument();
   });
 
   it('marks a reading in progress as such, until today', async () => {

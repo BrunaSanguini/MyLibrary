@@ -83,7 +83,7 @@ export function requestOf(detail: BookDetailResponse): BookRequest {
     publisherIds: detail.publishers.map((publisher) => publisher.id),
     genreIds: detail.genres.map((genre) => genre.id),
     seriesId: detail.series?.id,
-    seriesPosition: detail.series?.position,
+    seriesPosition: detail.series?.position ?? undefined,
     ownership: detail.ownership,
     favorite: detail.favorite,
   };
