@@ -3,8 +3,9 @@ import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CatalogApi } from '@core/api/catalog-api';
 import { components } from '@core/api/schema';
-import { BookCover } from '@shared/ui/book-cover/book-cover';
 import { Icon } from '@shared/ui/icon/icon';
+
+import { AuthorCard } from './author-card';
 
 type AuthorsPage = components['schemas']['PageResponseAuthorResponse'];
 
@@ -18,9 +19,9 @@ const LARGEST_PAGE = 100;
  */
 @Component({
   selector: 'ml-author-cards',
-  imports: [BookCover, Icon, RouterLink],
+  imports: [AuthorCard, Icon, RouterLink],
   templateUrl: './author-cards.html',
-  styleUrls: ['../home-section.css', '../card-fan.css'],
+  styleUrls: ['../home-section.css', './author-cards.css'],
 })
 export class AuthorCards {
   private readonly catalogApi = inject(CatalogApi);
@@ -32,7 +33,10 @@ export class AuthorCards {
   protected readonly authors = computed(() =>
     [...(this.page.value()?.content ?? [])]
       .filter((author) => author.bookCount > 0)
-      .sort((one, other) => other.bookCount - one.bookCount)
+      .sort(
+        (one, other) =>
+          other.bookCount - one.bookCount || one.name.localeCompare(other.name, 'pt-BR'),
+      )
       .slice(0, SHOWN),
   );
 }

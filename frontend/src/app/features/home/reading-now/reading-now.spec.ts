@@ -52,11 +52,20 @@ describe('ReadingNow', () => {
         sessionCount: 14,
       },
     ]);
+    const sessions = await vi.waitFor(() => {
+      TestBed.tick();
+      return http.expectOne('/api/v1/readings/9/sessions');
+    });
+    sessions.flush([
+      { id: 1, date: '2026-10-21', pagesRead: 40, note: 'Kvothe!' },
+      { id: 2, date: '2026-10-22', pagesRead: 30 },
+      { id: 3, date: '2026-10-23', pagesRead: 30, note: 'Que final.' },
+    ]);
     TestBed.tick();
 
     const reading = await screen.findByRole('article', { name: 'O Nome do Vento' });
-    expect(reading).toHaveTextContent('656 páginas · começou em 20 de outubro de 2026');
-    expect(reading).toHaveTextContent('14 dias registrados');
+    expect(reading).toHaveTextContent('656 páginas · começou em 20/10/2026');
+    expect(reading).toHaveTextContent('2 notas registradas');
     expect(reading).toHaveTextContent('29%');
     expect(reading).toHaveTextContent('página 196 de 656');
     expect(screen.getByRole('link', { name: 'Atualizar progresso' })).toHaveAttribute(
@@ -66,7 +75,7 @@ describe('ReadingNow', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Próxima leitura' }));
     expect(screen.getByRole('article', { name: 'Duna' })).toBeInTheDocument();
-    expect(screen.getByText('2 / 2')).toBeInTheDocument();
+    expect(screen.getByText('II / II')).toBeInTheDocument();
   });
 
   it('suggests the next book when nothing is being read', async () => {
@@ -76,6 +85,10 @@ describe('ReadingNow', () => {
       .flush({ content: [], page: 0, size: 20, totalElements: 0, totalPages: 0 });
     await view.fixture.whenStable();
 
-    expect(await screen.findByText(/Nenhum livro em leitura/)).toBeInTheDocument();
+    expect(await screen.findByText('Você não está lendo nada agora.')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Ver Minha Estante' })).toHaveAttribute(
+      'href',
+      '/estante?status=WANT_TO_READ',
+    );
   });
 });

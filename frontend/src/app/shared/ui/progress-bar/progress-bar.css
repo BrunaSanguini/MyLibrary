@@ -16,6 +16,7 @@
 
 /* The thread: a faint track and a gold fill that glows (the glow only exists in the dark theme). */
 :host([data-size='thread']) {
+  position: relative;
   overflow: visible;
   height: 2px;
   border-radius: 1px;
@@ -30,13 +31,23 @@
   transition: width 0.3s ease;
 }
 
+.star {
+  position: absolute;
+  top: -7px;
+  color: var(--ml-color-accent);
+  font-size: 14px;
+  line-height: 1;
+  transition: left 0.3s ease;
+}
+
 :host([data-size='thread']) .fill {
   background: var(--ml-color-gold);
   box-shadow: var(--ml-glow-gold);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .fill {
+  .fill,
+  .star {
     transition: none;
   }
 }

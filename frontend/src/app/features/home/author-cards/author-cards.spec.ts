@@ -3,7 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { render, screen } from '@testing-library/angular';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { AuthorCards } from './author-cards';
 
@@ -35,16 +35,39 @@ describe('AuthorCards', () => {
         totalElements: 6,
         totalPages: 1,
       });
+    // Each card counts the books of its author that were read.
+    const http = TestBed.inject(HttpTestingController);
+    await vi.waitFor(() => {
+      TestBed.tick();
+      const reads = http.match((request) => request.url === '/api/v1/shelf/books');
+      expect(reads).toHaveLength(4);
+      for (const read of reads) {
+        expect(read.request.params.getAll('status')).toEqual(['READ']);
+        const authorId = Number(read.request.params.get('authorId'));
+        read.flush({
+          content: [],
+          page: 0,
+          size: 1,
+          totalElements: authorId === 3 ? 4 : 1,
+          totalPages: 1,
+        });
+      }
+    });
     await view.fixture.whenStable();
 
     const links = await screen.findAllByRole('link', { name: /livro/ });
     expect(
       links.map((link) =>
         [link.querySelector('.name'), link.querySelector('.meta')]
-          .map((part) => part?.textContent?.trim())
+          .map((part) => part?.textContent?.replace(/\s+/g, ' ').trim())
           .join(' '),
       ),
-    ).toEqual(['Tolkien 6 livros', 'Austen 3 livros', 'Rothfuss 2 livros', 'Assis 1 livro']);
+    ).toEqual([
+      'Tolkien 6 livros 4 lidos',
+      'Austen 3 livros 1 lido',
+      'Rothfuss 2 livros 1 lido',
+      'Assis 1 livro 1 lido',
+    ]);
     expect(links[0]).toHaveAttribute('href', '/autor/3');
   });
 });

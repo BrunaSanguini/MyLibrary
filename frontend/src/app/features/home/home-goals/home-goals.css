@@ -1,73 +1,163 @@
+/* Minhas metas: the big card with the ring of the year, then three equal cards. */
+
 .goals {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
-  gap: var(--ml-space-16);
-}
-
-.main,
-.side,
-.empty {
-  box-sizing: border-box;
-  padding: var(--ml-space-24);
-  border: 1px solid var(--ml-color-line);
-  border-radius: var(--ml-radius-lg);
-  background: var(--ml-color-surface);
-  box-shadow: var(--ml-shadow-soft);
+  grid-template-columns: minmax(0, 1.5fr) repeat(3, minmax(0, 1fr));
+  gap: 20px;
 }
 
 .main {
   display: flex;
   align-items: center;
   gap: var(--ml-space-24);
-}
-
-.main ml-progress-ring {
-  flex-shrink: 0;
-  width: 140px;
+  padding: 24px 28px;
 }
 
 .side {
   display: flex;
   flex-direction: column;
-  gap: var(--ml-space-8);
+  justify-content: space-between;
+  gap: 14px;
+  padding: 24px;
 }
 
-h3 {
-  margin: 0;
-  font-family: var(--ml-font-display);
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 1.15;
+/* The ring: a raised track, a faint gold rim and the accent arc that starts at the top. */
+.ring {
+  display: grid;
+  position: relative;
+  flex: none;
+  place-items: center;
+  width: 140px;
+  height: 140px;
 }
 
-.count {
-  margin: 0;
-  font-size: 15px;
+.ring svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+circle {
+  fill: none;
+}
+
+.outer {
+  opacity: 0.5;
+  stroke: var(--ml-color-gold);
+  stroke-width: 1;
+}
+
+.track {
+  stroke: var(--ml-color-raised);
+  stroke-width: 10;
+}
+
+.arc {
+  filter: var(--ml-glow-ring);
+  stroke: var(--ml-color-accent);
+  stroke-linecap: round;
+  stroke-width: 10;
+}
+
+.ring-text {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+
+.ring-current {
+  font-family: var(--ml-font-title);
+  font-size: 38px;
   font-weight: 700;
 }
 
-.left,
-.percent {
-  margin: 0;
+.ring-target {
   color: var(--ml-color-muted);
-  font-size: 14px;
+  font-family: var(--ml-font-display);
+  font-size: 18px;
+  font-style: italic;
 }
 
 .text {
   display: flex;
   flex-direction: column;
   gap: var(--ml-space-8);
+  min-width: 0;
 }
 
-.empty {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ml-space-16);
-}
-
-.empty p {
+.label {
   margin: 0;
-  font-size: 16px;
+  color: var(--ml-color-lilac);
+  font-family: var(--ml-font-title);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.count {
+  margin: 0;
+  font-family: var(--ml-font-title);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+.left {
+  margin: 0;
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-display);
+  font-size: 18px;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.percent {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.percent span {
+  color: var(--ml-color-accent);
+}
+
+.side .percent {
+  font-size: 13px;
+}
+
+.value {
+  margin: 0;
+  font-family: var(--ml-font-title);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.target {
+  color: var(--ml-color-muted);
+  font-family: var(--ml-font-display);
+  font-size: 17px;
+  font-style: italic;
+  font-weight: 400;
+}
+
+@media (width <= 1100px) {
+  .goals {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .main {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (width <= 600px) {
+  .goals {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

@@ -102,7 +102,7 @@ test('a finished reading moves the goal of the month', async ({ page }) => {
   // The Home shows the same goal among Minhas metas.
   await page.goto('/');
   const home = page.getByRole('region', { name: 'Minhas metas' });
-  await expect(home.getByRole('article', { name: `Livros em ${MONTH_NAME}` })).toBeVisible();
+  await expect(home.getByRole('article', { name: MONTHLY })).toBeVisible();
 });
 
 test('a goal turned off leaves the Home and keeps its target', async ({ page }) => {
@@ -138,7 +138,7 @@ test('a goal turned off leaves the Home and keeps its target', async ({ page }) 
   await page.goto('/');
   const home = page.getByRole('region', { name: 'Minhas metas' });
   await expect(home).toBeVisible();
-  await expect(home.getByRole('article', { name: `Páginas em ${YEAR}` })).toHaveCount(0);
+  await expect(home.getByRole('article', { name: 'Páginas no ano' })).toHaveCount(0);
 });
 
 test('the old address of the goals opens their tab', async ({ page }) => {

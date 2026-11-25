@@ -43,6 +43,10 @@
   --ml-color-hero-chip: rgb(242 230 204 / 12%);
   --ml-color-hero-chip-line: rgb(242 230 204 / 45%);
   --ml-color-hero-corner: rgb(212 166 69 / 70%);
+  --ml-color-hero-accent: #ff4f8b;
+  --ml-color-hero-accent-glow: 0 0 22px rgb(255 79 139 / 40%);
+  --ml-color-hero-lilac: #cdbdff;
+  --ml-color-hero-lilac-line: #b9a4ff;
 
   /* The crest and the ex-libris seal keep the same colors in both themes. */
   --ml-color-crest-night: #151b36;

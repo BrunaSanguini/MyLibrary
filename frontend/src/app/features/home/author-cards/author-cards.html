@@ -15,24 +15,9 @@
   } @else if (!page.hasValue()) {
     <p class="loading" aria-hidden="true"></p>
   } @else if (authors().length > 0) {
-    <ul class="cards four">
+    <ul class="cards">
       @for (author of authors(); track author.id) {
-        <li>
-          <a class="card" [routerLink]="['/autor', author.id]">
-            <span class="fan" aria-hidden="true">
-              @for (cover of author.coverUrls.slice(0, 3); track cover) {
-                <ml-book-cover size="xs" [title]="author.name" [coverUrl]="cover" />
-              } @empty {
-                <ml-book-cover size="xs" [title]="author.name" />
-              }
-            </span>
-            <span class="name">{{ author.name }}</span>
-            <span class="meta">
-              <ml-icon name="shelf" [size]="14" />
-              {{ author.bookCount === 1 ? '1 livro' : author.bookCount + ' livros' }}
-            </span>
-          </a>
-        </li>
+        <li><ml-author-card [author]="author" /></li>
       }
     </ul>
   } @else {

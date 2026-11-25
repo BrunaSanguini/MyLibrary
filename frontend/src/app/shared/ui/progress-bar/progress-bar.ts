@@ -27,6 +27,8 @@ export class ProgressBar {
    * line of the lists.
    */
   readonly size = input<'sm' | 'md' | 'thread'>('md');
+  /** On the thread: a four-pointed star at the end of the fill, in the accent colour. */
+  readonly star = input(false);
 
   protected readonly percentage = computed(() =>
     Math.round(Math.min(Math.max(this.value(), 0), 100)),

@@ -55,26 +55,31 @@
 
 .position {
   margin: 0;
-  font-family: var(--ml-font-display);
-  font-size: 20px;
-  font-weight: 600;
+  font-family: var(--ml-font-title);
+  font-size: 18px;
+  font-weight: 700;
 }
 
+/* One star per featured book: the one on screen bigger, pink and glowing. */
 .dots {
   display: flex;
-  gap: 6px;
+  align-items: center;
+  gap: 8px;
 }
 
 .dots span {
-  width: 6px;
-  height: 6px;
-  border-radius: 3px;
-  background: var(--ml-color-hero-corner);
+  color: var(--ml-color-crest-gold);
+  font-size: 10px;
+  line-height: 1;
+  opacity: 0.6;
+  text-shadow: none;
 }
 
 .dots .on {
-  width: 24px;
-  background: var(--ml-color-hero-gold);
+  color: var(--ml-color-hero-accent);
+  font-size: 14px;
+  opacity: 1;
+  text-shadow: var(--ml-color-hero-accent-glow);
 }
 
 .ghost,

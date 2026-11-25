@@ -1,13 +1,18 @@
 import { httpResource } from '@angular/common/http';
-import { Component, computed, inject, input, linkedSignal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Component, computed, effect, inject, input, linkedSignal, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BookDetailResponse, BooksApi } from '@core/api/books-api';
 import { BOOK_STATUS_LABELS, ReadingApi, ReviewResponse } from '@core/api/reading-api';
 import { BookCardResponse } from '@core/api/shelf-api';
+import { toRoman } from '@shared/format/roman';
 import { BookCover } from '@shared/ui/book-cover/book-cover';
 import { Icon } from '@shared/ui/icon/icon';
 
-const EXCERPT_LENGTH = 220;
+const EXCERPT_LENGTH = 180;
+
+/** How long each featured book stays, as the spec recommends. */
+export const HERO_INTERVAL = 8000;
 
 /** The first lines of a review, cut at a word. */
 export function excerptOf(content: string | null | undefined): string | undefined {
@@ -38,7 +43,9 @@ export type HeroBook = Pick<BookCardResponse, 'id' | 'title' | 'authors' | 'cove
  * The top of the Home: the featured books one at a time, over the image of each (or the banner of
  * the book). The rating and the first lines of the review come from what the reader wrote.
  *
- * <p>Without books, it welcomes the reader and points to where books are added.
+ * <p>With two or three books it moves on by itself every eight seconds, and stops while the mouse
+ * or the focus is on it, and always when the system asks for reduced motion. Without books, it
+ * welcomes the reader and points to where the featured books are chosen.
  */
 @Component({
   selector: 'ml-home-hero',
@@ -54,6 +61,14 @@ export class HomeHero {
 
   private readonly booksApi = inject(BooksApi);
   private readonly readingApi = inject(ReadingApi);
+  private readonly reducedMotion =
+    inject(DOCUMENT).defaultView?.matchMedia('(prefers-reduced-motion: reduce)').matches ?? false;
+
+  /** Mouse or focus on the hero: a pause that ends by itself. */
+  private readonly resting = signal(false);
+  protected readonly moving = computed(
+    () => !this.reducedMotion && !this.resting() && this.books().length > 1,
+  );
 
   protected readonly index = linkedSignal({
     source: () => this.books().length,
@@ -102,10 +117,32 @@ export class HomeHero {
 
   protected readonly formatRating = formatRating;
 
-  protected readonly position = computed(() => {
-    const pad = (value: number) => String(value).padStart(2, '0');
-    return { current: pad(this.index() + 1), total: pad(this.books().length) };
-  });
+  /** `I` of `III`. */
+  protected readonly position = computed(() => ({
+    current: toRoman(this.index() + 1),
+    total: toRoman(this.books().length),
+  }));
+
+  constructor() {
+    effect((onCleanup) => {
+      if (this.moving()) {
+        const timer = setInterval(() => this.step(1), HERO_INTERVAL);
+        onCleanup(() => clearInterval(timer));
+      }
+    });
+  }
+
+  protected rest(resting: boolean): void {
+    this.resting.set(resting);
+  }
+
+  /** Focus that moves to another control inside the hero is not leaving it. */
+  protected blur(event: FocusEvent): void {
+    const next = event.relatedTarget as Node | null;
+    if (!next || !(event.currentTarget as HTMLElement).contains(next)) {
+      this.resting.set(false);
+    }
+  }
 
   /** A plain "#favoritos" link would leave the Home because of <base href="/">. */
   protected toFavorites(event: Event): void {

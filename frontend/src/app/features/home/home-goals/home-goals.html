@@ -1,7 +1,7 @@
 <section aria-labelledby="titulo-metas">
   <div class="section-head">
     <div class="titles">
-      <p class="eyebrow">Metas de {{ year() }}</p>
+      <p class="eyebrow">Metas de {{ romanYear() }}</p>
       <h2 id="titulo-metas">Minhas metas</h2>
     </div>
     <span class="rule" aria-hidden="true"></span>
@@ -12,34 +12,55 @@
 
   @if (main(); as goal) {
     <div class="goals">
-      <article class="main" [attr.aria-label]="title(goal)">
-        <ml-progress-ring [value]="goal.percent" [label]="'Progresso de ' + title(goal)" />
+      <article class="main frame" [attr.aria-label]="label(goal)">
+        <div
+          class="ring"
+          role="progressbar"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          [attr.aria-valuenow]="goal.percent"
+          [attr.aria-label]="'Progresso da ' + label(goal).toLowerCase()"
+        >
+          <svg viewBox="0 0 140 140" aria-hidden="true">
+            <circle class="outer" cx="70" cy="70" r="66" />
+            <circle class="track" cx="70" cy="70" r="58" />
+            @if (goal.percent > 0) {
+              <circle class="arc" cx="70" cy="70" r="58" [attr.stroke-dasharray]="dashOf(goal)" />
+            }
+          </svg>
+          <span class="ring-text" aria-hidden="true">
+            <span class="ring-current">{{ numberOf(goal, goal.current) }}</span>
+            <span class="ring-target">de {{ numberOf(goal, goal.target) }}</span>
+          </span>
+        </div>
         <div class="text">
-          <h3>{{ title(goal) }}</h3>
-          <p class="count">{{ progress(goal) }}</p>
+          <h3 class="label">{{ label(goal) }}</h3>
+          <p class="count">{{ countOf(goal) }}</p>
           <p class="left">{{ remaining(goal) }}</p>
+          <p class="percent"><span aria-hidden="true">✦</span> {{ goal.percent }}% concluído</p>
         </div>
       </article>
 
       @for (other of others(); track other.id) {
-        <article class="side" [attr.aria-label]="title(other)">
-          <h3>{{ title(other) }}</h3>
-          <p class="count">{{ progress(other) }}</p>
+        <article class="side frame" [attr.aria-label]="label(other)">
+          <h3 class="label">{{ label(other) }}</h3>
+          <p class="value">
+            {{ formatted(other.current) }} <span class="target">{{ targetOf(other) }}</span>
+          </p>
           <ml-progress-bar
-            size="sm"
+            size="thread"
+            [star]="true"
             [value]="other.percent"
-            [label]="'Progresso de ' + title(other)"
+            [label]="'Progresso de ' + label(other).toLowerCase()"
           />
           <p class="percent">{{ other.percent }}% concluído</p>
         </article>
       }
     </div>
   } @else {
-    <div class="empty">
-      <p>Nenhuma meta para {{ year() }}. Que tal decidir quantos livros ler este ano?</p>
-      <a class="more" routerLink="/configuracoes" [queryParams]="{ aba: 'metas' }"
-        >Criar uma meta <ml-icon name="arrow-right" [size]="16"
-      /></a>
-    </div>
+    <p class="empty">
+      Nenhuma meta para {{ year() }}. Que tal decidir quantos livros ler este ano?
+      <a routerLink="/configuracoes" [queryParams]="{ aba: 'metas' }">Criar uma meta</a>
+    </p>
   }
 </section>

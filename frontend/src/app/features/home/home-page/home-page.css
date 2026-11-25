@@ -1,5 +1,48 @@
 :host {
   display: block;
+  position: relative;
+  isolation: isolate;
+}
+
+/* The rhythm of the spec: hero → 48 → Favoritos → 24 → Metas → 72 → the rest. */
+ml-favorites-flow,
+.note {
+  margin-top: 48px;
+}
+
+ml-home-goals {
+  margin-top: var(--ml-space-24);
+}
+
+.sky {
+  position: absolute;
+  top: 900px;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 2400px;
+  pointer-events: none;
+}
+
+.stars circle {
+  fill: var(--ml-color-star);
+  opacity: 0.45;
+}
+
+.constellation path {
+  fill: none;
+  opacity: 0.32;
+  stroke: var(--ml-color-lilac);
+  stroke-width: 1;
+}
+
+.nodes circle {
+  fill: var(--ml-color-lilac);
+  opacity: 0.6;
+}
+
+.nodes .pink {
+  fill: var(--ml-color-accent);
 }
 
 /* Holds the place of a section below the fold until it comes near the screen. */
@@ -9,21 +52,22 @@
 }
 
 .note {
-  margin-top: var(--ml-space-72);
   padding: var(--ml-space-32);
-  border: 1.5px dashed var(--ml-color-line);
-  border-radius: var(--ml-radius-lg);
+  border: 1.5px dashed var(--ml-color-glass-line);
+  border-radius: var(--ml-radius-md);
 }
 
 .note h2 {
   margin: 0 0 var(--ml-space-8);
-  font-family: var(--ml-font-display);
-  font-size: 36px;
-  font-weight: 600;
+  font-family: var(--ml-font-title);
+  font-size: 32px;
+  font-weight: 700;
 }
 
 .note p {
   margin: 0;
   color: var(--ml-color-muted);
-  font-size: 16px;
+  font-family: var(--ml-font-display);
+  font-size: 19px;
+  font-style: italic;
 }

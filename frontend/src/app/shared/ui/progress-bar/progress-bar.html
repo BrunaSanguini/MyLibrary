@@ -1,1 +1,4 @@
 <span class="fill" [style.width.%]="percentage()"></span>
+@if (star() && size() === 'thread' && percentage() > 0) {
+  <span class="star" aria-hidden="true" [style.left]="'calc(' + percentage() + '% - 7px)'">✦</span>
+}

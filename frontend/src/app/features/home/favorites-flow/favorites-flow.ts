@@ -4,6 +4,7 @@ import { Component, computed, effect, inject, input, linkedSignal, signal } from
 import { RouterLink } from '@angular/router';
 import { BookDetailResponse, BooksApi } from '@core/api/books-api';
 import { BookCardResponse } from '@core/api/shelf-api';
+import { toRoman } from '@shared/format/roman';
 import { BookCover } from '@shared/ui/book-cover/book-cover';
 import { Icon } from '@shared/ui/icon/icon';
 
@@ -73,10 +74,10 @@ export class FavoritesFlow {
     });
   });
 
-  protected readonly position = computed(() => {
-    const pad = (value: number) => String(value).padStart(2, '0');
-    return `${pad(this.index() + 1)} / ${pad(this.books().length)}`;
-  });
+  /** `I / VIII`. */
+  protected readonly position = computed(
+    () => `${toRoman(this.index() + 1)} / ${toRoman(this.books().length)}`,
+  );
 
   protected readonly formatRating = formatRating;
 
@@ -92,6 +93,15 @@ export class FavoritesFlow {
   protected step(by: number): void {
     const total = this.books().length;
     this.index.update((index) => (index + by + total) % total);
+  }
+
+  /** Left and right move the book in the middle while the focus is on the flow. */
+  protected moveWithKeys(event: KeyboardEvent): void {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
+      return;
+    }
+    event.preventDefault();
+    this.step(event.key === 'ArrowRight' ? 1 : -1);
   }
 
   protected pick(item: FlowItem): void {

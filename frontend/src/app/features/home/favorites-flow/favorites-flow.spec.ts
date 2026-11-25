@@ -73,7 +73,7 @@ describe('FavoritesFlow', () => {
     expect(hidden).toHaveLength(1);
     expect(hidden[0]).toHaveTextContent('Trazer Quatro, de Autora para o centro');
     expect(hidden[0]).toHaveAttribute('tabindex', '-1');
-    expect(screen.getByText('01 / 06')).toBeInTheDocument();
+    expect(screen.getByText('I / VI')).toBeInTheDocument();
   });
 
   it('brings a side book to the middle when it is clicked', async () => {
@@ -85,7 +85,19 @@ describe('FavoritesFlow', () => {
     );
 
     expect(centered()).toHaveAccessibleName('Seis, de Autora (no centro)');
-    expect(screen.getByText('06 / 06')).toBeInTheDocument();
+    expect(screen.getByText('VI / VI')).toBeInTheDocument();
+  });
+
+  it('moves the book in the middle with the arrows of the keyboard', async () => {
+    mockMotion(true);
+    await setup();
+
+    centered().focus();
+    await userEvent.keyboard('{ArrowRight}');
+    expect(screen.getByText('II / VI')).toBeInTheDocument();
+
+    await userEvent.keyboard('{ArrowLeft}{ArrowLeft}');
+    expect(screen.getByText('VI / VI')).toBeInTheDocument();
   });
 
   it('moves on by itself and stops when paused', async () => {
