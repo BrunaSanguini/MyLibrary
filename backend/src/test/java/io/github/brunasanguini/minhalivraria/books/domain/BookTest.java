@@ -56,13 +56,13 @@ class BookTest {
     }
 
     @Test
-    void shouldRefuseASeriesWithoutPosition() {
+    void shouldAcceptASeriesWithoutPosition() {
         Book book = new Book(fields("A Sociedade do Anel", null));
 
-        assertThatThrownBy(() -> book.assignSeries(new Series("O Senhor dos Anéis", 3), null))
-                .isInstanceOf(BusinessRuleException.class)
-                .extracting("code")
-                .isEqualTo("book.series-position-required");
+        book.assignSeries(new Series("O Senhor dos Anéis", 3), null);
+
+        assertThat(book.series()).isNotNull();
+        assertThat(book.seriesPosition()).isNull();
     }
 
     @Test
@@ -70,7 +70,9 @@ class BookTest {
         Book book = new Book(fields("A Sociedade do Anel", null));
 
         assertThatThrownBy(() -> book.assignSeries(null, new BigDecimal("1.0")))
-                .isInstanceOf(BusinessRuleException.class);
+                .isInstanceOf(BusinessRuleException.class)
+                .extracting("code")
+                .isEqualTo("book.position-without-series");
     }
 
     @Test

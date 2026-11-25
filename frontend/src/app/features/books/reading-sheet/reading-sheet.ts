@@ -60,16 +60,20 @@ export class ReadingSheet {
     if (!series) {
       return undefined;
     }
-    const position = Number.isInteger(series.position)
-      ? toRoman(series.position)
-      : series.position.toLocaleString('pt-BR');
+    const at = series.position;
     const total = series.totalVolumes;
+    if (at === undefined) {
+      // In the series without a position: the series, and how many volumes it has.
+      const text = total ? `${series.name} · ${toRoman(total)} livros` : series.name;
+      return { text, dashes: [] };
+    }
+    const position = Number.isInteger(at) ? toRoman(at) : at.toLocaleString('pt-BR');
     const text = total
       ? `${series.name} · livro ${position} de ${toRoman(total)}`
       : `${series.name} · livro ${position}`;
     const dashes =
       total && total <= MAX_DASHES
-        ? Array.from({ length: total }, (_, index) => index + 1 === Math.round(series.position))
+        ? Array.from({ length: total }, (_, index) => index + 1 === Math.round(at))
         : [];
     return { text, dashes };
   });

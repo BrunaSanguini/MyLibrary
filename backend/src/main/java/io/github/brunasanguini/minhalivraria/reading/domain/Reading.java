@@ -11,6 +11,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
@@ -43,6 +44,9 @@ public class Reading extends AuditedEntity {
 
     @Column(nullable = false)
     private boolean reread;
+
+    @Column(precision = 2, scale = 1)
+    private @Nullable BigDecimal rating;
 
     /**
      * @throws BusinessRuleException when the period does not fit the status
@@ -147,5 +151,15 @@ public class Reading extends AuditedEntity {
 
     public boolean reread() {
         return reread;
+    }
+
+    /** The rating the reader gave the book in this reading; absent, none. */
+    public @Nullable BigDecimal rating() {
+        return rating;
+    }
+
+    /** The rating of the book, kept on its latest reading (ReviewService). */
+    public void rate(@Nullable BigDecimal rating) {
+        this.rating = rating;
     }
 }

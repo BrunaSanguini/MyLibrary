@@ -155,13 +155,13 @@ public class Book extends AuditedEntity {
     }
 
     /**
-     * Sets the series and the volume within it, or clears both.
+     * Sets the series and, optionally, the volume within it; or clears both.
      *
-     * @throws BusinessRuleException {@code book.series-position-required}, when only one of them is given
+     * @throws BusinessRuleException {@code book.position-without-series}, for a position without a series
      */
     public void assignSeries(@Nullable Series series, @Nullable BigDecimal position) {
-        if ((series == null) != (position == null)) {
-            throw new BusinessRuleException("book.series-position-required");
+        if (series == null && position != null) {
+            throw new BusinessRuleException("book.position-without-series");
         }
         this.series = series;
         this.seriesPosition = position;

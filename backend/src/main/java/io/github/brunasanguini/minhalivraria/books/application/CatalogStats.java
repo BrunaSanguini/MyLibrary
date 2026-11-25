@@ -62,7 +62,7 @@ class CatalogStats {
                         + " where b.series_id in (:ids) group by b.series_id",
                 "select b.series_id as id, b.cover_image_id as cover from book b"
                         + " where b.series_id in (:ids) and b.cover_image_id is not null"
-                        + " order by b.series_position, b.id");
+                        + " order by b.series_position nulls last, b.id");
     }
 
     /**

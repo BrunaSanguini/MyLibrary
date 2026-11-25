@@ -233,7 +233,7 @@ public class BookService {
     }
 
     private static @Nullable BookSeriesResponse seriesResponse(@Nullable Series found, @Nullable BigDecimal position) {
-        if (found == null || position == null) {
+        if (found == null) {
             return null;
         }
         return new BookSeriesResponse(found.id(), found.name(), position, found.totalVolumes());

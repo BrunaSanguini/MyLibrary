@@ -12,6 +12,12 @@
       <dt>páginas por dia, em média</dt>
       <dd>{{ summary().perDay }}</dd>
     </div>
+    @if (summary().delta; as delta) {
+      <div>
+        <dt>{{ delta.label }}</dt>
+        <dd class="gold">{{ delta.value }}</dd>
+      </div>
+    }
   </dl>
 
   <ol class="timeline">

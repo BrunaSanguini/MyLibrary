@@ -7,7 +7,6 @@ import io.github.brunasanguini.minhalivraria.books.Ownership;
 import io.github.brunasanguini.minhalivraria.books.domain.BookRepository;
 import io.github.brunasanguini.minhalivraria.books.domain.DuplicatedBookException;
 import io.github.brunasanguini.minhalivraria.images.ImageSamples;
-import io.github.brunasanguini.minhalivraria.shared.error.BusinessRuleException;
 import io.github.brunasanguini.minhalivraria.shared.error.ConflictException;
 import io.github.brunasanguini.minhalivraria.shared.error.NotFoundException;
 import java.io.IOException;
@@ -127,28 +126,27 @@ class BookServiceTest {
     }
 
     @Test
-    void shouldRefuseASeriesWithoutPosition() {
+    void shouldKeepABookInASeriesWithoutPosition() {
         long lotr = series.create(new SeriesRequest("O Senhor dos Anéis", 3)).id();
 
-        assertThatThrownBy(() -> service.create(new BookRequest(
-                        "As Duas Torres",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        List.of(anAuthor()),
-                        null,
-                        null,
-                        lotr,
-                        null,
-                        null,
-                        null)))
-                .isInstanceOf(BusinessRuleException.class)
-                .extracting("code")
-                .isEqualTo("book.series-position-required");
+        BookDetailResponse created = service.create(new BookRequest(
+                "As Duas Torres",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                List.of(anAuthor()),
+                null,
+                null,
+                lotr,
+                null,
+                null,
+                null));
+
+        assertThat(created.series()).extracting("id", "position").containsExactly(lotr, null);
     }
 
     @Test

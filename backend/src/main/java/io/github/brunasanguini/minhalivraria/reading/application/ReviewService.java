@@ -2,9 +2,11 @@ package io.github.brunasanguini.minhalivraria.reading.application;
 
 import io.github.brunasanguini.minhalivraria.books.BookCatalog;
 import io.github.brunasanguini.minhalivraria.books.BookSummary;
+import io.github.brunasanguini.minhalivraria.reading.domain.ReadingRepository;
 import io.github.brunasanguini.minhalivraria.reading.domain.Review;
 import io.github.brunasanguini.minhalivraria.reading.domain.ReviewRepository;
 import io.github.brunasanguini.minhalivraria.shared.error.NotFoundException;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
@@ -15,7 +17,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** The rating and the review of each book. */
+/**
+ * The rating and the review of each book. The rating is also kept on the latest reading of the
+ * book, so each reading keeps the rating it had (Histórico de leitura).
+ */
 @Service
 @Transactional(readOnly = true)
 public class ReviewService {
@@ -24,10 +29,12 @@ public class ReviewService {
 
     private final ReviewRepository reviews;
     private final BookCatalog books;
+    private final ReadingRepository readings;
 
-    ReviewService(ReviewRepository reviews, BookCatalog books) {
+    ReviewService(ReviewRepository reviews, BookCatalog books, ReadingRepository readings) {
         this.reviews = reviews;
         this.books = books;
+        this.readings = readings;
     }
 
     /**
@@ -44,6 +51,7 @@ public class ReviewService {
     @Transactional
     public SavedReview save(long bookId, ReviewRequest request) {
         books.require(bookId);
+        rateLatestReading(bookId, request.rating());
         Optional<Review> existing = reviews.findByBookId(bookId);
         if (existing.isPresent()) {
             Review review = existing.get();
@@ -59,7 +67,15 @@ public class ReviewService {
     @Transactional
     public void delete(long bookId) {
         books.require(bookId);
-        reviews.findByBookId(bookId).ifPresent(reviews::delete);
+        reviews.findByBookId(bookId).ifPresent(review -> {
+            reviews.delete(review);
+            rateLatestReading(bookId, null);
+        });
+    }
+
+    /** The latest reading takes the rating of the book; a book never read keeps it only here. */
+    private void rateLatestReading(long bookId, @Nullable BigDecimal rating) {
+        readings.findByBookIdLatestFirst(bookId).stream().findFirst().ifPresent(reading -> reading.rate(rating));
     }
 
     public Page<ReviewSummaryResponse> latest(Pageable pageable) {

@@ -21,8 +21,8 @@ import org.jspecify.annotations.Nullable;
  * The book as the form sends it. The catalog is referenced by id: when the user types a new name, the front-end
  * creates the author, publisher, series or genre first and sends the id that came back.
  *
- * <p>A book has at least one author. Series and position travel together; one without the other is {@code
- * book.series-position-required}.
+ * <p>A book has at least one author. The position in the series is optional; a position without a series is
+ * {@code book.position-without-series}.
  */
 public record BookRequest(
         @NotBlank @Size(max = 500) String title,

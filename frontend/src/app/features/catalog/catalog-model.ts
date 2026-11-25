@@ -141,7 +141,11 @@ export function seriesRows(
   return series.map((one) => {
     const books = cards
       .filter((card) => card.series?.id === one.id)
-      .sort((a, b) => (a.series?.position ?? 0) - (b.series?.position ?? 0));
+      .sort(
+        (a, b) =>
+          (a.series?.position ?? Number.MAX_SAFE_INTEGER) -
+          (b.series?.position ?? Number.MAX_SAFE_INTEGER),
+      );
     const read = books.filter((card) => card.status === 'READ').length;
     const total = Math.max(one.totalVolumes ?? 0, one.bookCount, books.length);
     const reading = books.some((card) => card.status === 'READING');

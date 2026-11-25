@@ -35,9 +35,9 @@ test('registers a book by hand and finds it again', async ({ page }, testInfo) =
 
   // A genre that does not exist yet is created on the spot.
   const genre = `Novela ${testInfo.project.name} ${testInfo.retry}`;
-  await page.getByRole('combobox', { name: 'Gênero', exact: true }).fill(genre);
+  await page.getByRole('combobox', { name: 'Gêneros', exact: true }).fill(genre);
   await page.getByRole('option', { name: /Cadastrar/ }).click();
-  await expect(page.getByRole('list', { name: 'Gênero escolhido' })).toContainText(genre);
+  await expect(page.getByRole('list', { name: 'Gêneros escolhidos' })).toContainText(genre);
 
   // And a subgenre inside it, which the book page shows in a row of its own.
   const subgenre = `Conto ${testInfo.project.name} ${testInfo.retry}`;

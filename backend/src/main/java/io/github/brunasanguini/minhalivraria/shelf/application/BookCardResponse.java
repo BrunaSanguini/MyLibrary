@@ -40,6 +40,7 @@ public record BookCardResponse(
     public record CardProgressResponse(
             int pagesRead, @Nullable Integer pageCount, int percent) {}
 
-    /** Where the book sits in its series, so the card can show "1 de 3". */
-    public record CardSeriesResponse(long id, String name, BigDecimal position) {}
+    /** Where the book sits in its series, so the card can show "1 de 3"; the position may be absent. */
+    public record CardSeriesResponse(
+            long id, String name, @Nullable BigDecimal position) {}
 }

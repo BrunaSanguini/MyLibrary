@@ -229,7 +229,7 @@ export default class SeriesPage {
   }
 
   protected positionOf(book: BookCardResponse): string {
-    return book.series?.position.toLocaleString('pt-BR') ?? '';
+    return book.series?.position?.toLocaleString('pt-BR') ?? '';
   }
 
   protected favorite(book: BookCardResponse): boolean {

@@ -141,7 +141,7 @@ export function bookRequestOf(model: BookFormModel): BookRequest {
     publisherIds: model.publishers.map((publisher) => publisher.id),
     genreIds: model.genres.map((genre) => genre.id),
     seriesId: model.seriesId ?? undefined,
-    seriesPosition: model.seriesPosition ?? undefined,
+    seriesPosition: model.seriesId === null ? undefined : (model.seriesPosition ?? undefined),
     ownership: model.ownership,
     favorite: model.favorite,
   };
@@ -219,7 +219,7 @@ export function bookFormSchema(today: () => string) {
     });
     disabled(book.seriesPosition, ({ valueOf }) => valueOf(book.seriesId) === null);
     validate(book.seriesPosition, ({ value, valueOf }) =>
-      seriesPositionError(valueOf(book.seriesId) !== null, value()),
+      valueOf(book.seriesId) === null ? undefined : seriesPositionError(value()),
     );
     validate(book.startDate, ({ value }) =>
       value() !== '' && value() > today()
@@ -243,16 +243,12 @@ export function bookFormSchema(today: () => string) {
 }
 
 /**
- * Series and position travel together, as book.series-position-required says on the back-end:
- * the position waits for a series, and a series asks for its position.
+ * The position is optional and waits for a series (book.position-without-series on the back-end;
+ * the field stays disabled without one). A position given starts at 0,1.
  */
 export function seriesPositionError(
-  hasSeries: boolean,
   position: number | null,
 ): { kind: string; message: string } | undefined {
-  if (hasSeries && position === null) {
-    return { kind: 'seriesPosition', message: 'Informe a posição do livro na série.' };
-  }
   if (position !== null && position <= 0) {
     return { kind: 'seriesPosition', message: 'A posição na série começa em 0,1.' };
   }
