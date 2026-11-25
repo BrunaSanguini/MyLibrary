@@ -35,7 +35,7 @@ test('registers a book by hand and finds it again', async ({ page }, testInfo) =
 
   // A genre that does not exist yet is created on the spot.
   const genre = `Novela ${testInfo.project.name} ${testInfo.retry}`;
-  await page.getByRole('combobox', { name: 'Gênero' }).fill(genre);
+  await page.getByRole('combobox', { name: 'Gênero', exact: true }).fill(genre);
   await page.getByRole('option', { name: /Cadastrar/ }).click();
   await expect(page.getByRole('list', { name: 'Gênero escolhido' })).toContainText(genre);
 
@@ -96,7 +96,8 @@ test('finds a book typing without the accents of its title', async ({ page }) =>
 });
 
 test('asks before deleting a book, and Escape backs out', async ({ page }) => {
-  await page.goto('/estante?q=iracema');
+  // Iracema is in the wishlist of the sample collection, so it lives on that tab.
+  await page.goto('/estante?status=wishlist&q=iracema');
   await page.getByRole('link', { name: /Iracema/ }).click();
   await expect(page.getByRole('heading', { name: 'Iracema', level: 1 })).toBeVisible();
 
