@@ -127,7 +127,7 @@ export default class BookPage implements HasUnsavedChanges {
   /** `I`, or `2,5` for a volume between two others. */
   protected readonly volume = computed(() => {
     const position = this.book.value()?.series?.position;
-    if (position === undefined) {
+    if (position == null) {
       return undefined;
     }
     return Number.isInteger(position) ? toRoman(position) : position.toLocaleString('pt-BR');

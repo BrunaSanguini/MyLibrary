@@ -7,7 +7,7 @@ import org.jspecify.annotations.Nullable;
 /**
  * Filters of {@code GET /shelf/books}, all optional and combined with AND.
  *
- * @param q accent-insensitive term, matched against title, subtitle and author names
+ * @param q accent-insensitive term, matched against title, subtitle, author names and the series name
  * @param statuses any of them; empty or null means every status
  * @param listId only the books of this list; it is also what lets the listing be sorted by {@code listOrder}
  * @param reread read more than once, or with a reading marked as a reread

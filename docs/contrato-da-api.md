@@ -89,7 +89,7 @@ Listagem de cards usada pela Estante, pela busca, pelas seções da Home e pelas
 
 | Parâmetro | Tipo | Observação |
 |---|---|---|
-| `q` | texto | busca sem acento em título, subtítulo e autores |
+| `q` | texto | busca sem acento em título, subtítulo, autores e nome da série |
 | `status` | `ShelfStatus` | pode repetir: `?status=READING&status=READ` |
 | `ownership` | `Ownership` | |
 | `favorite` | booleano | |

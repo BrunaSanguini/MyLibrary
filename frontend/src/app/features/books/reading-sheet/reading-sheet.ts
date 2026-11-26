@@ -62,7 +62,7 @@ export class ReadingSheet {
     }
     const at = series.position;
     const total = series.totalVolumes;
-    if (at === undefined) {
+    if (at == null) {
       // In the series without a position: the series, and how many volumes it has.
       const text = total ? `${series.name} · ${toRoman(total)} livros` : series.name;
       return { text, dashes: [] };

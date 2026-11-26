@@ -277,7 +277,10 @@ public class ShelfService {
             clauses.add("""
                     (b.search_text like :term escape '\\' or exists (
                         select 1 from book_author ba join author a on a.id = ba.author_id
-                        where ba.book_id = b.id and a.normalized_name like :term escape '\\'))""");
+                        where ba.book_id = b.id and a.normalized_name like :term escape '\\')
+                    or exists (
+                        select 1 from series s
+                        where s.id = b.series_id and s.normalized_name like :term escape '\\'))""");
             params.put("term", "%" + escapeLike(TextNormalizer.normalize(filter.q())) + "%");
         }
         if (filter.statuses() != null && !filter.statuses().isEmpty()) {
