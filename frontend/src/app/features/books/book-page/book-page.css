@@ -52,10 +52,13 @@ ml-breadcrumbs {
   box-shadow: var(--ml-glow-cover);
 }
 
+/* The seal is stamped on the frame: its center sits on the middle of the card's left edge. */
 .seal {
   position: absolute;
-  bottom: 18px;
-  left: 22px;
+  z-index: 1;
+  top: 50%;
+  left: 0;
+  transform: translate(-50%, -50%);
 }
 
 .origin {
