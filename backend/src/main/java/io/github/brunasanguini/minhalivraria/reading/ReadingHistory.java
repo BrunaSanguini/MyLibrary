@@ -23,6 +23,15 @@ public interface ReadingHistory {
      */
     int pagesRead(LocalDate from, LocalDate to);
 
+    /** {@link #finishedReadings(LocalDate, LocalDate)} of these books only. */
+    int finishedReadings(LocalDate from, LocalDate to, Collection<Long> bookIds);
+
+    /** {@link #finishedRereads(LocalDate, LocalDate)} of these books only. */
+    int finishedRereads(LocalDate from, LocalDate to, Collection<Long> bookIds);
+
+    /** {@link #pagesRead(LocalDate, LocalDate)} of these books only. */
+    int pagesRead(LocalDate from, LocalDate to, Collection<Long> bookIds);
+
     /** Which of the books have at least one finished reading. */
     Set<Long> booksRead(Collection<Long> bookIds);
 }

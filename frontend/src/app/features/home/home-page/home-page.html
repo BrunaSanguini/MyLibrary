@@ -40,7 +40,7 @@
 }
 
 @if (shownGoals(); as goals) {
-  <ml-home-goals [goals]="goals" [year]="year()" />
+  <ml-home-goals [goals]="goals" [year]="year()" [deadlines]="runningDeadlines()" />
 }
 
 @defer (on viewport) {

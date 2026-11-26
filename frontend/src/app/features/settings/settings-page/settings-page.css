@@ -86,3 +86,8 @@ h1 {
     font-size: 40px;
   }
 }
+
+/* Metas holds two sections, the four goals and the goals with a deadline, one under the other. */
+ml-deadline-goals {
+  margin-top: var(--ml-space-40);
+}

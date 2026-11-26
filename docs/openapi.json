@@ -13,7 +13,7 @@
     "description" : "Readings of a book and their daily sessions"
   }, {
     "name" : "goals",
-    "description" : "Reading goals by year or month, with their progress"
+    "description" : "Reading goals by year, by month or with a deadline, with their progress"
   }, {
     "name" : "reviews",
     "description" : "Rating and review of each book"
@@ -2549,6 +2549,113 @@
           }
         }
       }
+    },
+    "/api/v1/goals/deadlines/{id}" : {
+      "put" : {
+        "tags" : [ "goals" ],
+        "summary" : "Replaces everything in a goal with a deadline",
+        "description" : "An end before the start: 422 goal.invalid-dates. A genre that does not exist: 404 genre.not-found.",
+        "operationId" : "updateDeadlineGoal",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DeadlineGoalRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DeadlineGoalResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "goals" ],
+        "operationId" : "deleteDeadlineGoal",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/goals/deadlines" : {
+      "get" : {
+        "tags" : [ "goals" ],
+        "summary" : "Goals with a deadline, past, running and future, with the progress of each one",
+        "description" : "The goal that ends first comes first.",
+        "operationId" : "listDeadlineGoals",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DeadlineGoalResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "goals" ],
+        "description" : "An end before the start: 422 goal.invalid-dates. A genre that does not exist: 404 genre.not-found. With a genre, only its books and the ones of its subgenres count.",
+        "operationId" : "createDeadlineGoal",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DeadlineGoalRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DeadlineGoalResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
@@ -4129,6 +4236,84 @@
           }
         },
         "required" : [ "abandoned", "favorites", "read", "reading", "rereads", "shelf", "wantToRead", "wishlist" ]
+      },
+      "DeadlineGoalRequest" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "enum" : [ "BOOKS", "PAGES", "REREADS" ]
+          },
+          "target" : {
+            "type" : "integer",
+            "format" : "int32",
+            "exclusiveMinimum" : 0,
+            "maximum" : 1000000
+          },
+          "startDate" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "endDate" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "genreId" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "endDate", "startDate", "target", "type" ]
+      },
+      "DeadlineGoalResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "BOOKS", "PAGES", "REREADS" ]
+          },
+          "target" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "startDate" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "endDate" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "genre" : {
+            "$ref" : "#/components/schemas/GoalGenre"
+          },
+          "current" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "percent" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "current", "endDate", "id", "percent", "startDate", "target", "type" ]
+      },
+      "GoalGenre" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "id", "name" ]
       }
     }
   }

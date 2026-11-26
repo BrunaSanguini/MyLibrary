@@ -33,6 +33,7 @@ describe('HomePage', () => {
     const goals = http.expectOne((request) => request.url === '/api/v1/goals');
     expect(goals.request.params.get('year')).toBe('2026');
     goals.flush([]);
+    http.expectOne('/api/v1/goals/deadlines').flush([]);
     // Nothing chosen in Configurações yet: the hero falls back to the favorites.
     http.expectOne('/api/v1/featured').flush([]);
     await view.fixture.whenStable();
@@ -66,6 +67,11 @@ describe('HomePage', () => {
         { ...goal, id: 2, period: 'MONTH', month: 10, target: 2, enabled: true },
         { ...goal, id: 3, period: 'MONTH', month: 11, target: 4, enabled: true },
       ]);
+    const deadline = { type: 'BOOKS', genre: null, current: 0, percent: 0 };
+    http.expectOne('/api/v1/goals/deadlines').flush([
+      { ...deadline, id: 7, target: 5, startDate: '2026-11-01', endDate: '2027-01-31' },
+      { ...deadline, id: 8, target: 20, startDate: '2027-01-01', endDate: '2027-12-31' },
+    ]);
     http.expectOne('/api/v1/featured').flush([
       {
         slot: 1,
@@ -88,5 +94,8 @@ describe('HomePage', () => {
     expect(screen.getByRole('article', { name: 'Meta de novembro' })).toBeInTheDocument();
     expect(screen.queryByRole('article', { name: 'Meta de outubro' })).not.toBeInTheDocument();
     expect(screen.queryByRole('article', { name: 'Meta anual' })).not.toBeInTheDocument();
+    // Only the goal with a deadline that is running today; next year's waits for its turn.
+    expect(screen.getByRole('heading', { name: '5 livros' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: '20 livros' })).not.toBeInTheDocument();
   });
 });

@@ -3,7 +3,9 @@ package io.github.brunasanguini.minhalivraria.books.domain;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 public interface BookRepository extends JpaRepository<Book, Long> {
 
@@ -24,4 +26,11 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     /** Books of a series being deleted, to clear series and position together. */
     List<Book> findBySeriesId(long seriesId);
+
+    /** The books of a genre, the ones of its subgenres included. */
+    @Query("""
+            select distinct b.id from Book b join b.genres g left join g.parent p
+            where g.id = :genreId or p.id = :genreId
+            """)
+    Set<Long> findIdsByGenreOrSubgenre(long genreId);
 }

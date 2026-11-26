@@ -57,10 +57,30 @@
         </article>
       }
     </div>
-  } @else {
+  } @else if (deadlines().length === 0) {
     <p class="empty">
       Nenhuma meta para {{ year() }}. Que tal decidir quantos livros ler este ano?
       <a routerLink="/configuracoes" [queryParams]="{ aba: 'metas' }">Criar uma meta</a>
     </p>
+  }
+
+  @if (deadlines().length > 0) {
+    <ul class="deadlines" aria-label="Metas com prazo">
+      @for (goal of deadlines(); track goal.id) {
+        <li class="deadline frame">
+          <h3 class="label">{{ deadlineTitle(goal) }}</h3>
+          <ml-progress-bar
+            size="thread"
+            [star]="true"
+            [value]="goal.percent"
+            [label]="'Progresso de ' + deadlineTitle(goal)"
+          />
+          <p class="deadline-numbers">
+            <span>{{ deadlineProgress(goal) }}</span>
+            <span class="deadline-clock">{{ deadlineClockOf(goal) }}</span>
+          </p>
+        </li>
+      }
+    </ul>
   }
 </section>

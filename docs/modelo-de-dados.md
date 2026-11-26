@@ -9,7 +9,7 @@ Modelo de domínio e banco da Minha Livraria. As decisões e as alternativas des
 | `books` | `book`, `author`, `book_author`, `publisher`, `book_publisher`, `series`, `genre`, `book_genre`, `featured_book` | Catálogo: livros, autores, editoras, séries, gêneros e subgêneros; os destaques da Home |
 | `reading` | `reading`, `reading_session`, `review` | Leituras, progresso, nota e resenha |
 | `lists` | `book_list`, `book_list_item` | Listas de livros |
-| `goals` | `goal` | Metas de leitura |
+| `goals` | `goal`, `deadline_goal` | Metas de leitura |
 | `profile` | `profile` | Nome, avatar e tema |
 | `images` | `image` | Registro das imagens salvas em disco |
 
@@ -141,6 +141,14 @@ erDiagram
         smallint period_month
         int target
     }
+    DEADLINE_GOAL {
+        bigint id PK
+        varchar type
+        int target
+        date start_date
+        date end_date
+        bigint genre_id FK
+    }
     PROFILE {
         smallint id PK
         varchar display_name
@@ -259,6 +267,18 @@ Uma meta por tipo e período, garantida por `UNIQUE` em (`type`, `period_year`, 
 A meta mensal muda sozinha: no ano atual, ao listar as metas, o mês corrente sem meta mensal ganha uma com o alvo e o `enabled` da última meta mensal do mesmo tipo.
 
 Um novo tipo (por gênero, por série) entra como novo valor do enum, mais as colunas opcionais que precisar, em uma nova migration.
+
+**`deadline_goal`** (migração `V16`): metas com prazo, entre duas datas escolhidas pela leitora, opcionalmente de um gênero.
+
+| Coluna | Tipo | Regra |
+|---|---|---|
+| `type` | `VARCHAR(10)` | `BOOKS`, `PAGES` ou `REREADS` |
+| `target` | `INT` | maior que zero |
+| `start_date` | `DATE` | primeiro dia que conta |
+| `end_date` | `DATE` | último dia que conta; `CHECK (end_date >= start_date)` |
+| `genre_id` | `BIGINT` | opcional; FK `genre` com `ON DELETE CASCADE`. Conta os livros do gênero e dos subgêneros dele |
+
+Não há `UNIQUE`: as metas com prazo podem se sobrepor, e tudo nelas pode mudar. Excluir o gênero exclui a meta, que de outro jeito passaria a contar todos os livros sem avisar.
 
 ### `profile`
 

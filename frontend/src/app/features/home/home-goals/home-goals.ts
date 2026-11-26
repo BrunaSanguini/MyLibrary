@@ -1,7 +1,8 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { MONTHS } from '@core/api/goal-labels';
-import { GoalResponse } from '@core/api/goals-api';
+import { deadlineClock, deadlineTitle, goalProgress, MONTHS } from '@core/api/goal-labels';
+import { DeadlineGoalResponse, GoalResponse } from '@core/api/goals-api';
+import { formatShortDate, TODAY } from '@core/time/today';
 import { toRoman } from '@shared/format/roman';
 import { Icon } from '@shared/ui/icon/icon';
 import { ProgressBar } from '@shared/ui/progress-bar/progress-bar';
@@ -44,8 +45,9 @@ const ORDER = ['BOOKS-YEAR', 'PAGES-YEAR', 'BOOKS-MONTH', 'PAGES-MONTH', 'REREAD
 
 /**
  * Minhas metas: the yearly goal of books in a ring, in Roman numerals, and up to three other goals
- * beside it, each with a gold thread. The goals are changed in Configurações → Metas; a goal that
- * is off there does not get here.
+ * beside it, each with a gold thread. Below them, the goals with a deadline that are running
+ * today. The goals are changed in Configurações → Metas; a goal that is off there does not get
+ * here.
  */
 @Component({
   selector: 'ml-home-goals',
@@ -56,6 +58,10 @@ const ORDER = ['BOOKS-YEAR', 'PAGES-YEAR', 'BOOKS-MONTH', 'PAGES-MONTH', 'REREAD
 export class HomeGoals {
   readonly goals = input.required<readonly GoalResponse[]>();
   readonly year = input.required<number>();
+  /** The goals with a deadline that are running today. */
+  readonly deadlines = input<readonly DeadlineGoalResponse[]>([]);
+
+  private readonly today = inject(TODAY);
 
   private readonly sorted = computed(() =>
     [...this.goals()].sort(
@@ -72,6 +78,13 @@ export class HomeGoals {
 
   protected readonly label = labelOf;
   protected readonly remaining = remainingOf;
+  protected readonly deadlineTitle = deadlineTitle;
+  protected readonly deadlineProgress = goalProgress;
+
+  /** `Faltam 77 dias · até 11 de fev.` */
+  protected deadlineClockOf(goal: DeadlineGoalResponse): string {
+    return `${deadlineClock(goal, this.today())} · até ${formatShortDate(goal.endDate)}`;
+  }
 
   /** `III` of `XII` books; pages keep their digits. */
   protected numberOf(goal: GoalResponse, value: number): string {

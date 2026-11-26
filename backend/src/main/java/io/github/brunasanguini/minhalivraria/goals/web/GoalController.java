@@ -1,5 +1,8 @@
 package io.github.brunasanguini.minhalivraria.goals.web;
 
+import io.github.brunasanguini.minhalivraria.goals.application.DeadlineGoalRequest;
+import io.github.brunasanguini.minhalivraria.goals.application.DeadlineGoalResponse;
+import io.github.brunasanguini.minhalivraria.goals.application.DeadlineGoalService;
 import io.github.brunasanguini.minhalivraria.goals.application.GoalRequest;
 import io.github.brunasanguini.minhalivraria.goals.application.GoalResponse;
 import io.github.brunasanguini.minhalivraria.goals.application.GoalService;
@@ -23,15 +26,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "goals", description = "Reading goals by year or month, with their progress")
+@Tag(name = "goals", description = "Reading goals by year, by month or with a deadline, with their progress")
 @RestController
 @RequestMapping("/goals")
 class GoalController {
 
     private final GoalService service;
+    private final DeadlineGoalService deadlines;
 
-    GoalController(GoalService service) {
+    GoalController(GoalService service, DeadlineGoalService deadlines) {
         this.service = service;
+        this.deadlines = deadlines;
     }
 
     @Operation(
@@ -69,6 +74,43 @@ class GoalController {
     @DeleteMapping("/{id}")
     ResponseEntity<Void> delete(@PathVariable long id) {
         service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            operationId = "listDeadlineGoals",
+            summary = "Goals with a deadline, past, running and future, with the progress of each one",
+            description = "The goal that ends first comes first.")
+    @GetMapping("/deadlines")
+    List<DeadlineGoalResponse> listDeadlines() {
+        return deadlines.list();
+    }
+
+    @Operation(
+            operationId = "createDeadlineGoal",
+            description = "An end before the start: 422 goal.invalid-dates. A genre that does not exist: 404"
+                    + " genre.not-found. With a genre, only its books and the ones of its subgenres count.")
+    @PostMapping("/deadlines")
+    ResponseEntity<DeadlineGoalResponse> createDeadline(@Valid @RequestBody DeadlineGoalRequest request) {
+        DeadlineGoalResponse created = deadlines.create(request);
+        return ResponseEntity.created(URI.create("/api/v1/goals/deadlines/" + created.id()))
+                .body(created);
+    }
+
+    @Operation(
+            operationId = "updateDeadlineGoal",
+            summary = "Replaces everything in a goal with a deadline",
+            description = "An end before the start: 422 goal.invalid-dates. A genre that does not exist: 404"
+                    + " genre.not-found.")
+    @PutMapping("/deadlines/{id}")
+    DeadlineGoalResponse updateDeadline(@PathVariable long id, @Valid @RequestBody DeadlineGoalRequest request) {
+        return deadlines.update(id, request);
+    }
+
+    @Operation(operationId = "deleteDeadlineGoal")
+    @DeleteMapping("/deadlines/{id}")
+    ResponseEntity<Void> deleteDeadline(@PathVariable long id) {
+        deadlines.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

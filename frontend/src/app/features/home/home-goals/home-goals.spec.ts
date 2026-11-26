@@ -1,6 +1,7 @@
 import { provideRouter } from '@angular/router';
-import { GoalResponse } from '@core/api/goals-api';
-import { render, screen } from '@testing-library/angular';
+import { DeadlineGoalResponse, GoalResponse } from '@core/api/goals-api';
+import { TODAY } from '@core/time/today';
+import { render, screen, within } from '@testing-library/angular';
 import { describe, expect, it } from 'vitest';
 
 import { HomeGoals, remainingOf } from './home-goals';
@@ -35,6 +36,17 @@ const MONTH: GoalResponse = {
   current: 1,
   percent: 50,
   enabled: true,
+};
+
+const NON_FICTION: DeadlineGoalResponse = {
+  id: 7,
+  type: 'BOOKS',
+  target: 2,
+  startDate: '2026-08-11',
+  endDate: '2027-02-11',
+  genre: { id: 12, name: 'Não ficção' },
+  current: 1,
+  percent: 50,
 };
 
 describe('HomeGoals', () => {
@@ -78,6 +90,33 @@ describe('HomeGoals', () => {
       'href',
       '/configuracoes?aba=metas',
     );
+  });
+
+  it('shows the goals with a deadline under the goals of the year', async () => {
+    await render(HomeGoals, {
+      inputs: { goals: [BOOKS], year: 2026, deadlines: [NON_FICTION] },
+      providers: [provideRouter([]), { provide: TODAY, useValue: () => '2026-11-26' }],
+    });
+
+    const deadlines = screen.getByRole('list', { name: 'Metas com prazo' });
+    expect(
+      within(deadlines).getByRole('heading', { name: '2 livros de Não ficção' }),
+    ).toBeInTheDocument();
+    expect(within(deadlines).getByText('1 de 2 livros')).toBeInTheDocument();
+    expect(within(deadlines).getByText('Faltam 77 dias · até 11 de fev.')).toBeInTheDocument();
+    expect(
+      within(deadlines).getByRole('progressbar', { name: 'Progresso de 2 livros de Não ficção' }),
+    ).toHaveAttribute('aria-valuenow', '50');
+  });
+
+  it('does not invite to create a goal when there is one with a deadline running', async () => {
+    await render(HomeGoals, {
+      inputs: { goals: [], year: 2026, deadlines: [NON_FICTION] },
+      providers: [provideRouter([]), { provide: TODAY, useValue: () => '2026-11-26' }],
+    });
+
+    expect(screen.queryByText(/Nenhuma meta para 2026/)).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '2 livros de Não ficção' })).toBeInTheDocument();
   });
 
   it('says what is left, or that the goal was reached', () => {

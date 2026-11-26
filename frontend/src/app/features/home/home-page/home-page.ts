@@ -1,7 +1,8 @@
 import { httpResource } from '@angular/common/http';
 import { Component, computed, inject } from '@angular/core';
 import { FeaturedApi, FeaturedBook } from '@core/api/featured-api';
-import { GoalResponse, GoalsApi } from '@core/api/goals-api';
+import { deadlineState } from '@core/api/goal-labels';
+import { DeadlineGoalResponse, GoalResponse, GoalsApi } from '@core/api/goals-api';
 import { ShelfApi, ShelfPage } from '@core/api/shelf-api';
 import { TODAY } from '@core/time/today';
 
@@ -73,5 +74,15 @@ export default class HomePage {
               goal.enabled !== false && (goal.period === 'YEAR' || goal.month === this.month()),
           )
       : undefined,
+  );
+
+  private readonly deadlines = httpResource<DeadlineGoalResponse[]>(() =>
+    this.goalsApi.deadlinesRequest(),
+  );
+  /** The goals with a deadline that are running today, the one that ends first first. */
+  protected readonly runningDeadlines = computed(() =>
+    (this.deadlines.value() ?? []).filter(
+      (goal) => deadlineState(goal, this.today()) === 'running',
+    ),
   );
 }

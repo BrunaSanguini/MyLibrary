@@ -101,7 +101,7 @@ Listagem de cards usada pela Estante, pela busca, pelas seções da Home e pelas
 
 Resposta: `PageResponse<BookCardResponse>`.
 
-**A Home não tem endpoint próprio.** O front faz as chamadas em paralelo: `?favorite=true` (favoritos), `?status=READING` (lendo agora), `/goals` (metas) e `/lists` (listas).
+**A Home não tem endpoint próprio.** O front faz as chamadas em paralelo: `?favorite=true` (favoritos), `?status=READING` (lendo agora), `/goals` e `/goals/deadlines` (metas) e `/lists` (listas).
 
 ### `GET /shelf/summary`
 
@@ -406,6 +406,25 @@ Os livros de uma lista vêm de `GET /shelf/books?listId={id}&sort=listOrder,asc`
 - Só o alvo e o `enabled` mudam. Uma meta de tipo ou período errado é excluída e criada de novo.
 - Desligada (`enabled: false`), a meta guarda o alvo, mas a Home não a mostra.
 - A meta mensal muda sozinha a cada mês: no ano atual, `GET /goals` cria a meta do mês corrente quando ele ainda não tem uma, com o alvo e o `enabled` da última meta mensal do mesmo tipo.
+
+### Metas com prazo (`goals/deadlines`)
+
+| Método e rota | Corpo | Resposta |
+|---|---|---|
+| `GET /goals/deadlines` | | `200` todas as metas com prazo (passadas, valendo e futuras), já com o progresso; a que termina primeiro vem primeiro |
+| `POST /goals/deadlines` | `{ "type": "BOOKS", "target": 2, "startDate": "2026-08-11", "endDate": "2027-02-11", "genreId": 12 }` | `201`; `422` (`goal.invalid-dates`) com o fim antes do início; `404` (`genre.not-found`) com gênero inexistente |
+| `PUT /goals/deadlines/{id}` | o mesmo corpo do `POST` | `200`; troca tudo na meta |
+| `DELETE /goals/deadlines/{id}` | | `204` |
+
+```json
+{ "id": 7, "type": "BOOKS", "target": 2, "startDate": "2026-08-11", "endDate": "2027-02-11", "genre": { "id": 12, "name": "Não ficção" }, "current": 1, "percent": 50 }
+```
+
+- A leitora escolhe o começo e o fim; os dois dias contam. Uma meta de um dia só tem `startDate` igual a `endDate`.
+- `type`, `current` e `percent` seguem as regras das metas por ano e mês, inclusive `REREADS`, aqui em qualquer período.
+- Com `genreId`, contam só os livros do gênero e dos subgêneros dele; sem `genreId`, todos. `genre` vem nulo nesse caso.
+- Excluir o gênero exclui as metas com prazo dele, que de outro jeito passariam a contar todos os livros sem avisar.
+- Não há `enabled`: a Home mostra as metas com prazo que estão valendo hoje (início ≤ hoje ≤ fim).
 
 ## Destaques da Home (`featured`)
 
