@@ -1,0 +1,184 @@
+<section class="intro" aria-labelledby="titulo-prazo">
+  <div class="intro-text">
+    <h2 id="titulo-prazo">Metas com prazo</h2>
+    <p>
+      Escolha o começo e o fim: “2 livros de não ficção nos próximos 6 meses”, “20 livros em 2027”.
+      Com um gênero, contam só os livros dele e dos subgêneros.
+    </p>
+  </div>
+  @if (editing() === undefined) {
+    <button mlButton type="button" class="new" (click)="startNew()">Nova meta com prazo</button>
+  }
+</section>
+
+@if (editing() !== undefined) {
+  <form class="card form" aria-labelledby="titulo-form-prazo" novalidate (submit)="save($event)">
+    <h3 id="titulo-form-prazo">
+      {{ editing() === 'new' ? 'Nova meta com prazo' : 'Editar meta com prazo' }}
+    </h3>
+
+    <div class="row">
+      <div class="field">
+        <label for="prazo-quantidade">Quantidade</label>
+        <input
+          id="prazo-quantidade"
+          class="amount"
+          type="text"
+          inputmode="numeric"
+          autocomplete="off"
+          [value]="draft().target"
+          [attr.aria-invalid]="errorOf('target') ? 'true' : null"
+          [attr.aria-describedby]="errorOf('target') ? 'erro-prazo-quantidade' : null"
+          (input)="change('target', $event)"
+        />
+        @if (errorOf('target'); as error) {
+          <p id="erro-prazo-quantidade" class="error" role="alert">{{ error }}</p>
+        }
+      </div>
+
+      <div class="field">
+        <label for="prazo-tipo">O que conta</label>
+        <select id="prazo-tipo" (change)="change('type', $event)">
+          @for (option of types; track option.type) {
+            <option [value]="option.type" [selected]="draft().type === option.type">
+              {{ option.label }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <div class="field grow">
+        <label for="prazo-genero">Gênero</label>
+        <select id="prazo-genero" (change)="change('genreId', $event)">
+          <option value="" [selected]="draft().genreId === ''">Todos os gêneros</option>
+          @for (genre of genres.value() ?? []; track genre.id) {
+            <optgroup [label]="genre.name">
+              <option [value]="genre.id" [selected]="draft().genreId === '' + genre.id">
+                {{ genre.name }}{{ genre.subgenres.length > 0 ? ' (com subgêneros)' : '' }}
+              </option>
+              @for (subgenre of genre.subgenres; track subgenre.id) {
+                <option [value]="subgenre.id" [selected]="draft().genreId === '' + subgenre.id">
+                  {{ subgenre.name }}
+                </option>
+              }
+            </optgroup>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="prazo-inicio">Início</label>
+        <input
+          id="prazo-inicio"
+          type="date"
+          [value]="draft().startDate"
+          [attr.aria-invalid]="errorOf('startDate') ? 'true' : null"
+          [attr.aria-describedby]="errorOf('startDate') ? 'erro-prazo-inicio' : null"
+          (input)="change('startDate', $event)"
+        />
+        @if (errorOf('startDate'); as error) {
+          <p id="erro-prazo-inicio" class="error" role="alert">{{ error }}</p>
+        }
+      </div>
+      <div class="field">
+        <label for="prazo-fim">Fim</label>
+        <input
+          id="prazo-fim"
+          type="date"
+          [value]="draft().endDate"
+          [attr.aria-invalid]="errorOf('endDate') ? 'true' : null"
+          [attr.aria-describedby]="errorOf('endDate') ? 'erro-prazo-fim' : null"
+          (input)="change('endDate', $event)"
+        />
+        @if (errorOf('endDate'); as error) {
+          <p id="erro-prazo-fim" class="error" role="alert">{{ error }}</p>
+        }
+      </div>
+    </div>
+
+    <div class="shortcuts" role="group" aria-label="Atalhos de período">
+      @for (shortcut of shortcuts; track shortcut.label) {
+        <button type="button" class="shortcut" (click)="useShortcut(shortcut)">
+          {{ shortcut.label }}
+        </button>
+      }
+    </div>
+
+    @if (failure()) {
+      <p class="error" role="alert">{{ failure() }}</p>
+    }
+
+    <div class="actions">
+      <button mlButton="secondary" type="button" [disabled]="saving()" (click)="cancel()">
+        Cancelar
+      </button>
+      <button mlButton type="submit" [disabled]="saving()">Salvar meta</button>
+    </div>
+  </form>
+}
+
+<div class="status" role="status">
+  @if (flash()) {
+    <p class="flash">{{ flash() }}</p>
+  }
+</div>
+
+@if (goals.error()) {
+  <p class="error" role="alert">Não foi possível carregar as metas com prazo agora.</p>
+} @else if (goals.hasValue()) {
+  @if (sorted().length === 0) {
+    <p class="empty">Nenhuma meta com prazo ainda.</p>
+  } @else {
+    <ul class="list" aria-label="Suas metas com prazo">
+      @for (item of sorted(); track item.goal.id) {
+        <li class="card goal" [attr.data-state]="item.state">
+          <div class="goal-head">
+            <div>
+              <h3>{{ title(item.goal) }}</h3>
+              <p class="period">{{ period(item.goal) }}</p>
+            </div>
+            <span class="state">{{ stateLabels[item.state] }}</span>
+          </div>
+          <ml-progress-bar
+            size="thread"
+            [star]="true"
+            [value]="item.goal.percent"
+            [label]="'Progresso de ' + title(item.goal)"
+          />
+          <p class="numbers">
+            <span>{{ progress(item.goal) }}</span>
+            <span class="clock">{{ clock(item.goal) }}</span>
+          </p>
+          <div class="goal-actions">
+            <button
+              mlButton="secondary"
+              type="button"
+              [attr.aria-label]="'Editar a meta ' + title(item.goal)"
+              (click)="edit(item.goal)"
+            >
+              Editar
+            </button>
+            <button
+              mlButton="secondary"
+              type="button"
+              [attr.aria-label]="'Excluir a meta ' + title(item.goal)"
+              (click)="askToDelete(item.goal)"
+            >
+              Excluir
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+}
+
+<ml-confirm-dialog
+  [title]="'Excluir a meta “' + (deleting() ? title(deleting()!) : '') + '”?'"
+  message="A meta sai da sua lista e da Home. Suas leituras continuam como estão."
+  confirmLabel="Excluir meta"
+  [busy]="saving()"
+  (confirmed)="delete()"
+/>

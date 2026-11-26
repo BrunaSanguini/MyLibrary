@@ -76,6 +76,7 @@ Este catálogo cresce junto com o código: todo `code` novo entra aqui no mesmo 
 | <a id="goal-not-found"></a>`goal.not-found` | 404 | Meta inexistente. |
 | <a id="goal-duplicated"></a>`goal.duplicated` | 409 | Já existe meta do mesmo tipo e período. |
 | <a id="goal-invalid-period"></a>`goal.invalid-period` | 422 | Período inválido para o tipo (ex.: releituras por mês) ou mês ausente numa meta mensal. |
+| <a id="goal-invalid-dates"></a>`goal.invalid-dates` | 422 | Meta com prazo com a data final antes da de início. |
 | <a id="profile-reader-since-future"></a>`profile.reader-since-future` | 422 | "Leitora desde" com um ano depois do ano atual. |
 
 ## Imagens

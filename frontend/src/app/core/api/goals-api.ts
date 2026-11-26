@@ -10,10 +10,12 @@ export type GoalResponse = Schemas['GoalResponse'];
 export type GoalRequest = Schemas['GoalRequest'];
 export type GoalType = GoalResponse['type'];
 export type GoalPeriod = GoalResponse['period'];
+export type DeadlineGoalResponse = Schemas['DeadlineGoalResponse'];
+export type DeadlineGoalRequest = Schemas['DeadlineGoalRequest'];
 
 export const GOAL_TYPES = ['BOOKS', 'PAGES', 'REREADS'] as const satisfies readonly GoalType[];
 
-/** Reading goals by year or month. The progress comes calculated in every answer. */
+/** Reading goals by year, by month or with a deadline. The progress comes calculated in every answer. */
 @Injectable({ providedIn: 'root' })
 export class GoalsApi {
   private readonly http = inject(HttpClient);
@@ -37,5 +39,23 @@ export class GoalsApi {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`/api/v1/goals/${id}`);
+  }
+
+  /** Every goal with a deadline, past, running and future: the one that ends first comes first. */
+  deadlinesRequest(): HttpResourceRequest {
+    return { url: '/api/v1/goals/deadlines' };
+  }
+
+  createDeadline(request: DeadlineGoalRequest): Observable<DeadlineGoalResponse> {
+    return this.http.post<DeadlineGoalResponse>('/api/v1/goals/deadlines', request);
+  }
+
+  /** Replaces everything in the goal: what it counts, the target, the dates and the genre. */
+  updateDeadline(id: number, request: DeadlineGoalRequest): Observable<DeadlineGoalResponse> {
+    return this.http.put<DeadlineGoalResponse>(`/api/v1/goals/deadlines/${id}`, request);
+  }
+
+  deleteDeadline(id: number): Observable<void> {
+    return this.http.delete<void>(`/api/v1/goals/deadlines/${id}`);
   }
 }

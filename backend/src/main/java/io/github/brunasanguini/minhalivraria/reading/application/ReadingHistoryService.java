@@ -44,9 +44,44 @@ class ReadingHistoryService implements ReadingHistory {
     public int pagesRead(LocalDate from, LocalDate to) {
         long inSessions = sessions.sumPagesBetween(from, to);
         List<Reading> finished = readings.findByStatusAndEndDateBetween(ReadingStatus.FINISHED, from, to);
+        return Math.toIntExact(inSessions + leftAtTheEnd(finished));
+    }
+
+    @Override
+    public int finishedReadings(LocalDate from, LocalDate to, Collection<Long> bookIds) {
+        if (bookIds.isEmpty()) {
+            return 0;
+        }
+        long count = readings.countByStatusAndEndDateBetweenAndBookIdIn(ReadingStatus.FINISHED, from, to, bookIds);
+        return Math.toIntExact(count);
+    }
+
+    @Override
+    public int finishedRereads(LocalDate from, LocalDate to, Collection<Long> bookIds) {
+        if (bookIds.isEmpty()) {
+            return 0;
+        }
+        long count = readings.countByStatusAndRereadTrueAndEndDateBetweenAndBookIdIn(
+                ReadingStatus.FINISHED, from, to, bookIds);
+        return Math.toIntExact(count);
+    }
+
+    @Override
+    public int pagesRead(LocalDate from, LocalDate to, Collection<Long> bookIds) {
+        if (bookIds.isEmpty()) {
+            return 0;
+        }
+        long inSessions = sessions.sumPagesBetweenForBooks(from, to, bookIds);
+        List<Reading> finished =
+                readings.findByStatusAndEndDateBetweenAndBookIdIn(ReadingStatus.FINISHED, from, to, bookIds);
+        return Math.toIntExact(inSessions + leftAtTheEnd(finished));
+    }
+
+    /** The pages each finished reading still had left after all its sessions, counted on the day it ended. */
+    private long leftAtTheEnd(List<Reading> finished) {
         Map<Long, BookSummary> ofReadings =
                 books.findAll(finished.stream().map(Reading::bookId).distinct().toList());
-        long leftAtTheEnd = 0;
+        long left = 0;
         for (Reading reading : finished) {
             BookSummary book = ofReadings.get(reading.bookId());
             Integer pageCount = book == null ? null : book.pageCount();
@@ -54,10 +89,10 @@ class ReadingHistoryService implements ReadingHistory {
                 int inAllSessions = sessions.findByReadingIdOrderByDateAscIdAsc(reading.id()).stream()
                         .mapToInt(ReadingSession::pagesRead)
                         .sum();
-                leftAtTheEnd += Math.max(0, pageCount - inAllSessions);
+                left += Math.max(0, pageCount - inAllSessions);
             }
         }
-        return Math.toIntExact(inSessions + leftAtTheEnd);
+        return left;
     }
 
     @Override

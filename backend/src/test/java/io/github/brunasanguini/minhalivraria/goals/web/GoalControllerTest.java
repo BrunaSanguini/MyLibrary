@@ -8,12 +8,17 @@ import static org.mockito.BDDMockito.then;
 import io.github.brunasanguini.minhalivraria.WebSliceTest;
 import io.github.brunasanguini.minhalivraria.goals.GoalPeriod;
 import io.github.brunasanguini.minhalivraria.goals.GoalType;
+import io.github.brunasanguini.minhalivraria.goals.application.DeadlineGoalRequest;
+import io.github.brunasanguini.minhalivraria.goals.application.DeadlineGoalResponse;
+import io.github.brunasanguini.minhalivraria.goals.application.DeadlineGoalService;
+import io.github.brunasanguini.minhalivraria.goals.application.GoalGenre;
 import io.github.brunasanguini.minhalivraria.goals.application.GoalRequest;
 import io.github.brunasanguini.minhalivraria.goals.application.GoalResponse;
 import io.github.brunasanguini.minhalivraria.goals.application.GoalService;
 import io.github.brunasanguini.minhalivraria.shared.error.BusinessRuleException;
 import io.github.brunasanguini.minhalivraria.shared.error.ConflictException;
 import io.github.brunasanguini.minhalivraria.shared.error.NotFoundException;
+import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +36,19 @@ class GoalControllerTest {
     private static final String MINHA_LIVRARIA = "minha-livraria";
     private static final GoalResponse BOOKS_OF_2026 =
             new GoalResponse(5, GoalType.BOOKS, GoalPeriod.YEAR, 2026, null, 24, 6, 25, true);
+    private static final LocalDate AUGUST_11 = LocalDate.parse("2026-08-11");
+    private static final LocalDate FEBRUARY_11 = LocalDate.parse("2027-02-11");
+    private static final DeadlineGoalResponse NON_FICTION = new DeadlineGoalResponse(
+            7, GoalType.BOOKS, 2, AUGUST_11, FEBRUARY_11, new GoalGenre(12, "Não ficção"), 1, 50);
 
     @Autowired
     private MockMvcTester mvc;
 
     @MockitoBean
     private GoalService service;
+
+    @MockitoBean
+    private DeadlineGoalService deadlines;
 
     @Test
     void shouldListTheGoalsOfTheYearAsked() {
@@ -188,6 +200,112 @@ class GoalControllerTest {
                 .hasStatus(HttpStatus.NO_CONTENT);
 
         then(service).should().delete(5);
+    }
+
+    @Test
+    void shouldListTheGoalsWithADeadline() {
+        given(deadlines.list()).willReturn(List.of(NON_FICTION));
+
+        assertThat(mvc.get().uri("/api/v1/goals/deadlines"))
+                .hasStatusOk()
+                .bodyJson()
+                .isLenientlyEqualTo("""
+                        [
+                          {
+                            "id": 7,
+                            "type": "BOOKS",
+                            "target": 2,
+                            "startDate": "2026-08-11",
+                            "endDate": "2027-02-11",
+                            "genre": { "id": 12, "name": "Não ficção" },
+                            "current": 1,
+                            "percent": 50
+                          }
+                        ]
+                        """);
+    }
+
+    @Test
+    void shouldAnswerANewGoalWithADeadlineWith201AndItsLocation() {
+        given(deadlines.create(new DeadlineGoalRequest(GoalType.BOOKS, 2, AUGUST_11, FEBRUARY_11, 12L)))
+                .willReturn(NON_FICTION);
+
+        assertThat(postDeadline("""
+                        {
+                          "type": "BOOKS",
+                          "target": 2,
+                          "startDate": "2026-08-11",
+                          "endDate": "2027-02-11",
+                          "genreId": 12
+                        }
+                        """))
+                .hasStatus(HttpStatus.CREATED)
+                .hasHeader(HttpHeaders.LOCATION, "/api/v1/goals/deadlines/7")
+                .bodyJson()
+                .extractingPath("$.id")
+                .isEqualTo(7);
+    }
+
+    @Test
+    void shouldRequireBothDatesOfTheDeadline() {
+        assertThat(postDeadline("""
+                        { "type": "BOOKS", "target": 2, "startDate": "2026-08-11" }
+                        """))
+                .hasStatus(HttpStatus.BAD_REQUEST)
+                .bodyJson()
+                .extractingPath("$.errors[0].field")
+                .isEqualTo("endDate");
+        then(deadlines).shouldHaveNoInteractions();
+    }
+
+    @Test
+    void shouldAnswer422ForAnEndBeforeTheStart() {
+        given(deadlines.create(any())).willThrow(new BusinessRuleException("goal.invalid-dates"));
+
+        assertThat(postDeadline("""
+                        { "type": "BOOKS", "target": 2, "startDate": "2027-02-11", "endDate": "2026-08-11" }
+                        """))
+                .hasStatus(HttpStatus.UNPROCESSABLE_CONTENT)
+                .bodyJson()
+                .isLenientlyEqualTo("""
+                        { "code": "goal.invalid-dates", "title": "Prazo inválido para a meta" }
+                        """);
+    }
+
+    @Test
+    void shouldReplaceAGoalWithADeadline() {
+        DeadlineGoalRequest request = new DeadlineGoalRequest(GoalType.PAGES, 3000, AUGUST_11, FEBRUARY_11, null);
+        given(deadlines.update(7, request))
+                .willReturn(new DeadlineGoalResponse(7, GoalType.PAGES, 3000, AUGUST_11, FEBRUARY_11, null, 300, 10));
+
+        assertThat(mvc.put()
+                        .uri("/api/v1/goals/deadlines/7")
+                        .header(REQUESTED_BY, MINHA_LIVRARIA)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                { "type": "PAGES", "target": 3000, "startDate": "2026-08-11", "endDate": "2027-02-11" }
+                                """))
+                .hasStatusOk()
+                .bodyJson()
+                .extractingPath("$.target")
+                .isEqualTo(3000);
+    }
+
+    @Test
+    void shouldDeleteAGoalWithADeadlineWith204() {
+        assertThat(mvc.delete().uri("/api/v1/goals/deadlines/7").header(REQUESTED_BY, MINHA_LIVRARIA))
+                .hasStatus(HttpStatus.NO_CONTENT);
+
+        then(deadlines).should().delete(7);
+    }
+
+    private MvcTestResult postDeadline(String body) {
+        return mvc.post()
+                .uri("/api/v1/goals/deadlines")
+                .header(REQUESTED_BY, MINHA_LIVRARIA)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+                .exchange();
     }
 
     private MvcTestResult post(String body) {

@@ -43,7 +43,12 @@ async function open(url: string) {
 function answerAll(http: HttpTestingController) {
   for (const request of http.match(() => true)) {
     const url = request.request.url;
-    if (url === '/api/v1/goals' || url === '/api/v1/genres' || url === '/api/v1/featured') {
+    if (
+      url === '/api/v1/goals' ||
+      url === '/api/v1/goals/deadlines' ||
+      url === '/api/v1/genres' ||
+      url === '/api/v1/featured'
+    ) {
       request.flush([]);
     } else if (url === '/api/v1/stats/overview') {
       request.flush({

@@ -6,6 +6,7 @@ import { Breadcrumbs, Crumb } from '@shared/ui/breadcrumbs/breadcrumbs';
 import { ConfirmDialog } from '@shared/ui/confirm-dialog/confirm-dialog';
 
 import { FeaturedSettings } from '../featured-settings/featured-settings';
+import { DeadlineGoals } from '../deadline-goals/deadline-goals';
 import { GoalsSettings } from '../goals-settings/goals-settings';
 import { Registry } from '../registry/registry';
 import { REGISTRY_KINDS, RegistryKind } from '../registry/registry-kinds';
@@ -32,7 +33,7 @@ const toKind = toOneOf(REGISTRY_KINDS.map((kind) => kind.id));
  */
 @Component({
   selector: 'ml-settings-page',
-  imports: [Breadcrumbs, ConfirmDialog, FeaturedSettings, GoalsSettings, Registry],
+  imports: [Breadcrumbs, ConfirmDialog, DeadlineGoals, FeaturedSettings, GoalsSettings, Registry],
   templateUrl: './settings-page.html',
   styleUrl: './settings-page.css',
 })

@@ -29,6 +29,16 @@ public interface ReadingRepository extends JpaRepository<Reading, Long> {
 
     List<Reading> findByStatusAndEndDateBetween(ReadingStatus status, LocalDate from, LocalDate to);
 
+    /** The goals of one genre count only its books. */
+    long countByStatusAndEndDateBetweenAndBookIdIn(
+            ReadingStatus status, LocalDate from, LocalDate to, Collection<Long> bookIds);
+
+    long countByStatusAndRereadTrueAndEndDateBetweenAndBookIdIn(
+            ReadingStatus status, LocalDate from, LocalDate to, Collection<Long> bookIds);
+
+    List<Reading> findByStatusAndEndDateBetweenAndBookIdIn(
+            ReadingStatus status, LocalDate from, LocalDate to, Collection<Long> bookIds);
+
     /** Which of the books were read to the end at least once. */
     @Query("""
             select distinct r.bookId from Reading r
