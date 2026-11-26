@@ -190,6 +190,15 @@ class ShelfServiceTest {
     }
 
     @Test
+    void shouldFindBySeriesNameIgnoringAccents() {
+        long towers = inSeries("As Duas Torres", "2.0");
+        series.update(lotr, new SeriesRequest("Crônicas da Terra Média", 3));
+        entityManager.flush();
+
+        assertThat(ids(filterByTerm("terra media"))).containsExactlyInAnyOrder(fellowship, towers);
+    }
+
+    @Test
     void shouldTreatWildcardsInTheTermAsText() {
         assertThat(ids(filterByTerm("%"))).isEmpty();
         assertThat(ids(filterByTerm("dun_"))).isEmpty();
