@@ -68,6 +68,11 @@
       <ml-icon name="chevron-down" [size]="14" />
     </button>
     <a class="calendar" routerLink="/calendario">▦ Ver no calendário</a>
-    <a class="edit" [routerLink]="['/livro', bookId(), 'leitura']">✎ Editar leitura</a>
+    <a
+      class="edit"
+      [routerLink]="['/livro', bookId(), 'leitura']"
+      [queryParams]="{ leitura: reading().id }"
+      >✎ Editar leitura</a
+    >
   </footer>
 </article>

@@ -82,6 +82,8 @@ const STATUS_WORDS = { reading: 'Lendo', read: 'Lido', reread: 'Relido', abandon
 })
 export default class ReadingPage implements HasUnsavedChanges {
   readonly id = input(undefined, { transform: toId });
+  /** `?leitura=` from "Editar leitura" in the history: that reading, whatever its status. */
+  readonly leitura = input(undefined, { transform: toId });
 
   private readonly router = inject(Router);
   private readonly booksApi = inject(BooksApi);
@@ -103,19 +105,26 @@ export default class ReadingPage implements HasUnsavedChanges {
   });
 
   /**
-   * The reading the page follows: the one in progress (a book has at most one) or, without it,
-   * the latest one if it was abandoned, which a new session takes up again.
+   * The reading the page follows: the one asked for in the address, or else the one in progress (a
+   * book has at most one) or, without it, the latest one if it was abandoned, which a new session
+   * takes up again.
    */
   protected readonly current = computed(() => {
     if (!this.readings.hasValue()) {
       return undefined;
     }
     const readings = this.readings.value();
+    const asked = readings.find((reading) => reading.id === this.leitura());
+    if (asked) {
+      return asked;
+    }
     const inProgress = readings.find((reading) => reading.status === 'IN_PROGRESS');
     return inProgress ?? (readings[0]?.status === 'ABANDONED' ? readings[0] : undefined);
   });
 
   protected readonly abandoned = computed(() => this.current()?.status === 'ABANDONED');
+  /** A finished reading is edited, not ended again: only its dates and the reread mark change. */
+  protected readonly finished = computed(() => this.current()?.status === 'FINISHED');
 
   /** The books the selector offers: being read, and abandoned ones that can be taken up again. */
   protected readonly choices = httpResource<ShelfPage>(() =>
@@ -303,7 +312,7 @@ export default class ReadingPage implements HasUnsavedChanges {
           startDate: current.startDate ?? '',
           reread: current.reread,
           endDate: current.endDate ?? this.today(),
-          finished: false,
+          finished: current.status === 'FINISHED',
           abandoned: current.status === 'ABANDONED',
         });
         this.periodForm().reset();
