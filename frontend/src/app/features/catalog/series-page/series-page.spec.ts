@@ -145,10 +145,7 @@ describe('SeriesPage', () => {
     const name = within(dialog).getByLabelText('Nome da série');
     await userEvent.clear(name);
     await userEvent.type(name, 'O Senhor dos Anéis (edição única)');
-    await userEvent.type(
-      within(dialog).getByLabelText('Descrição · escrita por você'),
-      'A guerra do Anel.',
-    );
+    await userEvent.type(within(dialog).getByLabelText('Descrição'), 'A guerra do Anel.');
     const takeOut = within(dialog).getAllByRole('button', { name: 'Tirar da série' });
     await userEvent.click(takeOut[2]!);
     expect(within(dialog).getByRole('button', { name: 'Desfazer' })).toBeInTheDocument();
