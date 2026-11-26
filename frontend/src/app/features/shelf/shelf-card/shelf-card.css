@@ -137,14 +137,28 @@
   color: var(--ml-color-muted);
 }
 
+/*
+ * Fixed slots, so every row of the list has the same columns: the status (as wide as "Lendo
+ * agora"), then the favourite, then the reread, each in its place even when the other is missing.
+ */
 .marks {
-  display: flex;
+  display: grid;
+  grid-template-columns: 120px 26px 26px;
   gap: var(--ml-space-8);
   align-items: center;
 }
 
 .marks .status {
+  justify-self: start;
   margin-top: 0;
+}
+
+.marks .favorite {
+  grid-column: 2;
+}
+
+.marks .reread {
+  grid-column: 3;
 }
 
 .marks .badge {
