@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/BrunaSanguini/MyLibrary/compare/v1.7.0...v1.8.0) (2026-11-26)
+
+
+### Funcionalidades
+
+* **frontend:** selo na borda, busca por série e correções da estante ([#89](https://github.com/BrunaSanguini/MyLibrary/issues/89)) ([5ae1e51](https://github.com/BrunaSanguini/MyLibrary/commit/5ae1e51428e84dbb8a584682f8de69d42a119d78))
+
 ## [1.7.0](https://github.com/BrunaSanguini/MyLibrary/compare/v1.6.0...v1.7.0) (2026-11-25)
 
 
