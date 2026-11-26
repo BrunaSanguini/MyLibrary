@@ -37,11 +37,11 @@ class ShelfController {
     @Operation(
             operationId = "searchShelfBooks",
             summary = "Book cards, filtered and paginated",
-            description = "The search ignores accents and also matches author names. A genre brings the books of its"
-                    + " subgenres. status can repeat. reread=true brings the books read more than once or with a"
-                    + " reading marked as a reread. wishlist=false leaves the wishlist out and wishlist=true keeps only"
-                    + " it. Sorting: title, author, addedAt (default, desc), seriesPosition, rating, finishedAt,"
-                    + " publishedYear and, only with listId, listOrder.")
+            description = "The search ignores accents and also matches author names and the series name. A genre"
+                    + " brings the books of its subgenres. status can repeat. reread=true brings the books read more"
+                    + " than once or with a reading marked as a reread. wishlist=false leaves the wishlist out and"
+                    + " wishlist=true keeps only it. Sorting: title, author, addedAt (default, desc),"
+                    + " seriesPosition, rating, finishedAt, publishedYear and, only with listId, listOrder.")
     @GetMapping("/books")
     PageResponse<BookCardResponse> search(
             @RequestParam(required = false) @Size(max = 200) @Nullable String q,
