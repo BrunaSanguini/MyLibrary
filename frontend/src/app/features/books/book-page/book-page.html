@@ -82,7 +82,9 @@
             <span>
               série
               <a class="series" [routerLink]="['/serie', series.id]">{{ series.name }}</a>
-              · livro {{ volume() }}
+              @if (volume(); as volume) {
+                · livro {{ volume }}
+              }
             </span>
           }
         </p>

@@ -64,10 +64,7 @@
       <section class="card lookup" aria-labelledby="titulo-open-library">
         <div class="lookup-head">
           <h2 id="titulo-open-library">Buscar na Open Library · opcional</h2>
-          <p>
-            Preenche título, autor, ano, páginas, ISBN e capa. Gênero, subgênero e série são sempre
-            escritos por você.
-          </p>
+          <p>Preenche título, autor, ano, páginas, ISBN e capa.</p>
         </div>
         <form class="lookup-form" role="search" (submit)="search($event)">
           <input
@@ -81,10 +78,6 @@
             {{ lookup().state === 'searching' ? 'Buscando…' : 'Buscar' }}
           </button>
         </form>
-        <p class="hint">
-          A busca é opcional e só funciona com internet. Sem conexão, preencha os campos abaixo à
-          mão: o Ex·Libru nunca exige rede.
-        </p>
 
         <div aria-live="polite">
           @switch (lookup().state) {
@@ -299,7 +292,6 @@
         <section class="card" aria-labelledby="secao-classificacao">
           <div class="section-title">
             <h2 id="secao-classificacao">II · Classificação</h2>
-            <p>Escrita por você: a Open Library não traz gênero, subgênero nem série.</p>
           </div>
 
           <div class="field">
@@ -338,7 +330,6 @@
               source="subgenres"
               label="Subgêneros"
               placeholder="Clique para ver todos os subgêneros ou digite para filtrar"
-              describedBy="dica-subgeneros"
               [exclude]="subgenreIds()"
               [parents]="topGenres()"
               (picked)="addSubgenre($event)"
@@ -360,10 +351,6 @@
                 }
               </ul>
             }
-            <p id="dica-subgeneros" class="hint">
-              A lista mostra todos os subgêneros cadastrados, de qualquer gênero. Eles aparecem em
-              “Parecidos por subgênero” na página do livro.
-            </p>
           </div>
 
           <div class="row">

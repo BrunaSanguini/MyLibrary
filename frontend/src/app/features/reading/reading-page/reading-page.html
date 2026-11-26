@@ -15,7 +15,7 @@
         <ml-icon name="chevron-left" [size]="14" /> Voltar ao livro
       </a>
       <p class="eyebrow">✦ Diário de leitura</p>
-      <h1>Registrar leitura</h1>
+      <h1>{{ finished() ? 'Editar leitura' : 'Registrar leitura' }}</h1>
     </div>
 
     <div class="book-card">
@@ -137,28 +137,32 @@
             </div>
           </div>
 
-          <label class="check">
-            <input
-              type="checkbox"
-              [checked]="periodModel().finished"
-              (change)="setEnd('finished', $any($event.target).checked)"
-            />
-            Terminei este livro
-          </label>
-          <div>
+          @if (finished()) {
+            <p class="aside">✦ Leitura concluída: aqui você corrige as datas e a releitura.</p>
+          } @else {
             <label class="check">
               <input
                 type="checkbox"
-                [checked]="periodModel().abandoned"
-                (change)="setEnd('abandoned', $any($event.target).checked)"
+                [checked]="periodModel().finished"
+                (change)="setEnd('finished', $any($event.target).checked)"
               />
-              Abandonei este livro
+              Terminei este livro
             </label>
-            <p class="aside">
-              O livro fica como Abandonado, com a data e a página em que você parou. Você pode
-              retomar a leitura depois.
-            </p>
-          </div>
+            <div>
+              <label class="check">
+                <input
+                  type="checkbox"
+                  [checked]="periodModel().abandoned"
+                  (change)="setEnd('abandoned', $any($event.target).checked)"
+                />
+                Abandonei este livro
+              </label>
+              <p class="aside">
+                O livro fica como Abandonado, com a data e a página em que você parou. Você pode
+                retomar a leitura depois.
+              </p>
+            </div>
+          }
           <label class="check">
             <input type="checkbox" [formField]="periodForm.reread" />
             Esta é uma releitura

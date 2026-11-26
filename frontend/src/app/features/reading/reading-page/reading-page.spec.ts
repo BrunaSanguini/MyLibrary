@@ -54,12 +54,15 @@ interface Opening {
   book?: object;
   readings?: object[];
   sessions?: object[];
+  /** The reading asked for with `?leitura=`, as "Editar leitura" in the history does. */
+  leitura?: number;
 }
 
 async function open({
   book = FELLOWSHIP,
   readings = [READING],
   sessions = SESSIONS,
+  leitura,
 }: Opening = {}) {
   TestBed.configureTestingModule({
     providers: [
@@ -78,7 +81,9 @@ async function open({
     ],
   });
   const harness = await RouterTestingHarness.create();
-  await harness.navigateByUrl('/livro/42/leitura');
+  await harness.navigateByUrl(
+    leitura === undefined ? '/livro/42/leitura' : `/livro/42/leitura?leitura=${leitura}`,
+  );
   const http = TestBed.inject(HttpTestingController);
   TestBed.tick();
   http.expectOne('/api/v1/books/42').flush(book);
@@ -93,7 +98,13 @@ async function open({
       totalPages: 1,
     });
   const followed = readings[0] as typeof READING | undefined;
-  if (
+  const asked = readings.find((reading) => (reading as typeof READING).id === leitura);
+  if (asked) {
+    await vi.waitFor(() => {
+      TestBed.tick();
+      http.expectOne(`/api/v1/readings/${leitura}/sessions`).flush(sessions);
+    });
+  } else if (
     readings.some((reading) => (reading as typeof READING).status === 'IN_PROGRESS') ||
     followed?.status === 'ABANDONED'
   ) {
@@ -314,6 +325,42 @@ describe('ReadingPage', () => {
 
     http.expectOne({ method: 'POST', url: '/api/v1/readings/9/resume' }).flush(READING);
     await vi.waitFor(() => http.expectOne({ method: 'PUT', url: '/api/v1/readings/9' }));
+  });
+
+  it('edits the reading asked for in the address, even a finished one, and goes back to the book', async () => {
+    const { http } = await open({ readings: [FINISHED], sessions: [], leitura: 8 });
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Editar leitura' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Início')).toHaveValue('2025-01-02');
+    expect(screen.getByLabelText('Fim')).toHaveValue('2025-02-10');
+    expect(screen.queryByRole('checkbox', { name: 'Terminei este livro' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Este livro não está sendo lido' }),
+    ).not.toBeInTheDocument();
+
+    const end = screen.getByLabelText('Fim');
+    await userEvent.clear(end);
+    await userEvent.type(end, '2025-02-12');
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar período' }));
+
+    const request = http.expectOne({ method: 'PUT', url: '/api/v1/readings/8' });
+    expect(body(request)).toEqual({
+      startDate: '2025-01-02',
+      endDate: '2025-02-12',
+      reread: false,
+    });
+    request.flush({ ...FINISHED, endDate: '2025-02-12' });
+
+    await vi.waitFor(() => expect(TestBed.inject(Router).url).toBe('/livro/42'));
+  });
+
+  it('follows the reading in progress when the one in the address does not exist', async () => {
+    await open({ readings: [READING], leitura: 99 });
+
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Registrar leitura' }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('Início')).toHaveValue('2026-11-05');
   });
 
   it('changes book in the selector', async () => {

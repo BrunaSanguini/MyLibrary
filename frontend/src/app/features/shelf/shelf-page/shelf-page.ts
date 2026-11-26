@@ -157,7 +157,7 @@ export default class ShelfPage {
     },
   ]);
 
-  /** `26 livros que moram neste computador · 15 lidos`, or the size of the wishlist. */
+  /** `26 livros · 15 lidos`, or the size of the wishlist. */
   protected readonly lead = computed(() => {
     const summary = this.summary.value();
     if (!summary) {
@@ -168,9 +168,9 @@ export default class ShelfPage {
         ? '1 livro que você quer ter'
         : `${summary.wishlist} livros que você quer ter`;
     }
-    const books = summary.shelf === 1 ? '1 livro que mora' : `${summary.shelf} livros que moram`;
+    const books = summary.shelf === 1 ? '1 livro' : `${summary.shelf} livros`;
     const read = summary.read === 1 ? '1 lido' : `${summary.read} lidos`;
-    return `${books} neste computador · ${read}`;
+    return `${books} · ${read}`;
   });
 
   /** `Mostrando 13–24 de 26 livros`, or `0 livros`. */

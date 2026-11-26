@@ -107,7 +107,7 @@ describe('ShelfPage', () => {
     await openShelf('/estante');
 
     expect(screen.getByRole('heading', { name: 'Minha Estante', level: 1 })).toBeInTheDocument();
-    expect(screen.getByText('26 livros que moram neste computador · 15 lidos')).toBeInTheDocument();
+    expect(screen.getByText('26 livros · 15 lidos')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /A Sociedade do Anel/ })).toHaveAttribute(
       'href',
       '/livro/42',
